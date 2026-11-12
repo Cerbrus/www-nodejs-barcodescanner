@@ -43,6 +43,8 @@ Status 2026-11-12: passed. `apps/hardware-agent/` runs on the Pi in an unprivile
 
 Done when: a trivial change pushed to `master` is live on the Pi within minutes without touching the Pi, and the site opens over HTTPS behind the login.
 
+Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh` ran on the Pi; app (healthy, about 85 MB) and hardware agent run from the published images; the update timer is active. Lint on pull requests is postponed to milestone 4, when the frontend leftovers are gone. Still open: the proxy host in Nginx Proxy Manager and the firewall rule for port 3020.
+
 ### 3. Backend core
 
 - Done in milestone 2: TypeORM on SQLite at `/data/app.db`; CQRS, mappers, repositories, the exception-filter stack and the PostgreSQL entities and migration removed.
