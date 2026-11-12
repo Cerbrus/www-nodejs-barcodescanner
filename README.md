@@ -6,7 +6,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 
 - **Scan to list**: a known barcode puts its product on the list, or counts the quantity up. A second read within 1 second is ignored.
 - **Name once**: an unknown barcode waits in an inbox. Albert Heijn and Open Food Facts are asked what it is, the user picks or creates the product once, and every later scan is automatic.
-- **Shopping list**: tiles grouped by shop section, with icon, quantity and note. Tap to check off, tap a recent item to put it back, search to add by hand.
+- **Shopping list**: tiles grouped by shop section, with icon, quantity and note. Tap to check off, tap a recent item to put it back, search to add by hand, remove what should not come back.
 - **Phone**: camera scanning, installable on the home screen, light and dark theme, Dutch and English, push notification when the handheld scanner reads something unknown.
 - **Sound**: a buzzer at the scanner beeps the result of each scan; which sound for which result is chosen in the app.
 - **Oversight**: scan history with undo, a live system log, and a page per product with its barcodes.
@@ -43,8 +43,8 @@ yarn install
 yarn product-api:serve                # API on port 3020
 yarn product-front:serve              # web app on port 4200, talks to the API on 3020
 yarn lint:all
-yarn product-api:test                 # scan rules
-yarn product-api:test:integration     # real modules against a temporary SQLite file
+yarn product-api:test                 # scan rules and session signing
+yarn product-api:test:integration     # real modules against a temporary SQLite file, and the login guard over HTTP
 ```
 
 The API keeps its data in a SQLite file, `data/app.db` by default (`DATABASE_PATH` overrides it). It is created and seeded from `data/seed-items.json` on first start and is not committed. `GET /api/v1/health` reports the status and the running version (`dev` locally; builds of `master` get a version such as `1.0.20`, see docs/deployment.md).

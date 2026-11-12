@@ -46,10 +46,11 @@ Consequences:
 |-- backup.sh             # database backup to the private repository
 |-- backup_key(.pub)      # SSH key that only reaches the backup repository
 |-- backup/               # working copy of the backup repository
-|-- .env                  # local settings, never overwritten
+|-- .env                  # local settings and secrets, never overwritten, readable by root only
 `-- data/                 # owned by user 1000
     |-- app.db            # SQLite database
     |-- push-keys.json    # key pair for notifications
+    |-- session-secret    # signs the login cookies
     `-- logs/app.log      # log file with its rotated files
 ```
 
@@ -99,6 +100,8 @@ Every build of `master` gets a version `major.minor.patch`, for example `1.0.20`
 - `patch` is the number of commits since `major.minor` last changed, so it rises with every push without anyone doing anything, and the same commit always gets the same number. The commit that raises `major.minor` is patch 0: `1.0.56`, then `1.1.0`, `1.1.1`, and so on.
 - A new minor or major release is therefore one edit: change `version` in `package.json` to `1.1.0` or `2.0.0` and push. The third number in that file is not used.
 - After the images are published, the workflow puts the git tag `v<version>` on the commit, so a version on the System page leads back to its code.
+
+Where to find the version of a build: on the System page, in the health endpoint, and in GitHub Actions. A run's title there is the commit message, which GitHub fixes before the version is known; the version is in the job names ("app image 1.0.15", "tag v1.0.15") and in the summary at the top of the run page. The tags page of the repository lists every version with its commit.
 
 A local run without the build arguments reports version `dev`.
 
@@ -186,6 +189,8 @@ sudo sqlite3 data/app.db < /tmp/restore/app.sql
 sudo chown 1000:1000 data/app.db
 sudo docker compose up -d
 ```
+
+The backup holds the database only. On a new card also fill in `.env` again: scanner device, proxy address, backup repository, the Google client id and secret, `PUBLIC_URL`, `ALLOWED_EMAILS`, the buzzer settings. The app makes new keys in `data/`, so everyone logs in once more and each device turns notifications off and on again.
 
 Clone with your own GitHub login, or add the new Pi's `backup_key.pub` as deploy key first and remove the old one. For an older state, check out an earlier commit of the backup repository before loading `app.sql`. The dump includes the migration table, so a newer app version migrates it forward at start.
 

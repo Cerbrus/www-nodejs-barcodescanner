@@ -46,7 +46,7 @@ Result: a push to `master` reaches the Pi by itself, typically within ten minute
 - Albert Heijn and Open Food Facts connectors behind one interface.
 - Server-sent events; the hardware agent posts scans and its log lines.
 
-Tests: 9 for the scan rules (`yarn product-api:test`) and 6 that run the real modules against a temporary SQLite file (`yarn product-api:test:integration`). Not covered by tests: the connectors' calls to the outside world, the HTTP layer, push sending. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
+Tests on 2026-11-13: 17 unit tests for the scan rules and session signing (`yarn product-api:test`), and 17 that run the real thing (`yarn product-api:test:integration`): 8 for the modules against a temporary SQLite file and 9 that call the login guard over HTTP. Not covered by tests: the connectors' calls to the outside world, the HTTP layer of the other routes, push sending, the web app. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
 
 ### 4. Frontend: done 2026-11-12 19:09
 
@@ -62,6 +62,7 @@ Reworked after two rounds of the user's feedback on iPhone and laptop:
 - System page: language, light and dark, notifications, status.
 - App icon and name for the home screen, web app manifest, a console banner with debugging details.
 - The page reconnects by itself after an update or a network drop and reloads its data.
+- Minus at quantity 1 moves a product to recent; recent tiles have a menu to put it on the list, edit the product or remove it from recent. Logout is red and asks first.
 
 Open question: the page once froze on the iPhone after an unknown camera scan. The likely cause, the camera decoding behind the dialog, is removed; it has not happened since, but it was never reproduced either.
 
@@ -101,8 +102,10 @@ Done when: naming a typical new barcode takes one or two taps.
 
 ## Never tested
 
-- `install.sh` on a fresh Pi since the firewall, backup and notification additions. The same steps were done by hand on the running Pi.
+- `install.sh` on a fresh Pi since the firewall, backup, notification, buzzer and login additions (agent token, GPIO device). The same steps were done by hand on the running Pi.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - Rollback with `IMAGE_TAG`.
 - A reboot with the firewall service since it was added.
 - Push notifications on anything but the iPhone (Android, desktop browsers), which take the service worker path.
+- Login inside the installed iPhone app, and a handheld scan with login on. The agent was seen fetching its settings with its token, which uses the same check.
+- The version in the workflow's job names and run summary, until the first run after 2026-11-13.
