@@ -36,6 +36,7 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `list` | List entries: to buy, recent, quantity, note |
 | `connectors` | Product lookup behind one interface |
 | `events` | Server-sent events to open pages |
+| `log` | Planned: keeps the last few hundred log lines in memory, from the app itself and from the hardware agent, which posts its own lines. `GET /api/v1/logs` returns them; new lines go out as `log` events |
 
 Frontend pages: list, scan (camera), inbox with naming prompt, catalog, a management page per catalog item with its barcodes, history.
 

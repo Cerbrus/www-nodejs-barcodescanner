@@ -78,6 +78,10 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). It is also the debugging view.
 
+### UC-11 Scanner and system log
+
+A page shows a live log of what the system is doing, in a monospaced, terminal-like view: scanner connected or lost, every raw read with its result, connector lookups and failures, start-up and seed messages, and the version that is running. New lines appear as they happen; the page starts with the most recent few hundred lines. It answers "did my scan arrive, and what happened to it" without SSH.
+
 ### UC-10 Hands-off updates
 
 1. A change is pushed to `master`.

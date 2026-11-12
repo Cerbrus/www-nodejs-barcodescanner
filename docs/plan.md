@@ -55,7 +55,7 @@ Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh
 - Unit tests for the scan rules; they are the heart of the product.
 - Hardware agent posts scans to the API.
 
-Status 2026-11-12: built. Modules `scan`, `catalog`, `list`, `connectors`, `events`; first migration; seed import on an empty database; Albert Heijn and Open Food Facts connectors; the hardware agent posts scans. Tests: 9 for the scan rules (`yarn product-api:test`) and 6 that run the real modules against a temporary SQLite file (`yarn product-api:test:integration`). Not covered by tests: the connectors' calls to the outside world and the HTTP layer.
+Status 2026-11-12: built. Modules `scan`, `catalog`, `list`, `connectors`, `events`; first migration; seed import on an empty database; Albert Heijn and Open Food Facts connectors; the hardware agent posts scans. Tests: 9 for the scan rules (`yarn product-api:test`) and 6 that run the real modules against a temporary SQLite file (`yarn product-api:test:integration`). Not covered by tests: the connectors' calls to the outside world and the HTTP layer. Verified by hand on the Pi instead: handheld scans reached the inbox, both connectors returned suggestions, mapping two barcodes applied their waiting scans to the list, and undo took the last one back.
 
 Done when: a handheld scan of a mapped barcode changes the list in the database, an unmapped one lands in the inbox with suggestions, and undo reverses the last scan. Checked with `curl` and the tests.
 
@@ -67,6 +67,7 @@ Done when: a handheld scan of a mapped barcode changes the list in the database,
 - Scan page with the phone camera, continuous mode, undo toast. Test the decoder on the real phone first.
 - Catalog page, and a management page per catalog item listing its barcodes as drawn, scannable images (UC-6). Extend the barcode component to 8-digit codes.
 - History page.
+- Log page (UC-11): terminal-like, monospaced, live. Needs the `log` module in the API and the hardware agent posting its log lines.
 - Signals and `@for`/`@empty` as in the code style; Dutch and English texts.
 
 Done when: every use case in [use-cases.md](use-cases.md) except offline use and sound works on the phone through the proxy.
