@@ -27,7 +27,7 @@ How the product is built today. What is still open is in [plan.md](plan.md).
 | Container | Content | Notes |
 |---|---|---|
 | `app` | NestJS serving `/api/v1/...` and the built Angular app | SQLite at `/data/app.db` on a volume. Icons and the seed file ship inside the image at `/app/data/`. Runs migrations at start. |
-| `hardware-agent` | Python, one file | Reads the scanner, posts scans and its own log lines to `app` over the compose network. Retries while the app is starting. Sound feedback from the scan result is planned, not built. |
+| `hardware-agent` | Python, one file | Reads the scanner, posts scans and its own log lines to `app` over the compose network. Retries while the app is starting. Beeps a buzzer on a GPIO pin according to the scan result, when one is configured. |
 
 ## App layout
 
@@ -168,7 +168,21 @@ Web push, so it works with the app closed. The frontend registers a small servic
 
 ## Feedback at the scanner
 
-Not built. The plan: the hardware agent maps a scan result to a signal, `added` and `incremented` to OK, `needs_name` to attention, an error or no response to error, on a pluggable output (the scanner's own beeper, a buzzer or a speaker). Until then the feedback is the toast on open pages and the notification on the phone.
+Built, not yet tried with a real buzzer. The hardware agent turns the result of each scan into a signal on a buzzer connected to a GPIO pin of the Pi:
+
+| Result | Signal | Passive buzzer |
+|---|---|---|
+| `added` | one short beep | high |
+| `incremented` | two short beeps | high |
+| `needs_name` | one long beep | low |
+| scan not delivered or rejected | three short beeps | low |
+| `ignored` | none | |
+
+- `FEEDBACK_OUTPUT` picks the output: `none` (default) or `buzzer`. More outputs, such as a speaker, would be another class next to `Buzzer`.
+- An active buzzer is switched on and off. A passive one gets a square wave made in software, good enough for a beep, which is what gives it two pitches.
+- The pin is driven through the kernel's GPIO character device (`/dev/gpiochip0`) with `libgpiod`; the container gets that one device and stays unprivileged.
+- Signals play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
+- `python3 agent.py --test-feedback` plays every signal once.
 
 ## Backup
 

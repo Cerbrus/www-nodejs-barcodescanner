@@ -80,7 +80,7 @@ The updater, `deployment/update.sh`, fetches the current `docker-compose.yml`, i
 `deployment/docker-compose.yml` is the source. In short:
 
 - `app`: port `${APP_PORT:-3020}`, volume `./data:/data`, runs as user 1000, memory limit 256 MB. The image carries its own health check on `/api/v1/health`.
-- `hardware-agent`: `/dev/input` mounted read-only, device rule `c 13:* rmw`, memory limit 64 MB, not privileged.
+- `hardware-agent`: `/dev/input` mounted read-only, device rule `c 13:* rmw`, the GPIO device `/dev/gpiochip0` for the buzzer, memory limit 64 MB, not privileged.
 
 ## Images
 
@@ -111,9 +111,13 @@ A local run without the build arguments reports version `dev`.
 | `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
 | `BACKUP_REPO` | SSH address of the private backup repository. Empty switches the backup off. |
+| `FEEDBACK_OUTPUT` | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below |
+| `BUZZER_PIN` | GPIO number of the buzzer pin, default `18` |
+| `BUZZER_TYPE` | `active` (default) or `passive` |
+| `BUZZER_ACTIVE_LOW` | `true` for modules that sound when the pin is low, default `false` |
 | `PUSH_SUBJECT` | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses. |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. Sound feedback, when built, adds a setting for its output.
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. 
 
 ## Reverse proxy (Nginx Proxy Manager)
 
@@ -180,6 +184,25 @@ sudo docker compose up -d
 ```
 
 Clone with your own GitHub login, or add the new Pi's `backup_key.pub` as deploy key first and remove the old one. For an older state, check out an earlier commit of the backup repository before loading `app.sql`. The dump includes the migration table, so a newer app version migrates it forward at start.
+
+## Buzzer
+
+Optional sound at the scanner. Connect with the Pi switched off:
+
+- Bare buzzer with two legs: long leg (+) to GPIO 18, which is physical pin 12; short leg to ground, physical pin 14 next to it. Peel off the sticker; it only protects the opening during soldering.
+- Module with three pins: `VCC` to 3.3 V (physical pin 1), `GND` to physical pin 14, `I/O` to GPIO 18.
+- GPIO 14 is taken by the fan. Any other free GPIO works; set `BUZZER_PIN` to its GPIO number, not the physical pin number.
+
+Which kind: held between 3.3 V and ground, an active buzzer gives a steady tone and a passive one a single click.
+
+Then set `FEEDBACK_OUTPUT=buzzer` and `BUZZER_TYPE` in `.env`, restart with `sudo docker compose up -d`, and play every signal once:
+
+```bash
+cd /opt/barcodescanner
+sudo docker compose exec hardware-agent python3 agent.py --test-feedback
+```
+
+A module that beeps all the time except during a signal needs `BUZZER_ACTIVE_LOW=true`. The signals are listed in [architecture.md](architecture.md).
 
 ## Notifications
 

@@ -17,7 +17,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 |---|---|---|
 | API | `apps/product-api/` | NestJS, TypeORM, SQLite |
 | Web app | `apps/product-front/` | Angular 20, TailwindCSS |
-| Hardware agent | `apps/hardware-agent/` | Python, evdev |
+| Hardware agent | `apps/hardware-agent/` | Python, evdev, libgpiod |
 | Deployment | `deployment/` | Docker Compose, systemd timers, shell scripts |
 | Seed data and icons | `data/` | `seed-items.json`, `icons/*.png` |
 

@@ -19,7 +19,7 @@ Outcome of the feature review on 2026-11-12, with later decisions added below. C
 | 11 | Left out | Store and price data, multiple lists, user accounts, live sync between several phones. | Not needed for a single user. |
 | 12 | Phone scan flow | Continuous scanning with undo toast. | Fastest when clearing several packages. |
 | 13 | Offline | Online first with an offline banner; the page reconnects and reloads by itself. Offline support is a later milestone. | Sync is the largest single piece of work. |
-| 14 | Sound feedback | Pluggable output in the hardware agent, starting with "none". Hardware to be decided. | No speaker or buzzer on the Pi yet. GPIO 14 is taken by the fan. |
+| 14 | Sound feedback | Pluggable output in the hardware agent, `none` by default. First output: a buzzer on a GPIO pin (decided 2026-11-12, the user had one). The scanner's own beeper stays the preferred option if Tera documents it. | Costs nothing and needs no USB port. GPIO 14 is taken by the fan, so the buzzer goes on GPIO 18. |
 
 ## Platform
 

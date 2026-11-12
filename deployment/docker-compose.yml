@@ -17,6 +17,8 @@ services:
             - app
         volumes:
             - /dev/input:/dev/input:ro
+        devices:
+            - /dev/gpiochip0
         device_cgroup_rules:
             - 'c 13:* rmw'
         env_file: .env

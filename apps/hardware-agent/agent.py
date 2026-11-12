@@ -3,6 +3,7 @@ import logging
 import os
 import queue
 import select
+import sys
 import threading
 import time
 import urllib.error
@@ -10,7 +11,7 @@ import urllib.request
 
 from evdev import InputDevice, ecodes
 
-DEVICE_PATH = os.environ['SCANNER_DEVICE']
+DEVICE_PATH = os.environ.get('SCANNER_DEVICE', '')
 API_BASE = os.environ.get('API_BASE', 'http://app:3020/api/v1')
 RETRY_SECONDS = 2
 API_TIMEOUT_SECONDS = 5
@@ -27,6 +28,21 @@ MODIFIER_KEYS = {ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT, ecodes.KEY_LEFTCTR
                  ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT, ecodes.KEY_CAPSLOCK, ecodes.KEY_NUMLOCK}
 KEY_DOWN = 1
 IDLE_SECONDS = 0.3
+
+FEEDBACK_OUTPUT = os.environ.get('FEEDBACK_OUTPUT', 'none').lower() or 'none'
+GPIO_CHIP = os.environ.get('GPIO_CHIP') or '/dev/gpiochip0'
+BUZZER_PIN = int(os.environ.get('BUZZER_PIN') or 18)
+BUZZER_TYPE = (os.environ.get('BUZZER_TYPE') or 'active').lower()
+BUZZER_ACTIVE_LOW = (os.environ.get('BUZZER_ACTIVE_LOW') or 'false').lower() in ('1', 'true', 'yes')
+FEEDBACK_QUEUE_SIZE = 4
+HIGH_TONE_HZ = 2400
+LOW_TONE_HZ = 900
+SIGNALS = {
+    'added': [(HIGH_TONE_HZ, 0.08, 0)],
+    'incremented': [(HIGH_TONE_HZ, 0.06, 0.07), (HIGH_TONE_HZ, 0.06, 0)],
+    'needs_name': [(LOW_TONE_HZ, 0.45, 0)],
+    'error': [(LOW_TONE_HZ, 0.08, 0.07), (LOW_TONE_HZ, 0.08, 0.07), (LOW_TONE_HZ, 0.08, 0)],
+}
 
 logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO').upper(),
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -96,25 +112,107 @@ def read_scans(device):
                 other_keys += 1
 
 
+class Buzzer:
+    def __init__(self):
+        import gpiod
+        from gpiod.line import Direction, Value
+
+        self.on, self.off = Value.ACTIVE, Value.INACTIVE
+        self.lines = gpiod.request_lines(GPIO_CHIP, consumer='barcodescanner', config={
+            BUZZER_PIN: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=self.off,
+                                           active_low=BUZZER_ACTIVE_LOW),
+        })
+
+    def play(self, beeps):
+        for frequency, on_seconds, off_seconds in beeps:
+            if BUZZER_TYPE == 'passive':
+                self.tone(frequency, on_seconds)
+            else:
+                self.lines.set_value(BUZZER_PIN, self.on)
+                time.sleep(on_seconds)
+            self.lines.set_value(BUZZER_PIN, self.off)
+            time.sleep(off_seconds)
+
+    def tone(self, frequency, seconds):
+        half_period = 1 / (2 * frequency)
+        end = time.perf_counter() + seconds
+        level = self.on
+        while time.perf_counter() < end:
+            self.lines.set_value(BUZZER_PIN, level)
+            level = self.off if level == self.on else self.on
+            flip_at = time.perf_counter() + half_period
+            while time.perf_counter() < flip_at:
+                pass
+
+
+class Feedback:
+    def __init__(self):
+        self.output = None
+        self.signals = queue.Queue(maxsize=FEEDBACK_QUEUE_SIZE)
+        if FEEDBACK_OUTPUT == 'none':
+            return
+        if FEEDBACK_OUTPUT != 'buzzer':
+            log.warning('unknown FEEDBACK_OUTPUT "%s", feedback is off', FEEDBACK_OUTPUT)
+            return
+
+        try:
+            self.output = Buzzer()
+        except Exception as error:
+            log.warning('buzzer on %s pin %d not available (%s), feedback is off', GPIO_CHIP, BUZZER_PIN, error)
+            return
+
+        log.info('feedback: %s buzzer on GPIO %d%s', BUZZER_TYPE, BUZZER_PIN, ', active low' if BUZZER_ACTIVE_LOW else '')
+        threading.Thread(target=self.work, daemon=True).start()
+
+    def signal(self, name):
+        if not self.output or name not in SIGNALS:
+            return
+        try:
+            self.signals.put_nowait(name)
+        except queue.Full:
+            pass
+
+    def work(self):
+        while True:
+            name = self.signals.get()
+            try:
+                self.output.play(SIGNALS[name])
+            except Exception as error:
+                log.warning('feedback signal %s failed: %s', name, error)
+
+    def demonstrate(self):
+        if not self.output:
+            print('feedback is off or not available; check FEEDBACK_OUTPUT and the log lines above')
+            return
+        for name, beeps in SIGNALS.items():
+            print(name)
+            self.output.play(beeps)
+            time.sleep(1)
+
+
 def post_scan(code):
     with post_json('/scans', {'code': code, 'source': 'handheld'}) as response:
         return json.load(response)
 
 
-def handle_scan(code):
+def handle_scan(code, feedback):
     try:
         outcome = post_scan(code)
     except urllib.error.HTTPError as error:
         log.warning('scan %s rejected by the API: %s %s', code, error.code, error.read().decode(errors='replace'))
+        feedback.signal('error')
         return
     except (urllib.error.URLError, OSError, ValueError) as error:
         log.warning('scan %s not delivered: %s', code, error)
+        feedback.signal('error')
         return
 
+    feedback.signal(outcome.get('result'))
     log.info('scan %s: %s %s', code, outcome.get('result'), outcome.get('itemName') or '')
 
 
 def run():
+    feedback = Feedback()
     waiting_logged = False
     while True:
         try:
@@ -131,7 +229,7 @@ def run():
         log.info('scanner connected: %s (%s)', device.name, DEVICE_PATH)
         try:
             for code in read_scans(device):
-                handle_scan(code)
+                handle_scan(code, feedback)
         except OSError as error:
             log.warning('scanner disconnected (%s)', error)
         finally:
@@ -142,4 +240,7 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    if '--test-feedback' in sys.argv:
+        Feedback().demonstrate()
+    else:
+        run()
