@@ -29,6 +29,14 @@ else
     echo "    already installed"
 fi
 
+echo "==> Backup tools"
+if ! command -v git >/dev/null || ! command -v sqlite3 >/dev/null; then
+    apt-get update
+    apt-get install -y git sqlite3
+else
+    echo "    already installed"
+fi
+
 echo "==> Memory limits"
 REBOOT_NEEDED=0
 if [ -f "$CMDLINE" ] && ! grep -q "cgroup_enable=memory" "$CMDLINE"; then
@@ -43,7 +51,7 @@ fi
 echo "==> $APP_DIR"
 mkdir -p "$APP_DIR/data"
 chown -R "$DATA_OWNER" "$APP_DIR/data"
-for script in update.sh firewall.sh; do
+for script in update.sh firewall.sh backup.sh; do
     curl -fsSL -o "$APP_DIR/$script" "$REPO_RAW/$script"
     chmod +x "$APP_DIR/$script"
 done
@@ -58,6 +66,15 @@ if [ ! -f "$APP_DIR/.env" ]; then
     fi
 else
     echo "    keeping existing .env"
+fi
+
+echo "==> Backup key"
+if [ ! -f "$APP_DIR/backup_key" ]; then
+    ssh-keygen -q -t ed25519 -N '' -C "barcodescanner backup on $(hostname)" -f "$APP_DIR/backup_key"
+    echo "    created; add this as a deploy key with write access to the private backup repository:"
+    echo "    $(cat "$APP_DIR/backup_key.pub")"
+else
+    echo "    keeping existing key"
 fi
 
 echo "==> Update timer"
@@ -99,7 +116,32 @@ ExecStart=$APP_DIR/firewall.sh
 WantedBy=multi-user.target
 EOF
 
+cat > /etc/systemd/system/barcodescanner-backup.service <<EOF
+[Unit]
+Description=Back up the barcode scanner database
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=$APP_DIR/backup.sh
+EOF
+
+cat > /etc/systemd/system/barcodescanner-backup.timer <<EOF
+[Unit]
+Description=Back up the barcode scanner database every hour
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
 systemctl daemon-reload
+systemctl enable --now barcodescanner-backup.timer
 systemctl enable --now barcodescanner-update.timer
 systemctl enable barcodescanner-firewall.service
 systemctl start barcodescanner-firewall.service || echo "    firewall rule failed: journalctl -u barcodescanner-firewall"

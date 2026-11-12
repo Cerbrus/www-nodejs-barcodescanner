@@ -87,6 +87,8 @@ A `checks` job runs first: lint for both apps and the API tests. Images are only
 | `APP_PORT` | Host port of the web app and API, default `3020` |
 | `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
+| `BACKUP_REPO` | SSH address of the private backup repository. Empty switches the backup off. |
+| `PUSH_SUBJECT` | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses. |
 
 Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. A later milestone adds a setting for feedback output.
 
@@ -114,8 +116,52 @@ location /api/v1/events {
 - **Update**: push to `master`; the Pi follows within about 5 minutes plus build time.
 - **Check**: `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
 - **Rollback**: set `IMAGE_TAG=<commit hash>` in `.env` and run the updater. Database migrations only go forward, so restore the database backup when rolling back past a migration.
-- **Backup**: copy `/opt/barcodescanner/data/`. It holds the database and `logs/app.log` with its rotated files.
+- **Backup**: see the next section. The log files are not backed up.
 - **Logs**: the System page shows the live log; the same lines are in `/opt/barcodescanner/data/logs/app.log` (JSON lines, rotated at 256 KB, three old files kept).
+
+## Database backup
+
+The database is the only state that cannot be rebuilt: the links between barcodes and products, your own products, the list and the scan history. `deployment/backup.sh` writes it as SQL text and pushes it to a private git repository, so a dead SD card costs at most an hour of changes.
+
+How it works:
+
+- `barcodescanner-backup.timer` runs `backup.sh` every hour, and once after boot when a run was missed.
+- The script first compares the database file's modification time with its last run and stops when nothing was written since. Otherwise it reads the database read-only with `sqlite3 .dump` while the app keeps running, writes `backup/app.sql`, and commits and pushes only when the content changed. A failed push is retried on the next run.
+- The repository's history is the retention: every change is a commit, and `git log -p app.sql` shows what changed.
+- It pushes with its own SSH key, `/opt/barcodescanner/backup_key`, which is a deploy key of the backup repository only. Nothing else on the Pi and no other repository can be reached with it.
+- The backup repository must be private. This repository and the images stay free of data and keys.
+
+One-time setup:
+
+1. Create an empty private repository, for example `barcodescanner-backup`.
+2. `install.sh` creates the key and prints the public half. Add it to the backup repository under Settings, Deploy keys, with write access. With the GitHub CLI: `gh repo deploy-key add backup_key.pub --repo <account>/barcodescanner-backup --allow-write --title "server pi"`.
+3. Set `BACKUP_REPO=git@github.com:<account>/barcodescanner-backup.git` in `/opt/barcodescanner/.env`.
+4. Run it once: `sudo systemctl start barcodescanner-backup.service`, then `journalctl -u barcodescanner-backup -n 20`.
+
+Check: `systemctl list-timers barcodescanner-backup.timer` and the commit list of the backup repository.
+
+Restore, on a new or repaired Pi after `install.sh`:
+
+```bash
+cd /opt/barcodescanner
+sudo docker compose stop app
+git clone git@github.com:<account>/barcodescanner-backup.git /tmp/restore
+sudo rm -f data/app.db data/app.db-wal data/app.db-shm
+sudo sqlite3 data/app.db < /tmp/restore/app.sql
+sudo chown 1000:1000 data/app.db
+sudo docker compose up -d
+```
+
+Clone with your own GitHub login, or add the new Pi's `backup_key.pub` as deploy key first and remove the old one. For an older state, check out an earlier commit of the backup repository before loading `app.sql`. The dump includes the migration table, so a newer app version migrates it forward at start.
+
+## Notifications
+
+Nothing to install: the app creates its key pair in `/opt/barcodescanner/data/push-keys.json` on first use and each device subscribes from the System page. The Pi needs outgoing internet access only.
+
+- Set `PUSH_SUBJECT` in `.env` and restart the app (`sudo docker compose up -d`).
+- The proxy must serve `/sw.js` like any other file; no extra configuration.
+- Check: the test button on the System page, and the system log, which records every send and the push service's answer when one fails.
+- The key file is not in the backup. After a restore on a new card the app makes a new pair, and each device turns notifications off and on again once.
 
 ## Icon set
 

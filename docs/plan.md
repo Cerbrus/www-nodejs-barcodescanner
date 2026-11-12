@@ -87,7 +87,7 @@ Done when: naming a typical new barcode takes one or two taps.
 ### 6. Daily-use hardening
 
 - Use it for two weeks and fix what annoys.
-- Logging that makes sense in `docker compose logs`; database backup before migrations.
+- Logging that makes sense in `docker compose logs`; database backup before migrations (hourly backup to a private repository is in place, see `deployment.md`).
 - Connector failures visible on the history page.
 
 ### 7. Sound feedback
@@ -95,6 +95,8 @@ Done when: naming a typical new barcode takes one or two taps.
 - Preferred, if possible: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12.
 - Otherwise: choose hardware (USB speaker or GPIO buzzer on a free pin).
 - Implement the chosen output in the hardware agent; give the container access to the vendor HID interface, the audio device or GPIO.
+
+Status 2026-11-12: push notifications for unknown handheld scans are built (UC-12) and cover part of the feedback need on the phone. Not yet tried on a real phone. Sound at the scanner itself is still open.
 
 ### 8. Offline shopping
 

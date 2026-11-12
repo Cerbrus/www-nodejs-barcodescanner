@@ -14,15 +14,23 @@ import { SheetComponent } from '../sheet/sheet.component';
     template: `
         <app-sheet (closed)="closed.emit()">
             <h2 class="page-title">{{ 'icons.title' | translate }}</h2>
-            <input
-                class="field"
-                type="search"
-                autocomplete="off"
-                autocapitalize="off"
-                [placeholder]="'icons.search' | translate"
-                [ngModel]="search()"
-                (ngModelChange)="search.set($event)"
-            />
+            <div class="clearable">
+                <input
+                    #field
+                    class="field"
+                    type="search"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    [placeholder]="'icons.search' | translate"
+                    [ngModel]="search()"
+                    (ngModelChange)="search.set($event)"
+                />
+                @if (search()) {
+                    <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="search.set(''); field.focus()">
+                        <i class="material-symbols-outlined">close</i>
+                    </button>
+                }
+            </div>
 
             <div class="grid">
                 <button type="button" class="icon none" [class.selected]="!selected()" (click)="picked.emit('')">

@@ -15,20 +15,28 @@ const MAX_OPTIONS = 8;
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="wrap">
-            <input
-                class="field"
-                type="search"
-                autocomplete="off"
-                autocapitalize="sentences"
-                role="combobox"
-                [attr.aria-expanded]="open()"
-                [placeholder]="placeholder()"
-                [ngModel]="text()"
-                (ngModelChange)="text.set($event); focused.set(true)"
-                (focus)="focused.set(true)"
-                (keydown.enter)="$event.preventDefault(); pickFirst()"
-                (keydown.escape)="focused.set(false)"
-            />
+            <div class="clearable">
+                <input
+                    #field
+                    class="field"
+                    type="search"
+                    autocomplete="off"
+                    autocapitalize="sentences"
+                    role="combobox"
+                    [attr.aria-expanded]="open()"
+                    [placeholder]="placeholder()"
+                    [ngModel]="text()"
+                    (ngModelChange)="text.set($event); focused.set(true)"
+                    (focus)="focused.set(true)"
+                    (keydown.enter)="$event.preventDefault(); pickFirst()"
+                    (keydown.escape)="focused.set(false)"
+                />
+                @if (text()) {
+                    <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="text.set(''); field.focus()">
+                        <i class="material-symbols-outlined">close</i>
+                    </button>
+                }
+            </div>
             @if (open()) {
                 <div class="options" role="listbox">
                     @for (item of options(); track item.id) {

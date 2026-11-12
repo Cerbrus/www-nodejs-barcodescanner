@@ -1,12 +1,20 @@
 <div class="page">
-    <input
-        class="field"
-        type="search"
-        autocomplete="off"
-        [placeholder]="'list.searchPlaceholder' | translate"
-        [ngModel]="search()"
-        (ngModelChange)="search.set($event)"
-    />
+    <div class="clearable">
+        <input
+            #field
+            class="field"
+            type="search"
+            autocomplete="off"
+            [placeholder]="'list.searchPlaceholder' | translate"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+        />
+        @if (search()) {
+            <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="search.set(''); field.focus()">
+                <i class="material-symbols-outlined">close</i>
+            </button>
+        }
+    </div>
 
     @if (search().trim()) {
         <h2 class="section-title">{{ 'list.addFromCatalog' | translate }}</h2>

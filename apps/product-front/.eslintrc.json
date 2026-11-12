@@ -4,7 +4,8 @@
     ],
     "ignorePatterns": [
         "!**/*",
-        "*.config.js"
+        "*.config.js",
+        "src/sw.js"
     ],
     "overrides": [
         {

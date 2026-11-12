@@ -15,14 +15,22 @@ import { ShoppingStore } from '../../services/shopping.store';
     template: `
         <div class="page">
             <h1 class="page-title">{{ 'catalog.title' | translate }}</h1>
-            <input
-                class="field"
-                type="search"
-                autocomplete="off"
-                [placeholder]="'catalog.searchPlaceholder' | translate"
-                [ngModel]="search()"
-                (ngModelChange)="search.set($event)"
-            />
+            <div class="clearable">
+                <input
+                    #field
+                    class="field"
+                    type="search"
+                    autocomplete="off"
+                    [placeholder]="'catalog.searchPlaceholder' | translate"
+                    [ngModel]="search()"
+                    (ngModelChange)="search.set($event)"
+                />
+                @if (search()) {
+                    <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="search.set(''); field.focus()">
+                        <i class="material-symbols-outlined">close</i>
+                    </button>
+                }
+            </div>
 
             <div class="mt-3 flex flex-col gap-2">
                 @for (group of groups(); track group.section.id) {

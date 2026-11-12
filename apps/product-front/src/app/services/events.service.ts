@@ -11,6 +11,8 @@ interface AppEvent {
 }
 
 const EVENT_TYPES: Array<AppEventType> = ['scan', 'list', 'barcode', 'catalog', 'log'];
+const RETRY_MILLISECONDS = 3000;
+const SILENCE_LIMIT_MILLISECONDS = 40000;
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -18,10 +20,21 @@ export class EventsService {
 
     private readonly api = inject(ApiService);
     private readonly events$ = new Subject<AppEvent>();
+    private readonly resumed$ = new Subject<void>();
     private source?: EventSource;
+    private retryTimer?: ReturnType<typeof setTimeout>;
+    private started = false;
+    private openedBefore = false;
+    private lastActivity = 0;
+
+    public get resumed(): Observable<void> {
+        this.start();
+
+        return this.resumed$.asObservable();
+    }
 
     public on<T>(...types: Array<AppEventType>): Observable<T> {
-        this.connect();
+        this.start();
 
         return this.events$.pipe(
             filter((event) => types.includes(event.type)),
@@ -29,20 +42,65 @@ export class EventsService {
         );
     }
 
-    private connect(): void {
-        if (this.source) {
+    private start(): void {
+        if (this.started) {
             return;
         }
 
-        this.source = new EventSource(`${this.api.baseUrl}/events`);
-        this.source.onopen = (): void => this.connected.set(true);
-        this.source.onerror = (): void => this.connected.set(false);
-        this.source.addEventListener('ping', () => this.connected.set(true));
+        this.started = true;
+        this.connect();
+        document.addEventListener('visibilitychange', () => this.onVisibilityChange());
+        window.addEventListener('online', () => this.reconnect());
+    }
+
+    private connect(): void {
+        clearTimeout(this.retryTimer);
+        const source = new EventSource(`${this.api.baseUrl}/events`);
+        this.source = source;
+
+        source.onopen = (): void => {
+            this.markActive();
+            if (this.openedBefore) {
+                this.resumed$.next();
+            }
+            this.openedBefore = true;
+        };
+        source.onerror = (): void => {
+            this.connected.set(false);
+            if (source.readyState === EventSource.CLOSED) {
+                this.retryTimer = setTimeout(() => this.reconnect(), RETRY_MILLISECONDS);
+            }
+        };
+        source.addEventListener('ping', () => this.markActive());
 
         for (const type of EVENT_TYPES) {
-            this.source.addEventListener(type, (event) => {
+            source.addEventListener(type, (event) => {
+                this.markActive();
                 this.events$.next({ type, data: JSON.parse((event as MessageEvent<string>).data) });
             });
+        }
+    }
+
+    private reconnect(): void {
+        this.source?.close();
+        this.connect();
+    }
+
+    private markActive(): void {
+        this.lastActivity = Date.now();
+        this.connected.set(true);
+    }
+
+    private onVisibilityChange(): void {
+        if (document.visibilityState !== 'visible') {
+            return;
+        }
+
+        const silent = Date.now() - this.lastActivity > SILENCE_LIMIT_MILLISECONDS;
+        if (this.source?.readyState !== EventSource.OPEN || silent) {
+            this.reconnect();
+        } else {
+            this.resumed$.next();
         }
     }
 }

@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, debounceTime, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { Observable, catchError, debounceTime, filter, forkJoin, interval, map, of, switchMap, tap } from 'rxjs';
 
 import { Barcode, CatalogItem, CatalogItemInput, ListEntry, ListEntryChange, Section } from '../models';
 import { ApiService } from './api.service';
@@ -11,6 +11,7 @@ export interface SectionGroup<T> {
 }
 
 const REFRESH_DELAY_MILLISECONDS = 150;
+const RETRY_MILLISECONDS = 5000;
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingStore {
@@ -45,6 +46,15 @@ export class ShoppingStore {
             .on('catalog')
             .pipe(
                 debounceTime(REFRESH_DELAY_MILLISECONDS),
+                switchMap(() => this.refreshAll())
+            )
+            .subscribe();
+
+        this.events.resumed.pipe(switchMap(() => this.refreshAll())).subscribe();
+
+        interval(RETRY_MILLISECONDS)
+            .pipe(
+                filter(() => this.failed()),
                 switchMap(() => this.refreshAll())
             )
             .subscribe();

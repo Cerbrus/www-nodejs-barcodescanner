@@ -10,6 +10,8 @@ import {
     ListEntry,
     ListEntryChange,
     LogLine,
+    PushResult,
+    PushSubscriptionInput,
     Scan,
     ScanOutcome,
     ScanSource,
@@ -104,5 +106,21 @@ export class ApiService {
 
     public getLogs(limit = 300): Observable<Array<LogLine>> {
         return this.http.get<Array<LogLine>>(`${this.baseUrl}/logs`, { params: { limit } });
+    }
+
+    public getPushKey(): Observable<{ publicKey: string }> {
+        return this.http.get<{ publicKey: string }>(`${this.baseUrl}/push/key`);
+    }
+
+    public savePushSubscription(subscription: PushSubscriptionInput): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/push/subscriptions`, subscription);
+    }
+
+    public deletePushSubscription(endpoint: string): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/push/subscriptions`, { body: { endpoint } });
+    }
+
+    public sendTestPush(): Observable<PushResult> {
+        return this.http.post<PushResult>(`${this.baseUrl}/push/test`, {});
     }
 }

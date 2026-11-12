@@ -15,7 +15,7 @@ else
     echo "could not fetch compose file, keeping the current one" >&2
 fi
 
-for script in update.sh firewall.sh; do
+for script in update.sh firewall.sh backup.sh; do
     if curl -fsSL -o "$script.new" "$REPO_RAW/$script"; then
         chmod +x "$script.new"
         mv "$script.new" "$script"

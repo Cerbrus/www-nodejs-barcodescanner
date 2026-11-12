@@ -37,6 +37,7 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `connectors` | Product lookup behind one interface |
 | `events` | Server-sent events to open pages |
 | `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 256 KB and keeps three old files; the last 500 lines are read back at start, so the log survives restarts and updates |
+| `push` | Web push notifications: keeps the subscriptions of devices that turned notifications on, and sends a notification when the handheld scanner reads a barcode without a name. Creates its own key pair in `/data/push-keys.json` on first use |
 
 Frontend pages: list, scan (camera), inbox with naming prompt, catalog, a management page per catalog item with its barcodes, history.
 
@@ -51,6 +52,7 @@ Barcodes are drawn in the browser by the existing `BarcodeComponent` (`apps/prod
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox |
 | `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
 | `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `previous_state`, `previous_quantity` | History and undo; the `previous_` columns hold what the list entry was before the scan |
+| `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
 
 On first start with an empty database, the app imports sections, items and the current list from `data/seed-items.json`.
 
@@ -112,7 +114,24 @@ interface ProductSuggestion {
 | `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/icons` | Names of the available icons, for the icon picker |
 | `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
+| `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
+| `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
+| `POST /api/v1/push/test` | Send a test notification to every subscribed device |
 | `GET /api/v1/health` | Health check for Docker |
+
+## Staying connected
+
+The page listens to `/api/v1/events`. When that stream ends for good, which happens when the app restarts during an update or the proxy answers with an error page, the page opens a new one every 3 seconds until it works. It also reconnects when the browser reports the network is back, and when the page returns to the foreground after 40 seconds without a ping. After every reconnect and every return to the foreground it reloads its data, and a failed load is retried every 5 seconds. The "no connection" banner is shown in between.
+
+## Notifications
+
+Web push, so it works with the app closed. The frontend registers a small service worker (`/sw.js`, no caching) that shows the notification, sets the number on the app icon, and opens the inbox when tapped.
+
+- Sent when: a scan from the handheld scanner ends in `needs_name`. Scans from the phone camera do not notify; the phone is already showing the naming prompt. The notification goes out after the connector lookup, so it can name the product the supermarket knows for that barcode.
+- Content: title, the suggested product name with the barcode, and the number of barcodes in the inbox as badge. Texts are Dutch or English, following the language the device had when it subscribed.
+- The badge is also set by the open app whenever the inbox changes. With the app closed it only changes when a notification arrives, because every push must show a notification.
+- iPhone: only for the site installed on the home screen (iOS 16.4 or later), and permission must be asked from a tap, which the System page does.
+- The server only makes outgoing calls to the push service of the browser maker (Apple, Google, Mozilla). A failure is logged and never fails a scan.
 
 ## Phone camera
 

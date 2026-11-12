@@ -22,6 +22,7 @@
                 "inlineStyleLanguage": "scss",
                 "assets": [
                     "apps/product-front/src/favicon.ico",
+                    { "glob": "sw.js", "input": "apps/product-front/src", "output": "/" },
                     "apps/product-front/src/assets"
                 ],
                 "styles": [

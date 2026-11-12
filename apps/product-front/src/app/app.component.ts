@@ -6,6 +6,7 @@ import { catchError, fromEvent, of, startWith, switchMap, tap } from 'rxjs';
 
 import { ApiService } from './services/api.service';
 import { printConsoleBanner } from './services/console-banner';
+import { PushService } from './services/push.service';
 import { ThemeService } from './services/theme.service';
 
 const LANGUAGE_STORAGE_KEY = 'language';
@@ -25,6 +26,7 @@ export class AppComponent {
         const translate = inject(TranslateService);
         const api = inject(ApiService);
         inject(ThemeService);
+        void inject(PushService).start();
         const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? '';
         const language = SUPPORTED_LANGUAGES.includes(stored) ? stored : DEFAULT_LANGUAGE;
         translate.use(language);

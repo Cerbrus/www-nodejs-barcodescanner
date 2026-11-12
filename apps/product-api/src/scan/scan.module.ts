@@ -7,6 +7,7 @@ import { ConnectorsModule } from '../connectors/connectors.module';
 import { BarcodeEntity, ScanEntity, ScanSource } from '../data/entities';
 import { EventsModule } from '../events/events.module';
 import { ListModule } from '../list/list.module';
+import { PushModule } from '../push/push.module';
 
 const MAX_HISTORY = 500;
 
@@ -41,7 +42,7 @@ export class ScanController {
 }
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ScanEntity, BarcodeEntity]), ListModule, ConnectorsModule, EventsModule],
+    imports: [TypeOrmModule.forFeature([ScanEntity, BarcodeEntity]), ListModule, ConnectorsModule, EventsModule, PushModule],
     controllers: [ScanController],
     providers: [ScanService],
     exports: [ScanService]

@@ -238,3 +238,29 @@ body {
     background: var(--surface);
     color: var(--text);
 }
+
+.clearable {
+    position: relative;
+
+    .field {
+        padding-right: 40px;
+    }
+}
+
+.clear-button {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    display: flex;
+    padding: 6px;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+
+    i {
+        font-size: 20px;
+    }
+}
+
+input[type='search']::-webkit-search-cancel-button {
+    display: none;
+}

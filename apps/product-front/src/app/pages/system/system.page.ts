@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { catchError, of } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
+import { PushService } from '../../services/push.service';
 import { Theme, ThemeService } from '../../services/theme.service';
+import { ToastService } from '../../services/toast.service';
 
 const LANGUAGES = ['nl', 'en'] as const;
 const LANGUAGE_STORAGE_KEY = 'language';
@@ -68,6 +70,29 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                 }
             </div>
 
+            <h2 class="section-title">{{ 'push.title' | translate }}</h2>
+            <div class="card text-sm">
+                <p class="muted">{{ 'push.intro' | translate }}</p>
+                <p class="mt-2 font-semibold">{{ 'push.' + push.status() | translate }}</p>
+                @if (push.status() === 'off') {
+                    <button type="button" class="btn primary mt-3 w-full" [disabled]="push.busy()" (click)="enablePush()">
+                        <i class="material-symbols-outlined">notifications_active</i>
+                        {{ 'push.enable' | translate }}
+                    </button>
+                } @else if (push.status() === 'on') {
+                    <div class="mt-3 flex gap-2">
+                        <button type="button" class="btn basis-0 grow" (click)="testPush()">
+                            <i class="material-symbols-outlined">send</i>
+                            {{ 'push.test' | translate }}
+                        </button>
+                        <button type="button" class="btn basis-0 grow" (click)="push.disable()">
+                            <i class="material-symbols-outlined">notifications_off</i>
+                            {{ 'push.disable' | translate }}
+                        </button>
+                    </div>
+                }
+            </div>
+
             <h2 class="section-title">{{ 'system.status' | translate }}</h2>
             <div class="card text-sm">
                 <p>
@@ -85,6 +110,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 export class SystemPage {
     protected readonly events = inject(EventsService);
     protected readonly theme = inject(ThemeService);
+    protected readonly push = inject(PushService);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');
@@ -96,9 +122,22 @@ export class SystemPage {
     );
 
     private readonly translate = inject(TranslateService);
+    private readonly api = inject(ApiService);
+    private readonly toasts = inject(ToastService);
 
     protected version(): string {
         return this.health()?.version.slice(0, VERSION_LENGTH) ?? '…';
+    }
+
+    protected enablePush(): void {
+        this.push.enable().catch(() => this.toasts.show({ kind: 'error', text: this.translate.instant('push.failed') }));
+    }
+
+    protected testPush(): void {
+        this.api
+            .sendTestPush()
+            .pipe(tap((result) => this.toasts.show({ kind: 'ok', text: this.translate.instant('push.testResult', result) })))
+            .subscribe();
     }
 
     protected useLanguage(language: string): void {

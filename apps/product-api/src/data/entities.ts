@@ -123,4 +123,22 @@ export class ScanEntity {
     public previousQuantity?: number | null;
 }
 
-export const Entities = [SectionEntity, CatalogItemEntity, BarcodeEntity, ListEntryEntity, ScanEntity];
+@Entity('push_subscription')
+export class PushSubscriptionEntity {
+    @PrimaryColumn({ type: 'varchar' })
+    public endpoint: string;
+
+    @Column({ type: 'varchar' })
+    public p256dh: string;
+
+    @Column({ type: 'varchar' })
+    public auth: string;
+
+    @Column({ type: 'varchar', default: 'nl' })
+    public language: string;
+
+    @Column({ type: 'datetime' })
+    public createdAt: Date;
+}
+
+export const Entities = [SectionEntity, CatalogItemEntity, BarcodeEntity, ListEntryEntity, ScanEntity, PushSubscriptionEntity];

@@ -5,7 +5,8 @@
         "loading": "Loading…",
         "done": "Done",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "clear": "Clear"
     },
     "nav": {
         "list": "List",
@@ -123,5 +124,18 @@
         "auto": "Automatic",
         "light": "Light",
         "dark": "Dark"
+    },
+    "push": {
+        "title": "Notifications",
+        "intro": "A notification on this device when the handheld scanner reads an unknown product. The app icon shows the number of barcodes in the inbox.",
+        "on": "Notifications are on for this device.",
+        "off": "Notifications are off for this device.",
+        "denied": "Notifications are blocked. Allow them in the device settings.",
+        "unsupported": "This browser does not support notifications. On an iPhone: add the site to the home screen first and open it there.",
+        "enable": "Turn on notifications",
+        "disable": "Turn off",
+        "test": "Test notification",
+        "testResult": "Test notification sent to {sent} device(s), {failed} failed",
+        "failed": "Turning on notifications failed"
     }
 }

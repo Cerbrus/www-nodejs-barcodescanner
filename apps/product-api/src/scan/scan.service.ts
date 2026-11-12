@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 
 import { addOneToEntry, decideScan } from './scan-rules';
+import { ProductSuggestion } from '../connectors/connector.model';
 import { ConnectorService } from '../connectors/connectors.module';
 import { BarcodeEntity, ScanEntity, ScanResult, ScanSource } from '../data/entities';
 import { EventsService } from '../events/events.service';
 import { ListService } from '../list/list.service';
+import { PushService } from '../push/push.service';
 
 export interface ScanOutcome {
     scanId: number;
@@ -26,7 +28,8 @@ export class ScanService {
         @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>,
         private readonly list: ListService,
         private readonly connectors: ConnectorService,
-        private readonly events: EventsService
+        private readonly events: EventsService,
+        private readonly push: PushService
     ) {
     }
 
@@ -68,8 +71,8 @@ export class ScanService {
         if (catalogItemId && decision.entry) {
             await this.list.setSnapshot(catalogItemId, decision.entry);
         }
-        if (decision.result === 'needs_name' && !barcode.suggestions) {
-            void this.fetchSuggestions(code);
+        if (decision.result === 'needs_name') {
+            void this.followUpUnknown(code, source, barcode.suggestions);
         }
         this.events.emit('scan', outcome);
 
@@ -150,14 +153,25 @@ export class ScanService {
         return existing ?? this.barcodes.save({ code, scanCount: 0 });
     }
 
-    private async fetchSuggestions(code: string): Promise<void> {
+    private async followUpUnknown(code: string, source: ScanSource, known?: Array<ProductSuggestion>): Promise<void> {
+        const suggestions = known ?? (await this.fetchSuggestions(code));
+        if (source === 'handheld') {
+            await this.push.notifyUnknownBarcode(code, suggestions?.[0]?.title);
+        }
+    }
+
+    private async fetchSuggestions(code: string): Promise<Array<ProductSuggestion> | undefined> {
         try {
             const suggestions = await this.connectors.lookupAll(code);
             this.logger.log(`lookup ${code}: ${suggestions.map((s) => `${s.connectorId} "${s.title}"`).join(', ') || 'no result'}`);
             await this.barcodes.update({ code }, { suggestions });
             this.events.emit('barcode', { code, suggestions: suggestions.length });
+
+            return suggestions;
         } catch (error) {
             this.logger.warn(`Storing suggestions for ${code} failed: ${error}`);
+
+            return undefined;
         }
     }
 }

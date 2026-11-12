@@ -79,6 +79,13 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). It is also the debugging view.
 
+### UC-12 Notification for an unknown product
+
+1. On the System page the user turns on notifications for the phone, once.
+2. Later, someone scans a package with the handheld scanner and the barcode has no name yet.
+3. The phone shows a notification with the product name the supermarket knows, and the app icon shows how many barcodes wait in the inbox.
+4. Tapping the notification opens the inbox, where the barcode gets its name.
+
 ### UC-11 Scanner and system log
 
 A page shows a live log of what the system is doing, in a monospaced, terminal-like view: scanner connected or lost, every raw read with its result, connector lookups and failures, start-up and seed messages, and the version that is running. New lines appear as they happen; the page starts with the most recent few hundred lines. It answers "did my scan arrive, and what happened to it" without SSH.

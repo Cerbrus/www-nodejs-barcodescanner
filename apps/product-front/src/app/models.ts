@@ -80,6 +80,18 @@ export interface Health {
     version: string;
 }
 
+export interface PushSubscriptionInput {
+    endpoint: string;
+    p256dh?: string;
+    auth?: string;
+    language?: string;
+}
+
+export interface PushResult {
+    sent: number;
+    failed: number;
+}
+
 export interface CatalogItemInput {
     name?: string;
     sectionId?: string;

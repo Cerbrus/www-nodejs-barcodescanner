@@ -58,6 +58,14 @@ Fallback if this fails on the Pi: run the same agent as a host systemd unit.
 
 The repository is public (decided 2026-11-12), and so are the images. Nothing secret goes into either: credentials live only in the `.env` file on the Pi.
 
+## Database backup
+
+Decided 2026-11-12: the Pi pushes an hourly SQL dump of the database to a private git repository, using a deploy key that only reaches that repository. Chosen over a cloud drive (extra tool and login) and over continuous replication (too heavy for a shopping list). Details in `deployment.md`.
+
+## Notifications
+
+Decided 2026-11-12: web push for unknown barcodes scanned with the handheld scanner, with the inbox count as app badge. No app store, no account: a service worker in the web app and the `web-push` package in the API. The service worker does not cache anything; offline use stays a separate milestone.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.
