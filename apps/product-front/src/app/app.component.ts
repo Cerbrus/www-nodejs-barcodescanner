@@ -2,7 +2,10 @@ import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { startWith, switchMap, tap } from 'rxjs';
+import { catchError, of, startWith, switchMap, tap } from 'rxjs';
+
+import { ApiService } from './services/api.service';
+import { printConsoleBanner } from './services/console-banner';
 
 const LANGUAGE_STORAGE_KEY = 'language';
 const SUPPORTED_LANGUAGES = ['nl', 'en'];
@@ -17,8 +20,10 @@ const DEFAULT_LANGUAGE = 'nl';
 export class AppComponent {
     constructor() {
         const translate = inject(TranslateService);
+        const api = inject(ApiService);
         const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? '';
-        translate.use(SUPPORTED_LANGUAGES.includes(stored) ? stored : DEFAULT_LANGUAGE);
+        const language = SUPPORTED_LANGUAGES.includes(stored) ? stored : DEFAULT_LANGUAGE;
+        translate.use(language);
 
         translate.onLangChange
             .pipe(
@@ -28,6 +33,14 @@ export class AppComponent {
                     document.title = appName;
                     document.documentElement.lang = translate.currentLang;
                 }),
+                takeUntilDestroyed()
+            )
+            .subscribe();
+
+        api.getHealth()
+            .pipe(
+                catchError(() => of(undefined)),
+                tap((health) => printConsoleBanner({ version: health?.version, apiBase: api.baseUrl, language })),
                 takeUntilDestroyed()
             )
             .subscribe();

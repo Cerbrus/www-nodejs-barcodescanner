@@ -36,7 +36,7 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `list` | List entries: to buy, recent, quantity, note |
 | `connectors` | Product lookup behind one interface |
 | `events` | Server-sent events to open pages |
-| `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Lines are lost on restart |
+| `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 1 MB and keeps five old files; the last 500 lines are read back at start, so the log survives restarts and updates |
 
 Frontend pages: list, scan (camera), inbox with naming prompt, catalog, a management page per catalog item with its barcodes, history.
 
@@ -110,6 +110,8 @@ interface ProductSuggestion {
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
 | `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |
+| `GET /api/v1/icons` | Names of the available icons, for the icon picker |
+| `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
 | `GET /api/v1/health` | Health check for Docker |
 
 ## Phone camera

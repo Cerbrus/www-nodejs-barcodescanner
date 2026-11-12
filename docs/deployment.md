@@ -114,7 +114,8 @@ location /api/v1/events {
 - **Update**: push to `master`; the Pi follows within about 5 minutes plus build time.
 - **Check**: `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
 - **Rollback**: set `IMAGE_TAG=<commit hash>` in `.env` and run the updater. Database migrations only go forward, so restore the database backup when rolling back past a migration.
-- **Backup**: copy `/opt/barcodescanner/data/`. The app also copies `app.db` to `app.db.bak` before running a migration.
+- **Backup**: copy `/opt/barcodescanner/data/`. It holds the database and `logs/app.log` with its rotated files.
+- **Logs**: the System page shows the live log; the same lines are in `/opt/barcodescanner/data/logs/app.log` (JSON lines, rotated at 1 MB, five old files kept).
 
 ## Icon set
 

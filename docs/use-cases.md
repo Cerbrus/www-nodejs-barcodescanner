@@ -45,8 +45,9 @@ A second read of the same barcode within 3 seconds is ignored.
 
 1. The prompt shows the barcode and every connector suggestion (title, brand, category, photo).
 2. The user picks an existing catalog item from a search box. The suggested category narrows the choice.
-3. If no item fits, the user creates one: name, shop section, icon. The section is prefilled from the suggestions.
-4. The mapping is saved. Every later scan of this barcode is automatic.
+3. If no item fits, the user types a new name in the same field and creates the item: shop section, icon from a visual picker, emoji. The section is prefilled from the suggestions.
+4. "Later" leaves the barcode in the inbox. "Cancel scan" discards the waiting scans and removes the barcode from the inbox.
+5. The mapping is saved. Every later scan of this barcode is automatic.
 
 ### UC-6 Manage mappings and catalog
 

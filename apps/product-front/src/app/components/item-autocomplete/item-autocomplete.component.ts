@@ -53,10 +53,8 @@ const MAX_OPTIONS = 8;
     styles: `
         .wrap { position: relative; }
         .options {
-            position: absolute; top: calc(100% + 4px); right: 0; left: 0; z-index: 5;
-            max-height: 46dvh; padding: 4px; overflow-y: auto;
+            margin-top: 4px; padding: 4px;
             border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
-            box-shadow: 0 10px 28px rgb(0 0 0 / 35%);
         }
         .option {
             display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px;
