@@ -21,7 +21,7 @@ Each milestone ends in something that runs. Milestones 1 and 2 remove the two bi
 - First commit and push.
 - Check the Pi's architecture and Docker version ([deployment.md](deployment.md)).
 
-Status 2026-11-12: files and packages deleted, Pi checked, first commit made. The push is still open, because the old workflow in `.github/workflows/` deploys to the Pi on every push to `master`.
+Status 2026-11-12: done. Files and packages deleted, Pi checked, first commit pushed. The old push-based workflow in `.github/workflows/` is already removed; milestone 2 adds the new one.
 
 Done when: the repo is on GitHub with no secrets in it, and the image platform is known.
 
