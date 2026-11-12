@@ -16,21 +16,21 @@ Where it started: an API skeleton without a single endpoint that wrote a scan, a
 
 ## Milestones
 
-Each milestone ends in something that runs. Milestones 1 and 2 removed the two biggest risks before any feature work.
+Every "done" carries the date and time it was reached, local time, taken from the commit that completed it. Each milestone ends in something that runs. Milestones 1 and 2 removed the two biggest risks before any feature work.
 
-### 0. Clean start: done
+### 0. Clean start: done 2026-11-12 14:46
 
 - Deleted what the target does not need: the Python supermarket connector, `run.sh`, the root `docker-compose.yml`, `barcodes.txt`, run configurations of removed apps, unused supermarket packages.
 - First commit and push; checked the Pi's architecture and Docker version.
 
-### 1. Scanner spike on the Pi: done
+### 1. Scanner spike on the Pi: done 2026-11-12 15:47
 
 - Hardware agent with `evdev`: device path from `SCANNER_DEVICE`, exclusive grab, reopen loop, digits plus Enter become one scan.
 - Runs on the Pi in an unprivileged container with the `/dev/input` mount and the cgroup rule.
 
 Result: scans are logged, nothing reaches the Pi's console, the agent reconnects by itself after a replug and after a reboot. No host-service fallback needed. The scanner sometimes read one code twice within two seconds. The debounce was 3 seconds then and covered that; it is 1 second now, so a double read more than a second apart counts twice and needs an undo.
 
-### 2. Pull-based deployment: done
+### 2. Pull-based deployment: done 2026-11-12 16:15
 
 - Dockerfiles for `app` (multi-stage, Node slim) and `hardware-agent`.
 - GitHub workflow: lint and tests, then both images for `linux/arm64`, pushed to `ghcr.io` with `latest`, version and commit-hash tags; the commit gets a `v<version>` git tag.
@@ -39,7 +39,7 @@ Result: scans are logged, nothing reaches the Pi's console, the agent reconnects
 
 Result: a push to `master` reaches the Pi by itself, typically within ten minutes including the build. The app's port is limited to the reverse proxy's address.
 
-### 3. Backend core: done
+### 3. Backend core: done 2026-11-12 16:53
 
 - TypeORM on SQLite; plain modules `scan`, `catalog`, `list`, `connectors`, `events`, `log`; migrations; seed import on an empty database.
 - Scan rules with debounce, count up, inbox and undo.
@@ -48,7 +48,7 @@ Result: a push to `master` reaches the Pi by itself, typically within ten minute
 
 Tests: 9 for the scan rules (`yarn product-api:test`) and 6 that run the real modules against a temporary SQLite file (`yarn product-api:test:integration`). Not covered by tests: the connectors' calls to the outside world, the HTTP layer, push sending. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
 
-### 4. Frontend: done
+### 4. Frontend: done 2026-11-12 19:09
 
 Pages: list, camera scan, inbox with naming prompt, products, product page with drawn barcodes (8, 12 and 13 digits), history with undo, log, System.
 
@@ -67,7 +67,7 @@ Open question: the page once froze on the iPhone after an unknown camera scan. T
 
 ### 5. Catalog and icons: mostly done
 
-- Done: seed of 13 sections and 358 items with icon and emoji and a starting list; icon rendering with fallback to emoji and letter tile; icon picker; section guess for new products from keywords in the connector suggestions and the name.
+- Done 2026-11-12 18:49: seed of 13 sections and 358 items with icon and emoji and a starting list; icon rendering with fallback to emoji and letter tile; icon picker; section guess for new products from keywords in the connector suggestions and the name.
 - Open: 8 items have no fitting emoji (Vijgen, Kaneel, Tofu, Aluminium Folie, Vershoudfolie, Condooms, Wattenschijfjes, Wattenstaafjes) and rely on their icon file.
 - Open: the section guess is a short keyword list in the web app. A proper mapping from connector categories to sections would guess better.
 
@@ -75,14 +75,14 @@ Done when: naming a typical new barcode takes one or two taps.
 
 ### 6. Daily-use hardening: started
 
-- Done: log file that survives restarts, hourly database backup, reconnecting pages.
+- Done 2026-11-12 19:09: log file that survives restarts, hourly database backup, reconnecting pages.
 - Open: use it for two weeks and fix what annoys.
 - Open: connector failures visible on the history page; today they are only in the system log.
 - Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
 
 ### 7. Feedback at the scanner: open
 
-- Done: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone on 2026-11-12: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
+- Done 2026-11-12 20:05: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
 - Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
 - Otherwise: a USB speaker or a GPIO buzzer on a free pin, driven by the hardware agent from the scan result.
 

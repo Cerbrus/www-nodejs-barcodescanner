@@ -12,7 +12,7 @@ Before changing code, read:
 - `docs/deployment.md` — pull-based Docker deployment on the Pi, backup, notifications
 - `docs/use-cases.md` — expected behaviour
 
-When a decision changes, update `docs/decisions.md` first, then the affected docs. When behaviour changes, update the use case and `README.md` with it.
+When a decision changes, update `docs/decisions.md` first, then the affected docs. When marking something done in `docs/plan.md`, add the date and time (`done 2026-11-12 19:09`). When behaviour changes, update the use case and `README.md` with it.
 
 ## In short
 
