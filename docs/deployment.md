@@ -111,6 +111,10 @@ A local run without the build arguments reports version `dev`.
 | `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
 | `BACKUP_REPO` | SSH address of the private backup repository. Empty switches the backup off. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client for login. An empty id switches login off. |
+| `PUBLIC_URL` | Address the site is reached at, such as `https://shopping.example.com`, without a slash at the end |
+| `ALLOWED_EMAILS` | Google accounts that may log in, comma-separated |
+| `AGENT_TOKEN` | Secret the hardware agent uses instead of a login; `install.sh` creates it |
 | `FEEDBACK_OUTPUT` | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below |
 | `BUZZER_PIN` | GPIO number of the buzzer pin, default `18` |
 | `BUZZER_TYPE` | `active` (default) or `passive` |
@@ -125,9 +129,9 @@ Add a proxy host:
 
 - **Domain name**: `shopping.<your domain>`.
 - **Forward to**: scheme `http`, the wired LAN address of the server Pi, port `3020`. Nginx Proxy Manager runs as an add-on in Home Assistant on another machine, so give the server Pi a fixed address.
-- **Firewall on the server Pi**: set `ALLOWED_SOURCE` in `.env` to the proxy's address. `deployment/firewall.sh` then drops every other source for the app's port; it runs at boot (`barcodescanner-firewall.service`) and after every update. The app has no login, so without this anything on the LAN that can reach the port bypasses the proxy's login. Requests made on the Pi itself, such as `curl http://127.0.0.1:3020/api/v1/health`, keep working.
+- **Firewall on the server Pi**: set `ALLOWED_SOURCE` in `.env` to the proxy's address. `deployment/firewall.sh` then drops every other source for the app's port; it runs at boot (`barcodescanner-firewall.service`) and after every update. Without this anything on the LAN can reach the port directly, around the proxy. Requests made on the Pi itself, such as `curl http://127.0.0.1:3020/api/v1/health`, keep working.
 - **SSL**: request a certificate, force SSL.
-- **Access List**: attach one for the login. The app itself has no authentication, so never expose port 3020 directly.
+- **Access List**: only needed while the app's own login is off (see "Login with Google"). With login on, attach none. Never expose port 3020 directly either way.
 - **Advanced**, for the live event stream:
 
 ```nginx
@@ -184,6 +188,25 @@ sudo docker compose up -d
 ```
 
 Clone with your own GitHub login, or add the new Pi's `backup_key.pub` as deploy key first and remove the old one. For an older state, check out an earlier commit of the backup repository before loading `app.sql`. The dump includes the migration table, so a newer app version migrates it forward at start.
+
+## Login with Google
+
+The app has its own login. Set it up once:
+
+1. In the Google Cloud console create a project and, under APIs and Services, an OAuth client of type "Web application". Authorised redirect address: `<PUBLIC_URL>/api/v1/auth/google/callback`. Authorised JavaScript origin: `<PUBLIC_URL>`.
+2. On the consent screen, publishing status "Testing" is enough; add the Google accounts that will log in as test users.
+3. Put the client id and secret in `.env` as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, and set `PUBLIC_URL` and `ALLOWED_EMAILS`. Check that `AGENT_TOKEN` has a value.
+4. Restart both containers: `sudo docker compose up -d --force-recreate`.
+5. Open the site: it shows the login page. After logging in, remove the access list from the proxy host, otherwise there are two logins.
+
+Check: `curl -i http://127.0.0.1:3020/api/v1/list` on the Pi answers `401`; the system log says "login is on for 1 Google account(s)"; a handheld scan still arrives, which proves the agent token works.
+
+Notes:
+
+- The client secret, the agent token and the session secret (`data/session-secret`) exist only on the Pi. `.env` is readable by root only.
+- Logging everyone out: delete `data/session-secret` and restart the app.
+- Locked out, for example after a typo in `ALLOWED_EMAILS`: fix `.env` over SSH and restart. Emptying `GOOGLE_CLIENT_ID` switches login off; put the proxy access list back first.
+- The firewall rule stays: only the reverse proxy reaches the app's port.
 
 ## Buzzer
 

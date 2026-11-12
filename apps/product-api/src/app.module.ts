@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AuthModule } from './auth/auth.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { databaseOptions } from './data/database';
 import { SeedService } from './data/seed.service';
@@ -35,6 +36,7 @@ const iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icon
                 exclude: ['/api/{*path}', '/icons/{*path}']
             }
         ),
+        AuthModule,
         EventsModule,
         LogModule,
         ListModule,

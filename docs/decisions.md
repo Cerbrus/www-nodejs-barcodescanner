@@ -16,7 +16,7 @@ Outcome of the feature review on 2026-11-12, with later decisions added below. C
 | 8 | Icons | The user's own icon set in `data/icons/`, one file per item. Emoji, then a letter tile, as fallback. | Tiles with a real icon read faster than text. See "Icons" below. |
 | 9 | Catalog | Seeded from `data/seed-items.json`: standard grocery items plus the user's own items, sections, notes and list state. | Naming is then usually one tap, and the new list starts where the old list left off. |
 | 10 | Extras in version one | Scan history, undo last scan, mapping management. | Chosen by the user. |
-| 11 | Left out | Store and price data, multiple lists, user accounts, live sync between several phones. | Not needed for a single user. |
+| 11 | Left out | Store and price data, multiple lists, accounts with their own data, live sync between several phones. | Not needed for a single user. |
 | 12 | Phone scan flow | Continuous scanning with undo toast. | Fastest when clearing several packages. |
 | 13 | Offline | Online first with an offline banner; the page reconnects and reloads by itself. Offline support is a later milestone. | Sync is the largest single piece of work. |
 | 14 | Sound feedback | Pluggable output in the hardware agent, `none` by default. First output: a buzzer on a GPIO pin (decided 2026-11-12, the user had one). The scanner's own beeper stays the preferred option if Tera documents it. | Costs nothing and needs no USB port. GPIO 14 is taken by the fan, so the buzzer goes on GPIO 18. |
@@ -30,7 +30,7 @@ Outcome of the feature review on 2026-11-12, with later decisions added below. C
 | 17 | Database | SQLite file on a Docker volume. | No database container; backup is one file. See "Database backup" below. |
 | 18 | Scanner input | Small Python hardware agent container using `evdev` with an exclusive grab. | See "Scanner in Docker" below. |
 | 19 | Deployment | Images built by GitHub Actions, pulled by a systemd timer on the Pi. | No inbound access, no SSH secrets, nothing but Docker on the Pi. |
-| 20 | Access | Nginx Proxy Manager terminates HTTPS and does the login. The app has no auth code. | Camera scanning needs HTTPS; the proxy already exists. |
+| 20 | Access | Nginx Proxy Manager terminates HTTPS. Login is in the app, with Google, for the accounts on an allowlist (changed 2026-11-13; before that the proxy's access list did the login). | Camera scanning needs HTTPS. The proxy's access list turned out not to guard the site, and a basic-auth prompt is clumsy in a home-screen app. |
 | 21 | Pi architecture | Raspberry Pi 3 Model B+, 64-bit Debian 13, about 900 MB memory. Build `linux/arm64` only. | Checked on the Pi on 2026-11-12. Memory is tight and shared with two other services, so nothing is built on the Pi and the image stays lean. |
 
 ## Scanner in Docker
@@ -92,6 +92,10 @@ Settled on the iPhone on 2026-11-12, after three attempts:
 ## Buzzer sounds
 
 Decided 2026-11-12: the sound per scan result is a setting in the app, chosen from a fixed library, not hard-coded in the hardware agent. The user wanted to try sounds from the web page and pick per event. Free editing of own patterns was left out; new sounds are added to the library on request.
+
+## Login
+
+Decided 2026-11-13: login with Google inside the app, for the owner only. Considered and dropped for now: accounts for several people with their own lists and an approval step, as too complex. The allowlist can hold more addresses later; they would share the one list. No user table: the session is a signed cookie, and the hardware agent uses a shared secret.
 
 ## Functional reference
 

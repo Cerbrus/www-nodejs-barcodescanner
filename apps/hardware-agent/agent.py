@@ -13,6 +13,7 @@ from evdev import InputDevice, ecodes
 
 DEVICE_PATH = os.environ.get('SCANNER_DEVICE', '')
 API_BASE = os.environ.get('API_BASE', 'http://app:3020/api/v1')
+AGENT_HEADERS = {'X-Agent-Token': os.environ.get('AGENT_TOKEN') or ''}
 RETRY_SECONDS = 2
 API_TIMEOUT_SECONDS = 5
 LOG_DELIVERY_ATTEMPTS = 5
@@ -64,8 +65,12 @@ log = logging.getLogger('hardware-agent')
 
 def post_json(path, payload):
     body = json.dumps(payload).encode()
-    request = urllib.request.Request(f'{API_BASE}{path}', data=body, headers={'Content-Type': 'application/json'})
+    request = urllib.request.Request(f'{API_BASE}{path}', data=body, headers={'Content-Type': 'application/json', **AGENT_HEADERS})
     return urllib.request.urlopen(request, timeout=API_TIMEOUT_SECONDS)
+
+
+def open_api(path, timeout):
+    return urllib.request.urlopen(urllib.request.Request(f'{API_BASE}{path}', headers=AGENT_HEADERS), timeout=timeout)
 
 
 class ApiLogHandler(logging.Handler):
@@ -212,7 +217,7 @@ class Feedback:
             self.enqueue(name, steps)
 
     def load_settings(self):
-        with urllib.request.urlopen(f'{API_BASE}/feedback/settings', timeout=API_TIMEOUT_SECONDS) as response:
+        with open_api('/feedback/settings', API_TIMEOUT_SECONDS) as response:
             settings = json.load(response)
         self.signals_by_event = {row['event']: row['steps'] for row in settings['events']}
         log.info('feedback sounds: %s', ', '.join(f"{row['event']}={row['soundId']}" for row in settings['events']))
@@ -236,7 +241,7 @@ class Feedback:
     def listen_for_tests(self):
         while True:
             try:
-                with urllib.request.urlopen(f'{API_BASE}/events', timeout=EVENT_STREAM_TIMEOUT_SECONDS) as stream:
+                with open_api('/events', EVENT_STREAM_TIMEOUT_SECONDS) as stream:
                     self.load_settings()
                     event = ''
                     for raw in stream:

@@ -178,5 +178,15 @@
             "soft5": "Very soft (5%)",
             "softBlip": "Soft blip"
         }
+    },
+    "login": {
+        "intro": "Log in to use the shopping list.",
+        "google": "Log in with Google",
+        "account": "Account",
+        "logout": "Log out",
+        "error": {
+            "not_allowed": "This Google account has no access.",
+            "failed": "Logging in failed. Try again."
+        }
     }
 }

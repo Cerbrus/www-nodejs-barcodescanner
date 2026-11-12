@@ -22,7 +22,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 | Deployment | `deployment/` | Docker Compose, systemd timers, shell scripts |
 | Seed data and icons | `data/` | `seed-items.json`, `icons/*.png` |
 
-On the Pi two containers run: `app` (API plus the built web app, SQLite file on a volume) and `hardware-agent` (reads the scanner, posts scans to the API). A reverse proxy in front provides HTTPS and the login; the app has no accounts.
+On the Pi two containers run: `app` (API plus the built web app, SQLite file on a volume) and `hardware-agent` (reads the scanner, posts scans to the API). A reverse proxy in front provides HTTPS. Login is with Google, for the accounts on an allowlist.
 
 ## Documentation
 

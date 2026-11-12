@@ -7,7 +7,7 @@ How the product is built today. What is still open is in [plan.md](plan.md).
         │ USB dongle              │ HTTPS
         ▼                         ▼
 ┌────────────────┐        ┌─────────────────────┐
-│ hardware-agent │        │ Nginx Proxy Manager │  login + certificate
+│ hardware-agent │        │ Nginx Proxy Manager │  certificate
 │ Python, evdev  │        └──────────┬──────────┘
 └───────┬────────┘                   │
         │ POST /api/v1/scans         ▼
@@ -39,6 +39,7 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `catalog` | Catalog items, sections, barcode mappings, inbox |
 | `list` | List entries: to buy, recent, quantity, note |
 | `connectors` | Product lookup behind one interface |
+| `auth` | Login with Google for the accounts on an allowlist, the session cookie, and the guard in front of every route |
 | `events` | Server-sent events to open pages |
 | `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 256 KB and keeps three old files; the last 500 lines are read back at start, so the log survives restarts and updates |
 | `feedback` | The library of buzzer sounds, the sound chosen per scan result, and test sounds relayed to the hardware agent |
@@ -52,9 +53,9 @@ Angular with standalone components and signals; no state library. `apps/product-
 
 | Folder | Content |
 |---|---|
-| `pages/` | `list`, `scan` (camera), `inbox`, `catalog` (products), `item` (one product with its barcodes), `history`, `log`, `system` |
+| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `catalog` (products), `item` (one product with its barcodes), `history`, `log`, `system` |
 | `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode` |
-| `services/` | `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
+| `services/` | `auth.service` (login state, route guard), `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
 
 - `shopping.store` loads everything once and reloads on events from the server, so every open page follows scans made elsewhere.
 - Dialogs use the native `<dialog>` element, so they sit above the navigation.
@@ -146,7 +147,22 @@ interface ProductSuggestion {
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
 | `POST /api/v1/push/test` | Send a test notification to every subscribed device |
+| `GET /api/v1/auth/me` | Whether login is on, and who is logged in |
+| `GET /api/v1/auth/google`, `GET /api/v1/auth/google/callback` | Start and finish of the Google login |
+| `POST /api/v1/auth/logout` | End the session |
 | `GET /api/v1/health` | Status, version, commit and build time; also Docker's health check |
+
+## Login
+
+Optional, switched on by setting `GOOGLE_CLIENT_ID`. Without it the API is open to whoever can reach it and the reverse proxy is the only guard.
+
+- **Flow**: the login page links to `GET /api/v1/auth/google`, which sends the browser to Google with a random state kept in a short-lived cookie. Google returns to `/api/v1/auth/google/callback`; the API checks the state, exchanges the code with Google using the client secret, and reads the account from the answer. The account must have a verified address that is listed in `ALLOWED_EMAILS`.
+- **Session**: a cookie holding the address and an expiry, signed with a secret the app creates in `/data/session-secret`. No session table. It lasts 90 days and is renewed when the app is opened after a day or more. `HttpOnly`, `Secure`, `SameSite=Lax`. Removing an address from `ALLOWED_EMAILS` ends its sessions at once.
+- **Guard**: one global guard covers every API route and the event stream. Open without login: the health check and the `auth` routes. The files of the web app and the icons are public; they hold no data.
+- **Hardware agent**: has no Google account. It sends the `AGENT_TOKEN` from `.env` in the `X-Agent-Token` header, which the guard accepts instead of a session.
+- **Other sites**: a request that changes something and names another site as its origin is refused.
+- **Web app**: a route guard asks `GET /api/v1/auth/me` once; without a session it shows the login page. Any "not logged in" answer later sends the user there too. The System page shows the account and a logout button.
+- No passwords, no user table, no roles: everyone on the allowlist shares the one list.
 
 ## Staying connected
 

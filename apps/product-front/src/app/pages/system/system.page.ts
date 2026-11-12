@@ -7,6 +7,7 @@ import { catchError, of, tap } from 'rxjs';
 
 import { SoundTestComponent } from '../../components/sound-test/sound-test.component';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
 import { PushService } from '../../services/push.service';
 import { Theme, ThemeService } from '../../services/theme.service';
@@ -98,6 +99,18 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
             <h2 class="section-title">{{ 'sound.title' | translate }}</h2>
             <app-sound-test />
 
+            @if (auth.state()?.enabled) {
+                <h2 class="section-title">{{ 'login.account' | translate }}</h2>
+                <div class="card flex items-center gap-3 text-sm">
+                    <i class="material-symbols-outlined muted">account_circle</i>
+                    <span class="grow truncate">{{ auth.state()?.email }}</span>
+                    <button type="button" class="btn" (click)="logout()">
+                        <i class="material-symbols-outlined">logout</i>
+                        {{ 'login.logout' | translate }}
+                    </button>
+                </div>
+            }
+
             <h2 class="section-title">{{ 'system.status' | translate }}</h2>
             <div class="card text-sm">
                 <p>
@@ -122,6 +135,7 @@ export class SystemPage {
     protected readonly events = inject(EventsService);
     protected readonly theme = inject(ThemeService);
     protected readonly push = inject(PushService);
+    protected readonly auth = inject(AuthService);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');
@@ -143,6 +157,10 @@ export class SystemPage {
         }
 
         return health.commit ? `${health.version} (${health.commit.slice(0, COMMIT_LENGTH)})` : health.version;
+    }
+
+    protected logout(): void {
+        this.auth.logout().subscribe();
     }
 
     protected enablePush(): void {

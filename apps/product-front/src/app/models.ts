@@ -112,6 +112,12 @@ export interface FeedbackSettings {
     sounds: Array<Sound>;
 }
 
+export interface AuthState {
+    enabled: boolean;
+    authenticated: boolean;
+    email?: string;
+}
+
 export interface CatalogItemInput {
     name?: string;
     sectionId?: string;

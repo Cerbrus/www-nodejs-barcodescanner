@@ -1,6 +1,6 @@
 # Use cases
 
-One user, one household list. Login is handled by the reverse proxy, so the app has no accounts.
+One user, one household list. The user logs in with a Google account that is on the app's allowlist (UC-17).
 
 Terms:
 
@@ -114,6 +114,13 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 ### UC-14 Install on the phone
 
 The user adds the site to the home screen from the browser's share menu. It then opens full screen with its own icon and name, and can receive notifications.
+
+### UC-17 Log in
+
+1. Opening the site without a session shows a login page with one button, "Log in with Google".
+2. The user picks a Google account. An account on the allowlist gets in and stays logged in on that device for 90 days, longer when the app is used.
+3. Any other account is sent back with "this Google account has no access".
+4. The System page shows the account and a logout button.
 
 ### UC-15 Language and appearance
 

@@ -1,6 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
+import { Public } from '../auth/auth.guard';
+
 interface HealthDto {
     status: 'ok';
     version: string;
@@ -8,6 +10,7 @@ interface HealthDto {
     builtAt?: string;
 }
 
+@Public()
 @Controller({ path: 'health', version: '1' })
 export class HealthController {
     constructor(private readonly dataSource: DataSource) {

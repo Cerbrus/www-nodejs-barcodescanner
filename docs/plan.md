@@ -80,6 +80,8 @@ Done when: naming a typical new barcode takes one or two taps.
 - Open: connector failures visible on the history page; today they are only in the system log.
 - Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
 
+- Built on branch `feature/google-login`, not yet deployed: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Open: deploy with the settings in `.env`, log in on laptop and iPhone, then remove the proxy's access list.
+
 ### 7. Feedback at the scanner: mostly done
 
 - Done 2026-11-12 20:05: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.

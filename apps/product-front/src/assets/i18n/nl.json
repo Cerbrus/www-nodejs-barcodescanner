@@ -178,5 +178,15 @@
             "soft5": "Heel zacht (5%)",
             "softBlip": "Zachte tik"
         }
+    },
+    "login": {
+        "intro": "Log in om de boodschappenlijst te gebruiken.",
+        "google": "Inloggen met Google",
+        "account": "Account",
+        "logout": "Uitloggen",
+        "error": {
+            "not_allowed": "Dit Google-account heeft geen toegang.",
+            "failed": "Inloggen is niet gelukt. Probeer het opnieuw."
+        }
     }
 }

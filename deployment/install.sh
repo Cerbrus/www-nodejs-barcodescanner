@@ -67,6 +67,11 @@ if [ ! -f "$APP_DIR/.env" ]; then
 else
     echo "    keeping existing .env"
 fi
+if grep -q '^AGENT_TOKEN=$' "$APP_DIR/.env"; then
+    sed -i "s#^AGENT_TOKEN=\$#AGENT_TOKEN=$(head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9')#" "$APP_DIR/.env"
+    echo "    agent token created"
+fi
+chmod 600 "$APP_DIR/.env"
 
 echo "==> Backup key"
 if [ ! -f "$APP_DIR/backup_key" ]; then

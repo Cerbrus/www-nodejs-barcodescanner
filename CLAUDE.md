@@ -20,14 +20,15 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 - One `hardware-agent` container: Python `evdev`, reads the scanner, posts scans and its log lines to the API.
 - Product lookup through `ProductConnector` classes, all queried in parallel; results are suggestions, the user names each barcode once.
 - Web push for unknown handheld scans; the service worker (`src/sw.js`) caches nothing.
-- No Bring, no PostgreSQL, no CQRS, no auth code (the reverse proxy does login).
+- Login with Google for an allowlist of accounts (`auth` module): one global guard, signed session cookie, a token for the hardware agent. New routes are guarded by default; mark one `@Public()` only when it must work without login.
+- No Bring, no PostgreSQL, no CQRS, no user table.
 - Deployment: GitHub Actions builds images to `ghcr.io`; systemd timers on the Pi pull them and push an hourly database backup to a private repository.
 
 ## Layout
 
 | Part | Directory | Notes |
 |---|---|---|
-| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Modules: `scan`, `catalog`, `list`, `connectors`, `events`, `log`, `push`, `feedback`. Hand-written migrations in `src/data/migrations/` |
+| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Modules: `auth`, `scan`, `catalog`, `list`, `connectors`, `events`, `log`, `push`, `feedback`. Hand-written migrations in `src/data/migrations/` |
 | Web app | `apps/product-front/` | Angular 20, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/` |
 | Hardware agent | `apps/hardware-agent/` | Python, evdev |
 | Deployment | `deployment/` | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh` |
