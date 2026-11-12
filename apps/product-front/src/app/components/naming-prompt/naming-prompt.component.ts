@@ -8,9 +8,11 @@ import { Barcode, CatalogItem, ProductSuggestion } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
 import { ShoppingStore } from '../../services/shopping.store';
+import { IconPickerComponent } from '../icon-picker/icon-picker.component';
+import { ItemAutocompleteComponent } from '../item-autocomplete/item-autocomplete.component';
 import { ItemIconComponent } from '../item-icon/item-icon.component';
+import { SheetComponent } from '../sheet/sheet.component';
 
-const MAX_MATCHES = 12;
 const SECTION_KEYWORDS: Record<string, Array<string>> = {
     'zuivel': ['zuivel', 'melk', 'milk', 'kaas', 'cheese', 'yoghurt', 'yogurt', 'dair', 'eieren', 'egg', 'boter', 'butter'],
     'dranken': ['drank', 'cola', 'sap', 'juice', 'bier', 'beer', 'wijn', 'wine', 'water', 'koffie', 'coffee', 'thee', 'tea', 'beverage', 'drink', 'soda'],
@@ -26,46 +28,36 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
     'dierenvoeding': ['dier', 'huisdier', 'pet', 'kat', 'hond']
 };
 
+export type NamingOutcome = { kind: 'linked'; item: CatalogItem } | { kind: 'later' } | { kind: 'discarded' };
+
 @Component({
     selector: 'app-naming-prompt',
     standalone: true,
-    imports: [FormsModule, TranslateModule, ItemIconComponent],
+    imports: [FormsModule, TranslateModule, IconPickerComponent, ItemAutocompleteComponent, ItemIconComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './naming-prompt.component.html'
 })
 export class NamingPromptComponent {
     public readonly code = input.required<string>();
-    public readonly closed = output<CatalogItem | undefined>();
+    public readonly closed = output<NamingOutcome>();
 
     protected readonly store = inject(ShoppingStore);
     protected readonly barcode = signal<Barcode | undefined>(undefined);
     protected readonly search = signal('');
-    protected readonly creating = signal(false);
+    protected readonly newName = signal<string | undefined>(undefined);
     protected readonly newSectionId = signal('');
+    protected readonly newIcon = signal('');
     protected readonly newEmoji = signal('');
+    protected readonly pickingIcon = signal(false);
     protected readonly busy = signal(false);
 
     protected readonly suggestions = computed(() => this.barcode()?.suggestions ?? []);
     protected readonly lookupPending = computed(() => this.barcode() !== undefined && !this.barcode()?.suggestions);
-
-    protected readonly matches = computed(() => {
-        const term = this.search().trim().toLowerCase();
-        const items = this.store.items();
-        if (!term) {
-            const sectionId = this.suggestedSectionId();
-            return sectionId ? items.filter((item) => item.sectionId === sectionId).slice(0, MAX_MATCHES) : [];
-        }
-
-        return items
-            .filter((item) => item.name.toLowerCase().includes(term))
-            .sort((a, b) => Number(b.name.toLowerCase().startsWith(term)) - Number(a.name.toLowerCase().startsWith(term)))
-            .slice(0, MAX_MATCHES);
-    });
-
-    protected readonly exactMatch = computed(() => {
-        const term = this.search().trim().toLowerCase();
-        return this.store.items().some((item) => item.name.toLowerCase() === term);
-    });
+    protected readonly newPreview = computed(() => ({
+        name: this.newName() ?? '?',
+        icon: this.newIcon() || undefined,
+        emoji: this.newEmoji() || undefined
+    }));
 
     protected readonly suggestedSectionId = computed(() => {
         const text = this.suggestions()
@@ -102,6 +94,7 @@ export class NamingPromptComponent {
     }
 
     protected useSuggestion(suggestion: ProductSuggestion): void {
+        this.newName.set(undefined);
         this.search.set(suggestion.title);
     }
 
@@ -109,26 +102,49 @@ export class NamingPromptComponent {
         this.busy.set(true);
         this.store
             .mapBarcode(this.code(), item.id)
-            .pipe(tap(() => this.closed.emit(item)))
+            .pipe(tap(() => this.closed.emit({ kind: 'linked', item })))
             .subscribe();
     }
 
-    protected startCreating(): void {
+    protected startCreating(name: string): void {
         this.newSectionId.set(this.suggestedSectionId() ?? this.store.sections()[0]?.id ?? '');
-        this.creating.set(true);
+        this.newName.set(name);
+    }
+
+    protected chooseIcon(icon: string): void {
+        this.newIcon.set(icon);
+        this.pickingIcon.set(false);
     }
 
     protected create(): void {
-        const name = this.search().trim();
+        const name = this.newName()?.trim();
         if (!name || !this.newSectionId()) {
             return;
         }
 
         this.busy.set(true);
         this.store
-            .createItem({ name, sectionId: this.newSectionId(), emoji: this.newEmoji().trim() || undefined })
+            .createItem({
+                name,
+                sectionId: this.newSectionId(),
+                icon: this.newIcon() || undefined,
+                emoji: this.newEmoji().trim() || undefined
+            })
             .pipe(
-                switchMap((item) => this.store.mapBarcode(this.code(), item.id).pipe(tap(() => this.closed.emit(item))))
+                switchMap((item) =>
+                    this.store.mapBarcode(this.code(), item.id).pipe(tap(() => this.closed.emit({ kind: 'linked', item })))
+                )
+            )
+            .subscribe();
+    }
+
+    protected discard(): void {
+        this.busy.set(true);
+        this.api
+            .discardBarcode(this.code())
+            .pipe(
+                switchMap(() => this.store.refreshListAndInbox()),
+                tap(() => this.closed.emit({ kind: 'discarded' }))
             )
             .subscribe();
     }

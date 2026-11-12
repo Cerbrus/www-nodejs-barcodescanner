@@ -37,8 +37,8 @@ export const appRoutes: Array<Route> = [
                 loadComponent: () => import('../pages/log/log.page').then((m) => m.LogPage)
             },
             {
-                path: 'more',
-                loadComponent: () => import('../pages/more/more.page').then((m) => m.MorePage)
+                path: 'system',
+                loadComponent: () => import('../pages/system/system.page').then((m) => m.SystemPage)
             }
         ]
     },

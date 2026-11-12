@@ -6,18 +6,27 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, switchMap, tap } from 'rxjs';
 
 import { BarcodeComponent } from '../../components/barcode';
+import { IconPickerComponent } from '../../components/icon-picker/icon-picker.component';
+import { ItemAutocompleteComponent } from '../../components/item-autocomplete/item-autocomplete.component';
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
 import { Barcode, CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
-const MAX_MOVE_TARGETS = 8;
-
 @Component({
     selector: 'app-item-page',
     standalone: true,
-    imports: [DatePipe, FormsModule, RouterLink, TranslateModule, BarcodeComponent, ItemIconComponent],
+    imports: [
+        DatePipe,
+        FormsModule,
+        RouterLink,
+        TranslateModule,
+        BarcodeComponent,
+        ItemIconComponent,
+        IconPickerComponent,
+        ItemAutocompleteComponent
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './item.page.html'
 })
@@ -32,6 +41,7 @@ export class ItemPage {
     protected readonly icon = signal('');
     protected readonly movingCode = signal<string | undefined>(undefined);
     protected readonly moveSearch = signal('');
+    protected readonly pickingIcon = signal(false);
     protected readonly confirmingDelete = signal(false);
 
     protected readonly preview = computed(() => ({
@@ -49,16 +59,6 @@ export class ItemPage {
                 this.emoji().trim() !== (item.emoji ?? '') ||
                 this.icon().trim() !== (item.icon ?? ''))
         );
-    });
-
-    protected readonly moveTargets = computed(() => {
-        const term = this.moveSearch().trim().toLowerCase();
-        return term
-            ? this.store
-                .items()
-                .filter((item) => item.id !== this.id() && item.name.toLowerCase().includes(term))
-                .slice(0, MAX_MOVE_TARGETS)
-            : [];
     });
 
     private readonly api = inject(ApiService);
@@ -86,6 +86,11 @@ export class ItemPage {
                 tap(() => this.toasts.show({ kind: 'ok', text: this.translate.instant('item.saved') }))
             )
             .subscribe();
+    }
+
+    protected chooseIcon(icon: string): void {
+        this.icon.set(icon);
+        this.pickingIcon.set(false);
     }
 
     protected detach(barcode: Barcode): void {

@@ -15,8 +15,9 @@
     --line: #e2e5ea;
     --accent: #0f766e;
     --accent-text: #fff;
-    --tile: #0f766e;
-    --tile-muted: #64748b;
+    --tile-buy: #c0392b;
+    --tile-recent: #2f855a;
+    --tile-neutral: #5b6779;
     --tile-text: #fff;
     --badge: #fbbf24;
     --badge-text: #1c2330;
@@ -37,10 +38,9 @@
         --line: #2a313b;
         --accent: #2dd4bf;
         --accent-text: #0b1512;
-        --tile: #0f766e;
-        --tile-muted: #475569;
-        --toast: #e8eaed;
-        --toast-text: #111418;
+        --tile-buy: #b03a2e;
+        --tile-recent: #2a7a52;
+        --tile-neutral: #465163;
     }
 }
 
@@ -162,20 +162,51 @@ body {
     text-align: center;
 }
 
-.sheet-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    background: rgb(0 0 0 / 45%);
+.flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 6px 8px;
+    overflow: hidden;
+}
+
+.flow-cell {
+    position: relative;
+    padding-top: 24px;
+}
+
+.flow-label {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    width: calc(var(--span, 1) * 100% + (var(--span, 1) - 1) * 8px);
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.sheet-dialog {
+    width: 100%;
+    max-width: 720px;
+    max-height: 92dvh;
+    margin: auto auto 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+
+    &::backdrop {
+        background: rgb(0 0 0 / 55%);
+    }
 }
 
 .sheet {
-    width: 100%;
-    max-width: 720px;
-    max-height: 88dvh;
+    max-height: 92dvh;
     padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
     overflow-y: auto;
     border-radius: 18px 18px 0 0;

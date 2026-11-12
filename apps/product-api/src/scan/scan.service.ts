@@ -121,6 +121,11 @@ export class ScanService {
         return scan;
     }
 
+    public async discardPending(code: string): Promise<void> {
+        await this.scans.update({ code, result: 'needs_name', undoneAt: IsNull() }, { undoneAt: new Date() });
+        this.logger.log(`scan ${code}: waiting scans discarded`);
+    }
+
     public history(limit: number): Promise<Array<ScanEntity>> {
         return this.scans.find({ order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
     }

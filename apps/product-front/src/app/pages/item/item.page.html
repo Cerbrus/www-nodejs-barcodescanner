@@ -6,7 +6,7 @@
 
     @if (item(); as item) {
         <div class="mt-2 flex items-center gap-3">
-            <span class="h-16 w-16 shrink-0 rounded-2xl p-2" style="background: var(--tile); color: var(--tile-text)">
+            <span class="h-16 w-16 shrink-0 rounded-2xl p-2" style="background: var(--tile-neutral); color: var(--tile-text)">
                 <app-item-icon [item]="preview()" />
             </span>
             <h1 class="page-title !m-0">{{ item.name }}</h1>
@@ -23,10 +23,15 @@
                 }
             </select>
 
-            <div class="flex gap-3">
+            <div class="flex items-end gap-3">
                 <div class="grow">
-                    <label class="field-label" for="item-icon">{{ 'item.icon' | translate }}</label>
-                    <input id="item-icon" class="field" type="text" maxlength="80" autocapitalize="off" [ngModel]="icon()" (ngModelChange)="icon.set($event)" />
+                    <span class="field-label">{{ 'item.icon' | translate }}</span>
+                    <button type="button" class="btn w-full !justify-start" (click)="pickingIcon.set(true)">
+                        <span class="h-8 w-8 shrink-0 rounded-lg p-1" style="background: var(--tile-neutral); color: var(--tile-text)">
+                            <app-item-icon [item]="preview()" />
+                        </span>
+                        {{ 'item.chooseIcon' | translate }}
+                    </button>
                 </div>
                 <div class="w-24">
                     <label class="field-label" for="item-emoji">{{ 'item.emoji' | translate }}</label>
@@ -36,6 +41,7 @@
             <p class="muted mt-1 text-xs">{{ 'item.iconHint' | translate }}</p>
 
             <button type="button" class="btn primary mt-3 w-full" [disabled]="!changed() || !name().trim()" (click)="save()">
+                <i class="material-symbols-outlined">save</i>
                 {{ 'common.save' | translate }}
             </button>
         </div>
@@ -59,20 +65,16 @@
                     </p>
 
                     @if (movingCode() === barcode.code) {
-                        <input
-                            class="field mt-2"
-                            type="search"
-                            autocomplete="off"
-                            [placeholder]="'item.moveSearch' | translate"
-                            [ngModel]="moveSearch()"
-                            (ngModelChange)="moveSearch.set($event)"
-                        />
-                        <div class="mt-1 flex flex-col gap-1">
-                            @for (target of moveTargets(); track target.id) {
-                                <button type="button" class="btn !justify-start" (click)="moveTo(target)">{{ target.name }}</button>
-                            }
+                        <div class="mt-2">
+                            <app-item-autocomplete
+                                [placeholder]="'item.moveSearch' | translate"
+                                [excludeId]="id()"
+                                [(text)]="moveSearch"
+                                (picked)="moveTo($event)"
+                            />
                         </div>
                         <button type="button" class="btn mt-2" (click)="movingCode.set(undefined)">
+                            <i class="material-symbols-outlined">close</i>
                             {{ 'common.cancel' | translate }}
                         </button>
                     } @else {
@@ -112,3 +114,7 @@
         <p class="empty">{{ 'common.loading' | translate }}</p>
     }
 </div>
+
+@if (pickingIcon()) {
+    <app-icon-picker [selected]="icon()" (picked)="chooseIcon($event)" (closed)="pickingIcon.set(false)" />
+}

@@ -12,13 +12,13 @@ const LANGUAGE_STORAGE_KEY = 'language';
 const VERSION_LENGTH = 7;
 
 @Component({
-    selector: 'app-more-page',
+    selector: 'app-system-page',
     standalone: true,
     imports: [RouterLink, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
-            <h1 class="page-title">{{ 'nav.more' | translate }}</h1>
+            <h1 class="page-title">{{ 'nav.system' | translate }}</h1>
 
             <div class="flex flex-col gap-2">
                 <a class="card flex items-center gap-3" routerLink="/history">
@@ -33,12 +33,12 @@ const VERSION_LENGTH = 7;
                 </a>
             </div>
 
-            <h2 class="section-title">{{ 'more.language' | translate }}</h2>
+            <h2 class="section-title">{{ 'system.language' | translate }}</h2>
             <div class="flex gap-2">
                 @for (language of languages; track language) {
                     <button
                         type="button"
-                        class="btn grow"
+                        class="btn basis-0 grow"
                         [class.primary]="currentLanguage() === language"
                         (click)="useLanguage(language)"
                     >
@@ -47,21 +47,21 @@ const VERSION_LENGTH = 7;
                 }
             </div>
 
-            <h2 class="section-title">{{ 'more.status' | translate }}</h2>
+            <h2 class="section-title">{{ 'system.status' | translate }}</h2>
             <div class="card text-sm">
                 <p>
-                    {{ 'more.connection' | translate }}:
+                    {{ 'system.connection' | translate }}:
                     <strong>{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</strong>
                 </p>
                 <p>
-                    {{ 'more.version' | translate }}:
+                    {{ 'system.version' | translate }}:
                     <span class="font-mono">{{ version() }}</span>
                 </p>
             </div>
         </div>
     `
 })
-export class MorePage {
+export class SystemPage {
     protected readonly events = inject(EventsService);
     protected readonly languages = LANGUAGES;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');

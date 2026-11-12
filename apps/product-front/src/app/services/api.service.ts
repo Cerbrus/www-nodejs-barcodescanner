@@ -82,6 +82,14 @@ export class ApiService {
         return this.http.delete<void>(`${this.baseUrl}/barcodes/${code}`);
     }
 
+    public discardBarcode(code: string): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/barcodes/${code}/discard`, {});
+    }
+
+    public getIcons(): Observable<Array<string>> {
+        return this.http.get<Array<string>>(`${this.baseUrl}/icons`);
+    }
+
     public scan(code: string, source: ScanSource): Observable<ScanOutcome> {
         return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code, source });
     }

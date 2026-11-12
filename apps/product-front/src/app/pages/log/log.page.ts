@@ -20,7 +20,7 @@ const STICK_TO_BOTTOM_PIXELS = 40;
     template: `
         <div class="terminal">
             <header class="bar">
-                <a class="back" routerLink="/more" [attr.aria-label]="'nav.more' | translate">
+                <a class="back" routerLink="/system" [attr.aria-label]="'nav.system' | translate">
                     <i class="material-symbols-outlined">arrow_back</i>
                 </a>
                 <span class="dot red"></span>

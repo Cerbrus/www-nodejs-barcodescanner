@@ -1,101 +1,93 @@
-<div class="sheet-backdrop" (click)="closed.emit(undefined)">
-    <div class="sheet" (click)="$event.stopPropagation()">
-        <h2 class="page-title">{{ 'naming.title' | translate }}</h2>
-        <p class="muted font-mono text-sm">{{ code() }}</p>
+<app-sheet (closed)="closed.emit({ kind: 'later' })">
+    <h2 class="page-title">{{ 'naming.title' | translate }}</h2>
+    <p class="muted font-mono text-sm">{{ code() }}</p>
 
-        <div class="mt-3 flex flex-col gap-2">
-            @for (suggestion of suggestions(); track suggestion.connectorId) {
-                <button type="button" class="card flex items-center gap-3 text-left" (click)="useSuggestion(suggestion)">
-                    @if (suggestion.imageUrl) {
-                        <img class="h-14 w-14 rounded-lg bg-white object-contain" [src]="suggestion.imageUrl" alt="" />
-                    }
-                    <span class="grow">
-                        <span class="block font-semibold">{{ suggestion.title }}</span>
-                        <span class="muted block text-sm">
-                            {{ suggestion.brand }}
-                            @if (suggestion.brand && suggestion.category) {
-                                ·
-                            }
-                            {{ suggestion.category }}
-                        </span>
-                    </span>
-                    <span class="muted text-xs uppercase">{{ suggestion.connectorId }}</span>
-                </button>
-            } @empty {
-                <p class="muted text-sm">
-                    {{ (lookupPending() ? 'naming.lookingUp' : 'naming.noSuggestions') | translate }}
-                </p>
-            }
-        </div>
-
-        <label class="field-label" for="naming-search">{{ 'naming.searchLabel' | translate }}</label>
-        <input
-            id="naming-search"
-            class="field"
-            type="search"
-            autocomplete="off"
-            [placeholder]="'naming.searchPlaceholder' | translate"
-            [ngModel]="search()"
-            (ngModelChange)="search.set($event); creating.set(false)"
-        />
-
-        <div class="mt-3 flex flex-col gap-1">
-            @for (item of matches(); track item.id) {
-                <button type="button" class="card flex items-center gap-3 !py-2 text-left" [disabled]="busy()" (click)="choose(item)">
-                    <span class="h-9 w-9 shrink-0 rounded-lg p-1" style="background: var(--tile); color: var(--tile-text)">
-                        <app-item-icon [item]="item" />
-                    </span>
-                    <span class="grow font-semibold">{{ item.name }}</span>
-                    <i class="material-symbols-outlined muted">chevron_right</i>
-                </button>
-            } @empty {
-                @if (search().trim()) {
-                    <p class="muted text-sm">{{ 'naming.noMatches' | translate }}</p>
+    <div class="mt-3 flex flex-col gap-2">
+        @for (suggestion of suggestions(); track suggestion.connectorId) {
+            <button type="button" class="card flex items-center gap-3 text-left" (click)="useSuggestion(suggestion)">
+                @if (suggestion.imageUrl) {
+                    <img class="h-14 w-14 rounded-lg bg-white object-contain" [src]="suggestion.imageUrl" alt="" />
                 }
-            }
-        </div>
-
-        @if (search().trim() && !exactMatch()) {
-            @if (creating()) {
-                <div class="card mt-3">
-                    <p class="font-semibold">{{ 'naming.newItem' | translate: { name: search().trim() } }}</p>
-
-                    <label class="field-label" for="naming-section">{{ 'item.section' | translate }}</label>
-                    <select
-                        id="naming-section"
-                        class="field"
-                        [ngModel]="newSectionId()"
-                        (ngModelChange)="newSectionId.set($event)"
-                    >
-                        @for (section of store.sections(); track section.id) {
-                            <option [value]="section.id">{{ section.emoji }} {{ section.name }}</option>
+                <span class="grow">
+                    <span class="block font-semibold">{{ suggestion.title }}</span>
+                    <span class="muted block text-sm">
+                        {{ suggestion.brand }}
+                        @if (suggestion.brand && suggestion.category) {
+                            ·
                         }
-                    </select>
+                        {{ suggestion.category }}
+                    </span>
+                </span>
+                <span class="muted text-xs uppercase">{{ suggestion.connectorId }}</span>
+            </button>
+        } @empty {
+            <p class="muted text-sm">
+                {{ (lookupPending() ? 'naming.lookingUp' : 'naming.noSuggestions') | translate }}
+            </p>
+        }
+    </div>
 
-                    <label class="field-label" for="naming-emoji">{{ 'item.emoji' | translate }}</label>
-                    <input
-                        id="naming-emoji"
-                        class="field"
-                        type="text"
-                        maxlength="8"
-                        [ngModel]="newEmoji()"
-                        (ngModelChange)="newEmoji.set($event)"
-                    />
+    @if (newName(); as name) {
+        <div class="card mt-3">
+            <div class="flex items-center gap-3">
+                <span class="h-12 w-12 shrink-0 rounded-xl p-1.5" style="background: var(--tile-neutral); color: var(--tile-text)">
+                    <app-item-icon [item]="newPreview()" />
+                </span>
+                <p class="grow font-semibold">{{ 'naming.newItem' | translate: { name } }}</p>
+                <button type="button" class="btn" [attr.aria-label]="'common.cancel' | translate" (click)="newName.set(undefined)">
+                    <i class="material-symbols-outlined">close</i>
+                </button>
+            </div>
 
-                    <button type="button" class="btn primary mt-3 w-full" [disabled]="busy()" (click)="create()">
-                        {{ 'naming.createAndLink' | translate }}
+            <label class="field-label" for="naming-section">{{ 'item.section' | translate }}</label>
+            <select id="naming-section" class="field" [ngModel]="newSectionId()" (ngModelChange)="newSectionId.set($event)">
+                @for (section of store.sections(); track section.id) {
+                    <option [value]="section.id">{{ section.emoji }} {{ section.name }}</option>
+                }
+            </select>
+
+            <div class="flex items-end gap-3">
+                <div class="grow">
+                    <span class="field-label">{{ 'item.icon' | translate }}</span>
+                    <button type="button" class="btn w-full !justify-start" (click)="pickingIcon.set(true)">
+                        <i class="material-symbols-outlined">image</i>
+                        {{ 'item.chooseIcon' | translate }}
                     </button>
                 </div>
-            } @else {
-                <button type="button" class="btn mt-3 w-full" (click)="startCreating()">
-                    <i class="material-symbols-outlined">add</i>
-                    {{ 'naming.newItem' | translate: { name: search().trim() } }}
-                </button>
-            }
-        }
+                <div class="w-24">
+                    <label class="field-label" for="naming-emoji">{{ 'item.emoji' | translate }}</label>
+                    <input id="naming-emoji" class="field" type="text" maxlength="8" [ngModel]="newEmoji()" (ngModelChange)="newEmoji.set($event)" />
+                </div>
+            </div>
 
-        <button type="button" class="btn mt-4 w-full" (click)="closed.emit(undefined)">
+            <button type="button" class="btn primary mt-3 w-full" [disabled]="busy()" (click)="create()">
+                <i class="material-symbols-outlined">add_link</i>
+                {{ 'naming.createAndLink' | translate }}
+            </button>
+        </div>
+    } @else {
+        <span class="field-label">{{ 'naming.searchLabel' | translate }}</span>
+        <app-item-autocomplete
+            [placeholder]="'naming.searchPlaceholder' | translate"
+            [allowCreate]="true"
+            [(text)]="search"
+            (picked)="choose($event)"
+            (create)="startCreating($event)"
+        />
+    }
+
+    <div class="mt-4 flex gap-2">
+        <button type="button" class="btn basis-0 grow" [disabled]="busy()" (click)="closed.emit({ kind: 'later' })">
+            <i class="material-symbols-outlined">schedule</i>
             {{ 'naming.later' | translate }}
         </button>
+        <button type="button" class="btn danger basis-0 grow" [disabled]="busy()" (click)="discard()">
+            <i class="material-symbols-outlined">undo</i>
+            {{ 'naming.discard' | translate }}
+        </button>
     </div>
-</div>
+</app-sheet>
+
+@if (pickingIcon()) {
+    <app-icon-picker [selected]="newIcon()" (picked)="chooseIcon($event)" (closed)="pickingIcon.set(false)" />
+}

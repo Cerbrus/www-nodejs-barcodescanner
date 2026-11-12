@@ -12,7 +12,7 @@
         "scan": "Scannen",
         "inbox": "Inbox",
         "catalog": "Producten",
-        "more": "Meer"
+        "system": "Systeem"
     },
     "list": {
         "searchPlaceholder": "Product toevoegen…",
@@ -37,18 +37,20 @@
         "added": "{name} staat op de lijst",
         "incremented": "{name}: nu {quantity}",
         "linked": "Gekoppeld aan {name}",
-        "failed": "Scan niet verwerkt: geen verbinding"
+        "failed": "Scan niet verwerkt: geen verbinding",
+        "discarded": "Scan geannuleerd"
     },
     "naming": {
         "title": "Welk product is dit?",
         "lookingUp": "Productgegevens opzoeken…",
         "noSuggestions": "Geen productgegevens gevonden voor deze barcode.",
         "searchLabel": "Kies het product voor op de lijst",
-        "searchPlaceholder": "Bijvoorbeeld: Melk",
+        "searchPlaceholder": "Typ een naam, bijvoorbeeld Melk",
         "noMatches": "Geen bestaand product met deze naam",
         "newItem": "Nieuw product \"{name}\"",
         "createAndLink": "Aanmaken en koppelen",
-        "later": "Later"
+        "later": "Later",
+        "discard": "Scan annuleren"
     },
     "inbox": {
         "title": "Inbox",
@@ -67,7 +69,7 @@
         "section": "Afdeling",
         "icon": "Icoon",
         "emoji": "Emoji",
-        "iconHint": "Icoon is de bestandsnaam zonder .png. Zonder icoon wordt de emoji getoond, anders de eerste letter.",
+        "iconHint": "Zonder icoon wordt de emoji getoond, anders de eerste letter.",
         "saved": "Opgeslagen",
         "barcodes": "Barcodes",
         "noBarcodes": "Nog geen barcodes gekoppeld. Scan een verpakking om er een toe te voegen.",
@@ -76,7 +78,8 @@
         "detach": "Ontkoppelen",
         "dangerZone": "Verwijderen",
         "delete": "Product verwijderen",
-        "deleteConfirm": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox."
+        "deleteConfirm": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox.",
+        "chooseIcon": "Icoon kiezen"
     },
     "history": {
         "title": "Scangeschiedenis",
@@ -97,14 +100,20 @@
         "disconnected": "geen verbinding",
         "empty": "Nog geen regels"
     },
-    "more": {
+    "language": {
+        "en": "Engels",
+        "nl": "Nederlands"
+    },
+    "system": {
         "language": "Taal",
         "status": "Status",
         "connection": "Verbinding",
         "version": "Versie"
     },
-    "language": {
-        "en": "Engels",
-        "nl": "Nederlands"
+    "icons": {
+        "title": "Kies een icoon",
+        "search": "Zoeken (Engelse namen)…",
+        "none": "Geen",
+        "noResults": "Geen icoon gevonden"
     }
 }

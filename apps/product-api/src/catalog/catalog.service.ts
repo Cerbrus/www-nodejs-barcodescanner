@@ -1,3 +1,6 @@
+import { readdir } from 'fs/promises';
+import { join } from 'path';
+
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Like, Repository } from 'typeorm';
@@ -15,6 +18,8 @@ export interface CatalogItemInput {
 
 @Injectable()
 export class CatalogService {
+    private readonly iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icons');
+
     constructor(
         @InjectRepository(SectionEntity) private readonly sections: Repository<SectionEntity>,
         @InjectRepository(CatalogItemEntity) private readonly items: Repository<CatalogItemEntity>,
@@ -97,6 +102,27 @@ export class CatalogService {
         await this.getBarcode(code);
         await this.barcodes.update({ code }, { catalogItemId: null });
         this.events.emit('barcode', { code, catalogItemId: null });
+    }
+
+    public async discardBarcode(code: string): Promise<void> {
+        const barcode = await this.getBarcode(code);
+        await this.scans.discardPending(code);
+        if (!barcode.catalogItemId) {
+            await this.barcodes.delete({ code });
+        }
+        this.events.emit('barcode', { code, discarded: true });
+    }
+
+    public async getIconNames(): Promise<Array<string>> {
+        try {
+            const files = await readdir(this.iconsPath);
+            return files
+                .filter((file) => file.endsWith('.png'))
+                .map((file) => file.slice(0, -'.png'.length))
+                .sort();
+        } catch {
+            return [];
+        }
     }
 
     private async assertValid(input: CatalogItemInput, ownId?: number): Promise<void> {

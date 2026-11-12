@@ -12,7 +12,7 @@
         <h2 class="section-title">{{ 'list.addFromCatalog' | translate }}</h2>
         <div class="tile-grid">
             @for (item of searchResults(); track item.id) {
-                <app-item-tile [item]="item" [muted]="true" (selected)="add(item)" />
+                <app-item-tile [item]="item" (selected)="add(item)" />
             } @empty {
                 <p class="empty col-span-full">{{ 'list.noSearchResults' | translate }}</p>
             }
@@ -20,37 +20,36 @@
     } @else if (!store.loaded()) {
         <p class="empty">{{ 'common.loading' | translate }}</p>
     } @else {
-        @for (group of store.toBuyGroups(); track group.section.id) {
-            <h2 class="section-title">
-                <span>{{ group.section.emoji }}</span>
-                {{ group.section.name }}
-            </h2>
-            <div class="tile-grid">
-                @for (entry of group.rows; track entry.catalogItemId) {
-                    <app-item-tile
-                        [item]="entry.catalogItem"
-                        [quantity]="entry.quantity"
-                        [note]="entry.note"
-                        [showDetails]="true"
-                        [detailsLabel]="'list.details' | translate"
-                        (selected)="checkOff(entry)"
-                        (details)="openItemId.set(entry.catalogItemId)"
-                    />
+        <div class="flow mt-2">
+            @for (group of store.toBuyGroups(); track group.section.id) {
+                @for (entry of group.rows; track entry.catalogItemId; let first = $first) {
+                    <div class="flow-cell">
+                        @if (first) {
+                            <span class="flow-label" [style.--span]="group.rows.length" [title]="group.section.name">
+                                {{ group.section.emoji }} {{ group.section.name }}
+                            </span>
+                        }
+                        <app-item-tile
+                            tone="buy"
+                            [item]="entry.catalogItem"
+                            [quantity]="entry.quantity"
+                            [note]="entry.note"
+                            [showDetails]="true"
+                            [detailsLabel]="'list.details' | translate"
+                            (selected)="checkOff(entry)"
+                            (details)="openItemId.set(entry.catalogItemId)"
+                        />
+                    </div>
                 }
-            </div>
-        } @empty {
-            <p class="empty">{{ 'list.empty' | translate }}</p>
-        }
+            } @empty {
+                <p class="empty col-span-full">{{ 'list.empty' | translate }}</p>
+            }
+        </div>
 
         <h2 class="section-title">{{ 'list.recent' | translate }}</h2>
         <div class="tile-grid">
             @for (entry of store.recent(); track entry.catalogItemId) {
-                <app-item-tile
-                    [item]="entry.catalogItem"
-                    [note]="entry.note"
-                    [muted]="true"
-                    (selected)="add(entry.catalogItem)"
-                />
+                <app-item-tile tone="recent" [item]="entry.catalogItem" [note]="entry.note" (selected)="add(entry.catalogItem)" />
             } @empty {
                 <p class="empty col-span-full">{{ 'list.noRecent' | translate }}</p>
             }
@@ -59,42 +58,41 @@
 </div>
 
 @if (openEntry(); as entry) {
-    <div class="sheet-backdrop" (click)="openItemId.set(undefined)">
-        <div class="sheet" (click)="$event.stopPropagation()">
-            <h2 class="page-title">{{ entry.catalogItem.name }}</h2>
+    <app-sheet (closed)="openItemId.set(undefined)">
+        <h2 class="page-title">{{ entry.catalogItem.name }}</h2>
 
-            <span class="field-label">{{ 'list.quantity' | translate }}</span>
-            <div class="flex items-center gap-3">
-                <button type="button" class="btn" [disabled]="entry.quantity <= 1" (click)="changeQuantity(entry, -1)">
-                    <i class="material-symbols-outlined">remove</i>
-                </button>
-                <span class="min-w-8 text-center text-xl font-bold">{{ entry.quantity }}</span>
-                <button type="button" class="btn" (click)="changeQuantity(entry, 1)">
-                    <i class="material-symbols-outlined">add</i>
-                </button>
-            </div>
-
-            <label class="field-label" for="entry-note">{{ 'list.note' | translate }}</label>
-            <input
-                #note
-                id="entry-note"
-                class="field"
-                type="text"
-                maxlength="200"
-                [value]="entry.note"
-                (blur)="saveNote(entry, note.value)"
-                (keyup.enter)="saveNote(entry, note.value)"
-            />
-
-            <div class="mt-4 flex flex-wrap gap-2">
-                <a class="btn" [routerLink]="['/catalog', entry.catalogItemId]">
-                    <i class="material-symbols-outlined">edit</i>
-                    {{ 'list.editItem' | translate }}
-                </a>
-                <button type="button" class="btn primary grow" (click)="saveNote(entry, note.value); openItemId.set(undefined)">
-                    {{ 'common.done' | translate }}
-                </button>
-            </div>
+        <span class="field-label">{{ 'list.quantity' | translate }}</span>
+        <div class="flex items-center gap-3">
+            <button type="button" class="btn" [disabled]="entry.quantity <= 1" (click)="changeQuantity(entry, -1)">
+                <i class="material-symbols-outlined">remove</i>
+            </button>
+            <span class="min-w-8 text-center text-xl font-bold">{{ entry.quantity }}</span>
+            <button type="button" class="btn" (click)="changeQuantity(entry, 1)">
+                <i class="material-symbols-outlined">add</i>
+            </button>
         </div>
-    </div>
+
+        <label class="field-label" for="entry-note">{{ 'list.note' | translate }}</label>
+        <input
+            #note
+            id="entry-note"
+            class="field"
+            type="text"
+            maxlength="200"
+            [value]="entry.note"
+            (blur)="saveNote(entry, note.value)"
+            (keyup.enter)="saveNote(entry, note.value)"
+        />
+
+        <div class="mt-4 flex flex-wrap gap-2">
+            <a class="btn" [routerLink]="['/catalog', entry.catalogItemId]">
+                <i class="material-symbols-outlined">edit</i>
+                {{ 'list.editItem' | translate }}
+            </a>
+            <button type="button" class="btn primary grow" (click)="saveNote(entry, note.value); openItemId.set(undefined)">
+                <i class="material-symbols-outlined">check</i>
+                {{ 'common.done' | translate }}
+            </button>
+        </div>
+    </app-sheet>
 }

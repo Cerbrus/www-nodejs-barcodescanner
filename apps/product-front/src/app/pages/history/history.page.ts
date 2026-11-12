@@ -19,9 +19,9 @@ const REFRESH_DELAY_MILLISECONDS = 200;
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
-            <a class="muted inline-flex items-center gap-1 text-sm" routerLink="/more">
+            <a class="muted inline-flex items-center gap-1 text-sm" routerLink="/system">
                 <i class="material-symbols-outlined">arrow_back</i>
-                {{ 'nav.more' | translate }}
+                {{ 'nav.system' | translate }}
             </a>
             <div class="flex items-center justify-between gap-3">
                 <h1 class="page-title">{{ 'history.title' | translate }}</h1>
@@ -51,7 +51,7 @@ const REFRESH_DELAY_MILLISECONDS = 200;
                         </span>
                     </div>
                 } @empty {
-                    <p class="empty">{{ 'history.empty' | translate }}</p>
+                    <p class="empty">{{ (loaded() ? 'history.empty' : 'common.loading') | translate }}</p>
                 }
             </div>
         </div>
@@ -64,6 +64,7 @@ const REFRESH_DELAY_MILLISECONDS = 200;
 })
 export class HistoryPage {
     protected readonly scans = signal<Array<Scan>>([]);
+    protected readonly loaded = signal(false);
     protected readonly canUndo = computed(() => this.scans().some((scan) => !scan.undoneAt && scan.result !== 'ignored'));
 
     private readonly api = inject(ApiService);
@@ -96,6 +97,11 @@ export class HistoryPage {
     }
 
     private load(): Observable<Array<Scan>> {
-        return this.api.getScans().pipe(tap((scans) => this.scans.set(scans)));
+        return this.api.getScans().pipe(
+            tap((scans) => {
+                this.scans.set(scans);
+                this.loaded.set(true);
+            })
+        );
     }
 }

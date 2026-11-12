@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ItemTileComponent } from '../../components/item-tile/item-tile.component';
+import { SheetComponent } from '../../components/sheet/sheet.component';
 import { CatalogItem, ListEntry } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
 
@@ -12,7 +13,7 @@ const MAX_SEARCH_RESULTS = 24;
 @Component({
     selector: 'app-list-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, TranslateModule, ItemTileComponent],
+    imports: [FormsModule, RouterLink, TranslateModule, ItemTileComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './list.page.html'
 })

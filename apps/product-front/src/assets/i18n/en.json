@@ -12,7 +12,7 @@
         "scan": "Scan",
         "inbox": "Inbox",
         "catalog": "Products",
-        "more": "More"
+        "system": "System"
     },
     "list": {
         "searchPlaceholder": "Add a product…",
@@ -37,18 +37,20 @@
         "added": "{name} is on the list",
         "incremented": "{name}: now {quantity}",
         "linked": "Linked to {name}",
-        "failed": "Scan not processed: no connection"
+        "failed": "Scan not processed: no connection",
+        "discarded": "Scan cancelled"
     },
     "naming": {
         "title": "Which product is this?",
         "lookingUp": "Looking up product details…",
         "noSuggestions": "No product details found for this barcode.",
         "searchLabel": "Pick the product for the list",
-        "searchPlaceholder": "For example: Milk",
+        "searchPlaceholder": "Type a name, for example Milk",
         "noMatches": "No existing product with this name",
         "newItem": "New product \"{name}\"",
         "createAndLink": "Create and link",
-        "later": "Later"
+        "later": "Later",
+        "discard": "Cancel scan"
     },
     "inbox": {
         "title": "Inbox",
@@ -67,7 +69,7 @@
         "section": "Section",
         "icon": "Icon",
         "emoji": "Emoji",
-        "iconHint": "Icon is the file name without .png. Without an icon the emoji is shown, otherwise the first letter.",
+        "iconHint": "Without an icon the emoji is shown, otherwise the first letter.",
         "saved": "Saved",
         "barcodes": "Barcodes",
         "noBarcodes": "No barcodes linked yet. Scan a package to add one.",
@@ -76,7 +78,8 @@
         "detach": "Detach",
         "dangerZone": "Delete",
         "delete": "Delete product",
-        "deleteConfirm": "Delete \"{name}\"? Linked barcodes go back to the inbox."
+        "deleteConfirm": "Delete \"{name}\"? Linked barcodes go back to the inbox.",
+        "chooseIcon": "Choose icon"
     },
     "history": {
         "title": "Scan history",
@@ -97,14 +100,20 @@
         "disconnected": "disconnected",
         "empty": "No lines yet"
     },
-    "more": {
+    "language": {
+        "en": "English",
+        "nl": "Dutch"
+    },
+    "system": {
         "language": "Language",
         "status": "Status",
         "connection": "Connection",
         "version": "Version"
     },
-    "language": {
-        "en": "English",
-        "nl": "Dutch"
+    "icons": {
+        "title": "Pick an icon",
+        "search": "Search…",
+        "none": "None",
+        "noResults": "No icon found"
     }
 }

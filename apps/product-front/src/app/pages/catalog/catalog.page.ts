@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
+import { ItemTileComponent } from '../../components/item-tile/item-tile.component';
+import { CatalogItem } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
 
 @Component({
     selector: 'app-catalog-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, TranslateModule, ItemIconComponent],
+    imports: [FormsModule, TranslateModule, ItemTileComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -23,32 +24,41 @@ import { ShoppingStore } from '../../services/shopping.store';
                 (ngModelChange)="search.set($event)"
             />
 
-            @for (group of groups(); track group.section.id) {
-                <h2 class="section-title">
-                    <span>{{ group.section.emoji }}</span>
-                    {{ group.section.name }}
-                    <span class="font-normal">({{ group.rows.length }})</span>
-                </h2>
-                <div class="flex flex-col gap-1">
-                    @for (item of group.rows; track item.id) {
-                        <a class="card flex items-center gap-3 !py-2" [routerLink]="['/catalog', item.id]">
-                            <span class="h-9 w-9 shrink-0 rounded-lg p-1" style="background: var(--tile); color: var(--tile-text)">
-                                <app-item-icon [item]="item" />
-                            </span>
-                            <span class="grow font-semibold">{{ item.name }}</span>
-                            <i class="material-symbols-outlined muted">chevron_right</i>
-                        </a>
-                    }
-                </div>
-            } @empty {
-                <p class="empty">{{ (store.loaded() ? 'catalog.noResults' : 'common.loading') | translate }}</p>
-            }
+            <div class="mt-3 flex flex-col gap-2">
+                @for (group of groups(); track group.section.id) {
+                    <section class="card !p-0">
+                        <button
+                            type="button"
+                            class="flex w-full items-center gap-2 p-3 text-left"
+                            [attr.aria-expanded]="isOpen(group.section.id)"
+                            (click)="toggle(group.section.id)"
+                        >
+                            <span class="text-xl">{{ group.section.emoji }}</span>
+                            <span class="grow font-semibold">{{ group.section.name }}</span>
+                            <span class="muted text-sm">{{ group.rows.length }}</span>
+                            <i class="material-symbols-outlined muted">
+                                {{ isOpen(group.section.id) ? 'expand_less' : 'expand_more' }}
+                            </i>
+                        </button>
+                        @if (isOpen(group.section.id)) {
+                            <div class="tile-grid p-3 pt-0">
+                                @for (item of group.rows; track item.id) {
+                                    <app-item-tile [item]="item" (selected)="openItem(item)" />
+                                }
+                            </div>
+                        }
+                    </section>
+                } @empty {
+                    <p class="empty">{{ (store.loaded() ? 'catalog.noResults' : 'common.loading') | translate }}</p>
+                }
+            </div>
         </div>
     `
 })
 export class CatalogPage {
     protected readonly store = inject(ShoppingStore);
     protected readonly search = signal('');
+    protected readonly openSections = signal<ReadonlySet<string>>(new Set());
 
     protected readonly groups = computed(() => {
         const term = this.search().trim().toLowerCase();
@@ -60,4 +70,24 @@ export class CatalogPage {
             }))
             .filter((group) => group.rows.length);
     });
+
+    private readonly router = inject(Router);
+
+    protected isOpen(sectionId: string): boolean {
+        return this.search().trim().length > 0 || this.openSections().has(sectionId);
+    }
+
+    protected toggle(sectionId: string): void {
+        this.openSections.update((open) => {
+            const next = new Set(open);
+            if (!next.delete(sectionId)) {
+                next.add(sectionId);
+            }
+            return next;
+        });
+    }
+
+    protected openItem(item: CatalogItem): void {
+        this.router.navigate(['/catalog', item.id]);
+    }
 }

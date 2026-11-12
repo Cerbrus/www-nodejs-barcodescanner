@@ -5,13 +5,14 @@ import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType } from '@zxing/library';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
-import { NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
-import { CatalogItem, ScanOutcome } from '../../models';
+import { NamingOutcome, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
+import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
 const SAME_CODE_PAUSE_MILLISECONDS = 3000;
+const SCAN_INTERVAL_MILLISECONDS = 150;
 const CODE_PATTERN = /^\d{8,14}$/;
 
 type CameraState = 'starting' | 'running' | 'blocked' | 'unsupported';
@@ -53,10 +54,14 @@ export class ScanPage {
         }
     }
 
-    protected onNamed(item: CatalogItem | undefined): void {
+    protected onNamed(outcome: NamingOutcome): void {
         this.namingCode.set(undefined);
-        if (item) {
-            this.toasts.show({ kind: 'ok', text: this.translate.instant('scan.linked', { name: item.name }) });
+        this.startCamera();
+
+        if (outcome.kind === 'linked') {
+            this.toasts.show({ kind: 'ok', text: this.translate.instant('scan.linked', { name: outcome.item.name }) });
+        } else if (outcome.kind === 'discarded') {
+            this.toasts.show({ kind: 'attention', text: this.translate.instant('scan.discarded') });
         }
     }
 
@@ -69,11 +74,13 @@ export class ScanPage {
         const hints = new Map<DecodeHintType, unknown>([
             [DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A]]
         ]);
-        const reader = new BrowserMultiFormatReader(hints);
+        const reader = new BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: SCAN_INTERVAL_MILLISECONDS });
+
+        this.state.set('starting');
 
         try {
             this.controls = await reader.decodeFromConstraints(
-                { audio: false, video: { facingMode: { ideal: 'environment' } } },
+                { audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
                 this.video().nativeElement,
                 (result) => {
                     if (result) {
@@ -118,6 +125,8 @@ export class ScanPage {
         navigator.vibrate?.(outcome.result === 'needs_name' ? [60, 60, 60] : 60);
 
         if (outcome.result === 'needs_name') {
+            this.controls?.stop();
+            this.controls = undefined;
             this.namingCode.set(outcome.code);
             return;
         }

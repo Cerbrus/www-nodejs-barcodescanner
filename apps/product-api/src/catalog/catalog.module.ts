@@ -133,11 +133,28 @@ export class BarcodeController {
     public unmapBarcode(@Param('code') code: string): Promise<void> {
         return this.catalog.unmapBarcode(code);
     }
+
+    @Post(':code/discard')
+    @HttpCode(204)
+    public discardBarcode(@Param('code') code: string): Promise<void> {
+        return this.catalog.discardBarcode(code);
+    }
+}
+
+@Controller({ path: 'icons', version: '1' })
+export class IconController {
+    constructor(private readonly catalog: CatalogService) {
+    }
+
+    @Get()
+    public getIconNames(): Promise<Array<string>> {
+        return this.catalog.getIconNames();
+    }
 }
 
 @Module({
     imports: [TypeOrmModule.forFeature([SectionEntity, CatalogItemEntity, BarcodeEntity]), ScanModule, EventsModule],
-    controllers: [SectionController, CatalogController, BarcodeController],
+    controllers: [SectionController, CatalogController, BarcodeController, IconController],
     providers: [CatalogService]
 })
 export class CatalogModule {

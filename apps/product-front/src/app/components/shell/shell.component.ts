@@ -29,6 +29,6 @@ export class ShellComponent {
         { route: '/scan', label: 'nav.scan', icon: 'barcode_scanner' },
         { route: '/inbox', label: 'nav.inbox', icon: 'inbox' },
         { route: '/catalog', label: 'nav.catalog', icon: 'category' },
-        { route: '/more', label: 'nav.more', icon: 'menu' }
+        { route: '/system', label: 'nav.system', icon: 'settings' }
     ];
 }
