@@ -91,7 +91,7 @@ export class PushService {
             const result = await this.send((texts) => ({
                 title: texts.unknownTitle,
                 body: (title ? texts.unknownNamed : texts.unknownBare).replace('{title}', title ?? '').replace('{code}', code),
-                url: '/inbox',
+                url: '/#/inbox',
                 tag: `barcode-${code}`
             }));
             if (result.sent || result.failed) {
@@ -103,7 +103,7 @@ export class PushService {
     }
 
     public sendTest(): Promise<PushResult> {
-        return this.send((texts) => ({ title: texts.testTitle, body: texts.testBody, url: '/system', tag: 'test' }));
+        return this.send((texts) => ({ title: texts.testTitle, body: texts.testBody, url: '/#/system', tag: 'test' }));
     }
 
     private async send(compose: (texts: Texts) => PushMessage): Promise<PushResult> {

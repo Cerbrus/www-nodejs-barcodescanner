@@ -61,6 +61,8 @@ Angular with standalone components and signals; no state library. `apps/product-
 - New products get a guessed shop section from keywords in the connector suggestions and the name (`new-item-form`).
 - Texts: `@ngx-translate`, Dutch by default and English, in `assets/i18n/`. Language and theme are stored in the browser.
 - Theme: every colour is a CSS variable in `styles.scss`. Dark follows the device unless the user picks light or dark, which sets `data-theme` on the page.
+- Addresses use the part after `#` (`/#/list`, `/#/inbox`). A notification's address then differs from the open page only after the `#`, which a browser treats as a jump inside the page instead of a new page load. An old address without `#` is rewritten at start.
+- `index.html` paints the page background in the right theme and the outline of the navigation bar before the scripts run, so a cold start or reload does not flash an empty screen.
 - Installable: `assets/manifest.webmanifest`, the home-screen icons and the titles in `index.html`.
 - `src/sw.js` is the service worker. It only handles notifications and caches nothing.
 

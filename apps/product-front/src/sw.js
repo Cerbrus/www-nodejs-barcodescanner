@@ -67,7 +67,7 @@ function readMessage(message) {
         title: notification.title,
         body: notification.body,
         tag: notification.tag,
-        url: target.pathname + target.search,
+        url: target.pathname + target.search + target.hash,
         badge: Number(notification.app_badge)
     };
 }

@@ -43,7 +43,7 @@ export function printConsoleBanner(details: BannerDetails): void {
     for (const [label, value] of rows) {
         console.log(`%c${label.padEnd(LABEL_WIDTH)}%c${value}`, LABEL_STYLE, VALUE_STYLE);
     }
-    console.log('%cLive log of scanner and server: /log   ·   scan history: /history', LABEL_STYLE);
+    console.log('%cLive log of scanner and server: /#/log   ·   scan history: /#/history', LABEL_STYLE);
 }
 
 declare global {

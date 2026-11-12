@@ -21,6 +21,9 @@
                 document.documentElement.dataset.theme = theme;
             }
         } catch (error) {}
+        if (location.pathname !== '/') {
+            history.replaceState(null, '', '/#' + location.pathname + location.search);
+        }
     </script>
     <style>
         html { --boot-page: #f3f4f6; --boot-surface: #fff; --boot-line: #e2e5ea; background: var(--boot-page); }

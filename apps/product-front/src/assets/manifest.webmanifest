@@ -3,7 +3,7 @@
     "short_name": "Boodschappen",
     "description": "Scan a package, get it on the shopping list.",
     "lang": "nl",
-    "start_url": "/list",
+    "start_url": "/",
     "scope": "/",
     "display": "standalone",
     "background_color": "#111418",

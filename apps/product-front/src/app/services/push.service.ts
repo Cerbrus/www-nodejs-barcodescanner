@@ -99,7 +99,8 @@ export class PushService {
             }
 
             await cache.delete(PENDING_KEY);
-            await this.router.navigateByUrl(await pending.text());
+            const target = await pending.text();
+            await this.router.navigateByUrl(target.includes('#') ? target.slice(target.indexOf('#') + 1) : target);
         } catch {
             return;
         }
