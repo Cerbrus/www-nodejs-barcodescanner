@@ -81,6 +81,14 @@ Decided during the feedback rounds on 2026-11-12:
 
 Decided 2026-11-12: versions are `major.minor.patch` with an automatic patch, the number of commits since `major.minor` was last raised in `package.json`, instead of bare commit hashes. The patch restarts at zero with every new minor or major version. Chosen over hand-bumped versions (easy to forget) and versions computed from commit messages (needs a strict message format). Each built commit gets a git tag. Details in `deployment.md`.
 
+### How a notification tap opens the inbox
+
+Settled on the iPhone on 2026-11-12, after three attempts:
+
+- A service worker handling the tap does not work there: with the app in front, the phone never runs the handler.
+- The declarative message format works: the phone opens the address in the message by itself. It does so as a page load, which restarted the app.
+- Addresses after a `#` (`/#/inbox`) solve that: the phone treats the tap as a jump inside the open page. This is why the app uses hash addresses, although plain ones look nicer. Do not switch back without retesting the tap.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

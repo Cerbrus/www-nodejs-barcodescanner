@@ -82,7 +82,7 @@ Done when: naming a typical new barcode takes one or two taps.
 
 ### 7. Feedback at the scanner: open
 
-- Built: push notification on the phone for an unknown handheld scan (UC-12). It arrives seconds after the scan, so it does not replace a beep.
+- Done: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone on 2026-11-12: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
 - Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
 - Otherwise: a USB speaker or a GPIO buzzer on a free pin, driven by the hardware agent from the scan result.
 
@@ -95,7 +95,6 @@ Done when: naming a typical new barcode takes one or two taps.
 | Point | Needed by |
 |---|---|
 | Tera's answer on the beeper commands, or the choice of a speaker or buzzer | Milestone 7 |
-| First notification on the real iPhone, and whether Apple accepts the contact address | Milestone 7 |
 
 ## Never tested
 
@@ -103,4 +102,4 @@ Done when: naming a typical new barcode takes one or two taps.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - Rollback with `IMAGE_TAG`.
 - A reboot with the firewall service since it was added.
-- Push notifications on a real device.
+- Push notifications on anything but the iPhone (Android, desktop browsers), which take the service worker path.
