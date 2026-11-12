@@ -1,0 +1,18 @@
+{
+    "nav": {
+        "products": "Products",
+        "barcodes": "Barcodes",
+        "store-products": "Store Products",
+        "toggle": {
+            "open": "Expand",
+            "close": "Collapse"
+        }
+    },
+    "common": {
+        "appName": "Product Manager"
+    },
+    "language": {
+        "en": "English",
+        "nl": "Dutch"
+    }
+}

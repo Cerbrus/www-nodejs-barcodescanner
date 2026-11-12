@@ -1,0 +1,55 @@
+@use './styles/buttons.scss';
+@use './styles/code.scss';
+@use './styles/inputs.scss';
+@use '@angular/material' as mat;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: OCR-B;
+    src: url('apps/product-front/src/assets/fonts/OCRB Regular.otf') format('opentype');
+}
+
+body {
+    @apply flex h-screen flex-col;
+}
+
+.material-symbols {
+    &-outlined {
+        @apply select-none;
+        font-variation-settings: 'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+
+    &-filled {
+        @apply select-none;
+        font-variation-settings: 'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+}
+
+.cdk-overlay-pane {
+    .mat-mdc-menu {
+        &-panel {
+            @apply rounded-md bg-gray-800 p-2 shadow-2xl;
+        }
+
+        &-content {
+            @apply p-0;
+        }
+    }
+}
+
+:root {
+    @include mat.menu-overrides((
+        container-elevation-shadow: none,
+        item-leading-spacing: 0px,
+        item-trailing-spacing: 0px,
+    ));
+}

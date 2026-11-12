@@ -1,0 +1,113 @@
+<div class="grid w-full max-w-full overflow-x-auto" [style.grid-template-columns]="gridTemplateColumns">
+    <div class="contents">
+        <div
+            class="flex select-none flex-row items-center justify-center bg-zinc-100 px-2 py-4 text-left text-xs font-medium text-zinc-900 first:rounded-l-xl first:pl-4 last:rounded-r-xl last:pr-4"
+        >
+            @if ({ bulkSelect: getBulkSelectMode() }; as data) {
+                <app-checkbox
+                    [checked]="data.bulkSelect === 'all' || data.bulkSelect === 'partial'"
+                    [partial]="data.bulkSelect === 'partial'"
+                    (checkedChange)="onBulkSelect($event)"
+                />
+            }
+        </div>
+        @for (col of columns; track col.key) {
+            @if (col.enabled && { sortState: getSortState(col.key) }; as data) {
+                <div
+                    (click)="toggleSortState(col)"
+                    class="flex select-none flex-row flex-nowrap items-center whitespace-nowrap bg-zinc-100 px-2 py-4 text-left text-xs font-medium text-zinc-500 first:rounded-l-xl first:pl-4 last:rounded-r-xl last:pr-4"
+                    [class.cursor-pointer]="col.sortable"
+                >
+                    <span [class.text-zinc-900]="data.sortState"
+                          class="transition-all">{{ col.label | translate }}</span>
+                    @if (col.sortable) {
+                        <span
+                            class="contents"
+                            [title]="
+                    'PaginatedTableComponent.sort.' + (data.sortState ?? 'none')
+                        | translate : { column: (col.label | translate) }
+                "
+                        >
+                <i
+                    class="ml-1 text-lg transition-all material-symbols-outlined"
+                    [style.transform]="'rotate(' + getRotation(data.sortState) + ')'"
+                    [class.text-sky-500]="!!data.sortState"
+                >
+                    arrow_downward_alt
+                </i>
+            </span>
+                    }
+                </div>
+            }
+        }
+    </div>
+    @if (!rows.length) {
+        <div class="col-span-full m-2 text-xs font-medium text-zinc-500">
+            @if (loading) {
+                <app-spinner />
+            }
+            @if (!loading) {
+                <div class="text-center">{{ 'PaginatedTableComponent.noData' | translate }}</div>
+            }
+        </div>
+    }
+    @for (row of rows; track row.id) {
+        @if ({ checked: selectedRows.includes(row.id) }; as status) {
+            <div class="contents cursor-pointer group/row" (click)="onRowClick(row, $event)">
+                <div
+                    class="flex flex-row items-center justify-center border-b group-hover/row:bg-sky-200 px-2 first:pl-4 last:pr-4"
+                    [class.bg-sky-100]="status.checked"
+                >
+                    <app-checkbox (checkedChange)="onRowCheck(row, $event)" [checked]="status.checked" />
+                </div>
+                @for (col of columns; track col.key) {
+                    @if (col.enabled) {
+                        <div
+                            class="truncate border-b border-zinc-200 group-hover/row:bg-sky-200 px-2 py-4 text-sm first:pl-4 last:pr-4"
+                            [class.bg-sky-100]="status.checked"
+                        >
+                            @if ({
+                                isEmpty: row[col.key] === null || row[col.key] === undefined,
+                                value: row[col.key]
+                            }; as data) {
+                                <span
+                                    [class]="{
+                    'label-sky': col.type === 'label' && !data.isEmpty,
+                    'w-full': col.type === 'text' || data.isEmpty
+                }"
+                                    class="w-full min-w-0 truncate"
+                                >
+                {{ String(data.value ?? '') | translate }}
+            </span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
+    }
+</div>
+<div class="mt-4 grid grid-flow-col">
+    <span class="justify-self-start whitespace-nowrap text-sm text-zinc-900">
+        @if ({ visibleRows: getVisibleRows() }; as data) {
+            <span
+                [innerHtml]="
+                'PaginatedTableComponent.rowTotal'
+                    | translate : { start: data.visibleRows.start, end: data.visibleRows.end, total: total }
+            "
+            ></span>
+        }
+    </span>
+    <app-page-selector
+        class="justify-self-center"
+        [total]="pageTotal"
+        [pageIndex]="pageIndex"
+        (navigateTo)="goToPage($event)"
+    />
+    <app-select-box
+        class="justify-self-end"
+        [options]="stepOptions"
+        [selected]="stepOption"
+        (selectOption)="setStepSize($event.item)"
+    />
+</div>

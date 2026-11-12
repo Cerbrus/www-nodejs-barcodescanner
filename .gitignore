@@ -1,0 +1,33 @@
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Environment
+.env
+.env.*
+
+# Build output
+dist/
+
+# Local data: everything in data/ except the seed file and icons
+/data/*
+!/data/seed-items.json
+!/data/icons/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/
+
+# Caches
+.nx/
+.yarn/install-state.gz

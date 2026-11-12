@@ -1,0 +1,37 @@
+export interface AHProductProperties {
+    da_accreditation: Array<string>;
+    da_available_in_store: Array<string>;
+    da_excluded_assortment: Array<string>;
+    da_fat_content: Array<string>;
+    da_free_of_sugar: Array<string>;
+    da_processing_type: Array<string>;
+    da_salted_or_not_salted: Array<string>;
+    da_store_department: Array<string>;
+    da_sugar_added_or_no_sugar_added: Array<string>;
+    da_taste: Array<string>;
+    da_type_of_processed_food: Array<string>;
+    np_lokaal: Array<string>;
+    np_smaak: Array<string>;
+    np_verpakking: Array<string>;
+    nutriscore: Array<string>;
+    sp_exclude_dieet_laag_suiker: Array<string>;
+    sp_exclude_dieet_veganistisch: Array<string>;
+    sp_exclude_intolerance_geen_lactose: Array<string>;
+    sp_exclude_intolerance_geen_melk: Array<string>;
+    sp_include_dieet_laag_vet: Array<string>;
+    sp_include_dieet_laag_zout: Array<string>;
+    sp_include_dieet_vegetarisch: Array<string>;
+    sp_include_intolerance_geen_eieren: Array<string>;
+    sp_include_intolerance_geen_gluten: Array<string>;
+    sp_include_intolerance_geen_kreeftachtigen: Array<string>;
+    sp_include_intolerance_geen_lupine: Array<string>;
+    sp_include_intolerance_geen_mosterd: Array<string>;
+    sp_include_intolerance_geen_noten: Array<string>;
+    sp_include_intolerance_geen_pindas: Array<string>;
+    sp_include_intolerance_geen_schelpdieren: Array<string>;
+    sp_include_intolerance_geen_selderij: Array<string>;
+    sp_include_intolerance_geen_sesam: Array<string>;
+    sp_include_intolerance_geen_soja: Array<string>;
+    sp_include_intolerance_geen_sulfiet: Array<string>;
+    sp_include_intolerance_geen_vis: Array<string>;
+}

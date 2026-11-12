@@ -1,0 +1,16 @@
+<a class="link"
+   href="#"
+   [routerLink]="item.route "
+   routerLinkActive="active"
+   [class.compact]="compact"
+   [title]="item.label | translate">
+    <i class="material-symbols-outlined">{{ item.icon }}</i>
+    <span class="label">{{ item.label | translate }}</span>
+    <span class="flex-grow text-right">
+    @if (item.count) {
+        <button type="button" class="counter" [class.compact]="compact">
+            <span class="count">{{ item.count }}</span>
+        </button>
+    }
+    </span>
+</a>

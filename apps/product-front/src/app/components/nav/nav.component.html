@@ -1,0 +1,39 @@
+<div class="container" [class.open]="open()">
+    <div class="flex flex-col sm:flex-row sm:justify-around">
+        <div class="h-screen w-full shadow-2xl">
+            <div class="title" [title]="title | translate">
+                <i class="material-symbols-outlined">barcode_reader</i>
+                <span class="label">
+                    {{ title | translate }}
+                </span>
+            </div>
+            <nav>
+                @for (item of navItems; track item) {
+                    <app-nav-item [item]="item" [compact]="!open()" />
+                }
+            </nav>
+            <nav class="bottom-nav">
+                <button class="button-plain"
+                        [matMenuTriggerFor]="menu"
+                        (mouseenter)="trigger.openMenu()"
+                        #trigger=matMenuTrigger>
+                    <i class="material-symbols-outlined">translate</i>
+                </button>
+                <mat-menu #menu="matMenu" yPosition="above">
+                    <div (mouseleave)="trigger.closeMenu()" class="flex flex-col gap-1">
+                        @for (lang of supportedLanguages; track lang) {
+                            <button class="button-solid-full"
+                                    type="button"
+                                    (click)="toggleLanguage(lang)"
+                                    [class.active]="currentLang() === lang"
+                            >
+                                {{ 'language.' + lang | translate }}
+                            </button>
+                        }
+                    </div>
+                </mat-menu>
+                <app-nav-item [item]="toggleNavItem()" [compact]="!open()" (click)="toggle()" />
+            </nav>
+        </div>
+    </div>
+</div>

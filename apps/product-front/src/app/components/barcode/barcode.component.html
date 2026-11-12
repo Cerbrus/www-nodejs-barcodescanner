@@ -1,0 +1,27 @@
+@let barcode = encodeBarcode() ;
+
+@if (barcode) {
+    <div class="barcode-container"
+         [style.width.px]="barcode.sizes.width"
+         [style.height.px]="barcode.sizes.height"
+         [style.font-size.pt]="barcode.sizes.font"
+         [title]="barcode.input">
+        <div class="numeric encoding">
+            <span>{{ barcode.encoding }}</span>
+        </div>
+        <div class="barcode">
+            <div class="barcode-bars">
+                @for (bar of barcode.bars; track $index) {
+                    <div class="barcode-bar"
+                         [class]="bar.styling.class"
+                         [style]="bar.styling.style"
+                         [style.flex-grow]="bar.width"></div>
+                }
+            </div>
+            <div class="numeric">
+                <span>{{ barcode.left }}</span>
+                <span>{{ barcode.right }}</span>
+            </div>
+        </div>
+    </div>
+}

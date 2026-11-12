@@ -1,0 +1,39 @@
+@let canGoBack = this.canGoBack(); @let canGoNext = this.canGoNext();
+
+<div class="flex flex-row items-center justify-stretch h-10 select-none">
+    <!--Previous-->
+    <button
+        class="transition-all bg-white border-zinc-200 border text-zinc-500 rounded-l-xl p-2 flex items-center justify-center h-full"
+        [disabled]="!canGoBack"
+        [ngClass]="canGoBack ? 'active:translate-y-0 hover:-translate-y-[1px] active:bg-zinc-100' : 'bg-zinc-100'"
+        (click)="navigate(pageIndex - 1)"
+    >
+        <i class="material-symbols-outlined" [class.opacity-80]="!canGoBack">chevron_left</i>
+    </button>
+    <!--Pages-->
+    @for (page of pages; track page.index) {
+    <button
+        class="transition-all border-zinc-200 border-r border-t border-b p-2 flex items-center justify-center h-full min-w-10 font-semibold text-sm"
+        [ngClass]="
+            page.index === undefined
+                ? 'bg-white text-zinc-500'
+                : page.index === pageIndex
+                ? 'bg-sky-50 hover:-translate-y-[1px] active:translate-y-0 active:bg-sky-100 text-sky-700'
+                : 'bg-white text-zinc-500 hover:-translate-y-[1px] active:translate-y-0 active:bg-zinc-100'
+        "
+        [disabled]="page.index === undefined"
+        (click)="navigate(page.index)"
+    >
+        <span>{{ page.label }}</span>
+    </button>
+    }
+    <!--Next-->
+    <button
+        class="transition-all bg-white border-zinc-200 border-r border-t border-b text-zinc-500 rounded-r-xl p-2 flex items-center justify-center h-full"
+        [disabled]="!canGoNext"
+        [ngClass]="canGoNext ? 'active:translate-y-0 hover:-translate-y-[1px] active:bg-zinc-100' : 'bg-zinc-100'"
+        (click)="navigate(pageIndex + 1)"
+    >
+        <i class="material-symbols-outlined" [class.opacity-80]="!canGoNext">chevron_right</i>
+    </button>
+</div>

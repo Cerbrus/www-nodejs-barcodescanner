@@ -1,0 +1,50 @@
+{
+    "name": "product-api",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/product-api/src",
+    "projectType": "application",
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@nx/webpack:webpack",
+            "outputs": [
+                "{options.outputPath}"
+            ],
+            "defaultConfiguration": "production",
+            "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/apps/product",
+                "main": "apps/product-api/src/main.ts",
+                "tsConfig": "apps/product-api/tsconfig.app.json",
+                "assets": [],
+                "webpackConfig": "apps/product-api/webpack.config.js"
+            },
+            "configurations": {
+                "development": {},
+                "production": {}
+            }
+        },
+        "serve": {
+            "executor": "@nx/js:node",
+            "defaultConfiguration": "development",
+            "options": {
+                "buildTarget": "product-api:build"
+            },
+            "configurations": {
+                "development": {
+                    "buildTarget": "product-api:build:development"
+                },
+                "production": {
+                    "buildTarget": "product-api:build:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ]
+        }
+    }
+}

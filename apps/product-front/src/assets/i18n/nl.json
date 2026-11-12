@@ -1,0 +1,18 @@
+{
+    "nav": {
+        "products": "Producten",
+        "barcodes": "Barcodes",
+        "store-products": "Winkelproducten",
+        "toggle": {
+            "open": "Uitvouwen",
+            "close": "Inklappen"
+        }
+    },
+    "common": {
+        "appName": "Productbeheer"
+    },
+    "language": {
+        "en": "Engels",
+        "nl": "Nederlands"
+    }
+}

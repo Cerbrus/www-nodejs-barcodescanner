@@ -1,0 +1,2666 @@
+{
+    "capturedAt": "2026-11-12",
+    "iconNote": "icon is a file name in data/icons/<icon>.png; null means no icon file; emoji is the fallback, then a letter tile",
+    "sections": [
+        {
+            "id": "fruit-groenten",
+            "name": "Fruit & Groenten",
+            "order": 1,
+            "emoji": "🥦"
+        },
+        {
+            "id": "brood-gebak",
+            "name": "Brood & gebak",
+            "order": 2,
+            "emoji": "🍞"
+        },
+        {
+            "id": "zuivel",
+            "name": "Zuivel",
+            "order": 3,
+            "emoji": "🧀"
+        },
+        {
+            "id": "vlees-vis",
+            "name": "Vlees & Vis",
+            "order": 4,
+            "emoji": "🥩"
+        },
+        {
+            "id": "ingredienten-kruiden",
+            "name": "Ingrediënten & Kruiden",
+            "order": 5,
+            "emoji": "🧂"
+        },
+        {
+            "id": "gereed-diepvries",
+            "name": "Gereed- en diepvriesproducten",
+            "order": 6,
+            "emoji": "🧊"
+        },
+        {
+            "id": "graanproducten",
+            "name": "Graanproducten",
+            "order": 7,
+            "emoji": "🌾"
+        },
+        {
+            "id": "snacks-snoep",
+            "name": "Snacks & Snoep",
+            "order": 8,
+            "emoji": "🍫"
+        },
+        {
+            "id": "dranken",
+            "name": "Dranken",
+            "order": 9,
+            "emoji": "🥤"
+        },
+        {
+            "id": "huishouden",
+            "name": "Huishouden",
+            "order": 10,
+            "emoji": "🧹"
+        },
+        {
+            "id": "verzorging-gezondheid",
+            "name": "Verzorging & Gezondheid",
+            "order": 11,
+            "emoji": "🧴"
+        },
+        {
+            "id": "dierenvoeding",
+            "name": "Dierenvoeding",
+            "order": 12,
+            "emoji": "🐾"
+        },
+        {
+            "id": "eigen-items",
+            "name": "Eigen items",
+            "order": 13,
+            "emoji": "⭐"
+        }
+    ],
+    "items": [
+        {
+            "name": "Aardappelen",
+            "sectionId": "fruit-groenten",
+            "icon": "potatoes",
+            "custom": false,
+            "emoji": "🥔"
+        },
+        {
+            "name": "Aardbeien",
+            "sectionId": "fruit-groenten",
+            "icon": "strawberries",
+            "custom": false,
+            "emoji": "🍓"
+        },
+        {
+            "name": "Abrikozen",
+            "sectionId": "fruit-groenten",
+            "icon": "apricot",
+            "custom": false,
+            "emoji": "🍑"
+        },
+        {
+            "name": "Ananas",
+            "sectionId": "fruit-groenten",
+            "icon": "pineapple",
+            "custom": false,
+            "emoji": "🍍"
+        },
+        {
+            "name": "Appels",
+            "sectionId": "fruit-groenten",
+            "icon": "apples",
+            "custom": false,
+            "emoji": "🍎"
+        },
+        {
+            "name": "Artisjokken",
+            "sectionId": "fruit-groenten",
+            "icon": "artichokes",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Asperges",
+            "sectionId": "fruit-groenten",
+            "icon": "asparagus",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Aubergine",
+            "sectionId": "fruit-groenten",
+            "icon": "eggplant",
+            "custom": false,
+            "emoji": "🍆"
+        },
+        {
+            "name": "Avocado",
+            "sectionId": "fruit-groenten",
+            "icon": "avocado",
+            "custom": false,
+            "emoji": "🥑"
+        },
+        {
+            "name": "Bananen",
+            "sectionId": "fruit-groenten",
+            "icon": "bananas",
+            "custom": false,
+            "emoji": "🍌"
+        },
+        {
+            "name": "Basilicum",
+            "sectionId": "fruit-groenten",
+            "icon": "basil",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Bessen",
+            "sectionId": "fruit-groenten",
+            "icon": "berries",
+            "custom": false,
+            "emoji": "🫐"
+        },
+        {
+            "name": "Bieslook",
+            "sectionId": "fruit-groenten",
+            "icon": "chives",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Blauwe bessen",
+            "sectionId": "fruit-groenten",
+            "icon": "blueberries",
+            "custom": false,
+            "emoji": "🫐"
+        },
+        {
+            "name": "Bloemkool",
+            "sectionId": "fruit-groenten",
+            "icon": "cauliflower",
+            "custom": false,
+            "emoji": "🥦"
+        },
+        {
+            "name": "Bosui / Lente-ui",
+            "sectionId": "fruit-groenten",
+            "icon": "scallions",
+            "custom": false,
+            "emoji": "🧅"
+        },
+        {
+            "name": "Broccoli",
+            "sectionId": "fruit-groenten",
+            "icon": "broccoli",
+            "custom": false,
+            "emoji": "🥦"
+        },
+        {
+            "name": "Champignons",
+            "sectionId": "fruit-groenten",
+            "icon": "mushrooms",
+            "custom": false,
+            "emoji": "🍄"
+        },
+        {
+            "name": "Cherrytomaten",
+            "sectionId": "fruit-groenten",
+            "icon": "cherry_tomatoes",
+            "custom": false,
+            "emoji": "🍅"
+        },
+        {
+            "name": "Chillipeper",
+            "sectionId": "fruit-groenten",
+            "icon": "chillies",
+            "custom": false,
+            "emoji": "🌶️"
+        },
+        {
+            "name": "Citroen",
+            "sectionId": "fruit-groenten",
+            "icon": "lemon",
+            "custom": false,
+            "emoji": "🍋"
+        },
+        {
+            "name": "Courgette",
+            "sectionId": "fruit-groenten",
+            "icon": "zucchini",
+            "custom": false,
+            "emoji": "🥒"
+        },
+        {
+            "name": "Cranberry",
+            "sectionId": "fruit-groenten",
+            "icon": "cranberries",
+            "custom": false,
+            "emoji": "🍒"
+        },
+        {
+            "name": "Dadels",
+            "sectionId": "fruit-groenten",
+            "icon": "dates",
+            "custom": false,
+            "emoji": "🌴"
+        },
+        {
+            "name": "Druiven",
+            "sectionId": "fruit-groenten",
+            "icon": "grapes",
+            "custom": false,
+            "emoji": "🍇"
+        },
+        {
+            "name": "Erwten",
+            "sectionId": "fruit-groenten",
+            "icon": "peas",
+            "custom": false,
+            "emoji": "🫛"
+        },
+        {
+            "name": "Frambozen",
+            "sectionId": "fruit-groenten",
+            "icon": "raspberries",
+            "custom": false,
+            "emoji": "🍓"
+        },
+        {
+            "name": "Fruit",
+            "sectionId": "fruit-groenten",
+            "icon": "fruit",
+            "custom": false,
+            "emoji": "🍏"
+        },
+        {
+            "name": "Gember",
+            "sectionId": "fruit-groenten",
+            "icon": "ginger",
+            "custom": false,
+            "emoji": "🫚"
+        },
+        {
+            "name": "Grapefruit",
+            "sectionId": "fruit-groenten",
+            "icon": "grapefruit",
+            "custom": false,
+            "emoji": "🍊"
+        },
+        {
+            "name": "Groenten",
+            "sectionId": "fruit-groenten",
+            "icon": "vegetables",
+            "custom": false,
+            "emoji": "🥗"
+        },
+        {
+            "name": "Kersen",
+            "sectionId": "fruit-groenten",
+            "icon": "cherries",
+            "custom": false,
+            "emoji": "🍒"
+        },
+        {
+            "name": "Kiwi",
+            "sectionId": "fruit-groenten",
+            "icon": "kiwis",
+            "custom": false,
+            "emoji": "🥝"
+        },
+        {
+            "name": "Knoflook",
+            "sectionId": "fruit-groenten",
+            "icon": "garlic",
+            "custom": false,
+            "emoji": "🧄"
+        },
+        {
+            "name": "Komkommer",
+            "sectionId": "fruit-groenten",
+            "icon": "cucumber",
+            "custom": false,
+            "emoji": "🥒"
+        },
+        {
+            "name": "Kool",
+            "sectionId": "fruit-groenten",
+            "icon": "cabbage",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Koriander",
+            "sectionId": "fruit-groenten",
+            "icon": "cilantro",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Kruiden",
+            "sectionId": "fruit-groenten",
+            "icon": "herbs",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Limoen",
+            "sectionId": "fruit-groenten",
+            "icon": "lime",
+            "custom": false,
+            "emoji": "🍋"
+        },
+        {
+            "name": "Mandarijnen",
+            "sectionId": "fruit-groenten",
+            "icon": "mandarins",
+            "custom": false,
+            "emoji": "🍊"
+        },
+        {
+            "name": "Mango",
+            "sectionId": "fruit-groenten",
+            "icon": "mango",
+            "custom": false,
+            "emoji": "🥭"
+        },
+        {
+            "name": "Maïs",
+            "sectionId": "fruit-groenten",
+            "icon": "sweet_corn",
+            "custom": false,
+            "emoji": "🌽"
+        },
+        {
+            "name": "Meloen",
+            "sectionId": "fruit-groenten",
+            "icon": "melon",
+            "custom": false,
+            "emoji": "🍈"
+        },
+        {
+            "name": "Munt",
+            "sectionId": "fruit-groenten",
+            "icon": "mint",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Nectarine",
+            "sectionId": "fruit-groenten",
+            "icon": "nectarine",
+            "custom": false,
+            "emoji": "🍑"
+        },
+        {
+            "name": "Olijven",
+            "sectionId": "fruit-groenten",
+            "icon": "olives",
+            "custom": false,
+            "emoji": "🫒"
+        },
+        {
+            "name": "Paprika",
+            "sectionId": "fruit-groenten",
+            "icon": "bell_pepper",
+            "custom": false,
+            "emoji": "🫑"
+        },
+        {
+            "name": "Passiefruit",
+            "sectionId": "fruit-groenten",
+            "icon": "passion_fruit",
+            "custom": false,
+            "emoji": "🥭"
+        },
+        {
+            "name": "Peren",
+            "sectionId": "fruit-groenten",
+            "icon": "pears",
+            "custom": false,
+            "emoji": "🍐"
+        },
+        {
+            "name": "Perzik",
+            "sectionId": "fruit-groenten",
+            "icon": "peach",
+            "custom": false,
+            "emoji": "🍑"
+        },
+        {
+            "name": "Peterselie",
+            "sectionId": "fruit-groenten",
+            "icon": "parsley",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Pompoen",
+            "sectionId": "fruit-groenten",
+            "icon": "squash",
+            "custom": false,
+            "emoji": "🎃"
+        },
+        {
+            "name": "Prei",
+            "sectionId": "fruit-groenten",
+            "icon": "leek",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Pruimen",
+            "sectionId": "fruit-groenten",
+            "icon": "prunes",
+            "custom": false,
+            "emoji": "🍑"
+        },
+        {
+            "name": "Rabarber",
+            "sectionId": "fruit-groenten",
+            "icon": "rhubarb",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Radijzen",
+            "sectionId": "fruit-groenten",
+            "icon": "radish",
+            "custom": false,
+            "emoji": "🥕"
+        },
+        {
+            "name": "Rode biet",
+            "sectionId": "fruit-groenten",
+            "icon": "beets",
+            "custom": false,
+            "emoji": "🥕"
+        },
+        {
+            "name": "Rucola",
+            "sectionId": "fruit-groenten",
+            "icon": "arugula",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Salie",
+            "sectionId": "fruit-groenten",
+            "icon": "sage",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Selderij",
+            "sectionId": "fruit-groenten",
+            "icon": "celery",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Sinaasappelen",
+            "sectionId": "fruit-groenten",
+            "icon": "orange",
+            "custom": false,
+            "emoji": "🍊"
+        },
+        {
+            "name": "Sla",
+            "sectionId": "fruit-groenten",
+            "icon": "salad",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Spinazie",
+            "sectionId": "fruit-groenten",
+            "icon": "spinach",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Tijm",
+            "sectionId": "fruit-groenten",
+            "icon": "thyme",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Tomaten",
+            "sectionId": "fruit-groenten",
+            "icon": "tomatoes",
+            "custom": false,
+            "emoji": "🍅"
+        },
+        {
+            "name": "Uien",
+            "sectionId": "fruit-groenten",
+            "icon": "onions",
+            "custom": false,
+            "emoji": "🧅"
+        },
+        {
+            "name": "Venkel",
+            "sectionId": "fruit-groenten",
+            "icon": "fennel",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Vijgen",
+            "sectionId": "fruit-groenten",
+            "icon": "figs",
+            "custom": false
+        },
+        {
+            "name": "Watermeloen",
+            "sectionId": "fruit-groenten",
+            "icon": "watermelon",
+            "custom": false,
+            "emoji": "🍉"
+        },
+        {
+            "name": "Witlof",
+            "sectionId": "fruit-groenten",
+            "icon": "chicory",
+            "custom": false,
+            "emoji": "🥬"
+        },
+        {
+            "name": "Wortelen",
+            "sectionId": "fruit-groenten",
+            "icon": "carrots",
+            "custom": false,
+            "emoji": "🥕"
+        },
+        {
+            "name": "Zoete aardappelen",
+            "sectionId": "fruit-groenten",
+            "icon": "sweet_potatoes",
+            "custom": false,
+            "emoji": "🍠"
+        },
+        {
+            "name": "Zwarte bessen",
+            "sectionId": "fruit-groenten",
+            "icon": "blackberries",
+            "custom": false,
+            "emoji": "🫐"
+        },
+        {
+            "name": "Amerikaans Broodje",
+            "sectionId": "brood-gebak",
+            "icon": "dinner_rolls",
+            "custom": false,
+            "emoji": "🍞"
+        },
+        {
+            "name": "Bagels",
+            "sectionId": "brood-gebak",
+            "icon": "bagels",
+            "custom": false,
+            "emoji": "🥯"
+        },
+        {
+            "name": "Bladerdeeg",
+            "sectionId": "brood-gebak",
+            "icon": "puff_pastry",
+            "custom": false,
+            "emoji": "🥐"
+        },
+        {
+            "name": "Brood",
+            "sectionId": "brood-gebak",
+            "icon": "bread",
+            "custom": false,
+            "emoji": "🍞"
+        },
+        {
+            "name": "Croissant",
+            "sectionId": "brood-gebak",
+            "icon": "croissant",
+            "custom": false,
+            "emoji": "🥐"
+        },
+        {
+            "name": "Donuts",
+            "sectionId": "brood-gebak",
+            "icon": "donuts",
+            "custom": false,
+            "emoji": "🍩"
+        },
+        {
+            "name": "Gesneden brood",
+            "sectionId": "brood-gebak",
+            "icon": "sliced_bread",
+            "custom": false,
+            "emoji": "🍞"
+        },
+        {
+            "name": "Kadetje",
+            "sectionId": "brood-gebak",
+            "icon": "rolls",
+            "custom": false,
+            "emoji": "🥖"
+        },
+        {
+            "name": "Muffins",
+            "sectionId": "brood-gebak",
+            "icon": "muffins",
+            "custom": false,
+            "emoji": "🧁"
+        },
+        {
+            "name": "Pannenkoeken",
+            "sectionId": "brood-gebak",
+            "icon": "pancakes_mix",
+            "custom": false,
+            "emoji": "🥞"
+        },
+        {
+            "name": "Pastei / Hartige taart",
+            "sectionId": "brood-gebak",
+            "icon": "pie",
+            "custom": false,
+            "emoji": "🥧"
+        },
+        {
+            "name": "Pizza deeg",
+            "sectionId": "brood-gebak",
+            "icon": "pizza_dough",
+            "custom": false,
+            "emoji": "🍕"
+        },
+        {
+            "name": "Pompoentaart",
+            "sectionId": "brood-gebak",
+            "icon": "pumpkin_pie",
+            "custom": false,
+            "emoji": "🥧"
+        },
+        {
+            "name": "Stokbrood",
+            "sectionId": "brood-gebak",
+            "icon": "baguette",
+            "custom": false,
+            "emoji": "🥖"
+        },
+        {
+            "name": "Toast",
+            "sectionId": "brood-gebak",
+            "icon": "toast",
+            "custom": false,
+            "emoji": "🍞"
+        },
+        {
+            "name": "Tortillas",
+            "sectionId": "brood-gebak",
+            "icon": "tortillas",
+            "custom": false,
+            "emoji": "🫓"
+        },
+        {
+            "name": "Wafels",
+            "sectionId": "brood-gebak",
+            "icon": "waffles",
+            "custom": false,
+            "emoji": "🧇"
+        },
+        {
+            "name": "Zoete broodjes",
+            "sectionId": "brood-gebak",
+            "icon": "buns",
+            "custom": false,
+            "emoji": "🥐"
+        },
+        {
+            "name": "Blauwe kaas",
+            "sectionId": "zuivel",
+            "icon": "blue_cheese",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Boter",
+            "sectionId": "zuivel",
+            "icon": "butter",
+            "custom": false,
+            "emoji": "🧈"
+        },
+        {
+            "name": "Cheddar",
+            "sectionId": "zuivel",
+            "icon": "cheddar",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Creme fraiche",
+            "sectionId": "zuivel",
+            "icon": "creme_fraiche",
+            "custom": false,
+            "emoji": "🥛"
+        },
+        {
+            "name": "Eieren",
+            "sectionId": "zuivel",
+            "icon": "eggs",
+            "custom": false,
+            "emoji": "🥚"
+        },
+        {
+            "name": "Feta",
+            "sectionId": "zuivel",
+            "icon": "feta",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Geraspte kaas",
+            "sectionId": "zuivel",
+            "icon": "grated_cheese",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Gorgonzola",
+            "sectionId": "zuivel",
+            "icon": "gorgonzola",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Huttenkaas",
+            "sectionId": "zuivel",
+            "icon": "cottage_cheese",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Kaas",
+            "sectionId": "zuivel",
+            "icon": "cheese",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Margarine",
+            "sectionId": "zuivel",
+            "icon": "margarine",
+            "custom": false,
+            "emoji": "🧈"
+        },
+        {
+            "name": "Mascarpone",
+            "sectionId": "zuivel",
+            "icon": "mascarpone",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Melk",
+            "sectionId": "zuivel",
+            "icon": "milk",
+            "custom": false,
+            "emoji": "🥛"
+        },
+        {
+            "name": "Mozzarella",
+            "sectionId": "zuivel",
+            "icon": "mozzarella",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Parmezaanse Kaas",
+            "sectionId": "zuivel",
+            "icon": "parmesan",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Room",
+            "sectionId": "zuivel",
+            "icon": "cream",
+            "custom": false,
+            "emoji": "🥛"
+        },
+        {
+            "name": "Roomkaas",
+            "sectionId": "zuivel",
+            "icon": "cream_cheese",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Smeerkaas",
+            "sectionId": "zuivel",
+            "icon": "cheese_spread",
+            "custom": false,
+            "emoji": "🧀"
+        },
+        {
+            "name": "Soja melk",
+            "sectionId": "zuivel",
+            "icon": "soy_milk",
+            "custom": false,
+            "emoji": "🥛"
+        },
+        {
+            "name": "Vla",
+            "sectionId": "zuivel",
+            "icon": "vla",
+            "custom": false,
+            "emoji": "🍮"
+        },
+        {
+            "name": "Yoghurt",
+            "sectionId": "zuivel",
+            "icon": "milk",
+            "custom": false,
+            "emoji": "🥛"
+        },
+        {
+            "name": "Zure Room",
+            "sectionId": "zuivel",
+            "icon": "sour_cream",
+            "custom": false,
+            "emoji": "🥛"
+        },
+        {
+            "name": "Ansjovis",
+            "sectionId": "vlees-vis",
+            "icon": "anchovies",
+            "custom": false,
+            "emoji": "🐟"
+        },
+        {
+            "name": "Bakleverworst",
+            "sectionId": "vlees-vis",
+            "icon": "sausage",
+            "custom": true,
+            "emoji": "🌭"
+        },
+        {
+            "name": "Bitterballen",
+            "sectionId": "vlees-vis",
+            "icon": "bitterballen",
+            "custom": false,
+            "emoji": "🧆"
+        },
+        {
+            "name": "Braadworst",
+            "sectionId": "vlees-vis",
+            "icon": "bratwurst",
+            "custom": false,
+            "emoji": "🌭"
+        },
+        {
+            "name": "Filet Americain",
+            "sectionId": "vlees-vis",
+            "icon": "filet_americain",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Frikandel",
+            "sectionId": "vlees-vis",
+            "icon": "frikandel",
+            "custom": false,
+            "emoji": "🌭"
+        },
+        {
+            "name": "Garnalen",
+            "sectionId": "vlees-vis",
+            "icon": "shrimp",
+            "custom": false,
+            "emoji": "🦐"
+        },
+        {
+            "name": "Gehakt",
+            "sectionId": "vlees-vis",
+            "icon": "ground_meat",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Gesneden Rundvlees",
+            "sectionId": "vlees-vis",
+            "icon": "sliced_beef",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Ham",
+            "sectionId": "vlees-vis",
+            "icon": "ham",
+            "custom": false,
+            "emoji": "🍖"
+        },
+        {
+            "name": "Hot Dog",
+            "sectionId": "vlees-vis",
+            "icon": "hot_dog",
+            "custom": false,
+            "emoji": "🌭"
+        },
+        {
+            "name": "Kalfsvlees",
+            "sectionId": "vlees-vis",
+            "icon": "veal",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Kalkoen",
+            "sectionId": "vlees-vis",
+            "icon": "turkey",
+            "custom": false,
+            "emoji": "🦃"
+        },
+        {
+            "name": "Kip",
+            "sectionId": "vlees-vis",
+            "icon": "chicken",
+            "custom": false,
+            "emoji": "🍗"
+        },
+        {
+            "name": "Kreeft",
+            "sectionId": "vlees-vis",
+            "icon": "lobster",
+            "custom": false,
+            "emoji": "🦞"
+        },
+        {
+            "name": "Kroket",
+            "sectionId": "vlees-vis",
+            "icon": "croquette",
+            "custom": false,
+            "emoji": "🧆"
+        },
+        {
+            "name": "Lam",
+            "sectionId": "vlees-vis",
+            "icon": "lamb",
+            "custom": false,
+            "emoji": "🐑"
+        },
+        {
+            "name": "Mosselen",
+            "sectionId": "vlees-vis",
+            "icon": "mussels",
+            "custom": false,
+            "emoji": "🦪"
+        },
+        {
+            "name": "Oesters",
+            "sectionId": "vlees-vis",
+            "icon": "oysters",
+            "custom": false,
+            "emoji": "🦪"
+        },
+        {
+            "name": "Prosciutto",
+            "sectionId": "vlees-vis",
+            "icon": "prosciutto",
+            "custom": false,
+            "emoji": "🥓"
+        },
+        {
+            "name": "Rundvlees",
+            "sectionId": "vlees-vis",
+            "icon": "beef",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Salami",
+            "sectionId": "vlees-vis",
+            "icon": "salami",
+            "custom": false,
+            "emoji": "🍖"
+        },
+        {
+            "name": "Spek",
+            "sectionId": "vlees-vis",
+            "icon": "bacon",
+            "custom": false,
+            "emoji": "🥓"
+        },
+        {
+            "name": "Steak",
+            "sectionId": "vlees-vis",
+            "icon": "steak",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Tonijn",
+            "sectionId": "vlees-vis",
+            "icon": "tuna",
+            "custom": false,
+            "emoji": "🐟"
+        },
+        {
+            "name": "Varkensvlees",
+            "sectionId": "vlees-vis",
+            "icon": "pork",
+            "custom": false,
+            "emoji": "🐖"
+        },
+        {
+            "name": "Vis",
+            "sectionId": "vlees-vis",
+            "icon": "fish",
+            "custom": false,
+            "emoji": "🐟"
+        },
+        {
+            "name": "Vlees",
+            "sectionId": "vlees-vis",
+            "icon": "meat",
+            "custom": false,
+            "emoji": "🥩"
+        },
+        {
+            "name": "Vleeswaren",
+            "sectionId": "vlees-vis",
+            "icon": "cold_cuts",
+            "custom": false,
+            "emoji": "🥓"
+        },
+        {
+            "name": "Worst",
+            "sectionId": "vlees-vis",
+            "icon": "sausage",
+            "custom": false,
+            "emoji": "🌭"
+        },
+        {
+            "name": "Worsten",
+            "sectionId": "vlees-vis",
+            "icon": "sausages",
+            "custom": false,
+            "emoji": "🌭"
+        },
+        {
+            "name": "Zalm",
+            "sectionId": "vlees-vis",
+            "icon": "salmon",
+            "custom": false,
+            "emoji": "🐟"
+        },
+        {
+            "name": "Aardappelpuree",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "mashed_potatoes",
+            "custom": false,
+            "emoji": "🥔"
+        },
+        {
+            "name": "Ahornstroop",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "maple_syrup",
+            "custom": false,
+            "emoji": "🍁"
+        },
+        {
+            "name": "Amandelen",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "almonds",
+            "custom": false,
+            "emoji": "🌰"
+        },
+        {
+            "name": "Appelmoes",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "apple_sauce",
+            "custom": false,
+            "emoji": "🍎"
+        },
+        {
+            "name": "Augurk",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "pickle",
+            "custom": false,
+            "emoji": "🥒"
+        },
+        {
+            "name": "Azijn",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "vinegar",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Bakpoeder",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "baking_soda",
+            "custom": false,
+            "emoji": "🥄"
+        },
+        {
+            "name": "Balsamico Azijn",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "balsamic_vinegar",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Basterdsuiker",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "sugar",
+            "custom": true,
+            "emoji": "🍚"
+        },
+        {
+            "name": "BBQ Saus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "bbq_sauce",
+            "custom": false,
+            "emoji": "🥫"
+        },
+        {
+            "name": "Bonen",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "beans",
+            "custom": false,
+            "emoji": "🫘"
+        },
+        {
+            "name": "Bouillon",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "stock",
+            "custom": false,
+            "emoji": "🍲"
+        },
+        {
+            "name": "Britse bruine saus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "brown_sauce",
+            "custom": false,
+            "emoji": "🥫"
+        },
+        {
+            "name": "Chutney",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "chutney",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Dip",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "dip",
+            "custom": false,
+            "emoji": "🥣"
+        },
+        {
+            "name": "Gist",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "yeast",
+            "custom": false,
+            "emoji": "🥄"
+        },
+        {
+            "name": "Hazelnoten",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "hazelnuts",
+            "custom": false,
+            "emoji": "🌰"
+        },
+        {
+            "name": "Jus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "gravy",
+            "custom": false,
+            "emoji": "🥣"
+        },
+        {
+            "name": "Kaneel",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "cinnamon",
+            "custom": false
+        },
+        {
+            "name": "Ketchup",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "ketchup",
+            "custom": false,
+            "emoji": "🥫"
+        },
+        {
+            "name": "Kokosmelk",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "coconut_milk",
+            "custom": false,
+            "emoji": "🥥"
+        },
+        {
+            "name": "Linzen",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "lentils",
+            "custom": false,
+            "emoji": "🫘"
+        },
+        {
+            "name": "Mayonaise",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "mayonnaise",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Mosterd",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "mustard",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Noten",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "nuts",
+            "custom": false,
+            "emoji": "🥜"
+        },
+        {
+            "name": "Olie",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "oil",
+            "custom": false,
+            "emoji": "🫗"
+        },
+        {
+            "name": "Olijfolie",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "olive_oil",
+            "custom": false,
+            "emoji": "🫒"
+        },
+        {
+            "name": "Oregano",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "oregano",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Paneermeel",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "breadcrumbs",
+            "custom": false,
+            "emoji": "🍞"
+        },
+        {
+            "name": "Paprikapoeder",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "paprika",
+            "custom": false,
+            "emoji": "🌶️"
+        },
+        {
+            "name": "Pasta saus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "pasta_sauce",
+            "custom": false,
+            "emoji": "🥫"
+        },
+        {
+            "name": "Peperkorrels",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "peppercorns",
+            "custom": false,
+            "emoji": "🧂"
+        },
+        {
+            "name": "Pijnboompitten",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "pine_nuts",
+            "custom": false,
+            "emoji": "🌰"
+        },
+        {
+            "name": "Pikante Saus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "hot_sauce",
+            "custom": false,
+            "emoji": "🌶️"
+        },
+        {
+            "name": "Pindakaas",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "peanut_butter",
+            "custom": false,
+            "emoji": "🥜"
+        },
+        {
+            "name": "Poedersuiker",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "icing_sugar",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Rozemarijn",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "rosemary",
+            "custom": false,
+            "emoji": "🌿"
+        },
+        {
+            "name": "Salade dressing",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "salad_dressing",
+            "custom": false,
+            "emoji": "🥗"
+        },
+        {
+            "name": "Soja saus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "soy_sauce",
+            "custom": false,
+            "emoji": "🍶"
+        },
+        {
+            "name": "Suiker",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "sugar",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Tomatenblokjes",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "canned_tomatoes",
+            "custom": false,
+            "emoji": "🥫"
+        },
+        {
+            "name": "Tomatenpuree",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "tomato_puree",
+            "custom": false,
+            "emoji": "🍅"
+        },
+        {
+            "name": "Tomatensaus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "tomato_sauce",
+            "custom": false,
+            "emoji": "🍅"
+        },
+        {
+            "name": "Vanillesuiker",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "vanilla",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Veenbessen saus",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "cranberry_sauce",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Walnoten",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "walnuts",
+            "custom": false,
+            "emoji": "🌰"
+        },
+        {
+            "name": "Zetmeel",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "cornflour",
+            "custom": false,
+            "emoji": "🌽"
+        },
+        {
+            "name": "Zout",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "salt",
+            "custom": false,
+            "emoji": "🧂"
+        },
+        {
+            "name": "Zwarte peper",
+            "sectionId": "ingredienten-kruiden",
+            "icon": "black_pepper",
+            "custom": false,
+            "emoji": "🧂"
+        },
+        {
+            "name": "Burrito",
+            "sectionId": "gereed-diepvries",
+            "icon": "burritos",
+            "custom": false,
+            "emoji": "🌯"
+        },
+        {
+            "name": "Chinees",
+            "sectionId": "gereed-diepvries",
+            "icon": "chinese_food",
+            "custom": false,
+            "emoji": "🥡"
+        },
+        {
+            "name": "Dumplings",
+            "sectionId": "gereed-diepvries",
+            "icon": "dumplings",
+            "custom": false,
+            "emoji": "🥟"
+        },
+        {
+            "name": "Frieten",
+            "sectionId": "gereed-diepvries",
+            "icon": "french_fries",
+            "custom": false,
+            "emoji": "🍟"
+        },
+        {
+            "name": "IJs",
+            "sectionId": "gereed-diepvries",
+            "icon": "ice_cream",
+            "custom": false,
+            "emoji": "🍦"
+        },
+        {
+            "name": "Indische maaltijden",
+            "sectionId": "gereed-diepvries",
+            "icon": "indian_food",
+            "custom": false,
+            "emoji": "🍛"
+        },
+        {
+            "name": "Ingevroren groenten",
+            "sectionId": "gereed-diepvries",
+            "icon": "frozen_vegetables",
+            "custom": false,
+            "emoji": "🥦"
+        },
+        {
+            "name": "Italiaanse maaltijden",
+            "sectionId": "gereed-diepvries",
+            "icon": "italian_food",
+            "custom": false,
+            "emoji": "🍝"
+        },
+        {
+            "name": "Kippenvleugels",
+            "sectionId": "gereed-diepvries",
+            "icon": "chicken_wings",
+            "custom": false,
+            "emoji": "🍗"
+        },
+        {
+            "name": "Lasagna",
+            "sectionId": "gereed-diepvries",
+            "icon": "lasagna",
+            "custom": false,
+            "emoji": "🍝"
+        },
+        {
+            "name": "Mexicaanse maaltijden",
+            "sectionId": "gereed-diepvries",
+            "icon": "mexican_food",
+            "custom": false,
+            "emoji": "🌮"
+        },
+        {
+            "name": "Pizza",
+            "sectionId": "gereed-diepvries",
+            "icon": "pizza",
+            "custom": false,
+            "emoji": "🍕"
+        },
+        {
+            "name": "Soep",
+            "sectionId": "gereed-diepvries",
+            "icon": "soup",
+            "custom": false,
+            "emoji": "🍲"
+        },
+        {
+            "name": "Thaise maaltijden",
+            "sectionId": "gereed-diepvries",
+            "icon": "thai_food",
+            "custom": false,
+            "emoji": "🍜"
+        },
+        {
+            "name": "Vissticks",
+            "sectionId": "gereed-diepvries",
+            "icon": "fish_sticks",
+            "custom": false,
+            "emoji": "🐟"
+        },
+        {
+            "name": "Witte bonen met tomaat",
+            "sectionId": "gereed-diepvries",
+            "icon": "baked_beans",
+            "custom": false,
+            "emoji": "🫘"
+        },
+        {
+            "name": "Basmati rijst",
+            "sectionId": "graanproducten",
+            "icon": "basmati_rice",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Bloem",
+            "sectionId": "graanproducten",
+            "icon": "flour",
+            "custom": false,
+            "emoji": "🌾"
+        },
+        {
+            "name": "Cornflakes",
+            "sectionId": "graanproducten",
+            "icon": "corn_flakes",
+            "custom": false,
+            "emoji": "🥣"
+        },
+        {
+            "name": "Couscous",
+            "sectionId": "graanproducten",
+            "icon": "couscous",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Cruesli",
+            "sectionId": "graanproducten",
+            "icon": "cereal",
+            "custom": false,
+            "emoji": "🥣"
+        },
+        {
+            "name": "Griesmeel",
+            "sectionId": "graanproducten",
+            "icon": "semolina",
+            "custom": false,
+            "emoji": "🌾"
+        },
+        {
+            "name": "Havermout",
+            "sectionId": "graanproducten",
+            "icon": "oatmeal",
+            "custom": false,
+            "emoji": "🥣"
+        },
+        {
+            "name": "Kikkererwten",
+            "sectionId": "graanproducten",
+            "icon": "chickpeas",
+            "custom": false,
+            "emoji": "🫘"
+        },
+        {
+            "name": "Muesli",
+            "sectionId": "graanproducten",
+            "icon": "muesli",
+            "custom": false,
+            "emoji": "🥣"
+        },
+        {
+            "name": "Noedels",
+            "sectionId": "graanproducten",
+            "icon": "noodles",
+            "custom": false,
+            "emoji": "🍜"
+        },
+        {
+            "name": "Pasta",
+            "sectionId": "graanproducten",
+            "icon": "pasta",
+            "custom": false,
+            "emoji": "🍝"
+        },
+        {
+            "name": "Penne",
+            "sectionId": "graanproducten",
+            "icon": "penne",
+            "custom": false,
+            "emoji": "🍝"
+        },
+        {
+            "name": "Rijst",
+            "sectionId": "graanproducten",
+            "icon": "rice",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Risotto rijst",
+            "sectionId": "graanproducten",
+            "icon": "risotto_rice",
+            "custom": false,
+            "emoji": "🍚"
+        },
+        {
+            "name": "Spaghetti",
+            "sectionId": "graanproducten",
+            "icon": "spaghetti",
+            "custom": false,
+            "emoji": "🍝"
+        },
+        {
+            "name": "Tofu",
+            "sectionId": "graanproducten",
+            "icon": "tofu",
+            "custom": false
+        },
+        {
+            "name": "Chips",
+            "sectionId": "snacks-snoep",
+            "icon": "chips",
+            "custom": false,
+            "emoji": "🥔"
+        },
+        {
+            "name": "Chocolade",
+            "sectionId": "snacks-snoep",
+            "icon": "chocolate",
+            "custom": false,
+            "emoji": "🍫"
+        },
+        {
+            "name": "Crackers",
+            "sectionId": "snacks-snoep",
+            "icon": "crackers",
+            "custom": false,
+            "emoji": "🍘"
+        },
+        {
+            "name": "Dessert",
+            "sectionId": "snacks-snoep",
+            "icon": "dessert",
+            "custom": false,
+            "emoji": "🍮"
+        },
+        {
+            "name": "Gedroogd fruit",
+            "sectionId": "snacks-snoep",
+            "icon": "dried_fruit",
+            "custom": false,
+            "emoji": "🍇"
+        },
+        {
+            "name": "Gelei",
+            "sectionId": "snacks-snoep",
+            "icon": "jello",
+            "custom": false,
+            "emoji": "🍮"
+        },
+        {
+            "name": "Hagelslag",
+            "sectionId": "snacks-snoep",
+            "icon": "chocolate_sprinkles",
+            "custom": false,
+            "emoji": "🍫"
+        },
+        {
+            "name": "Honing",
+            "sectionId": "snacks-snoep",
+            "icon": "honey",
+            "custom": false,
+            "emoji": "🍯"
+        },
+        {
+            "name": "Jam",
+            "sectionId": "snacks-snoep",
+            "icon": "jam",
+            "custom": false,
+            "emoji": "🫙"
+        },
+        {
+            "name": "Kauwgum",
+            "sectionId": "snacks-snoep",
+            "icon": "chewing_gum",
+            "custom": false,
+            "emoji": "🍬"
+        },
+        {
+            "name": "Kerstkransjes",
+            "sectionId": "snacks-snoep",
+            "icon": "christmas_cookies",
+            "custom": false,
+            "emoji": "🍪"
+        },
+        {
+            "name": "Koekjes",
+            "sectionId": "snacks-snoep",
+            "icon": "cookies",
+            "custom": false,
+            "emoji": "🍪"
+        },
+        {
+            "name": "Kroepoek",
+            "sectionId": "snacks-snoep",
+            "icon": "prawn_crackers",
+            "custom": false,
+            "emoji": "🍤"
+        },
+        {
+            "name": "Mueslireep",
+            "sectionId": "snacks-snoep",
+            "icon": "cereal_bar",
+            "custom": false,
+            "emoji": "🍫"
+        },
+        {
+            "name": "Ontbijtkoek",
+            "sectionId": "snacks-snoep",
+            "icon": "gingerbread",
+            "custom": false,
+            "emoji": "🍞"
+        },
+        {
+            "name": "Pindanoten",
+            "sectionId": "snacks-snoep",
+            "icon": "peanuts",
+            "custom": false,
+            "emoji": "🥜"
+        },
+        {
+            "name": "Popcorn",
+            "sectionId": "snacks-snoep",
+            "icon": "pop_corn",
+            "custom": false,
+            "emoji": "🍿"
+        },
+        {
+            "name": "Pralinécreme",
+            "sectionId": "snacks-snoep",
+            "icon": "nougat_cream",
+            "custom": false,
+            "emoji": "🍫"
+        },
+        {
+            "name": "Snacks",
+            "sectionId": "snacks-snoep",
+            "icon": "snacks",
+            "custom": false,
+            "emoji": "🍿"
+        },
+        {
+            "name": "Stroopwafels",
+            "sectionId": "snacks-snoep",
+            "icon": "stroopwafels",
+            "custom": false,
+            "emoji": "🧇"
+        },
+        {
+            "name": "Taart",
+            "sectionId": "snacks-snoep",
+            "icon": "cake",
+            "custom": false,
+            "emoji": "🍰"
+        },
+        {
+            "name": "Tortilla Chips",
+            "sectionId": "snacks-snoep",
+            "icon": "tortilla_chips",
+            "custom": false,
+            "emoji": "🌮"
+        },
+        {
+            "name": "Vanille saus",
+            "sectionId": "snacks-snoep",
+            "icon": "vanilla_sauce",
+            "custom": false,
+            "emoji": "🍮"
+        },
+        {
+            "name": "Zoetigheid",
+            "sectionId": "snacks-snoep",
+            "icon": "candy",
+            "custom": false,
+            "emoji": "🍬"
+        },
+        {
+            "name": "Zoute krakeling",
+            "sectionId": "snacks-snoep",
+            "icon": "pretzels",
+            "custom": false,
+            "emoji": "🥨"
+        },
+        {
+            "name": "Appelsap",
+            "sectionId": "dranken",
+            "icon": "apple_juice",
+            "custom": false,
+            "emoji": "🧃"
+        },
+        {
+            "name": "Bier",
+            "sectionId": "dranken",
+            "icon": "beer",
+            "custom": false,
+            "emoji": "🍺"
+        },
+        {
+            "name": "Bier van hoge gisting",
+            "sectionId": "dranken",
+            "icon": "ale",
+            "custom": false,
+            "emoji": "🍺"
+        },
+        {
+            "name": "Champagne",
+            "sectionId": "dranken",
+            "icon": "champagne",
+            "custom": false,
+            "emoji": "🍾"
+        },
+        {
+            "name": "Cider",
+            "sectionId": "dranken",
+            "icon": "cider",
+            "custom": false,
+            "emoji": "🍺"
+        },
+        {
+            "name": "Cola",
+            "sectionId": "dranken",
+            "icon": "cola",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Cola Light",
+            "sectionId": "dranken",
+            "icon": "diet_cola",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Drank",
+            "sectionId": "dranken",
+            "icon": "beverages",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Energiedrank",
+            "sectionId": "dranken",
+            "icon": "energy_drink",
+            "custom": false,
+            "emoji": "⚡"
+        },
+        {
+            "name": "Fruitsap",
+            "sectionId": "dranken",
+            "icon": "fruit_juice",
+            "custom": false,
+            "emoji": "🧃"
+        },
+        {
+            "name": "Gemberbier",
+            "sectionId": "dranken",
+            "icon": "ginger_ale",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Gin",
+            "sectionId": "dranken",
+            "icon": "gin",
+            "custom": false,
+            "emoji": "🍸"
+        },
+        {
+            "name": "IJsthee",
+            "sectionId": "dranken",
+            "icon": "iced_tea",
+            "custom": false,
+            "emoji": "🧋"
+        },
+        {
+            "name": "Koffie",
+            "sectionId": "dranken",
+            "icon": "coffee",
+            "custom": false,
+            "emoji": "☕"
+        },
+        {
+            "name": "Koffiebonen",
+            "sectionId": "dranken",
+            "icon": "coffee",
+            "custom": false,
+            "emoji": "☕"
+        },
+        {
+            "name": "Koffiecapsules",
+            "sectionId": "dranken",
+            "icon": "coffee",
+            "custom": false,
+            "emoji": "☕"
+        },
+        {
+            "name": "Koffiepads",
+            "sectionId": "dranken",
+            "icon": "coffee",
+            "custom": false,
+            "emoji": "☕"
+        },
+        {
+            "name": "Light Limonade",
+            "sectionId": "dranken",
+            "icon": "diet_soda",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Limonade",
+            "sectionId": "dranken",
+            "icon": "soda",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Mineraalwater",
+            "sectionId": "dranken",
+            "icon": "bottled_water",
+            "custom": false,
+            "emoji": "💧"
+        },
+        {
+            "name": "Prosecco",
+            "sectionId": "dranken",
+            "icon": "prosecco",
+            "custom": false,
+            "emoji": "🥂"
+        },
+        {
+            "name": "Rode wijn",
+            "sectionId": "dranken",
+            "icon": "red_wine",
+            "custom": false,
+            "emoji": "🍷"
+        },
+        {
+            "name": "Rum",
+            "sectionId": "dranken",
+            "icon": "rum",
+            "custom": false,
+            "emoji": "🥃"
+        },
+        {
+            "name": "Sigaretten",
+            "sectionId": "dranken",
+            "icon": "cigarettes",
+            "custom": false,
+            "emoji": "🚬"
+        },
+        {
+            "name": "Sinaasappelsap",
+            "sectionId": "dranken",
+            "icon": "orange_juice",
+            "custom": false,
+            "emoji": "🧃"
+        },
+        {
+            "name": "Smoothie",
+            "sectionId": "dranken",
+            "icon": "smoothie",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Sportdrank",
+            "sectionId": "dranken",
+            "icon": "sports_drink",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Sterke drank",
+            "sectionId": "dranken",
+            "icon": "spirits",
+            "custom": false,
+            "emoji": "🥃"
+        },
+        {
+            "name": "Thee",
+            "sectionId": "dranken",
+            "icon": "tea",
+            "custom": false,
+            "emoji": "🍵"
+        },
+        {
+            "name": "Tonic",
+            "sectionId": "dranken",
+            "icon": "tonic_water",
+            "custom": false,
+            "emoji": "🥤"
+        },
+        {
+            "name": "Warme chocomelk",
+            "sectionId": "dranken",
+            "icon": "hot_chocolate",
+            "custom": false,
+            "emoji": "☕"
+        },
+        {
+            "name": "Water",
+            "sectionId": "dranken",
+            "icon": "water",
+            "custom": false,
+            "emoji": "💧"
+        },
+        {
+            "name": "Whisky",
+            "sectionId": "dranken",
+            "icon": "whiskey",
+            "custom": false,
+            "emoji": "🥃"
+        },
+        {
+            "name": "Witte wijn",
+            "sectionId": "dranken",
+            "icon": "white_wine",
+            "custom": false,
+            "emoji": "🥂"
+        },
+        {
+            "name": "Wodka",
+            "sectionId": "dranken",
+            "icon": "vodka",
+            "custom": false,
+            "emoji": "🍸"
+        },
+        {
+            "name": "Afwasmiddel",
+            "sectionId": "huishouden",
+            "icon": "dishwashing_liquid",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Aluminium Folie",
+            "sectionId": "huishouden",
+            "icon": "aluminum_foil",
+            "custom": false
+        },
+        {
+            "name": "Baby voeding",
+            "sectionId": "huishouden",
+            "icon": "baby_food",
+            "custom": false,
+            "emoji": "🍼"
+        },
+        {
+            "name": "Badkamer reiniger",
+            "sectionId": "huishouden",
+            "icon": "bathroom_cleaner",
+            "custom": false,
+            "emoji": "🛁"
+        },
+        {
+            "name": "Bakpapier",
+            "sectionId": "huishouden",
+            "icon": "parchment_paper",
+            "custom": false,
+            "emoji": "📄"
+        },
+        {
+            "name": "Batterijen",
+            "sectionId": "huishouden",
+            "icon": "batteries",
+            "custom": false,
+            "emoji": "🔋"
+        },
+        {
+            "name": "Bloemen",
+            "sectionId": "huishouden",
+            "icon": "flowers",
+            "custom": false,
+            "emoji": "💐"
+        },
+        {
+            "name": "Cadeau",
+            "sectionId": "huishouden",
+            "icon": "gift",
+            "custom": false,
+            "emoji": "🎁"
+        },
+        {
+            "name": "Glasreiniger",
+            "sectionId": "huishouden",
+            "icon": "glass_cleaner",
+            "custom": false,
+            "emoji": "🪟"
+        },
+        {
+            "name": "Gloeilampen",
+            "sectionId": "huishouden",
+            "icon": "light_bulb",
+            "custom": false,
+            "emoji": "💡"
+        },
+        {
+            "name": "Houtskool",
+            "sectionId": "huishouden",
+            "icon": "charcoal",
+            "custom": false,
+            "emoji": "🔥"
+        },
+        {
+            "name": "Inpakpapier",
+            "sectionId": "huishouden",
+            "icon": "wrapping_paper",
+            "custom": false,
+            "emoji": "🎁"
+        },
+        {
+            "name": "Kaarsen",
+            "sectionId": "huishouden",
+            "icon": "candles",
+            "custom": false,
+            "emoji": "🕯️"
+        },
+        {
+            "name": "Keukenrol",
+            "sectionId": "huishouden",
+            "icon": "paper_towels",
+            "custom": false,
+            "emoji": "🧻"
+        },
+        {
+            "name": "Onthardingszout",
+            "sectionId": "huishouden",
+            "icon": "dishwasher_salt",
+            "custom": false,
+            "emoji": "🧂"
+        },
+        {
+            "name": "Potgrond",
+            "sectionId": "huishouden",
+            "icon": "potting_soil",
+            "custom": false,
+            "emoji": "🪴"
+        },
+        {
+            "name": "Propaan",
+            "sectionId": "huishouden",
+            "icon": "propane",
+            "custom": false,
+            "emoji": "🔥"
+        },
+        {
+            "name": "Schoonmaakmiddelen",
+            "sectionId": "huishouden",
+            "icon": "cleaning_supplies",
+            "custom": false,
+            "emoji": "🧹"
+        },
+        {
+            "name": "Servetten",
+            "sectionId": "huishouden",
+            "icon": "napkins",
+            "custom": false,
+            "emoji": "🧻"
+        },
+        {
+            "name": "Spons",
+            "sectionId": "huishouden",
+            "icon": "sponge",
+            "custom": false,
+            "emoji": "🧽"
+        },
+        {
+            "name": "Toilet Blokjes",
+            "sectionId": "huishouden",
+            "icon": "soap",
+            "custom": true,
+            "emoji": "🚽"
+        },
+        {
+            "name": "Toilet reiniger",
+            "sectionId": "huishouden",
+            "icon": "toilet_cleaner",
+            "custom": false,
+            "emoji": "🚽"
+        },
+        {
+            "name": "Vaatwasser tabletten",
+            "sectionId": "huishouden",
+            "icon": "dishwasher_tabs",
+            "custom": false,
+            "emoji": "🍽️"
+        },
+        {
+            "name": "Vershoudfolie",
+            "sectionId": "huishouden",
+            "icon": "plastic_wrap",
+            "custom": false
+        },
+        {
+            "name": "Vuilniszakken",
+            "sectionId": "huishouden",
+            "icon": "garbage_bags",
+            "custom": false,
+            "emoji": "🗑️"
+        },
+        {
+            "name": "Wasmiddel",
+            "sectionId": "huishouden",
+            "icon": "laundry_detergent",
+            "custom": true,
+            "emoji": "🧺"
+        },
+        {
+            "name": "Waspoeder",
+            "sectionId": "huishouden",
+            "icon": "laundry_detergent",
+            "custom": false,
+            "emoji": "🧺"
+        },
+        {
+            "name": "Wasverzachter",
+            "sectionId": "huishouden",
+            "icon": "fabric_softener",
+            "custom": false,
+            "emoji": "🧺"
+        },
+        {
+            "name": "Bodylotion",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "body_lotion",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Conditioner",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "conditioner",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Condooms",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "condoms",
+            "custom": false
+        },
+        {
+            "name": "Deodorant",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "deodorant",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Douchegel",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "shower_gel",
+            "custom": false,
+            "emoji": "🚿"
+        },
+        {
+            "name": "Gezichts reinigingsdoekjes",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "facial_tissues",
+            "custom": false,
+            "emoji": "🧻"
+        },
+        {
+            "name": "Gezichtscreme",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "face_cream",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Haargel",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "hair_gel",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Haarlak",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "hair_spray",
+            "custom": false,
+            "emoji": "💇"
+        },
+        {
+            "name": "Handcreme",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "hand_cream",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Insectenverdelger",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "insect_repellent",
+            "custom": false,
+            "emoji": "🦟"
+        },
+        {
+            "name": "Lenzenvloeistof",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "contact_lens_solution",
+            "custom": false,
+            "emoji": "👁️"
+        },
+        {
+            "name": "Lipbalsem",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "lip_balm",
+            "custom": false,
+            "emoji": "💄"
+        },
+        {
+            "name": "Luiers",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "diapers",
+            "custom": false,
+            "emoji": "👶"
+        },
+        {
+            "name": "Maandverband",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "pads",
+            "custom": false,
+            "emoji": "🩸"
+        },
+        {
+            "name": "Make-Up Remover",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "makeup_remover",
+            "custom": false,
+            "emoji": "💄"
+        },
+        {
+            "name": "Mondwater",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "mouthwash",
+            "custom": false,
+            "emoji": "🦷"
+        },
+        {
+            "name": "Nagellak",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "nail_polish",
+            "custom": false,
+            "emoji": "💅"
+        },
+        {
+            "name": "Nagellak remover",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "nail_polish_remover",
+            "custom": false,
+            "emoji": "💅"
+        },
+        {
+            "name": "Natte doekjes",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "wet_wipes",
+            "custom": false,
+            "emoji": "🧻"
+        },
+        {
+            "name": "Pijnstiller",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "pain_reliever",
+            "custom": false,
+            "emoji": "💊"
+        },
+        {
+            "name": "Pleisters",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "bandaids",
+            "custom": false,
+            "emoji": "🩹"
+        },
+        {
+            "name": "Scheerapparaten",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "razor",
+            "custom": false,
+            "emoji": "🪒"
+        },
+        {
+            "name": "Scheergel",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "shaving_cream",
+            "custom": false,
+            "emoji": "🪒"
+        },
+        {
+            "name": "Scheermesjes",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "razor_blades",
+            "custom": false,
+            "emoji": "🪒"
+        },
+        {
+            "name": "Shampoo",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "shampoo",
+            "custom": false,
+            "emoji": "🧴"
+        },
+        {
+            "name": "Tampons",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "tampons",
+            "custom": false,
+            "emoji": "🩸"
+        },
+        {
+            "name": "Tandenborstel",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "toothbrush",
+            "custom": false,
+            "emoji": "🪥"
+        },
+        {
+            "name": "Tandfloss",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "dental_floss",
+            "custom": false,
+            "emoji": "🦷"
+        },
+        {
+            "name": "Tandpasta",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "toothpaste",
+            "custom": false,
+            "emoji": "🦷"
+        },
+        {
+            "name": "Toiletpapier",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "toilet_paper",
+            "custom": false,
+            "emoji": "🧻"
+        },
+        {
+            "name": "Vitaminen",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "vitamins",
+            "custom": false,
+            "emoji": "💊"
+        },
+        {
+            "name": "Wattenschijfjes",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "cotton_pads",
+            "custom": false
+        },
+        {
+            "name": "Wattenstaafjes",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "cotton_swabs",
+            "custom": false
+        },
+        {
+            "name": "Zakdoeken",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "tissues",
+            "custom": false,
+            "emoji": "🤧"
+        },
+        {
+            "name": "Zeep",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "soap",
+            "custom": false,
+            "emoji": "🧼"
+        },
+        {
+            "name": "Zonnebrandcreme",
+            "sectionId": "verzorging-gezondheid",
+            "icon": "sunblock",
+            "custom": false,
+            "emoji": "☀️"
+        },
+        {
+            "name": "Hondensnoepjes",
+            "sectionId": "dierenvoeding",
+            "icon": "dog_treats",
+            "custom": false,
+            "emoji": "🦴"
+        },
+        {
+            "name": "Hondenvoer",
+            "sectionId": "dierenvoeding",
+            "icon": "dog_food",
+            "custom": false,
+            "emoji": "🐶"
+        },
+        {
+            "name": "Kattenbakvulling",
+            "sectionId": "dierenvoeding",
+            "icon": "cat_litter",
+            "custom": false,
+            "emoji": "🐈"
+        },
+        {
+            "name": "Kattensnoepjes",
+            "sectionId": "dierenvoeding",
+            "icon": "cat_treats",
+            "custom": false,
+            "emoji": "🐱"
+        },
+        {
+            "name": "Kattenvoer",
+            "sectionId": "dierenvoeding",
+            "icon": "cat_food",
+            "custom": false,
+            "emoji": "🐱"
+        },
+        {
+            "name": "Visvoer",
+            "sectionId": "dierenvoeding",
+            "icon": "fish_food",
+            "custom": false,
+            "emoji": "🐠"
+        },
+        {
+            "name": "Vogelvoer",
+            "sectionId": "dierenvoeding",
+            "icon": "bird_food",
+            "custom": false,
+            "emoji": "🐦"
+        }
+    ],
+    "list": [
+        {
+            "name": "Yoghurt",
+            "state": "to_buy",
+            "note": ""
+        },
+        {
+            "name": "Melk",
+            "state": "to_buy",
+            "note": ""
+        },
+        {
+            "name": "Bakleverworst",
+            "state": "to_buy",
+            "note": ""
+        },
+        {
+            "name": "Jam",
+            "state": "to_buy",
+            "note": "Bosbessen"
+        },
+        {
+            "name": "Toilet Blokjes",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Toiletpapier",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Wasmiddel",
+            "state": "recent",
+            "note": "Fijn + Kleur"
+        },
+        {
+            "name": "Poedersuiker",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Vaatwasser tabletten",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Cola",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Sinaasappelsap",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Basterdsuiker",
+            "state": "recent",
+            "note": "Bruin"
+        },
+        {
+            "name": "Pizza",
+            "state": "recent",
+            "note": "Diepvries"
+        },
+        {
+            "name": "Cheddar",
+            "state": "recent",
+            "note": "Plakken"
+        },
+        {
+            "name": "Crackers",
+            "state": "recent",
+            "note": ""
+        },
+        {
+            "name": "Eieren",
+            "state": "recent",
+            "note": ""
+        }
+    ]
+}

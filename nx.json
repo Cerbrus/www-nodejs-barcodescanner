@@ -1,0 +1,117 @@
+{
+    "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "targetDefaults": {
+        "build": {
+            "cache": true,
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"]
+        },
+        "lint": {
+            "cache": true,
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.js"
+            ]
+        },
+        "@angular-devkit/build-angular:browser": {
+            "cache": true,
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"]
+        },
+        "@nx/eslint:lint": {
+            "cache": true,
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+            ]
+        },
+        "@angular/build:application": {
+            "cache": true,
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"]
+        }
+    },
+    "namedInputs": {
+        "default": ["{projectRoot}/**/*", "sharedGlobals"],
+        "production": [
+            "default",
+            "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+            "!{projectRoot}/tsconfig.spec.json",
+            "!{projectRoot}/jest.config.[jt]s",
+            "!{projectRoot}/src/test-setup.[jt]s",
+            "!{projectRoot}/test-setup.[jt]s",
+            "!{projectRoot}/.eslintrc.json",
+            "!{projectRoot}/eslint.config.js"
+        ],
+        "sharedGlobals": []
+    },
+    "generators": {
+        "@nx/angular:application": {
+            "e2eTestRunner": "none",
+            "linter": "eslint",
+            "style": "scss",
+            "unitTestRunner": "none"
+        },
+        "@nx/angular:component": {
+            "style": "css",
+            "type": "component"
+        },
+        "@schematics/angular:component": {
+            "type": "component"
+        },
+        "@nx/angular:directive": {
+            "type": "directive"
+        },
+        "@schematics/angular:directive": {
+            "type": "directive"
+        },
+        "@nx/angular:service": {
+            "type": "service"
+        },
+        "@schematics/angular:service": {
+            "type": "service"
+        },
+        "@nx/angular:scam": {
+            "type": "component"
+        },
+        "@nx/angular:scam-directive": {
+            "type": "directive"
+        },
+        "@nx/angular:guard": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:guard": {
+            "typeSeparator": "."
+        },
+        "@nx/angular:interceptor": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:interceptor": {
+            "typeSeparator": "."
+        },
+        "@nx/angular:module": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:module": {
+            "typeSeparator": "."
+        },
+        "@nx/angular:pipe": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:pipe": {
+            "typeSeparator": "."
+        },
+        "@nx/angular:resolver": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:resolver": {
+            "typeSeparator": "."
+        }
+    },
+    "useInferencePlugins": false,
+    "defaultBase": "master"
+}

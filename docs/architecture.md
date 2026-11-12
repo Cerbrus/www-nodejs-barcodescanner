@@ -1,0 +1,114 @@
+# Target architecture
+
+This is where the project is going. For the current prototype, see [plan.md](plan.md).
+
+```
+ handheld scanner          phone / browser
+        │ USB dongle              │ HTTPS
+        ▼                         ▼
+┌────────────────┐        ┌─────────────────────┐
+│ hardware-agent │        │ Nginx Proxy Manager │  login + certificate
+│ Python, evdev  │        └──────────┬──────────┘
+└───────┬────────┘                   │
+        │ POST /api/v1/scans         ▼
+        │                 ┌─────────────────────────────┐      ┌───────────────────┐
+        └────────────────►│ app (one container)         │─────►│ product connectors│
+                          │ NestJS: API + Angular files │      │ AH, Open Food     │
+                          │ SQLite on /data             │      │ Facts, ...        │
+                          └─────────────────────────────┘      └───────────────────┘
+```
+
+## Containers
+
+| Container | Content | Notes |
+|---|---|---|
+| `app` | NestJS serving `/api/v1/...` and the built Angular app | SQLite at `/data/app.db` on a volume. Icons and the seed file ship inside the image at `/app/data/`. Runs migrations at start. |
+| `hardware-agent` | Python, about 40 lines | Reads the scanner, posts scans to `app` over the compose network, drives the feedback output from the response. |
+
+## App layout
+
+Plain NestJS modules, no CQRS. A controller calls a service; a service uses TypeORM repositories directly.
+
+| Module | Responsibility |
+|---|---|
+| `scan` | Scan endpoint, scan rules, undo, history |
+| `catalog` | Catalog items, sections, barcode mappings, inbox |
+| `list` | List entries: to buy, recent, quantity, note |
+| `connectors` | Product lookup behind one interface |
+| `events` | Server-sent events to open pages |
+
+Frontend pages: list, scan (camera), inbox with naming prompt, catalog and mappings, history.
+
+## Data model
+
+| Table | Columns | Notes |
+|---|---|---|
+| `catalog_item` | `id`, `name` (unique), `section`, `icon` | `icon` is an emoji or a file name in the icon folder |
+| `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox |
+| `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
+| `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at` | History and undo |
+
+Sections are a fixed list in code, each with a sort order.
+
+## Scan rules
+
+On `POST /api/v1/scans` with `{ code, source }`:
+
+1. Same code within 3 seconds of the previous scan: result `ignored`.
+2. Barcode has a catalog item:
+   - entry is `to_buy`: quantity plus one, result `incremented`;
+   - otherwise: state `to_buy`, quantity 1, result `added`.
+3. Barcode has no catalog item: store the scan, query connectors if there are no suggestions yet, result `needs_name`.
+4. Emit an event to open pages. Return the result, which the hardware agent turns into a feedback signal.
+
+When a barcode gets its mapping, its waiting `needs_name` scans are applied by rule 2.
+
+Checking off an entry sets state `recent` and quantity 0. Undo reverses the list change of the latest scan that is not undone.
+
+## Connectors
+
+```ts
+interface ProductConnector {
+    readonly id: string;
+    lookup(code: string): Promise<ProductSuggestion | undefined>;
+}
+
+interface ProductSuggestion {
+    connectorId: string;
+    title: string;
+    brand?: string;
+    category?: string;
+    imageUrl?: string;
+}
+```
+
+- All enabled connectors run in parallel with a timeout of a few seconds. A failure or timeout yields no suggestion and is logged.
+- Results are stored on the barcode row, so a barcode is looked up once.
+- `category` is mapped to a shop section to prefill the naming prompt.
+- Start: Albert Heijn (existing TypeScript connector, unofficial API) and Open Food Facts (official open API; send a descriptive User-Agent). Adding a source is one new class.
+
+## API sketch
+
+| Method and path | Purpose |
+|---|---|
+| `POST /api/v1/scans` | Register a scan |
+| `POST /api/v1/scans/undo` | Undo the latest scan |
+| `GET /api/v1/scans` | History |
+| `GET /api/v1/list` | List entries with their catalog items |
+| `PATCH /api/v1/list/:itemId` | State, quantity, note |
+| `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
+| `GET /api/v1/barcodes?unmapped=true` | Inbox |
+| `PUT /api/v1/barcodes/:code` | Set or change the mapping |
+| `DELETE /api/v1/barcodes/:code` | Remove the mapping |
+| `GET /api/v1/events` | Server-sent events |
+| `GET /api/v1/health` | Health check for Docker |
+
+## Phone camera
+
+- Needs HTTPS, which the proxy provides.
+- The scanning phone is an iPhone. Safari on iOS has not offered `BarcodeDetector`, so plan on a JavaScript decoder library as the main path and use `BarcodeDetector` only where it exists. Verify on the actual iPhone early in milestone 4.
+- Formats: EAN-13, EAN-8, UPC-A.
+
+## Feedback output
+
+The hardware agent maps a scan result to a signal: `added` and `incremented` to OK, `needs_name` to attention, an error or no response to error. Outputs are pluggable (`none`, buzzer, speaker), chosen by an environment variable. It starts as `none`.

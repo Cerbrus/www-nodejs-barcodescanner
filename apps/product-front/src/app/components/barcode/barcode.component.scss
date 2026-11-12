@@ -1,0 +1,47 @@
+@use "sass:math";
+
+:host {
+    @apply inline-block;
+}
+
+$bars: 95;
+$encodingMarginBars: 1;
+$sideMarginBars: 3;
+$separatorBars: 5;
+
+$encodingMarginPercentage: math.div($encodingMarginBars, $bars) * 100%;
+$sidePaddingPercentage: math.div($sideMarginBars , $bars) * 100%;
+$separatorPercentage: math.div($separatorBars , $bars) * 100%;
+
+.barcode {
+    @apply relative w-full;
+
+    &-container {
+        @apply relative flex;
+    }
+
+    &-bars {
+        @apply flex h-full;
+        @apply pointer-events-none select-none;
+    }
+
+    &-bar {
+        @apply flex grow;
+    }
+
+    .numeric {
+        padding: 0 $sidePaddingPercentage;
+        gap: $separatorPercentage;
+        @apply absolute bottom-0 w-full justify-around;
+
+    }
+}
+
+.numeric {
+    font-family: OCR-B, sans-serif;
+    @apply flex flex-row items-end;
+
+    &.encoding {
+        margin-right: $encodingMarginPercentage;
+    }
+}
