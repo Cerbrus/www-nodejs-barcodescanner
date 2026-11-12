@@ -202,7 +202,7 @@ cd /opt/barcodescanner
 sudo docker compose exec hardware-agent python3 agent.py --test-feedback
 ```
 
-The System page has a button per sound as well. A module that beeps all the time except during a signal needs `BUZZER_ACTIVE_LOW=true`. The signals are listed in [architecture.md](architecture.md).
+The System page has a button per sound as well, and the choice of sound per scan result. A module that beeps all the time except during a signal needs `BUZZER_ACTIVE_LOW=true`. The signals are listed in [architecture.md](architecture.md).
 
 ## Notifications
 

@@ -41,7 +41,7 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `connectors` | Product lookup behind one interface |
 | `events` | Server-sent events to open pages |
 | `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 256 KB and keeps three old files; the last 500 lines are read back at start, so the log survives restarts and updates |
-| `feedback` | Relays test sounds from the System page to the hardware agent |
+| `feedback` | The library of buzzer sounds, the sound chosen per scan result, and test sounds relayed to the hardware agent |
 | `push` | Web push notifications: keeps the subscriptions of devices that turned notifications on, and sends a notification when the handheld scanner reads a barcode without a name. Creates its own key pair in `/data/push-keys.json` on first use |
 
 The app also serves the icon files under `/icons` and the built web app for every other path.
@@ -76,6 +76,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox |
 | `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
 | `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `previous_state`, `previous_quantity` | History and undo; the `previous_` columns hold what the list entry was before the scan |
+| `feedback_setting` | `event` (key), `sound_id` | Chosen buzzer sound per scan result; no row means the default |
 | `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `origin`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
 
 On first start with an empty database, the app imports sections, items and the current list from `data/seed-items.json`.
@@ -134,11 +135,13 @@ interface ProductSuggestion {
 | `GET /api/v1/barcodes/:code` | One barcode with its suggestions |
 | `PUT /api/v1/barcodes/:code` | Set or change the mapping |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
-| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, and a `ping` every 25 seconds |
+| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, `feedback_settings`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/icons` | Names of the available icons, for the icon picker |
 | `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
-| `POST /api/v1/feedback/test` | Play a test sound at the scanner: a name and a list of steps |
+| `GET /api/v1/feedback/settings` | The sound chosen per event, and the library of sounds |
+| `PUT /api/v1/feedback/settings/:event` | Choose the sound for an event, or `none` |
+| `POST /api/v1/feedback/test` | Play one sound from the library at the scanner |
 | `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent posts its own |
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
@@ -170,23 +173,24 @@ Web push, so it works with the app closed. The frontend registers a small servic
 
 ## Feedback at the scanner
 
-Built and heard on the real buzzer (an active one), not yet released. The hardware agent turns the result of each scan into a signal on a buzzer connected to a GPIO pin of the Pi:
+The hardware agent turns the result of each scan into a sound on a buzzer connected to a GPIO pin of the Pi. Which sound belongs to which result is chosen on the System page.
 
-| Result | Signal | Passive buzzer |
-|---|---|---|
-| `added` | one short beep | high |
-| `incremented` | two short beeps | high |
-| `needs_name` | one long beep | low |
-| scan not delivered or rejected | three short beeps | low |
-| `ignored` | none | |
+| Event | Default sound |
+|---|---|
+| `added` | short beep |
+| `incremented` | two blips |
+| `needs_name` | long beep |
+| `error`: scan not delivered or rejected | three beeps |
+| `ignored`: repeat within the debounce | none |
 
-- `FEEDBACK_OUTPUT` picks the output: `none` (default) or `buzzer`. More outputs, such as a speaker, would be another class next to `Buzzer`.
-- An active buzzer is switched on and off. A passive one gets a square wave made in software, good enough for a beep, which is what gives it two pitches.
+- **Sounds** are lists of steps: `on` and `off` with a length, and `gate`, which switches the buzzer on and off many times a second. An active buzzer has one fixed pitch, so gating is what gives it other sounds: a trill at 5 to 30 times a second, a rough buzz at a few hundred, a softer tone with a short on-time. The library of sounds is `apps/product-api/src/feedback/sounds.ts`; a new sound is one line there plus its name in both language files.
+- **Settings**: the `feedback_setting` table holds the chosen sound per event; an event without a row uses the default, and `none` means silent. The System page shows a dropdown per event and a button per sound to listen to it.
+- **Agent**: fetches the settings, with the steps of each chosen sound, when it connects to the event stream and again on a `feedback_settings` event, and keeps them in memory. So a scan that cannot reach the API still gets its error sound. Before the first contact it uses the built-in defaults.
+- **Test**: `POST /api/v1/feedback/test` sends a sound as a `feedback` event, which the agent plays at once.
+- `FEEDBACK_OUTPUT` picks the output: `none` (default) or `buzzer`. Another output, such as a speaker, would be another class next to `Buzzer`. A passive buzzer gets a square wave made in software.
 - The pin is driven through the kernel's GPIO character device (`/dev/gpiochip0`) with `libgpiod`; the container gets that one device and stays unprivileged.
-- Signals play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
-- A sound is a list of steps: `on` and `off` with a length, and `gate`, which switches the buzzer on and off many times a second. An active buzzer has one fixed pitch, so gating is what gives it other sounds: a trill at 5 to 30 times a second, a rough buzz at a few hundred, a softer tone with a short on-time.
-- Test buttons on the System page play the current signals and a set of sample sounds. The page posts the steps to `POST /api/v1/feedback/test`, the API passes them on as a `feedback` event, and the agent, which listens to the event stream for this, plays them. The steps travel with the request, so trying a new sound needs no change to the agent.
-- `python3 agent.py --test-feedback` plays every signal once.
+- Sounds play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
+- `python3 agent.py --test-feedback` plays the sound of every event once.
 
 ## Backup
 

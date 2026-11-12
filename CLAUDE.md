@@ -27,7 +27,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 
 | Part | Directory | Notes |
 |---|---|---|
-| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Modules: `scan`, `catalog`, `list`, `connectors`, `events`, `log`, `push`. Hand-written migrations in `src/data/migrations/` |
+| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Modules: `scan`, `catalog`, `list`, `connectors`, `events`, `log`, `push`, `feedback`. Hand-written migrations in `src/data/migrations/` |
 | Web app | `apps/product-front/` | Angular 20, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/` |
 | Hardware agent | `apps/hardware-agent/` | Python, evdev |
 | Deployment | `deployment/` | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh` |

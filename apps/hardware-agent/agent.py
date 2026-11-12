@@ -49,10 +49,11 @@ def off(seconds):
     return {'kind': 'off', 'seconds': seconds}
 
 
-SIGNALS = {
+DEFAULT_SIGNALS = {
     'added': [on(0.08)],
     'incremented': [on(BLIP), off(GAP), on(BLIP)],
     'needs_name': [on(0.45)],
+    'ignored': [],
     'error': [on(0.08), off(GAP), on(0.08), off(GAP), on(0.08)],
 }
 
@@ -187,6 +188,7 @@ class Buzzer:
 class Feedback:
     def __init__(self):
         self.output = None
+        self.signals_by_event = dict(DEFAULT_SIGNALS)
         self.signals = queue.Queue(maxsize=FEEDBACK_QUEUE_SIZE)
         if FEEDBACK_OUTPUT == 'none':
             return
@@ -205,8 +207,15 @@ class Feedback:
         threading.Thread(target=self.listen_for_tests, daemon=True).start()
 
     def signal(self, name):
-        if name in SIGNALS:
-            self.enqueue(name, SIGNALS[name])
+        steps = self.signals_by_event.get(name)
+        if steps:
+            self.enqueue(name, steps)
+
+    def load_settings(self):
+        with urllib.request.urlopen(f'{API_BASE}/feedback/settings', timeout=API_TIMEOUT_SECONDS) as response:
+            settings = json.load(response)
+        self.signals_by_event = {row['event']: row['steps'] for row in settings['events']}
+        log.info('feedback sounds: %s', ', '.join(f"{row['event']}={row['soundId']}" for row in settings['events']))
 
     def enqueue(self, name, steps):
         if not self.output:
@@ -228,6 +237,7 @@ class Feedback:
         while True:
             try:
                 with urllib.request.urlopen(f'{API_BASE}/events', timeout=EVENT_STREAM_TIMEOUT_SECONDS) as stream:
+                    self.load_settings()
                     event = ''
                     for raw in stream:
                         line = raw.decode(errors='replace').strip()
@@ -237,9 +247,11 @@ class Feedback:
                             test = json.loads(line[len('data:'):])
                             log.info('test sound "%s" played', test.get('name'))
                             self.enqueue(test.get('name'), test.get('steps') or [])
+                        elif line.startswith('data:') and event == 'feedback_settings':
+                            self.load_settings()
                         elif not line:
                             event = ''
-            except (urllib.error.URLError, OSError, ValueError):
+            except (urllib.error.URLError, OSError, ValueError, KeyError):
                 pass
             time.sleep(RETRY_SECONDS)
 
@@ -247,9 +259,13 @@ class Feedback:
         if not self.output:
             print('feedback is off or not available; check FEEDBACK_OUTPUT and the log lines above')
             return
-        for name, beeps in SIGNALS.items():
-            print(name)
-            self.output.play(beeps)
+        try:
+            self.load_settings()
+        except (urllib.error.URLError, OSError, ValueError, KeyError) as error:
+            print(f'settings not available ({error}), playing the built-in sounds')
+        for name, steps in self.signals_by_event.items():
+            print(name, '' if steps else '(no sound)')
+            self.output.play(steps)
             time.sleep(1)
 
 

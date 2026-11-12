@@ -144,4 +144,21 @@ export class PushSubscriptionEntity {
     public createdAt: Date;
 }
 
-export const Entities = [SectionEntity, CatalogItemEntity, BarcodeEntity, ListEntryEntity, ScanEntity, PushSubscriptionEntity];
+@Entity('feedback_setting')
+export class FeedbackSettingEntity {
+    @PrimaryColumn({ type: 'varchar' })
+    public event: string;
+
+    @Column({ type: 'varchar' })
+    public soundId: string;
+}
+
+export const Entities = [
+    SectionEntity,
+    CatalogItemEntity,
+    BarcodeEntity,
+    ListEntryEntity,
+    ScanEntity,
+    PushSubscriptionEntity,
+    FeedbackSettingEntity
+];

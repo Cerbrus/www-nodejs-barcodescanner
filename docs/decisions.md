@@ -89,6 +89,10 @@ Settled on the iPhone on 2026-11-12, after three attempts:
 - The declarative message format works: the phone opens the address in the message by itself. It does so as a page load, which restarted the app.
 - Addresses after a `#` (`/#/inbox`) solve that: the phone treats the tap as a jump inside the open page. This is why the app uses hash addresses, although plain ones look nicer. Do not switch back without retesting the tap.
 
+## Buzzer sounds
+
+Decided 2026-11-12: the sound per scan result is a setting in the app, chosen from a fixed library, not hard-coded in the hardware agent. The user wanted to try sounds from the web page and pick per event. Free editing of own patterns was left out; new sounds are added to the library on request.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

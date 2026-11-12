@@ -102,6 +102,16 @@ export interface SoundStep {
     duty?: number;
 }
 
+export interface Sound {
+    id: string;
+    steps: Array<SoundStep>;
+}
+
+export interface FeedbackSettings {
+    events: Array<{ event: string; soundId: string; steps: Array<SoundStep> }>;
+    sounds: Array<Sound>;
+}
+
 export interface CatalogItemInput {
     name?: string;
     sectionId?: string;

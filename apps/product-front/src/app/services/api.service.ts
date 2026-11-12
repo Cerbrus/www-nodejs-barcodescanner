@@ -6,6 +6,7 @@ import {
     Barcode,
     CatalogItem,
     CatalogItemInput,
+    FeedbackSettings,
     Health,
     ListEntry,
     ListEntryChange,
@@ -15,8 +16,7 @@ import {
     Scan,
     ScanOutcome,
     ScanSource,
-    Section,
-    SoundStep
+    Section
 } from '../models';
 import { SettingsService } from './settings/settings.service';
 
@@ -125,7 +125,15 @@ export class ApiService {
         return this.http.post<PushResult>(`${this.baseUrl}/push/test`, {});
     }
 
-    public testSound(name: string, steps: Array<SoundStep>): Observable<void> {
-        return this.http.post<void>(`${this.baseUrl}/feedback/test`, { name, steps });
+    public getFeedbackSettings(): Observable<FeedbackSettings> {
+        return this.http.get<FeedbackSettings>(`${this.baseUrl}/feedback/settings`);
+    }
+
+    public setFeedbackSound(event: string, soundId: string): Observable<FeedbackSettings> {
+        return this.http.put<FeedbackSettings>(`${this.baseUrl}/feedback/settings/${event}`, { soundId });
+    }
+
+    public testSound(soundId: string): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/feedback/test`, { soundId });
     }
 }

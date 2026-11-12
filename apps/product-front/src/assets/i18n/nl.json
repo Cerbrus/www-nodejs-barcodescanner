@@ -141,23 +141,42 @@
     },
     "sound": {
         "title": "Geluid bij de scanner",
-        "intro": "Speelt het geluid af op de zoemer bij de scanner. Werkt alleen als de zoemer is aangesloten en aangezet. Elke druk op een knop staat in het systeemlog.",
-        "events": "Huidige geluiden per gebeurtenis",
-        "samples": "Proefgeluiden",
-        "name": {
+        "intro": "Kies per gebeurtenis welk geluid de zoemer bij de scanner maakt. Een keuze wordt direct opgeslagen en afgespeeld. Werkt alleen als de zoemer is aangesloten en aangezet.",
+        "events": "Geluid per gebeurtenis",
+        "samples": "Alle geluiden beluisteren",
+        "none": "Geen geluid",
+        "play": "Afspelen",
+        "unavailable": "Geluidsinstellingen niet beschikbaar.",
+        "event": {
             "added": "Product toegevoegd",
             "incremented": "Aantal +1",
-            "needsName": "Onbekend product",
-            "error": "Scan niet aangekomen",
-            "clean": "Schone piep",
-            "blip": "Korte tik",
-            "long": "Lange piep",
-            "trill": "Triller",
-            "rough": "Ruw",
-            "soft": "Zacht",
+            "needs_name": "Onbekend product",
+            "ignored": "Herhaalde scan genegeerd",
+            "error": "Scan niet aangekomen"
+        },
+        "name": {
+            "tick": "Tikje (0,02 s)",
+            "blip": "Korte tik (0,05 s)",
+            "beep": "Piepje (0,08 s)",
+            "clean": "Piep (0,25 s)",
+            "long": "Lange piep (0,45 s)",
+            "longer": "Hele lange piep (0,8 s)",
+            "double": "Twee tikken",
+            "triple": "Drie piepjes",
             "shortShortLong": "Kort, kort, lang",
             "longShort": "Lang, kort",
-            "blipThenTrill": "Tik, dan triller"
+            "trill8": "Triller (8/s)",
+            "trill15": "Triller (15/s)",
+            "trill30": "Triller (30/s)",
+            "shortTrill": "Korte triller",
+            "blipThenTrill": "Tik, dan triller",
+            "rough200": "Ruw (200 Hz)",
+            "rough500": "Ruw (500 Hz)",
+            "rough1000": "Ruw (1000 Hz)",
+            "shortRough": "Kort ruw",
+            "soft20": "Zacht (20%)",
+            "soft5": "Heel zacht (5%)",
+            "softBlip": "Zachte tik"
         }
     }
 }

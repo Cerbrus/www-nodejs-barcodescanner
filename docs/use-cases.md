@@ -17,7 +17,7 @@ Terms:
 2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one.
 3. Any open web page shows a toast with the item name and an undo button.
 
-A second read of the same barcode within 1 second is ignored. A sound at the scanner itself is planned, not built.
+A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16).
 
 ### UC-2 Scan a new product with the handheld scanner
 
@@ -103,9 +103,11 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 1. Every hour in which something changed, the Pi pushes the database as readable SQL to a private repository.
 2. After a dead SD card the user installs the app on a new card, loads the latest dump and has the catalog, mappings, list and history back, missing at most the last hour.
 
-### UC-16 Try the scanner sounds
+### UC-16 Choose the scanner sounds
 
-On the System page the user presses a labelled button per sound: the sound each scan result gives today, and sample sounds such as a trill, a rough buzz or a soft tone. The buzzer at the scanner plays it at once. It is there to choose which sound fits which result, and to check the buzzer works.
+1. A buzzer at the scanner beeps after every handheld scan: by default a short beep for a product added, two blips for counted up, a long beep for an unknown barcode, three beeps when the scan did not arrive.
+2. On the System page the user picks, per event, a sound from a list or "no sound". The choice is saved and played at once on the buzzer.
+3. A button per sound plays it, to compare them and to check the buzzer works.
 
 ## Using it as an app
 

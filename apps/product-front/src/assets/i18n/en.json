@@ -141,23 +141,42 @@
     },
     "sound": {
         "title": "Sound at the scanner",
-        "intro": "Plays the sound on the buzzer at the scanner. Only works when the buzzer is connected and switched on. Every button press shows in the system log.",
-        "events": "Current sound per event",
-        "samples": "Sample sounds",
-        "name": {
+        "intro": "Choose per event which sound the buzzer at the scanner makes. A choice is saved and played at once. Only works when the buzzer is connected and switched on.",
+        "events": "Sound per event",
+        "samples": "Listen to all sounds",
+        "none": "No sound",
+        "play": "Play",
+        "unavailable": "Sound settings are not available.",
+        "event": {
             "added": "Product added",
             "incremented": "Quantity +1",
-            "needsName": "Unknown product",
-            "error": "Scan not delivered",
-            "clean": "Clean beep",
-            "blip": "Short blip",
-            "long": "Long beep",
-            "trill": "Trill",
-            "rough": "Rough",
-            "soft": "Soft",
+            "needs_name": "Unknown product",
+            "ignored": "Repeated scan ignored",
+            "error": "Scan not delivered"
+        },
+        "name": {
+            "tick": "Tick (0.02 s)",
+            "blip": "Short blip (0.05 s)",
+            "beep": "Short beep (0.08 s)",
+            "clean": "Beep (0.25 s)",
+            "long": "Long beep (0.45 s)",
+            "longer": "Very long beep (0.8 s)",
+            "double": "Two blips",
+            "triple": "Three beeps",
             "shortShortLong": "Short, short, long",
             "longShort": "Long, short",
-            "blipThenTrill": "Blip, then trill"
+            "trill8": "Trill (8/s)",
+            "trill15": "Trill (15/s)",
+            "trill30": "Trill (30/s)",
+            "shortTrill": "Short trill",
+            "blipThenTrill": "Blip, then trill",
+            "rough200": "Rough (200 Hz)",
+            "rough500": "Rough (500 Hz)",
+            "rough1000": "Rough (1000 Hz)",
+            "shortRough": "Short rough",
+            "soft20": "Soft (20%)",
+            "soft5": "Very soft (5%)",
+            "softBlip": "Soft blip"
         }
     }
 }

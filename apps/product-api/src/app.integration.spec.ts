@@ -16,6 +16,8 @@ import { CatalogService } from './catalog/catalog.service';
 import { databaseOptions } from './data/database';
 import { SeedService } from './data/seed.service';
 import { EventsModule } from './events/events.module';
+import { FeedbackModule } from './feedback/feedback.module';
+import { FeedbackService } from './feedback/feedback.service';
 import { ListModule } from './list/list.module';
 import { ListService } from './list/list.service';
 import { DEBOUNCE_MILLISECONDS } from './scan/scan-rules';
@@ -34,11 +36,28 @@ process.env['SEED_PATH'] = join(process.cwd(), 'data', 'seed-items.json');
         EventsModule,
         ListModule,
         ScanModule,
-        CatalogModule
+        CatalogModule,
+        FeedbackModule
     ],
     providers: [SeedService]
 })
 class TestModule {
+}
+
+async function checkFeedbackSettings(feedback: FeedbackService): Promise<void> {
+    const before = await feedback.getSettings();
+    assert.equal(before.events.find((row) => row.event === 'added')?.soundId, 'beep');
+    assert.equal(before.events.find((row) => row.event === 'ignored')?.soundId, 'none');
+
+    await feedback.setSound('added', 'trill15');
+    await feedback.setSound('error', 'none');
+    const after = await feedback.getSettings();
+    assert.equal(after.events.find((row) => row.event === 'added')?.soundId, 'trill15');
+    assert.equal(after.events.find((row) => row.event === 'added')?.steps[0].kind, 'gate');
+    assert.deepEqual(after.events.find((row) => row.event === 'error')?.steps, []);
+    assert.equal(after.events.find((row) => row.event === 'needs_name')?.soundId, 'long');
+
+    await assert.rejects(feedback.setSound('added', 'does-not-exist'));
 }
 
 describe('scan flow against a real database', () => {
@@ -113,4 +132,6 @@ describe('scan flow against a real database', () => {
             ['incremented', 'added', 'ignored', 'incremented']
         );
     });
+
+    it('keeps a chosen sound per event and falls back to the default', () => checkFeedbackSettings(app.get(FeedbackService)));
 });
