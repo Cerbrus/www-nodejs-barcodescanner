@@ -31,7 +31,7 @@ yarn product-front:serve    # port 4200
 yarn lint:all
 ```
 
-The API reads its database settings from `apps/product-api/.env` (`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_NAME`). That file is not committed.
+The API keeps its data in a SQLite file, `data/app.db` by default (`DATABASE_PATH` overrides it). The file is created on first start and is not committed. `GET /api/v1/health` reports whether the API and database are up.
 
 ## Data
 

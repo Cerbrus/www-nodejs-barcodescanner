@@ -26,7 +26,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 
 | App | Directory | Stack | Fate |
 |---|---|---|---|
-| Product API | `apps/product-api/` | NestJS, TypeORM, PostgreSQL, CQRS | Trim to plain modules, SQLite |
+| Product API | `apps/product-api/` | NestJS, TypeORM, SQLite | Skeleton: health endpoint, static frontend, Albert Heijn connector. Modules come in milestone 3 |
 | Product Frontend | `apps/product-front/` | Angular 20, TailwindCSS | Rebuild pages, drop poll leftovers |
 | Hardware Agent | `apps/hardware-agent/` | Python, evdev | Reads the scanner; posts scans to the API from milestone 3 |
 

@@ -1,53 +1,25 @@
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module';
-import {
-    AxiosExceptionFilter,
-    HttpExceptionFilter,
-    MissingEntityExceptionFilter,
-    UnknownErrorFilter,
-    ValidationExceptionFilter
-} from './api/exception-filters';
 
 const logger = new Logger('Main');
+const globalPrefix = 'api';
+const defaultPort = 3020;
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
-        cors: {
-            origin: '*',
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            preflightContinue: false,
-            optionsSuccessStatus: 204
-            // exposedHeaders: ['X-Pagination-Total', 'X-Pagination-Start', 'X-Pagination-Step']
-        }
+        cors: process.env['ENVIRONMENT'] === 'development'
     });
 
-    // Set global API prefix
-    const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
-
-    // Set global pipes
+    app.enableVersioning({ type: VersioningType.URI });
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.enableShutdownHooks();
 
-    app.useGlobalFilters(
-        ...[
-            new UnknownErrorFilter(), // Catch all exception filter should be the first handler
-            new HttpExceptionFilter(),
-            new AxiosExceptionFilter(),
-            new MissingEntityExceptionFilter(),
-            new ValidationExceptionFilter()
-        ]);
-
-    // Set port for API
-    const port = process.env['PORT'] || 3020;
-
-    // Add versioning to the API.
-    app.enableVersioning({
-        type: VersioningType.URI
-    });
-
+    const port = process.env['PORT'] ?? defaultPort;
     await app.listen(port);
-    logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+    logger.log(`Listening on port ${port}, API under /${globalPrefix}`);
 }
 
 bootstrap();

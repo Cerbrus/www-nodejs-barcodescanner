@@ -30,6 +30,7 @@ dist/
 
 # Caches
 .nx/
+.angular/
 .yarn/install-state.gz
 
 # USB captures hold traffic of every device on the PC

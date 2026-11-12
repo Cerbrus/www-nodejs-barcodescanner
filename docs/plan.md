@@ -5,10 +5,9 @@ Decisions behind this plan are in [decisions.md](decisions.md); the target is in
 ## Where the prototype stands (2026-11-12)
 
 - The repository has no commits yet.
-- The API has entities and a migration for PostgreSQL, a working Albert Heijn connector in TypeScript, and no endpoint that writes a scan.
+- The API is a skeleton since milestone 2: SQLite connection, health endpoint, static serving of the frontend, and the Albert Heijn connector in TypeScript, not yet wired in. No endpoint writes a scan.
 - The frontend is a leftover Slack-poll app whose only page renders a barcode image.
 - Both Python `requirements.txt` files are UTF-16 and list unrelated heavy packages.
-- Deployment pushes over SSH with rsync, ships x64 `node_modules` to the Pi, and registers the static frontend as a Node server.
 
 ## Milestones
 
@@ -46,8 +45,8 @@ Done when: a trivial change pushed to `master` is live on the Pi within minutes 
 
 ### 3. Backend core
 
-- Switch TypeORM to SQLite at `/data/app.db`; replace the migration.
-- Replace CQRS, mappers, repositories and the exception-filter stack with plain modules: `scan`, `catalog`, `list`, `connectors`, `events`.
+- Done in milestone 2: TypeORM on SQLite at `/data/app.db`; CQRS, mappers, repositories, the exception-filter stack and the PostgreSQL entities and migration removed.
+- Add plain modules: `scan`, `catalog`, `list`, `connectors`, `events`, with entities and a first migration.
 - Data model and scan rules from `architecture.md`, including debounce, count up, inbox and undo.
 - Connector interface; port the Albert Heijn connector to it; add Open Food Facts.
 - Server-sent events.

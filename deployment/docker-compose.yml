@@ -1,0 +1,23 @@
+services:
+    app:
+        image: ghcr.io/cerbrus/barcodescanner-app:${IMAGE_TAG:-latest}
+        restart: unless-stopped
+        user: '1000:1000'
+        ports:
+            - '${APP_PORT:-3020}:3020'
+        volumes:
+            - ./data:/data
+        env_file: .env
+        mem_limit: 256m
+
+    hardware-agent:
+        image: ghcr.io/cerbrus/barcodescanner-agent:${IMAGE_TAG:-latest}
+        restart: unless-stopped
+        depends_on:
+            - app
+        volumes:
+            - /dev/input:/dev/input:ro
+        device_cgroup_rules:
+            - 'c 13:* rmw'
+        env_file: .env
+        mem_limit: 64m

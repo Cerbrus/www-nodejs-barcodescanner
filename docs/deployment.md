@@ -40,63 +40,54 @@ Consequences:
 
 ```
 /opt/barcodescanner/
-├── docker-compose.yml    # fetched from the repo by the updater
-├── .env                  # local settings, never overwritten
-└── data/                 # SQLite database
+|-- docker-compose.yml    # fetched from the repo by the updater
+|-- update.sh             # the updater; refreshes itself from the repo
+|-- .env                  # local settings, never overwritten
+`-- data/                 # SQLite database, owned by user 1000
 ```
 
-One-time install, as one script (`deployment/install.sh`) that:
-
-1. installs Docker Engine and the compose plugin if they are missing;
-2. creates `/opt/barcodescanner/` and an `.env` from a template;
-3. installs `barcodescanner-update.service` and `barcodescanner-update.timer`;
-4. runs the updater once.
-
-The updater does:
+One-time install on a fresh Pi:
 
 ```bash
-cd /opt/barcodescanner
-curl -fsSL -o docker-compose.yml.new "https://raw.githubusercontent.com/Cerbrus/www-nodejs-barcodescanner/master/deployment/docker-compose.yml" \
-    && mv docker-compose.yml.new docker-compose.yml
-docker compose pull --quiet
-docker compose up -d --remove-orphans
-docker image prune -f
+curl -fsSLO https://raw.githubusercontent.com/Cerbrus/www-nodejs-barcodescanner/master/deployment/install.sh
+sudo bash install.sh
 ```
 
-`docker compose up -d` only restarts containers whose image or configuration changed.
+`deployment/install.sh` can be run again safely. It:
 
-## Compose file (shape)
+1. installs Docker Engine and the compose plugin if they are missing;
+2. adds the kernel parameters for container memory limits if they are missing (needs one reboot);
+3. creates `/opt/barcodescanner/` with `data/`, `update.sh` and an `.env` from `deployment/env.template`, filling in the scanner device when one is plugged in;
+4. installs and starts `barcodescanner-update.timer` (2 minutes after boot, then every 5 minutes);
+5. runs the updater once.
 
-```yaml
-services:
-    app:
-        image: ghcr.io/cerbrus/barcodescanner-app:${IMAGE_TAG:-latest}
-        restart: unless-stopped
-        ports: ['3020:3020']
-        volumes: ['./data:/data']
-        env_file: .env
-        healthcheck:
-            test: ['CMD', 'wget', '-qO-', 'http://localhost:3020/api/v1/health']
+The updater, `deployment/update.sh`, fetches the current `docker-compose.yml` and its own newer version from `master`, pulls the images, runs `docker compose up -d --remove-orphans` and prunes old images. `docker compose up -d` only restarts containers whose image or configuration changed. If GitHub is unreachable it keeps the files it has.
 
-    hardware-agent:
-        image: ghcr.io/cerbrus/barcodescanner-agent:${IMAGE_TAG:-latest}
-        restart: unless-stopped
-        depends_on: [app]
-        volumes: ['/dev/input:/dev/input:ro']
-        device_cgroup_rules: ['c 13:* rmw']
-        env_file: .env
-```
+## Compose file
+
+`deployment/docker-compose.yml` is the source. In short:
+
+- `app`: port `${APP_PORT:-3020}`, volume `./data:/data`, runs as user 1000, memory limit 256 MB. The image carries its own health check on `/api/v1/health`.
+- `hardware-agent`: `/dev/input` mounted read-only, device rule `c 13:* rmw`, memory limit 64 MB, not privileged.
+
+## Images
+
+Built by `.github/workflows/build.yml` on a GitHub-hosted ARM runner, so no emulation:
+
+- `ghcr.io/cerbrus/barcodescanner-app`: root `Dockerfile`. Builds API and frontend, then installs only the API's runtime packages. The commit hash is baked in as `APP_VERSION` and shown by the health endpoint.
+- `ghcr.io/cerbrus/barcodescanner-agent`: `apps/hardware-agent/Dockerfile`.
+
+Pushes to `master` publish `latest` and a commit-hash tag. Pull requests only build.
 
 ## Settings (`.env`)
 
 | Variable | Meaning |
 |---|---|
 | `IMAGE_TAG` | `latest` by default. Set a commit hash to pin a version. |
+| `APP_PORT` | Host port of the web app and API, default `3020` |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
-| `FEEDBACK_OUTPUT` | `none` for now |
-| `CONNECTORS` | Enabled connectors, for example `ah,off` |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle.
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Later milestones add settings for connectors and feedback output.
 
 ## Reverse proxy (Nginx Proxy Manager)
 
