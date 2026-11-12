@@ -8,6 +8,8 @@ import { ApiService } from './api.service';
 export type PushStatus = 'unsupported' | 'off' | 'on' | 'denied';
 
 const WORKER_URL = '/sw.js';
+const STATE_CACHE = 'notification-state';
+const PENDING_KEY = '/pending-navigation';
 
 @Injectable({ providedIn: 'root' })
 export class PushService {
@@ -24,11 +26,17 @@ export class PushService {
             return;
         }
 
-        navigator.serviceWorker.addEventListener('message', (event: MessageEvent<{ type?: string; url?: string }>) => {
-            if (event.data.type === 'navigate' && event.data.url) {
-                void this.router.navigateByUrl(event.data.url);
+        navigator.serviceWorker.addEventListener('message', (event: MessageEvent<{ type?: string }>) => {
+            if (event.data.type === 'navigate') {
+                void this.followPendingNavigation();
             }
         });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                void this.followPendingNavigation();
+            }
+        });
+        void this.followPendingNavigation();
 
         try {
             this.registration = await navigator.serviceWorker.register(WORKER_URL);
@@ -73,6 +81,21 @@ export class PushService {
             await subscription.unsubscribe();
         }
         this.status.set(this.statusFor(undefined));
+    }
+
+    private async followPendingNavigation(): Promise<void> {
+        try {
+            const cache = await caches.open(STATE_CACHE);
+            const pending = await cache.match(PENDING_KEY);
+            if (!pending) {
+                return;
+            }
+
+            await cache.delete(PENDING_KEY);
+            await this.router.navigateByUrl(await pending.text());
+        } catch {
+            return;
+        }
     }
 
     private statusFor(subscription?: PushSubscription | null): PushStatus {

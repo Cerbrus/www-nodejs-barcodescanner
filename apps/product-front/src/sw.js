@@ -1,5 +1,7 @@
 const FALLBACK_TITLE = 'Boodschappen';
 const ICON = '/assets/icons/icon-192.png';
+const STATE_CACHE = 'notification-state';
+const PENDING_KEY = '/pending-navigation';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
@@ -27,14 +29,18 @@ self.addEventListener('notificationclick', (event) => {
     const path = event.notification.data?.url || '/';
 
     event.waitUntil(
-        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
-            const open = windows[0];
-            if (!open) {
-                return self.clients.openWindow(path);
-            }
+        self.caches
+            .open(STATE_CACHE)
+            .then((cache) => cache.put(PENDING_KEY, new Response(path)))
+            .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+            .then((windows) => {
+                const open = windows[0];
+                if (!open) {
+                    return self.clients.openWindow(path);
+                }
 
-            open.postMessage({ type: 'navigate', url: path });
-            return open.focus();
-        })
+                open.postMessage({ type: 'navigate' });
+                return open.focus();
+            })
     );
 });

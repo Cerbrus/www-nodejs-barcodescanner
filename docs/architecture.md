@@ -147,7 +147,7 @@ The page listens to `/api/v1/events`. When that stream ends for good, which happ
 
 ## Notifications
 
-Web push, so it works with the app closed. The frontend registers a small service worker (`/sw.js`, no caching) that shows the notification, sets the number on the app icon, and opens the inbox when tapped.
+Web push, so it works with the app closed. The frontend registers a small service worker (`/sw.js`, no caching) that shows the notification, sets the number on the app icon, and opens the inbox when tapped. A tap stores the page to open in a small cache entry and wakes the app; the app reads the entry when it gets the message, when it returns to the foreground and when it starts. A message alone is not enough, because a phone drops messages to an app that sits in the background.
 
 - Sent when: a scan from the handheld scanner ends in `needs_name`. Scans from the phone camera do not notify; the phone is already showing the naming prompt. The notification goes out after the connector lookup, so it can name the product the supermarket knows for that barcode.
 - Content: title, the suggested product name with the barcode, and the number of barcodes in the inbox as badge. Texts are Dutch or English, following the language the device had when it subscribed.
