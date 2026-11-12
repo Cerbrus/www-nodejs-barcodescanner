@@ -1,6 +1,6 @@
 # Deployment
 
-Target design. The scripts in `deployment/` and the current GitHub workflow are the old push-based setup and are replaced in milestone 2 of [plan.md](plan.md).
+How the product runs on the Raspberry Pi. Everything here is in place on the server Pi; what was never tested on a fresh one is listed in [plan.md](plan.md).
 
 ## Principle
 
@@ -8,7 +8,7 @@ The Pi pulls; nothing pushes to the Pi.
 
 1. A push to `master` makes GitHub Actions build the `app` and `hardware-agent` images and publish them to GitHub's container registry (`ghcr.io`), tagged `latest` and with the commit hash.
 2. A systemd timer on the Pi runs every 5 minutes: fetch the compose file, pull images, restart what changed.
-3. The Pi needs Docker and outbound internet. No inbound port for deployment, no SSH key in GitHub, no Node or Python on the Pi.
+3. The Pi needs Docker and outbound internet, plus `git` and `sqlite3` for the backup. No inbound port for deployment, no SSH key in GitHub, no Node or Python on the Pi.
 
 The repository and the images are public, so the Pi needs no GitHub token and no registry login. Set each image package to public once on GitHub after the first build; new packages start private even in a public repository. Secrets never go into an image.
 
@@ -41,10 +41,19 @@ Consequences:
 ```
 /opt/barcodescanner/
 |-- docker-compose.yml    # fetched from the repo by the updater
-|-- update.sh             # the updater; refreshes itself from the repo
+|-- update.sh             # the updater; refreshes itself and the two scripts below
+|-- firewall.sh           # limits the app's port to the reverse proxy
+|-- backup.sh             # database backup to the private repository
+|-- backup_key(.pub)      # SSH key that only reaches the backup repository
+|-- backup/               # working copy of the backup repository
 |-- .env                  # local settings, never overwritten
-`-- data/                 # SQLite database, owned by user 1000
+`-- data/                 # owned by user 1000
+    |-- app.db            # SQLite database
+    |-- push-keys.json    # key pair for notifications
+    `-- logs/app.log      # log file with its rotated files
 ```
+
+Systemd units: `barcodescanner-update.timer` (every 5 minutes), `barcodescanner-backup.timer` (hourly), `barcodescanner-firewall.service` (at boot).
 
 One-time install on a fresh Pi:
 
@@ -55,13 +64,16 @@ sudo bash install.sh
 
 `deployment/install.sh` can be run again safely. It:
 
-1. installs Docker Engine and the compose plugin if they are missing;
+1. installs Docker Engine and the compose plugin, `git` and `sqlite3` if they are missing;
 2. adds the kernel parameters for container memory limits if they are missing (needs one reboot);
-3. creates `/opt/barcodescanner/` with `data/`, `update.sh` and an `.env` from `deployment/env.template`, filling in the scanner device when one is plugged in;
-4. installs and starts `barcodescanner-update.timer` (2 minutes after boot, then every 5 minutes);
-5. runs the updater once.
+3. creates `/opt/barcodescanner/` with `data/`, the three scripts and an `.env` from `deployment/env.template`, filling in the scanner device when one is plugged in;
+4. creates the backup key and prints its public half;
+5. installs and starts `barcodescanner-update.timer` (2 minutes after boot, then every 5 minutes), `barcodescanner-backup.timer` (hourly) and `barcodescanner-firewall.service`;
+6. runs the updater once.
 
-The updater, `deployment/update.sh`, fetches the current `docker-compose.yml` and its own newer version from `master`, pulls the images, runs `docker compose up -d --remove-orphans` and prunes old images. `docker compose up -d` only restarts containers whose image or configuration changed. If GitHub is unreachable it keeps the files it has.
+After the first install, fill in `.env` (next sections): `ALLOWED_SOURCE`, `BACKUP_REPO`, `PUSH_SUBJECT`.
+
+The updater, `deployment/update.sh`, fetches the current `docker-compose.yml`, its own newer version and the newer `firewall.sh` and `backup.sh` from `master`, pulls the images, runs `docker compose up -d --remove-orphans`, prunes old images and reapplies the firewall rule. `docker compose up -d` only restarts containers whose image or configuration changed. If GitHub is unreachable it keeps the files it has.
 
 ## Compose file
 
@@ -90,7 +102,7 @@ A `checks` job runs first: lint for both apps and the API tests. Images are only
 | `BACKUP_REPO` | SSH address of the private backup repository. Empty switches the backup off. |
 | `PUSH_SUBJECT` | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses. |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. A later milestone adds a setting for feedback output.
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. Sound feedback, when built, adds a setting for its output.
 
 ## Reverse proxy (Nginx Proxy Manager)
 
@@ -110,6 +122,10 @@ location /api/v1/events {
     proxy_read_timeout 1h;
 }
 ```
+
+## Reaching the site from inside the home network
+
+When the site's public name points at the router, some routers pass requests from inside the network back in badly: small files load, large ones hang, and the page stays blank. Seen here on a laptop while a phone worked. The fix is a local DNS record on the home network's DNS server (Pi-hole: Settings, Local DNS Records) that points the site's name straight at the reverse proxy's LAN address. Devices at home then skip the router; from outside nothing changes. Give every name on the same proxy its own record.
 
 ## Updates, rollback, backup
 

@@ -1,111 +1,106 @@
-# Plan: prototype to usable product
+# Plan
 
-Decisions behind this plan are in [decisions.md](decisions.md); the target is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
+How the prototype became the product, and what is left. Decisions behind this plan are in [decisions.md](decisions.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
 
-## Where the prototype stands (2026-11-12)
+## Where it stands (2026-11-12)
 
-- The repository has no commits yet.
-- The API is a skeleton since milestone 2: SQLite connection, health endpoint, static serving of the frontend, and the Albert Heijn connector in TypeScript, not yet wired in. No endpoint writes a scan.
-- The frontend is a leftover Slack-poll app whose only page renders a barcode image.
-- Both Python `requirements.txt` files are UTF-16 and list unrelated heavy packages.
+In daily-use shape and running on the Pi:
+
+- Handheld and camera scanning, the scan rules, inbox and naming, the list, product management, history with undo, the system log.
+- Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository.
+- Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans.
+
+Open: sound at the scanner (milestone 7), offline shopping (milestone 8), and the hardening that only daily use brings (milestone 6). The list of things never tested is at the end.
+
+Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
 
 ## Milestones
 
-Each milestone ends in something that runs. Milestones 1 and 2 remove the two biggest risks before any feature work.
+Each milestone ends in something that runs. Milestones 1 and 2 removed the two biggest risks before any feature work.
 
-### 0. Clean start
+### 0. Clean start: done
 
-- Delete what the target does not need: `apps/supermarkt-connector/`, `run.sh`, the root `docker-compose.yml`, `barcodes.txt`, `.run/` entries for removed apps, the `aldi-wrapper`, `jumbo-wrapper` and `albert-heijn-wrapper` packages.
-- First commit and push.
-- Check the Pi's architecture and Docker version ([deployment.md](deployment.md)).
+- Deleted what the target does not need: the Python supermarket connector, `run.sh`, the root `docker-compose.yml`, `barcodes.txt`, run configurations of removed apps, unused supermarket packages.
+- First commit and push; checked the Pi's architecture and Docker version.
 
-Status 2026-11-12: done. Files and packages deleted, Pi checked, first commit pushed. The old push-based workflow in `.github/workflows/` is already removed; milestone 2 adds the new one.
+### 1. Scanner spike on the Pi: done
 
-Done when: the repo is on GitHub with no secrets in it, and the image platform is known.
+- Hardware agent with `evdev`: device path from `SCANNER_DEVICE`, exclusive grab, reopen loop, digits plus Enter become one scan.
+- Runs on the Pi in an unprivileged container with the `/dev/input` mount and the cgroup rule.
 
-### 1. Scanner spike on the Pi
+Result: scans are logged, nothing reaches the Pi's console, the agent reconnects by itself after a replug and after a reboot. No host-service fallback needed. The scanner sometimes reads one code twice within two seconds, which the debounce covers.
 
-- Write the hardware agent: `evdev`, device path from `SCANNER_DEVICE`, exclusive grab, reopen loop, digits plus Enter become one scan, log it.
-- Run it on the Pi in a container with the `/dev/input` mount and the cgroup rule.
-
-Done when: scans are logged from inside the container, nothing is typed into the Pi's console, and scanning still works after unplugging and replugging the dongle and after a reboot. If not, switch to the host systemd fallback and note it in `decisions.md`.
-
-Status 2026-11-12: passed. `apps/hardware-agent/` runs on the Pi in an unprivileged container (image built on the Pi for the spike only). Scans are logged, nothing reaches the Pi's console, the agent reconnects by itself after a replug, and after a reboot the container starts and reconnects without help. The Docker approach stays; no host-service fallback needed. The scanner sometimes reads one code twice within two seconds, which the debounce in milestone 3 covers.
-
-### 2. Pull-based deployment
+### 2. Pull-based deployment: done
 
 - Dockerfiles for `app` (multi-stage, Node slim) and `hardware-agent`.
-- GitHub workflow: build both images for the Pi's platform, push to `ghcr.io` with `latest` and commit-hash tags. Lint on pull requests.
-- `deployment/docker-compose.yml`, `deployment/install.sh`, the updater service and timer.
-- Remove `deployment/setup-pi.sh`, `add-site.sh`, `add-python-site.sh` and the old workflow. Keep the fan control script only if it is not already installed on the Pi.
+- GitHub workflow: lint and tests, then both images for `linux/arm64`, pushed to `ghcr.io` with `latest` and commit-hash tags.
+- `deployment/docker-compose.yml`, `install.sh`, `update.sh`, `firewall.sh`, the update timer and firewall service.
 - Nginx Proxy Manager host with certificate and access list.
-- Add `GET /api/v1/health`.
 
-Done when: a trivial change pushed to `master` is live on the Pi within minutes without touching the Pi, and the site opens over HTTPS behind the login.
+Result: a push to `master` reaches the Pi by itself, typically within ten minutes including the build. The app's port is limited to the reverse proxy's address.
 
-Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh` ran on the Pi; app (healthy, about 85 MB) and hardware agent run from the published images; the update timer is active. Lint on pull requests is postponed to milestone 4, when the frontend leftovers are gone. A push to `master` reached the Pi by itself in about three and a half minutes. The app's port is limited to the reverse proxy's address by `deployment/firewall.sh`. The proxy host `shopping` in Nginx Proxy Manager works (confirmed by the user). Milestone 2 is complete.
+### 3. Backend core: done
 
-### 3. Backend core
+- TypeORM on SQLite; plain modules `scan`, `catalog`, `list`, `connectors`, `events`, `log`; migrations; seed import on an empty database.
+- Scan rules with debounce, count up, inbox and undo.
+- Albert Heijn and Open Food Facts connectors behind one interface.
+- Server-sent events; the hardware agent posts scans and its log lines.
 
-- Done in milestone 2: TypeORM on SQLite at `/data/app.db`; CQRS, mappers, repositories, the exception-filter stack and the PostgreSQL entities and migration removed.
-- Add plain modules: `scan`, `catalog`, `list`, `connectors`, `events`, with entities and a first migration.
-- Data model and scan rules from `architecture.md`, including debounce, count up, inbox and undo.
-- Connector interface; port the Albert Heijn connector to it; add Open Food Facts.
-- Server-sent events.
-- Unit tests for the scan rules; they are the heart of the product.
-- Hardware agent posts scans to the API.
+Tests: 9 for the scan rules (`yarn product-api:test`) and 6 that run the real modules against a temporary SQLite file (`yarn product-api:test:integration`). Not covered by tests: the connectors' calls to the outside world, the HTTP layer, push sending. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
 
-Status 2026-11-12: built. Modules `scan`, `catalog`, `list`, `connectors`, `events`; first migration; seed import on an empty database; Albert Heijn and Open Food Facts connectors; the hardware agent posts scans. Tests: 9 for the scan rules (`yarn product-api:test`) and 6 that run the real modules against a temporary SQLite file (`yarn product-api:test:integration`). Not covered by tests: the connectors' calls to the outside world and the HTTP layer. Verified by hand on the Pi instead: handheld scans reached the inbox, both connectors returned suggestions, mapping two barcodes applied their waiting scans to the list, and undo took the last one back.
+### 4. Frontend: done
 
-Done when: a handheld scan of a mapped barcode changes the list in the database, an unmapped one lands in the inbox with suggestions, and undo reverses the last scan. Checked with `curl` and the tests.
+Pages: list, camera scan, inbox with naming prompt, products, product page with drawn barcodes (8, 12 and 13 digits), history with undo, log, System.
 
-### 4. Frontend
+Reworked after two rounds of the user's feedback on iPhone and laptop:
 
-- Remove the poll leftovers and unused components. Keep `components/barcode`: it draws barcodes and is used on the item page.
-- List page: tiles by section, quantity, note, check-off, recent, manual add, offline banner.
-- Naming prompt and inbox, fed by events.
-- Scan page with the phone camera, continuous mode, undo toast. Test the decoder on the real phone first.
-- Catalog page, and a management page per catalog item listing its barcodes as drawn, scannable images (UC-6). Extend the barcode component to 8-digit codes.
-- History page.
-- Log page (UC-11): terminal-like, monospaced, live. Needs the `log` module in the API and the hardware agent posting its log lines.
+- Red tiles to buy, green tiles recent, sections flowing on one line, quantity as a white pill.
+- Collapsible product sections with tiles, a visual icon picker with the product's standard icon up front, autocomplete fields with clear buttons.
+- Modal dialogs above the navigation; the camera pauses while the naming prompt is open.
+- New products can be created from the list search as well as from the naming prompt.
+- No double-tap zoom, a tap outside a text field closes the keyboard, sticky back links.
+- System page: language, light and dark, notifications, status.
+- App icon and name for the home screen, web app manifest, a console banner with debugging details.
+- The page reconnects by itself after an update or a network drop and reloads its data.
 
-Status 2026-11-12: built and deployed, not yet seen in a browser by anyone. Pages: list, camera scan, inbox with naming prompt, catalog, item page with drawn barcodes (8 and 13 digits), history with undo, log, and a page for language and status. The `log` module and the agent's log posting exist. Lint is clean for both apps and, with the API tests, now gates the image build. Checked without a browser: the pages and scripts are served, the API answers on the same origin, agent lines reach the log. After the user's first look on iPhone and laptop (camera scanning works on both) the pages were reworked: red and green tiles, sections flowing on one line, collapsible product sections with tiles, a visual icon picker, autocomplete fields, modal dialogs above the navigation, and a System page. Also added: a rotating log file, an app icon and title for the home screen with a web app manifest, and a console banner with debugging details. Open: why the page once froze on the iPhone after an unknown scan; the camera now pauses while the naming dialog is open, which is the likely cause.
-- Signals and `@for`/`@empty` as in the code style; Dutch and English texts.
+Open question: the page once froze on the iPhone after an unknown camera scan. The likely cause, the camera decoding behind the dialog, is removed; it has not happened since, but it was never reproduced either.
 
-Done when: every use case in [use-cases.md](use-cases.md) except offline use and sound works on the phone through the proxy.
+### 5. Catalog and icons: mostly done
 
-### 5. Catalog and icons
-
-- Seed the catalog from [data/seed-items.json](../data/seed-items.json): 13 sections and 358 items with icon and emoji, and the 16 list entries with state and note.
-- 8 items have no fitting emoji (Vijgen, Kaneel, Tofu, Aluminium Folie, Vershoudfolie, Condooms, Wattenschijfjes, Wattenstaafjes); they rely on their icon file.
-- Icon rendering: icon file, then emoji, then letter tile.
-- Icon picker in the catalog editor.
-- Map connector categories to sections.
+- Done: seed of 13 sections and 358 items with icon and emoji and a starting list; icon rendering with fallback to emoji and letter tile; icon picker; section guess for new products from keywords in the connector suggestions and the name.
+- Open: 8 items have no fitting emoji (Vijgen, Kaneel, Tofu, Aluminium Folie, Vershoudfolie, Condooms, Wattenschijfjes, Wattenstaafjes) and rely on their icon file.
+- Open: the section guess is a short keyword list in the web app. A proper mapping from connector categories to sections would guess better.
 
 Done when: naming a typical new barcode takes one or two taps.
 
-### 6. Daily-use hardening
+### 6. Daily-use hardening: started
 
-- Use it for two weeks and fix what annoys.
-- Logging that makes sense in `docker compose logs`; database backup before migrations (hourly backup to a private repository is in place, see `deployment.md`).
-- Connector failures visible on the history page.
+- Done: log file that survives restarts, hourly database backup, reconnecting pages.
+- Open: use it for two weeks and fix what annoys.
+- Open: connector failures visible on the history page; today they are only in the system log.
+- Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
 
-### 7. Sound feedback
+### 7. Feedback at the scanner: open
 
-- Preferred, if possible: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12.
-- Otherwise: choose hardware (USB speaker or GPIO buzzer on a free pin).
-- Implement the chosen output in the hardware agent; give the container access to the vendor HID interface, the audio device or GPIO.
+- Built: push notification on the phone for an unknown handheld scan (UC-12). It arrives seconds after the scan, so it does not replace a beep.
+- Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
+- Otherwise: a USB speaker or a GPIO buzzer on a free pin, driven by the hardware agent from the scan result.
 
-Status 2026-11-12: push notifications for unknown handheld scans are built (UC-12) and cover part of the feedback need on the phone. Not yet tried on a real phone. Sound at the scanner itself is still open.
+### 8. Offline shopping: open
 
-### 8. Offline shopping
-
-- Installable web app, cached list, queued check-offs and adds, sync on reconnect.
+- Cached list, queued check-offs and adds, sync on reconnect. The service worker that exists today only handles notifications and caches nothing.
 
 ## Open points
 
 | Point | Needed by |
 |---|---|
-| Feedback output: scanner's own beeper (waiting for Tera's answer) or a speaker or buzzer on the Pi | Milestone 7 |
+| Tera's answer on the beeper commands, or the choice of a speaker or buzzer | Milestone 7 |
+| First notification on the real iPhone, and whether Apple accepts the contact address | Milestone 7 |
 
-Answered: Nginx Proxy Manager runs on a different Pi; scanning phone is an iPhone; the server Pi is a 3 Model B+ with a 64-bit OS and no Docker yet ([deployment.md](deployment.md)).
+## Never tested
+
+- `install.sh` on a fresh Pi since the firewall, backup and notification additions. The same steps were done by hand on the running Pi.
+- The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
+- Rollback with `IMAGE_TAG`.
+- A reboot with the firewall service since it was added.
+- Push notifications on a real device.

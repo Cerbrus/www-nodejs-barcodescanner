@@ -1,6 +1,6 @@
-# Target architecture
+# Architecture
 
-This is where the project is going. For the current prototype, see [plan.md](plan.md).
+How the product is built today. What is still open is in [plan.md](plan.md).
 
 ```
  handheld scanner          phone / browser
@@ -15,7 +15,11 @@ This is where the project is going. For the current prototype, see [plan.md](pla
         └────────────────►│ app (one container)         │─────►│ product connectors│
                           │ NestJS: API + Angular files │      │ AH, Open Food     │
                           │ SQLite on /data             │      │ Facts, ...        │
-                          └─────────────────────────────┘      └───────────────────┘
+                          └──────┬───────────────┬──────┘      └───────────────────┘
+                                 │               │
+                                 ▼               ▼
+                       push services      private backup repository
+                       (Apple, Google)    (hourly SQL dump, by a host timer)
 ```
 
 ## Containers
@@ -23,7 +27,7 @@ This is where the project is going. For the current prototype, see [plan.md](pla
 | Container | Content | Notes |
 |---|---|---|
 | `app` | NestJS serving `/api/v1/...` and the built Angular app | SQLite at `/data/app.db` on a volume. Icons and the seed file ship inside the image at `/app/data/`. Runs migrations at start. |
-| `hardware-agent` | Python, about 40 lines | Reads the scanner, posts scans to `app` over the compose network, drives the feedback output from the response. |
+| `hardware-agent` | Python, one file | Reads the scanner, posts scans and its own log lines to `app` over the compose network. Retries while the app is starting. Sound feedback from the scan result is planned, not built. |
 
 ## App layout
 
@@ -39,9 +43,26 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 256 KB and keeps three old files; the last 500 lines are read back at start, so the log survives restarts and updates |
 | `push` | Web push notifications: keeps the subscriptions of devices that turned notifications on, and sends a notification when the handheld scanner reads a barcode without a name. Creates its own key pair in `/data/push-keys.json` on first use |
 
-Frontend pages: list, scan (camera), inbox with naming prompt, catalog, a management page per catalog item with its barcodes, history.
+The app also serves the icon files under `/icons` and the built web app for every other path.
 
-Barcodes are drawn in the browser by the existing `BarcodeComponent` (`apps/product-front/src/app/components/barcode/`). It handles 13-digit EAN codes today; 8-digit codes, which the scanner also reads, still need support.
+## Web app
+
+Angular with standalone components and signals; no state library. `apps/product-front/src/app/`:
+
+| Folder | Content |
+|---|---|
+| `pages/` | `list`, `scan` (camera), `inbox`, `catalog` (products), `item` (one product with its barcodes), `history`, `log`, `system` |
+| `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode` |
+| `services/` | `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
+
+- `shopping.store` loads everything once and reloads on events from the server, so every open page follows scans made elsewhere.
+- Dialogs use the native `<dialog>` element, so they sit above the navigation.
+- Barcodes are drawn in the browser by `BarcodeComponent`: EAN-13, EAN-8, and 12-digit codes padded to 13.
+- New products get a guessed shop section from keywords in the connector suggestions and the name (`new-item-form`).
+- Texts: `@ngx-translate`, Dutch by default and English, in `assets/i18n/`. Language and theme are stored in the browser.
+- Theme: every colour is a CSS variable in `styles.scss`. Dark follows the device unless the user picks light or dark, which sets `data-theme` on the page.
+- Installable: `assets/manifest.webmanifest`, the home-screen icons and the titles in `index.html`.
+- `src/sw.js` is the service worker. It only handles notifications and caches nothing.
 
 ## Data model
 
@@ -65,7 +86,7 @@ On `POST /api/v1/scans` with `{ code, source }`:
    - entry is `to_buy`: quantity plus one, result `incremented`;
    - otherwise: state `to_buy`, quantity 1, result `added`.
 3. Barcode has no catalog item: store the scan, query connectors if there are no suggestions yet, result `needs_name`.
-4. Emit an event to open pages. Return the result, which the hardware agent turns into a feedback signal.
+4. Emit an event to open pages and return the result. For a `needs_name` scan from the handheld scanner, send a notification once the lookup is done.
 
 When a barcode gets its mapping, its waiting `needs_name` scans are applied by rule 2.
 
@@ -91,10 +112,10 @@ interface ProductSuggestion {
 - All enabled connectors run in parallel with a timeout of a few seconds. A failure or timeout yields no suggestion and is logged.
 - The lookup runs in the background after the scan is answered, so a slow connector never delays the scanner. Results are stored on the barcode row, so a barcode is looked up once, and a `barcode` event tells open pages they arrived.
 - `CONNECTORS` in `.env` picks the enabled ones (default `ah,off`).
-- `category` is mapped to a shop section to prefill the naming prompt.
-- Start: Albert Heijn (existing TypeScript connector, unofficial API) and Open Food Facts (official open API; send a descriptive User-Agent). Adding a source is one new class.
+- `category` and `title` feed the section guess in the naming prompt.
+- Built: Albert Heijn (unofficial API, anonymous token) and Open Food Facts (official open API, with a generic User-Agent). Adding a source is one new class.
 
-## API sketch
+## API
 
 | Method and path | Purpose |
 |---|---|
@@ -104,20 +125,21 @@ interface ProductSuggestion {
 | `GET /api/v1/list` | List entries with their catalog items |
 | `PATCH /api/v1/list/:itemId` | State, quantity, note |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
-| `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) |
+| `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) and `defaultIcon`, the icon the seed file gives a product of that name |
 | `GET /api/v1/sections` | Shop sections in display order |
 | `GET /api/v1/barcodes?unmapped=true` | Inbox |
 | `GET /api/v1/barcodes/:code` | One barcode with its suggestions |
 | `PUT /api/v1/barcodes/:code` | Set or change the mapping |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
-| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, and a `ping` every 25 seconds |
+| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/icons` | Names of the available icons, for the icon picker |
 | `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
+| `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent posts its own |
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
 | `POST /api/v1/push/test` | Send a test notification to every subscribed device |
-| `GET /api/v1/health` | Health check for Docker |
+| `GET /api/v1/health` | Status and running version; also Docker's health check |
 
 ## Staying connected
 
@@ -136,9 +158,15 @@ Web push, so it works with the app closed. The frontend registers a small servic
 ## Phone camera
 
 - Needs HTTPS, which the proxy provides.
-- The scanning phone is an iPhone. Safari on iOS has not offered `BarcodeDetector`, so plan on a JavaScript decoder library as the main path and use `BarcodeDetector` only where it exists. Verify on the actual iPhone early in milestone 4.
-- Formats: EAN-13, EAN-8, UPC-A.
+- Decoding is done in JavaScript by `@zxing/browser`, because Safari on iOS offers no `BarcodeDetector`. Confirmed working on the iPhone and on a laptop.
+- The frame on screen is only a guide; the decoder reads the whole picture.
+- The camera stops while the naming prompt is open and restarts after.
+- Formats: EAN-13, EAN-8, UPC-A. A code can also be typed.
 
-## Feedback output
+## Feedback at the scanner
 
-The hardware agent maps a scan result to a signal: `added` and `incremented` to OK, `needs_name` to attention, an error or no response to error. Outputs are pluggable (`none`, buzzer, speaker), chosen by an environment variable. It starts as `none`.
+Not built. The plan: the hardware agent maps a scan result to a signal, `added` and `incremented` to OK, `needs_name` to attention, an error or no response to error, on a pluggable output (the scanner's own beeper, a buzzer or a speaker). Until then the feedback is the toast on open pages and the notification on the phone.
+
+## Backup
+
+Outside the containers: a timer on the Pi dumps the database as SQL and pushes it to a private repository. See [deployment.md](deployment.md).
