@@ -4,7 +4,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 
 ## What it does
 
-- **Scan to list**: a known barcode puts its product on the list, or counts the quantity up. A second read within 3 seconds is ignored.
+- **Scan to list**: a known barcode puts its product on the list, or counts the quantity up. A second read within 1 second is ignored.
 - **Name once**: an unknown barcode waits in an inbox. Albert Heijn and Open Food Facts are asked what it is, the user picks or creates the product once, and every later scan is automatic.
 - **Shopping list**: tiles grouped by shop section, with icon, quantity and note. Tap to check off, tap a recent item to put it back, search to add by hand.
 - **Phone**: camera scanning, installable on the home screen, light and dark theme, Dutch and English, push notification when the handheld scanner reads something unknown.

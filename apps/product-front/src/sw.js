@@ -35,6 +35,7 @@ self.addEventListener('notificationclick', (event) => {
             .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
             .then((windows) => {
                 const open = windows[0];
+                report(`notification tapped, ${windows.length} open window(s)`);
                 if (!open) {
                     return self.clients.openWindow(path);
                 }
@@ -44,3 +45,13 @@ self.addEventListener('notificationclick', (event) => {
             })
     );
 });
+
+function report(message) {
+    return self
+        .fetch('/api/v1/logs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: 'info', message: `phone: ${message}` })
+        })
+        .catch(() => undefined);
+}

@@ -11,7 +11,7 @@ Outcome of the feature review on 2026-11-12, with later decisions added below. C
 | 3 | First scan of a barcode | The user confirms the catalog item once; afterwards automatic. | Generic names can't be derived reliably from product titles. |
 | 4 | Unknown barcode | Inbox only; nothing on the list until named. Web scan prompts at once. Handheld scan sends a notification to the phone; a sound signal is still planned. | The user chose a clean list over placeholders. |
 | 5 | Lookup | A list of connectors behind one interface, all queried in parallel, every hit shown as a suggestion. Start with Albert Heijn and Open Food Facts. | The user picks the name anyway, so there is no reason to stop at the first hit, and one broken connector does no harm. |
-| 6 | Repeat scan | Quantity counts up. Same barcode within 3 seconds is ignored. | Two empty cartons means buy two. |
+| 6 | Repeat scan | Quantity counts up. Same barcode within 1 second is ignored (lowered from 3 seconds on 2026-11-12, so two cartons of the same product can be scanned right after each other). | Two empty cartons means buy two. |
 | 7 | Categories | Own fixed set of shop sections, guessed for a new product from the connector suggestions and the name. | Sorting by section is the part of Bring worth keeping. |
 | 8 | Icons | The user's own icon set in `data/icons/`, one file per item. Emoji, then a letter tile, as fallback. | Tiles with a real icon read faster than text. See "Icons" below. |
 | 9 | Catalog | Seeded from `data/seed-items.json`: standard grocery items plus the user's own items, sections, notes and list state. | Naming is then usually one tap, and the new list starts where the old list left off. |

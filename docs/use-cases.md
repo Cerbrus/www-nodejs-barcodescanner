@@ -17,7 +17,7 @@ Terms:
 2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one.
 3. Any open web page shows a toast with the item name and an undo button.
 
-A second read of the same barcode within 3 seconds is ignored. A sound at the scanner itself is planned, not built.
+A second read of the same barcode within 1 second is ignored. A sound at the scanner itself is planned, not built.
 
 ### UC-2 Scan a new product with the handheld scanner
 

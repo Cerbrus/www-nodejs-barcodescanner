@@ -28,7 +28,7 @@ Each milestone ends in something that runs. Milestones 1 and 2 removed the two b
 - Hardware agent with `evdev`: device path from `SCANNER_DEVICE`, exclusive grab, reopen loop, digits plus Enter become one scan.
 - Runs on the Pi in an unprivileged container with the `/dev/input` mount and the cgroup rule.
 
-Result: scans are logged, nothing reaches the Pi's console, the agent reconnects by itself after a replug and after a reboot. No host-service fallback needed. The scanner sometimes reads one code twice within two seconds, which the debounce covers.
+Result: scans are logged, nothing reaches the Pi's console, the agent reconnects by itself after a replug and after a reboot. No host-service fallback needed. The scanner sometimes read one code twice within two seconds. The debounce was 3 seconds then and covered that; it is 1 second now, so a double read more than a second apart counts twice and needs an undo.
 
 ### 2. Pull-based deployment: done
 

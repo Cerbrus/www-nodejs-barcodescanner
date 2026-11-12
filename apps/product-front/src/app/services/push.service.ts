@@ -10,6 +10,7 @@ export type PushStatus = 'unsupported' | 'off' | 'on' | 'denied';
 const WORKER_URL = '/sw.js';
 const STATE_CACHE = 'notification-state';
 const PENDING_KEY = '/pending-navigation';
+const PENDING_CHECK_MILLISECONDS = 1500;
 
 @Injectable({ providedIn: 'root' })
 export class PushService {
@@ -36,6 +37,12 @@ export class PushService {
                 void this.followPendingNavigation();
             }
         });
+        window.addEventListener('focus', () => void this.followPendingNavigation());
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                void this.followPendingNavigation();
+            }
+        }, PENDING_CHECK_MILLISECONDS);
         void this.followPendingNavigation();
 
         try {

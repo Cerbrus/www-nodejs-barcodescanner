@@ -1,6 +1,6 @@
 import { ListState, ScanResult } from '../data/entities';
 
-export const DEBOUNCE_MILLISECONDS = 3000;
+export const DEBOUNCE_MILLISECONDS = 1000;
 
 export interface EntrySnapshot {
     state: ListState;
