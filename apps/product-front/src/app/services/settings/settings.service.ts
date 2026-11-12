@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, filter } from 'rxjs';
 
 import { AppSettings, MicroserviceKey } from './app-settings.model';
 

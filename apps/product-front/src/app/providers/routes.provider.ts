@@ -1,71 +1,46 @@
 import { Route } from '@angular/router';
 
-import { MainLayoutComponent } from '../components/main-layout/main-layout.component';
+import { ShellComponent } from '../components/shell/shell.component';
 
 export const appRoutes: Array<Route> = [
     {
         path: '',
-        pathMatch: 'full',
-        redirectTo: '/barcodes'
-    },
-    {
-        path: '',
-        component: MainLayoutComponent,
+        component: ShellComponent,
         children: [
+            { path: '', pathMatch: 'full', redirectTo: 'list' },
             {
-                path: 'barcodes',
-                loadComponent: () =>
-                    import('../features/barcode-overview/barcode-overview.component').then((m) => m.BarcodeOverviewComponent)
-                /*children: [
-                    {
-                        path: ':id',
-                        loadComponent: () =>
-                            import('../features/poll-details/poll-details.component').then(
-                                (m) => m.PollDetailsComponent
-                            )
-                    }
-                ]*/
+                path: 'list',
+                loadComponent: () => import('../pages/list/list.page').then((m) => m.ListPage)
+            },
+            {
+                path: 'scan',
+                loadComponent: () => import('../pages/scan/scan.page').then((m) => m.ScanPage)
+            },
+            {
+                path: 'inbox',
+                loadComponent: () => import('../pages/inbox/inbox.page').then((m) => m.InboxPage)
+            },
+            {
+                path: 'catalog',
+                loadComponent: () => import('../pages/catalog/catalog.page').then((m) => m.CatalogPage)
+            },
+            {
+                path: 'catalog/:id',
+                loadComponent: () => import('../pages/item/item.page').then((m) => m.ItemPage)
+            },
+            {
+                path: 'history',
+                loadComponent: () => import('../pages/history/history.page').then((m) => m.HistoryPage)
+            },
+            {
+                path: 'log',
+                loadComponent: () => import('../pages/log/log.page').then((m) => m.LogPage)
+            },
+            {
+                path: 'more',
+                loadComponent: () => import('../pages/more/more.page').then((m) => m.MorePage)
             }
         ]
     },
-    /* {
-         path: '',
-         component: MainLayoutComponent,
-         children: [
-             {
-                 path: 'templates/new',
-                 loadComponent: () =>
-                     import('../features/poll-template-create/poll-template-create.component').then(
-                         (m) => m.PollTemplateCreateComponent
-                     )
-             },
-             {
-                 path: 'templates',
-                 loadComponent: () =>
-                     import('../features/poll-template-overview/poll-template-overview.component').then(
-                         (m) => m.PollTemplateOverviewComponent
-                     ),
-                 children: [
-                     {
-                         path: ':templateId',
-                         loadComponent: () =>
-                             import('../features/poll-template-details/poll-template-details.component').then(
-                                 (m) => m.PollTemplateDetailsComponent
-                             )
-                     },
-                     {
-                         path: ':templateId/options/:optionId',
-                         loadComponent: () =>
-                             import(
-                                 '../features/poll-template-option-details/poll-template-option-details.component'
-                                 ).then((m) => m.PollTemplateOptionDetailsComponent)
-                     }
-                 ]
-             }
-         ]
-     },*/
-    {
-        path: '**',
-        redirectTo: '/barcodes'
-    }
+    { path: '**', redirectTo: 'list' }
 ];

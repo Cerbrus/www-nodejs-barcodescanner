@@ -11,6 +11,7 @@ import { SeedService } from './data/seed.service';
 import { EventsModule } from './events/events.module';
 import { HealthController } from './health/health.controller';
 import { ListModule } from './list/list.module';
+import { LogModule } from './log/log.module';
 import { ScanModule } from './scan/scan.module';
 
 const databasePath = process.env['DATABASE_PATH'] ?? join(process.cwd(), 'data', 'app.db');
@@ -33,6 +34,7 @@ const iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icon
             }
         ),
         EventsModule,
+        LogModule,
         ListModule,
         ScanModule,
         CatalogModule

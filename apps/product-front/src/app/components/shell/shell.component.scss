@@ -1,0 +1,120 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    background: var(--page);
+    color: var(--text);
+}
+
+.offline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--warning);
+    color: var(--warning-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    i {
+        font-size: 18px;
+    }
+}
+
+.content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.toasts {
+    position: fixed;
+    right: 12px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 12px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--toast);
+    color: var(--toast-text);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+    font-size: 0.9rem;
+    pointer-events: auto;
+
+    &.attention {
+        background: var(--warning);
+        color: var(--warning-text);
+    }
+
+    &.error {
+        background: var(--danger);
+        color: #fff;
+    }
+}
+
+.toast-action {
+    padding: 4px 10px;
+    border: 1px solid currentcolor;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.tabs {
+    display: flex;
+    flex: 0 0 auto;
+    padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+}
+
+.tab {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 2px;
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    &.active {
+        color: var(--accent);
+    }
+}
+
+.tab-icon {
+    position: relative;
+    display: flex;
+
+    i {
+        font-size: 26px;
+    }
+}
+
+.tab-badge {
+    position: absolute;
+    top: -4px;
+    right: -12px;
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 0.7rem;
+    line-height: 18px;
+    text-align: center;
+}

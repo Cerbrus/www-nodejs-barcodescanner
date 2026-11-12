@@ -1,0 +1,37 @@
+@if (store.loaded() && !store.online()) {
+    <div class="offline" role="status">
+        <i class="material-symbols-outlined">cloud_off</i>
+        {{ 'common.offline' | translate }}
+    </div>
+}
+
+<main class="content">
+    <router-outlet />
+</main>
+
+<div class="toasts" aria-live="polite">
+    @for (toast of toasts.toasts(); track toast.id) {
+        <div class="toast" [class]="toast.kind">
+            <span class="grow">{{ toast.text }}</span>
+            @if (toast.action; as action) {
+                <button type="button" class="toast-action" (click)="action(); toasts.dismiss(toast.id)">
+                    {{ toast.actionLabel }}
+                </button>
+            }
+        </div>
+    }
+</div>
+
+<nav class="tabs">
+    @for (link of links; track link.route) {
+        <a class="tab" [routerLink]="link.route" routerLinkActive="active">
+            <span class="tab-icon">
+                <i class="material-symbols-outlined">{{ link.icon }}</i>
+                @if (link.route === '/inbox' && inboxCount()) {
+                    <span class="tab-badge">{{ inboxCount() }}</span>
+                }
+            </span>
+            <span>{{ link.label | translate }}</span>
+        </a>
+    }
+</nav>

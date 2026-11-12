@@ -9258,6 +9258,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@zxing/browser@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@zxing/browser@npm:0.2.1"
+  dependencies:
+    "@zxing/text-encoding": "npm:^0.9.0"
+  peerDependencies:
+    "@zxing/library": ^0.23.0
+  dependenciesMeta:
+    "@zxing/text-encoding":
+      optional: true
+  checksum: 10c0/d9972c66b9149757c40daf9f29365027a37748a0e2a0494d5400aa4a1e03ce2bc0c9a9bc4919cdc5ea6dae0d6d56ef8f93897257c61b2776768807cb5d99d222
+  languageName: node
+  linkType: hard
+
+"@zxing/library@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@zxing/library@npm:0.23.0"
+  dependencies:
+    "@zxing/text-encoding": "npm:~0.9.0"
+    ts-custom-error: "npm:^3.3.1"
+  dependenciesMeta:
+    "@zxing/text-encoding":
+      optional: true
+  checksum: 10c0/6d147ac911dbed1f81ed15ef8d47b979fd9282d6c30c967e5b7aacc9e10f68f4d810640b33c87a65e1bc76dfe548cb3be749ac3dbcd22a34733e15fa76e1b44e
+  languageName: node
+  linkType: hard
+
+"@zxing/text-encoding@npm:^0.9.0, @zxing/text-encoding@npm:~0.9.0":
+  version: 0.9.0
+  resolution: "@zxing/text-encoding@npm:0.9.0"
+  checksum: 10c0/d15bff181d46c2ab709e7242801a8d40408aa8c19b44462e5f60e766bf59105b44957914ab6baab60d10d466a5e965f21fe890c67dfdb7d5c7f940df457b4d0d
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:^4.0.0":
   version: 4.0.0
   resolution: "abbrev@npm:4.0.0"
@@ -10155,6 +10189,8 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.9.1"
     "@typescript-eslint/parser": "npm:^6.9.1"
     "@typescript-eslint/utils": "npm:^8.40.0"
+    "@zxing/browser": "npm:^0.2.1"
+    "@zxing/library": "npm:^0.23.0"
     angular-animations: "npm:^0.11.0"
     angular-eslint: "npm:^20.2.0"
     autoprefixer: "npm:^10.4.21"
@@ -21733,6 +21769,13 @@ __metadata:
     "@rspack/core":
       optional: true
   checksum: 10c0/0bde45dab48c65fe71012cd3a1201814d8f65db7ec2d591bc7cc6bab034fc709bbc2d42fbfb6648807023650a6c9ded79b143404f3ad60231919af8098d94afe
+  languageName: node
+  linkType: hard
+
+"ts-custom-error@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "ts-custom-error@npm:3.3.1"
+  checksum: 10c0/67cc807d03406d7eeb2b908408d455d253cc43b480d669e2e3ea028b9aaa2c78ad1b392425b86368bbbc3c43a15e4abe304312d87ed845091646ec1937bab982
   languageName: node
   linkType: hard
 

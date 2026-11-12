@@ -59,6 +59,7 @@ export class ScanService {
             quantity: decision.entry?.quantity
         };
 
+        this.logger.log(`scan ${code} from ${source}: ${decision.result}${outcome.itemName ? ` (${outcome.itemName})` : ''}`);
         if (decision.result === 'ignored') {
             return outcome;
         }
@@ -147,6 +148,7 @@ export class ScanService {
     private async fetchSuggestions(code: string): Promise<void> {
         try {
             const suggestions = await this.connectors.lookupAll(code);
+            this.logger.log(`lookup ${code}: ${suggestions.map((s) => `${s.connectorId} "${s.title}"`).join(', ') || 'no result'}`);
             await this.barcodes.update({ code }, { suggestions });
             this.events.emit('barcode', { code, suggestions: suggestions.length });
         } catch (error) {

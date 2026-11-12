@@ -1,5 +1,6 @@
-import { Component, computed, input, Signal } from '@angular/core';
-import { Bar, BARCODE_CONSTANTS as BC, BarcodeResult, Sizes, TBit, TParity } from './';
+import { Component, Signal, computed, input } from '@angular/core';
+
+import { BARCODE_CONSTANTS as BC, Bar, BarcodeResult, Sizes, TBit, TParity } from './';
 
 @Component({
     selector: 'app-barcode',
@@ -21,18 +22,22 @@ export class BarcodeComponent {
     });
 
     protected encodeBarcode: Signal<BarcodeResult | undefined> = computed(() => {
-        const barcode = this.barcodeInput();
+        const input = this.barcodeInput()?.toString() ?? '';
+        const barcode = input.length === 12 ? `0${input}` : input;
 
-        if (!barcode)
+        if (!/^(\d{8}|\d{13})$/.test(barcode))
             return;
 
-        const [encoding, ...rest] = [...barcode.toString()].map((c) => BC.encoding[Number(c)]);
-        const left = rest.slice(0, 6);
-        const right = rest.slice(6, 12);
+        const digits = [...barcode].map((c) => BC.encoding[Number(c)]);
+        const isShort = digits.length === 8;
+        const encoding = isShort ? undefined : digits[0];
+        const left = isShort ? digits.slice(0, 4) : digits.slice(1, 7);
+        const right = isShort ? digits.slice(4, 8) : digits.slice(7, 13);
+        const parity = encoding ? BC.parity[encoding.I] : 'LLLL';
 
         const bars = [
             this.toBars(BC.guards.startEnd, true),
-            left.map((encoded, i) => this.toBars((encoded[BC.parity[encoding.I][i] as TParity]), false)),
+            left.map((encoded, i) => this.toBars(encoded[parity[i] as TParity], false)),
             this.toBars(BC.guards.center, true),
             right.map((encoded) => this.toBars(encoded.R, false)),
             this.toBars(BC.guards.startEnd, true)
@@ -52,7 +57,7 @@ export class BarcodeComponent {
 
         return {
             input: barcode,
-            encoding: encoding.I,
+            encoding: encoding?.I,
             left: left.map(e => e.I).join(''),
             right: right.map(e => e.I).join(''),
             bars,

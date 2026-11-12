@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { EnvironmentProviders, Provider } from '@angular/core';
 import { TranslateCompiler, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler';
-import { BehaviorSubject, from, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 // Using lazy loader instead of http loader to prevent accidental caching

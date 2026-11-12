@@ -1,5 +1,5 @@
 import { APP_INITIALIZER, EnvironmentProviders, Provider } from '@angular/core';
-import { defer, map, Observable, switchMap } from 'rxjs';
+import { Observable, defer, map, switchMap } from 'rxjs';
 
 import { SettingsService } from '../services/settings/settings.service';
 

@@ -1,15 +1,107 @@
 {
+    "common": {
+        "appName": "Shopping list",
+        "offline": "No connection to the server",
+        "loading": "Loading…",
+        "done": "Done",
+        "save": "Save",
+        "cancel": "Cancel"
+    },
     "nav": {
-        "products": "Products",
+        "list": "List",
+        "scan": "Scan",
+        "inbox": "Inbox",
+        "catalog": "Products",
+        "more": "More"
+    },
+    "list": {
+        "searchPlaceholder": "Add a product…",
+        "addFromCatalog": "Add to the list",
+        "noSearchResults": "No product found",
+        "empty": "The list is empty. Scan a package or search for a product.",
+        "recent": "Recently used",
+        "noRecent": "Nothing checked off yet",
+        "details": "Quantity and note",
+        "quantity": "Quantity",
+        "note": "Note",
+        "editItem": "Edit product"
+    },
+    "scan": {
+        "camera": {
+            "starting": "Starting the camera…",
+            "blocked": "No access to the camera. Allow camera access for this site, or type the code below.",
+            "unsupported": "This browser gives no access to the camera. Type the code below."
+        },
+        "manualPlaceholder": "Type a barcode",
+        "manualSubmit": "Add",
+        "added": "{name} is on the list",
+        "incremented": "{name}: now {quantity}",
+        "linked": "Linked to {name}",
+        "failed": "Scan not processed: no connection"
+    },
+    "naming": {
+        "title": "Which product is this?",
+        "lookingUp": "Looking up product details…",
+        "noSuggestions": "No product details found for this barcode.",
+        "searchLabel": "Pick the product for the list",
+        "searchPlaceholder": "For example: Milk",
+        "noMatches": "No existing product with this name",
+        "newItem": "New product \"{name}\"",
+        "createAndLink": "Create and link",
+        "later": "Later"
+    },
+    "inbox": {
+        "title": "Inbox",
+        "intro": "Scanned barcodes that are not linked to a product yet. After linking, the waiting scans go onto the list.",
+        "empty": "No unknown barcodes",
+        "unknownProduct": "Unknown product",
+        "scans": "{count, plural, one {# scan} other {# scans}}"
+    },
+    "catalog": {
+        "title": "Products",
+        "searchPlaceholder": "Search…",
+        "noResults": "No product found"
+    },
+    "item": {
+        "name": "Name",
+        "section": "Section",
+        "icon": "Icon",
+        "emoji": "Emoji",
+        "iconHint": "Icon is the file name without .png. Without an icon the emoji is shown, otherwise the first letter.",
+        "saved": "Saved",
         "barcodes": "Barcodes",
-        "store-products": "Store Products",
-        "toggle": {
-            "open": "Expand",
-            "close": "Collapse"
+        "noBarcodes": "No barcodes linked yet. Scan a package to add one.",
+        "move": "Move",
+        "moveSearch": "To which product?",
+        "detach": "Detach",
+        "dangerZone": "Delete",
+        "delete": "Delete product",
+        "deleteConfirm": "Delete \"{name}\"? Linked barcodes go back to the inbox."
+    },
+    "history": {
+        "title": "Scan history",
+        "undo": "Undo",
+        "undoLast": "Undo last",
+        "empty": "No scans yet",
+        "result": {
+            "added": "added",
+            "incremented": "count +1",
+            "needs_name": "needs name",
+            "ignored": "ignored",
+            "undone": "undone"
         }
     },
-    "common": {
-        "appName": "Product Manager"
+    "log": {
+        "title": "System log",
+        "live": "live",
+        "disconnected": "disconnected",
+        "empty": "No lines yet"
+    },
+    "more": {
+        "language": "Language",
+        "status": "Status",
+        "connection": "Connection",
+        "version": "Version"
     },
     "language": {
         "en": "English",

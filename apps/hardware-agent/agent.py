@@ -1,7 +1,9 @@
 import json
 import logging
 import os
+import queue
 import select
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -9,9 +11,12 @@ import urllib.request
 from evdev import InputDevice, ecodes
 
 DEVICE_PATH = os.environ['SCANNER_DEVICE']
-API_URL = os.environ.get('API_URL', 'http://app:3020/api/v1/scans')
+API_BASE = os.environ.get('API_BASE', 'http://app:3020/api/v1')
 RETRY_SECONDS = 2
 API_TIMEOUT_SECONDS = 5
+LOG_DELIVERY_ATTEMPTS = 5
+LOG_QUEUE_SIZE = 200
+API_LOG_LEVELS = {'info', 'warning', 'error'}
 
 DIGIT_KEYS = {
     **{getattr(ecodes, f'KEY_{digit}'): str(digit) for digit in range(10)},
@@ -26,6 +31,39 @@ IDLE_SECONDS = 0.3
 logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO').upper(),
                     format='%(asctime)s %(levelname)s %(message)s')
 log = logging.getLogger('hardware-agent')
+
+
+def post_json(path, payload):
+    body = json.dumps(payload).encode()
+    request = urllib.request.Request(f'{API_BASE}{path}', data=body, headers={'Content-Type': 'application/json'})
+    return urllib.request.urlopen(request, timeout=API_TIMEOUT_SECONDS)
+
+
+class ApiLogHandler(logging.Handler):
+    def __init__(self):
+        super().__init__(level=logging.INFO)
+        self.lines = queue.Queue(maxsize=LOG_QUEUE_SIZE)
+        threading.Thread(target=self.deliver, daemon=True).start()
+
+    def emit(self, record):
+        level = record.levelname.lower()
+        try:
+            self.lines.put_nowait({'level': level if level in API_LOG_LEVELS else 'info', 'message': record.getMessage()})
+        except queue.Full:
+            pass
+
+    def deliver(self):
+        while True:
+            line = self.lines.get()
+            for _ in range(LOG_DELIVERY_ATTEMPTS):
+                try:
+                    post_json('/logs', line).close()
+                    break
+                except (urllib.error.URLError, OSError):
+                    time.sleep(RETRY_SECONDS)
+
+
+log.addHandler(ApiLogHandler())
 
 
 def read_scans(device):
@@ -59,9 +97,7 @@ def read_scans(device):
 
 
 def post_scan(code):
-    body = json.dumps({'code': code, 'source': 'handheld'}).encode()
-    request = urllib.request.Request(API_URL, data=body, headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(request, timeout=API_TIMEOUT_SECONDS) as response:
+    with post_json('/scans', {'code': code, 'source': 'handheld'}) as response:
         return json.load(response)
 
 

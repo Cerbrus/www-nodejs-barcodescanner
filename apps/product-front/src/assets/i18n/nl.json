@@ -1,15 +1,107 @@
 {
+    "common": {
+        "appName": "Boodschappen",
+        "offline": "Geen verbinding met de server",
+        "loading": "Laden…",
+        "done": "Klaar",
+        "save": "Opslaan",
+        "cancel": "Annuleren"
+    },
     "nav": {
-        "products": "Producten",
+        "list": "Lijst",
+        "scan": "Scannen",
+        "inbox": "Inbox",
+        "catalog": "Producten",
+        "more": "Meer"
+    },
+    "list": {
+        "searchPlaceholder": "Product toevoegen…",
+        "addFromCatalog": "Toevoegen aan lijst",
+        "noSearchResults": "Geen product gevonden",
+        "empty": "De lijst is leeg. Scan een verpakking of zoek een product.",
+        "recent": "Recent gebruikt",
+        "noRecent": "Nog niets afgevinkt",
+        "details": "Aantal en notitie",
+        "quantity": "Aantal",
+        "note": "Notitie",
+        "editItem": "Product bewerken"
+    },
+    "scan": {
+        "camera": {
+            "starting": "Camera starten…",
+            "blocked": "Geen toegang tot de camera. Sta cameratoegang toe voor deze site, of typ de code hieronder.",
+            "unsupported": "Deze browser geeft geen toegang tot de camera. Typ de code hieronder."
+        },
+        "manualPlaceholder": "Barcode typen",
+        "manualSubmit": "Toevoegen",
+        "added": "{name} staat op de lijst",
+        "incremented": "{name}: nu {quantity}",
+        "linked": "Gekoppeld aan {name}",
+        "failed": "Scan niet verwerkt: geen verbinding"
+    },
+    "naming": {
+        "title": "Welk product is dit?",
+        "lookingUp": "Productgegevens opzoeken…",
+        "noSuggestions": "Geen productgegevens gevonden voor deze barcode.",
+        "searchLabel": "Kies het product voor op de lijst",
+        "searchPlaceholder": "Bijvoorbeeld: Melk",
+        "noMatches": "Geen bestaand product met deze naam",
+        "newItem": "Nieuw product \"{name}\"",
+        "createAndLink": "Aanmaken en koppelen",
+        "later": "Later"
+    },
+    "inbox": {
+        "title": "Inbox",
+        "intro": "Gescande barcodes die nog niet aan een product gekoppeld zijn. Na koppelen komen de wachtende scans op de lijst.",
+        "empty": "Geen onbekende barcodes",
+        "unknownProduct": "Onbekend product",
+        "scans": "{count, plural, one {# scan} other {# scans}}"
+    },
+    "catalog": {
+        "title": "Producten",
+        "searchPlaceholder": "Zoeken…",
+        "noResults": "Geen product gevonden"
+    },
+    "item": {
+        "name": "Naam",
+        "section": "Afdeling",
+        "icon": "Icoon",
+        "emoji": "Emoji",
+        "iconHint": "Icoon is de bestandsnaam zonder .png. Zonder icoon wordt de emoji getoond, anders de eerste letter.",
+        "saved": "Opgeslagen",
         "barcodes": "Barcodes",
-        "store-products": "Winkelproducten",
-        "toggle": {
-            "open": "Uitvouwen",
-            "close": "Inklappen"
+        "noBarcodes": "Nog geen barcodes gekoppeld. Scan een verpakking om er een toe te voegen.",
+        "move": "Verplaatsen",
+        "moveSearch": "Naar welk product?",
+        "detach": "Ontkoppelen",
+        "dangerZone": "Verwijderen",
+        "delete": "Product verwijderen",
+        "deleteConfirm": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox."
+    },
+    "history": {
+        "title": "Scangeschiedenis",
+        "undo": "Ongedaan maken",
+        "undoLast": "Laatste ongedaan maken",
+        "empty": "Nog geen scans",
+        "result": {
+            "added": "toegevoegd",
+            "incremented": "aantal +1",
+            "needs_name": "naam nodig",
+            "ignored": "genegeerd",
+            "undone": "ongedaan"
         }
     },
-    "common": {
-        "appName": "Productbeheer"
+    "log": {
+        "title": "Systeemlog",
+        "live": "live",
+        "disconnected": "geen verbinding",
+        "empty": "Nog geen regels"
+    },
+    "more": {
+        "language": "Taal",
+        "status": "Status",
+        "connection": "Verbinding",
+        "version": "Versie"
     },
     "language": {
         "en": "Engels",

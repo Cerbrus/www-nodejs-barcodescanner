@@ -2,7 +2,7 @@ import { TBit } from './barcode.types';
 
 export interface BarcodeResult {
     input: number | string;
-    encoding: number;
+    encoding?: number;
     left: string;
     right: string;
     bars: Array<Bar>;

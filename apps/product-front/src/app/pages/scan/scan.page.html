@@ -1,0 +1,45 @@
+<div class="camera">
+    <video #video class="video" playsinline muted autoplay></video>
+
+    @if (state() === 'running') {
+        <div class="frame" aria-hidden="true"></div>
+    } @else {
+        <div class="notice">
+            <i class="material-symbols-outlined">
+                {{ state() === 'starting' ? 'photo_camera' : 'no_photography' }}
+            </i>
+            <p>{{ 'scan.camera.' + state() | translate }}</p>
+        </div>
+    }
+
+    @if (lastOutcome(); as outcome) {
+        <div class="last">
+            <span class="font-mono">{{ outcome.code }}</span>
+            <span>
+                {{ outcome.itemName ?? ('inbox.unknownProduct' | translate) }}
+                @if (outcome.quantity) {
+                    × {{ outcome.quantity }}
+                }
+            </span>
+        </div>
+    }
+</div>
+
+<form class="manual" (ngSubmit)="submitManual()">
+    <input
+        class="field"
+        type="text"
+        name="code"
+        inputmode="numeric"
+        autocomplete="off"
+        pattern="[0-9]*"
+        [placeholder]="'scan.manualPlaceholder' | translate"
+        [ngModel]="manualCode()"
+        (ngModelChange)="manualCode.set($event)"
+    />
+    <button type="submit" class="btn primary">{{ 'scan.manualSubmit' | translate }}</button>
+</form>
+
+@if (namingCode(); as code) {
+    <app-naming-prompt [code]="code" (closed)="onNamed($event)" />
+}

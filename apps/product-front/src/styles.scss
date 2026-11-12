@@ -1,8 +1,3 @@
-@use './styles/buttons.scss';
-@use './styles/code.scss';
-@use './styles/inputs.scss';
-@use '@angular/material' as mat;
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,44 +7,178 @@
     src: url('apps/product-front/src/assets/fonts/OCRB Regular.otf') format('opentype');
 }
 
-body {
-    @apply flex h-screen flex-col;
-}
-
-.material-symbols {
-    &-outlined {
-        @apply select-none;
-        font-variation-settings: 'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24
-    }
-
-    &-filled {
-        @apply select-none;
-        font-variation-settings: 'FILL' 1,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24
-    }
-}
-
-.cdk-overlay-pane {
-    .mat-mdc-menu {
-        &-panel {
-            @apply rounded-md bg-gray-800 p-2 shadow-2xl;
-        }
-
-        &-content {
-            @apply p-0;
-        }
-    }
-}
-
 :root {
-    @include mat.menu-overrides((
-        container-elevation-shadow: none,
-        item-leading-spacing: 0px,
-        item-trailing-spacing: 0px,
-    ));
+    --page: #f3f4f6;
+    --surface: #fff;
+    --text: #1c2330;
+    --text-muted: #6b7280;
+    --line: #e2e5ea;
+    --accent: #0f766e;
+    --accent-text: #fff;
+    --tile: #0f766e;
+    --tile-muted: #64748b;
+    --tile-text: #fff;
+    --badge: #fbbf24;
+    --badge-text: #1c2330;
+    --warning: #fbbf24;
+    --warning-text: #1c2330;
+    --danger: #dc2626;
+    --toast: #1f2937;
+    --toast-text: #fff;
+    color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --page: #111418;
+        --surface: #1a1f26;
+        --text: #e8eaed;
+        --text-muted: #9aa3af;
+        --line: #2a313b;
+        --accent: #2dd4bf;
+        --accent-text: #0b1512;
+        --tile: #0f766e;
+        --tile-muted: #475569;
+        --toast: #e8eaed;
+        --toast-text: #111418;
+    }
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    user-select: none;
+}
+
+.page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 12px 24px;
+}
+
+.page-title {
+    margin: 4px 0 12px;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 16px 0 8px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+}
+
+.card {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+}
+
+.field {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1rem;
+
+    &:focus {
+        border-color: var(--accent);
+        outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+}
+
+.field-label {
+    display: block;
+    margin: 10px 0 4px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    &:disabled {
+        opacity: 0.5;
+    }
+
+    &.primary {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: var(--accent-text);
+    }
+
+    &.danger {
+        border-color: var(--danger);
+        color: var(--danger);
+    }
+
+    i {
+        font-size: 20px;
+    }
+}
+
+.muted {
+    color: var(--text-muted);
+}
+
+.empty {
+    padding: 28px 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgb(0 0 0 / 45%);
+}
+
+.sheet {
+    width: 100%;
+    max-width: 720px;
+    max-height: 88dvh;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    background: var(--surface);
+    color: var(--text);
 }
