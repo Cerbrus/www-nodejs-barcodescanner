@@ -194,7 +194,7 @@ Clone with your own GitHub login, or add the new Pi's `backup_key.pub` as deploy
 The app has its own login. Set it up once:
 
 1. In the Google Cloud console create a project and, under APIs and Services, an OAuth client of type "Web application". Authorised redirect address: `<PUBLIC_URL>/api/v1/auth/google/callback`. Authorised JavaScript origin: `<PUBLIC_URL>`.
-2. On the consent screen, publishing status "Testing" is enough; add the Google accounts that will log in as test users.
+2. On the consent screen (Google Auth Platform, Audience) set the user type to "External" and the publishing status to "Testing", and add the Google accounts that will log in as test users. With user type "Internal", which is offered when the project sits under an organisation, a normal Google account is refused with `Error 403: org_internal`. In testing mode the first login shows "Google hasn't verified this app"; continue past it.
 3. Put the client id and secret in `.env` as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, and set `PUBLIC_URL` and `ALLOWED_EMAILS`. Check that `AGENT_TOKEN` has a value.
 4. Restart both containers: `sudo docker compose up -d --force-recreate`.
 5. Open the site: it shows the login page. After logging in, remove the access list from the proxy host, otherwise there are two logins.

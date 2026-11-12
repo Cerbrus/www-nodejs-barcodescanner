@@ -122,7 +122,7 @@ The user adds the site to the home screen from the browser's share menu. It then
 1. Opening the site without a session shows a login page with one button, "Log in with Google".
 2. The user picks a Google account. An account on the allowlist gets in and stays logged in on that device for 90 days, longer when the app is used.
 3. Any other account is sent back with "this Google account has no access".
-4. The System page shows the account and a logout button.
+4. The System page shows the account and a red logout button, which asks for confirmation.
 
 ### UC-15 Language and appearance
 

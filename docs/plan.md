@@ -80,7 +80,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Open: connector failures visible on the history page; today they are only in the system log.
 - Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
 
-- Built on branch `feature/google-login`, not yet deployed: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Open: deploy with the settings in `.env`, log in on laptop and iPhone, then remove the proxy's access list.
+- Done 2026-11-13 00:55: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. Open: log in inside the installed iPhone app, one handheld scan with login on, remove the proxy's access list.
 
 ### 7. Feedback at the scanner: mostly done
 
