@@ -9,6 +9,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { databaseOptions } from './data/database';
 import { SeedService } from './data/seed.service';
 import { EventsModule } from './events/events.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { HealthController } from './health/health.controller';
 import { ListModule } from './list/list.module';
 import { LogModule } from './log/log.module';
@@ -39,7 +40,8 @@ const iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icon
         ListModule,
         ScanModule,
         CatalogModule,
-        PushModule
+        PushModule,
+        FeedbackModule
     ],
     controllers: [HealthController],
     providers: [SeedService]

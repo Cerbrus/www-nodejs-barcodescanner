@@ -1,7 +1,7 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
 import { Observable, Subject, interval, map, merge } from 'rxjs';
 
-export type AppEventType = 'scan' | 'list' | 'barcode' | 'catalog' | 'log';
+export type AppEventType = 'scan' | 'list' | 'barcode' | 'catalog' | 'log' | 'feedback';
 
 const HEARTBEAT_MILLISECONDS = 25000;
 

@@ -95,6 +95,13 @@ export interface PushResult {
     failed: number;
 }
 
+export interface SoundStep {
+    kind: 'on' | 'off' | 'gate';
+    seconds: number;
+    hz?: number;
+    duty?: number;
+}
+
 export interface CatalogItemInput {
     name?: string;
     sectionId?: string;

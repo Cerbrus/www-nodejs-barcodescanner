@@ -138,5 +138,26 @@
         "test": "Testmelding",
         "testResult": "Testmelding verstuurd naar {sent} apparaat/apparaten, {failed} mislukt",
         "failed": "Meldingen aanzetten is niet gelukt"
+    },
+    "sound": {
+        "title": "Geluid bij de scanner",
+        "intro": "Speelt het geluid af op de zoemer bij de scanner. Werkt alleen als de zoemer is aangesloten en aangezet. Elke druk op een knop staat in het systeemlog.",
+        "events": "Huidige geluiden per gebeurtenis",
+        "samples": "Proefgeluiden",
+        "name": {
+            "added": "Product toegevoegd",
+            "incremented": "Aantal +1",
+            "needsName": "Onbekend product",
+            "error": "Scan niet aangekomen",
+            "clean": "Schone piep",
+            "blip": "Korte tik",
+            "long": "Lange piep",
+            "trill": "Triller",
+            "rough": "Ruw",
+            "soft": "Zacht",
+            "shortShortLong": "Kort, kort, lang",
+            "longShort": "Lang, kort",
+            "blipThenTrill": "Tik, dan triller"
+        }
     }
 }

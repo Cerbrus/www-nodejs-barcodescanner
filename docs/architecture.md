@@ -41,6 +41,7 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `connectors` | Product lookup behind one interface |
 | `events` | Server-sent events to open pages |
 | `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 256 KB and keeps three old files; the last 500 lines are read back at start, so the log survives restarts and updates |
+| `feedback` | Relays test sounds from the System page to the hardware agent |
 | `push` | Web push notifications: keeps the subscriptions of devices that turned notifications on, and sends a notification when the handheld scanner reads a barcode without a name. Creates its own key pair in `/data/push-keys.json` on first use |
 
 The app also serves the icon files under `/icons` and the built web app for every other path.
@@ -133,10 +134,11 @@ interface ProductSuggestion {
 | `GET /api/v1/barcodes/:code` | One barcode with its suggestions |
 | `PUT /api/v1/barcodes/:code` | Set or change the mapping |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
-| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, and a `ping` every 25 seconds |
+| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/icons` | Names of the available icons, for the icon picker |
 | `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
+| `POST /api/v1/feedback/test` | Play a test sound at the scanner: a name and a list of steps |
 | `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent posts its own |
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
@@ -168,7 +170,7 @@ Web push, so it works with the app closed. The frontend registers a small servic
 
 ## Feedback at the scanner
 
-Built, not yet tried with a real buzzer. The hardware agent turns the result of each scan into a signal on a buzzer connected to a GPIO pin of the Pi:
+Built and heard on the real buzzer (an active one), not yet released. The hardware agent turns the result of each scan into a signal on a buzzer connected to a GPIO pin of the Pi:
 
 | Result | Signal | Passive buzzer |
 |---|---|---|
@@ -182,6 +184,8 @@ Built, not yet tried with a real buzzer. The hardware agent turns the result of 
 - An active buzzer is switched on and off. A passive one gets a square wave made in software, good enough for a beep, which is what gives it two pitches.
 - The pin is driven through the kernel's GPIO character device (`/dev/gpiochip0`) with `libgpiod`; the container gets that one device and stays unprivileged.
 - Signals play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
+- A sound is a list of steps: `on` and `off` with a length, and `gate`, which switches the buzzer on and off many times a second. An active buzzer has one fixed pitch, so gating is what gives it other sounds: a trill at 5 to 30 times a second, a rough buzz at a few hundred, a softer tone with a short on-time.
+- Test buttons on the System page play the current signals and a set of sample sounds. The page posts the steps to `POST /api/v1/feedback/test`, the API passes them on as a `feedback` event, and the agent, which listens to the event stream for this, plays them. The steps travel with the request, so trying a new sound needs no change to the agent.
 - `python3 agent.py --test-feedback` plays every signal once.
 
 ## Backup

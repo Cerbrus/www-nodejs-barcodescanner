@@ -84,7 +84,7 @@ Done when: naming a typical new barcode takes one or two taps.
 
 - Done 2026-11-12 20:05: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
 - Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
-- Built on branch `feature/scanner-buzzer`, not yet tried with hardware: a buzzer on a GPIO pin, driven by the hardware agent from the scan result (`FEEDBACK_OUTPUT=buzzer`). Open: connect the buzzer, find out whether it is active or passive, listen to the signals, merge.
+- Built on branch `feature/scanner-buzzer`, not yet tried with hardware: a buzzer on a GPIO pin, driven by the hardware agent from the scan result (`FEEDBACK_OUTPUT=buzzer`). The buzzer is connected (GPIO 18, an active type) and the signals were heard on 2026-11-12 20:55. Test buttons on the System page play the signals and sample sounds. Open: choose the final sound per scan result, merge.
 - Considered: a USB speaker of about 12 euro, or any powered speaker on the Pi's headphone jack.
 
 ### 8. Offline shopping: open
@@ -96,7 +96,7 @@ Done when: naming a typical new barcode takes one or two taps.
 | Point | Needed by |
 |---|---|
 | Tera's answer on the beeper commands | Milestone 7 |
-| Buzzer connected and tried | Milestone 7 |
+| Final choice of sound per scan result | Milestone 7 |
 
 ## Never tested
 

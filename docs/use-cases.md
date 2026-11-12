@@ -103,6 +103,10 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 1. Every hour in which something changed, the Pi pushes the database as readable SQL to a private repository.
 2. After a dead SD card the user installs the app on a new card, loads the latest dump and has the catalog, mappings, list and history back, missing at most the last hour.
 
+### UC-16 Try the scanner sounds
+
+On the System page the user presses a labelled button per sound: the sound each scan result gives today, and sample sounds such as a trill, a rough buzz or a soft tone. The buzzer at the scanner plays it at once. It is there to choose which sound fits which result, and to check the buzzer works.
+
 ## Using it as an app
 
 ### UC-14 Install on the phone

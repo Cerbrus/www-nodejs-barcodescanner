@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of, tap } from 'rxjs';
 
+import { SoundTestComponent } from '../../components/sound-test/sound-test.component';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
 import { PushService } from '../../services/push.service';
@@ -23,7 +24,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 @Component({
     selector: 'app-system-page',
     standalone: true,
-    imports: [DatePipe, RouterLink, TranslateModule],
+    imports: [DatePipe, RouterLink, TranslateModule, SoundTestComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -93,6 +94,9 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                     </div>
                 }
             </div>
+
+            <h2 class="section-title">{{ 'sound.title' | translate }}</h2>
+            <app-sound-test />
 
             <h2 class="section-title">{{ 'system.status' | translate }}</h2>
             <div class="card text-sm">

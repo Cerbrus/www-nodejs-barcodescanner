@@ -15,7 +15,8 @@ import {
     Scan,
     ScanOutcome,
     ScanSource,
-    Section
+    Section,
+    SoundStep
 } from '../models';
 import { SettingsService } from './settings/settings.service';
 
@@ -122,5 +123,9 @@ export class ApiService {
 
     public sendTestPush(): Observable<PushResult> {
         return this.http.post<PushResult>(`${this.baseUrl}/push/test`, {});
+    }
+
+    public testSound(name: string, steps: Array<SoundStep>): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/feedback/test`, { name, steps });
     }
 }

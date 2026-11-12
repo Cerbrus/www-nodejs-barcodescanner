@@ -35,13 +35,25 @@ BUZZER_PIN = int(os.environ.get('BUZZER_PIN') or 18)
 BUZZER_TYPE = (os.environ.get('BUZZER_TYPE') or 'active').lower()
 BUZZER_ACTIVE_LOW = (os.environ.get('BUZZER_ACTIVE_LOW') or 'false').lower() in ('1', 'true', 'yes')
 FEEDBACK_QUEUE_SIZE = 4
-HIGH_TONE_HZ = 2400
-LOW_TONE_HZ = 900
+PASSIVE_TONE_HZ = 2400
+SLEEP_ABOVE_SECONDS = 0.005
+EVENT_STREAM_TIMEOUT_SECONDS = 60
+BLIP, GAP = 0.06, 0.07
+
+
+def on(seconds):
+    return {'kind': 'on', 'seconds': seconds}
+
+
+def off(seconds):
+    return {'kind': 'off', 'seconds': seconds}
+
+
 SIGNALS = {
-    'added': [(HIGH_TONE_HZ, 0.08, 0)],
-    'incremented': [(HIGH_TONE_HZ, 0.06, 0.07), (HIGH_TONE_HZ, 0.06, 0)],
-    'needs_name': [(LOW_TONE_HZ, 0.45, 0)],
-    'error': [(LOW_TONE_HZ, 0.08, 0.07), (LOW_TONE_HZ, 0.08, 0.07), (LOW_TONE_HZ, 0.08, 0)],
+    'added': [on(0.08)],
+    'incremented': [on(BLIP), off(GAP), on(BLIP)],
+    'needs_name': [on(0.45)],
+    'error': [on(0.08), off(GAP), on(0.08), off(GAP), on(0.08)],
 }
 
 logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO').upper(),
@@ -117,32 +129,59 @@ class Buzzer:
         import gpiod
         from gpiod.line import Direction, Value
 
-        self.on, self.off = Value.ACTIVE, Value.INACTIVE
+        self.high, self.low = Value.ACTIVE, Value.INACTIVE
         self.lines = gpiod.request_lines(GPIO_CHIP, consumer='barcodescanner', config={
-            BUZZER_PIN: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=self.off,
+            BUZZER_PIN: gpiod.LineSettings(direction=Direction.OUTPUT, output_value=self.low,
                                            active_low=BUZZER_ACTIVE_LOW),
         })
 
-    def play(self, beeps):
-        for frequency, on_seconds, off_seconds in beeps:
-            if BUZZER_TYPE == 'passive':
-                self.tone(frequency, on_seconds)
-            else:
-                self.lines.set_value(BUZZER_PIN, self.on)
-                time.sleep(on_seconds)
-            self.lines.set_value(BUZZER_PIN, self.off)
-            time.sleep(off_seconds)
+    def play(self, steps):
+        try:
+            for step in steps:
+                kind, seconds = step['kind'], float(step['seconds'])
+                if kind == 'off':
+                    time.sleep(seconds)
+                elif kind == 'gate':
+                    self.gate(float(step.get('hz') or 10), float(step.get('duty') or 50), seconds)
+                else:
+                    self.sound(seconds)
+        finally:
+            self.write(False)
 
-    def tone(self, frequency, seconds):
-        half_period = 1 / (2 * frequency)
+    def write(self, sounding):
+        self.lines.set_value(BUZZER_PIN, self.high if sounding else self.low)
+
+    def sound(self, seconds):
+        if BUZZER_TYPE == 'passive':
+            self.square_wave(PASSIVE_TONE_HZ, 50, seconds)
+        else:
+            self.write(True)
+            time.sleep(seconds)
+            self.write(False)
+
+    def gate(self, hz, duty, seconds):
+        if BUZZER_TYPE == 'passive' and hz < 100:
+            period = 1 / hz
+            for _ in range(max(1, round(seconds * hz))):
+                self.square_wave(PASSIVE_TONE_HZ, 50, period * duty / 100)
+                time.sleep(period * (100 - duty) / 100)
+        else:
+            self.square_wave(hz, duty, seconds)
+
+    def square_wave(self, hz, duty, seconds):
+        period = 1 / hz
+        phases = ((True, period * duty / 100), (False, period * (100 - duty) / 100))
         end = time.perf_counter() + seconds
-        level = self.on
         while time.perf_counter() < end:
-            self.lines.set_value(BUZZER_PIN, level)
-            level = self.off if level == self.on else self.on
-            flip_at = time.perf_counter() + half_period
-            while time.perf_counter() < flip_at:
-                pass
+            for sounding, length in phases:
+                self.write(sounding)
+                if length > SLEEP_ABOVE_SECONDS:
+                    time.sleep(length)
+                else:
+                    wake_at = time.perf_counter() + length
+                    while time.perf_counter() < wake_at:
+                        pass
+        self.write(False)
 
 
 class Feedback:
@@ -163,22 +202,46 @@ class Feedback:
 
         log.info('feedback: %s buzzer on GPIO %d%s', BUZZER_TYPE, BUZZER_PIN, ', active low' if BUZZER_ACTIVE_LOW else '')
         threading.Thread(target=self.work, daemon=True).start()
+        threading.Thread(target=self.listen_for_tests, daemon=True).start()
 
     def signal(self, name):
-        if not self.output or name not in SIGNALS:
+        if name in SIGNALS:
+            self.enqueue(name, SIGNALS[name])
+
+    def enqueue(self, name, steps):
+        if not self.output:
             return
         try:
-            self.signals.put_nowait(name)
+            self.signals.put_nowait((name, steps))
         except queue.Full:
             pass
 
     def work(self):
         while True:
-            name = self.signals.get()
+            name, steps = self.signals.get()
             try:
-                self.output.play(SIGNALS[name])
+                self.output.play(steps)
             except Exception as error:
                 log.warning('feedback signal %s failed: %s', name, error)
+
+    def listen_for_tests(self):
+        while True:
+            try:
+                with urllib.request.urlopen(f'{API_BASE}/events', timeout=EVENT_STREAM_TIMEOUT_SECONDS) as stream:
+                    event = ''
+                    for raw in stream:
+                        line = raw.decode(errors='replace').strip()
+                        if line.startswith('event:'):
+                            event = line[len('event:'):].strip()
+                        elif line.startswith('data:') and event == 'feedback':
+                            test = json.loads(line[len('data:'):])
+                            log.info('test sound "%s" played', test.get('name'))
+                            self.enqueue(test.get('name'), test.get('steps') or [])
+                        elif not line:
+                            event = ''
+            except (urllib.error.URLError, OSError, ValueError):
+                pass
+            time.sleep(RETRY_SECONDS)
 
     def demonstrate(self):
         if not self.output:
