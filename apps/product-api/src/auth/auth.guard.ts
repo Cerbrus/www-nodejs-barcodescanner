@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable, SetMetadata, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
 
 import { AuthConfig } from './auth.config';
+import { HttpRequest } from './http';
 import { SESSION_COOKIE, Session, parseCookies, safeEqual, verifySession } from './session';
 
 const PUBLIC_ROUTE = 'publicRoute';
@@ -11,7 +11,7 @@ const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 export const Public = (): MethodDecorator & ClassDecorator => SetMetadata(PUBLIC_ROUTE, true);
 
-export type AuthenticatedRequest = Request & { session?: Session };
+export type AuthenticatedRequest = HttpRequest & { session?: Session };
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException('Log in first');
         }
 
-        const origin = request.headers.origin;
+        const origin = request.headers['origin'];
         if (!READ_METHODS.includes(request.method) && origin && origin !== this.config.publicUrl) {
             throw new ForbiddenException('Request from another site');
         }
@@ -47,9 +47,15 @@ export class AuthGuard implements CanActivate {
         return true;
     }
 
-    public readSession(request: Request): Session | undefined {
-        const session = verifySession(parseCookies(request.headers.cookie)[SESSION_COOKIE], this.config.sessionSecret, new Date());
+    public readSession(request: HttpRequest): Session | undefined {
+        const session = verifySession(parseCookies(cookieHeader(request))[SESSION_COOKIE], this.config.sessionSecret, new Date());
 
         return session && this.config.allowedEmails.includes(session.email) ? session : undefined;
     }
+}
+
+export function cookieHeader(request: HttpRequest): string | undefined {
+    const header = request.headers['cookie'];
+
+    return typeof header === 'string' ? header : undefined;
 }

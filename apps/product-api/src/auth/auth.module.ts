@@ -2,10 +2,10 @@ import { randomBytes } from 'crypto';
 
 import { Controller, Get, Global, HttpCode, Logger, Module, Post, Query, Req, Res } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { Request, Response } from 'express';
 
 import { AuthConfig } from './auth.config';
-import { AuthGuard, Public } from './auth.guard';
+import { AuthGuard, Public, cookieHeader } from './auth.guard';
+import { CookieOptions, HttpRequest, HttpResponse } from './http';
 import {
     SESSION_COOKIE,
     SESSION_LIFETIME_SECONDS,
@@ -49,7 +49,7 @@ export class AuthController {
     }
 
     @Get('me')
-    public me(@Req() request: Request, @Res({ passthrough: true }) response: Response): AuthState {
+    public me(@Req() request: HttpRequest, @Res({ passthrough: true }) response: HttpResponse): AuthState {
         if (!this.config.enabled) {
             return { enabled: false, authenticated: true };
         }
@@ -63,7 +63,7 @@ export class AuthController {
     }
 
     @Get('google')
-    public start(@Res() response: Response): void {
+    public start(@Res() response: HttpResponse): void {
         if (!this.config.enabled) {
             response.redirect('/');
             return;
@@ -84,12 +84,12 @@ export class AuthController {
 
     @Get('google/callback')
     public async finish(
-        @Req() request: Request,
-        @Res() response: Response,
+        @Req() request: HttpRequest,
+        @Res() response: HttpResponse,
         @Query('code') code?: string,
         @Query('state') state?: string
     ): Promise<void> {
-        const expectedState = parseCookies(request.headers.cookie)[STATE_COOKIE];
+        const expectedState = parseCookies(cookieHeader(request))[STATE_COOKIE];
         response.clearCookie(STATE_COOKIE, this.cookieOptions());
         if (!code || !state || !expectedState || !safeEqual(state, expectedState)) {
             response.redirect(`${LOGIN_PAGE}?error=failed`);
@@ -116,7 +116,7 @@ export class AuthController {
 
     @Post('logout')
     @HttpCode(204)
-    public logout(@Res({ passthrough: true }) response: Response): void {
+    public logout(@Res({ passthrough: true }) response: HttpResponse): void {
         response.clearCookie(SESSION_COOKIE, this.cookieOptions());
     }
 
@@ -146,12 +146,12 @@ export class AuthController {
         }
     }
 
-    private setSession(response: Response, email: string): void {
+    private setSession(response: HttpResponse, email: string): void {
         const token = signSession(newSession(email, new Date()), this.config.sessionSecret);
         response.cookie(SESSION_COOKIE, token, { ...this.cookieOptions(), maxAge: SESSION_LIFETIME_SECONDS * 1000 });
     }
 
-    private cookieOptions(): { httpOnly: true; sameSite: 'lax'; secure: boolean; path: string } {
+    private cookieOptions(): CookieOptions {
         return { httpOnly: true, sameSite: 'lax', secure: this.config.publicUrl.startsWith('https://'), path: '/' };
     }
 }
