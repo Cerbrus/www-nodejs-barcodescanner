@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -12,7 +13,7 @@ import { ToastService } from '../../services/toast.service';
 
 const LANGUAGES = ['nl', 'en'] as const;
 const LANGUAGE_STORAGE_KEY = 'language';
-const VERSION_LENGTH = 7;
+const COMMIT_LENGTH = 7;
 const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
     { theme: 'auto', icon: 'brightness_auto' },
     { theme: 'light', icon: 'light_mode' },
@@ -22,7 +23,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 @Component({
     selector: 'app-system-page',
     standalone: true,
-    imports: [RouterLink, TranslateModule],
+    imports: [DatePipe, RouterLink, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -103,6 +104,12 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                     {{ 'system.version' | translate }}:
                     <span class="font-mono">{{ version() }}</span>
                 </p>
+                @if (health()?.builtAt; as builtAt) {
+                    <p>
+                        {{ 'system.built' | translate }}:
+                        {{ builtAt | date: 'd MMM y HH:mm' }}
+                    </p>
+                }
             </div>
         </div>
     `
@@ -126,7 +133,12 @@ export class SystemPage {
     private readonly toasts = inject(ToastService);
 
     protected version(): string {
-        return this.health()?.version.slice(0, VERSION_LENGTH) ?? '…';
+        const health = this.health();
+        if (!health) {
+            return '…';
+        }
+
+        return health.commit ? `${health.version} (${health.commit.slice(0, COMMIT_LENGTH)})` : health.version;
     }
 
     protected enablePush(): void {

@@ -7,7 +7,7 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', (event) => {
-    const data = event.data ? event.data.json() : {};
+    const data = readMessage(event.data ? event.data.json() : {});
     const tasks = [
         self.registration.showNotification(data.title || FALLBACK_TITLE, {
             body: data.body,
@@ -17,7 +17,7 @@ self.addEventListener('push', (event) => {
         })
     ];
 
-    if (typeof data.badge === 'number' && 'setAppBadge' in self.navigator) {
+    if (Number.isFinite(data.badge) && 'setAppBadge' in self.navigator) {
         tasks.push(data.badge ? self.navigator.setAppBadge(data.badge) : self.navigator.clearAppBadge());
     }
 
@@ -54,4 +54,20 @@ function report(message) {
             body: JSON.stringify({ level: 'info', message: `phone: ${message}` })
         })
         .catch(() => undefined);
+}
+
+function readMessage(message) {
+    const notification = message.notification;
+    if (!notification) {
+        return message;
+    }
+
+    const target = new URL(notification.navigate || '/', self.location.origin);
+    return {
+        title: notification.title,
+        body: notification.body,
+        tag: notification.tag,
+        url: target.pathname + target.search,
+        badge: Number(notification.app_badge)
+    };
 }

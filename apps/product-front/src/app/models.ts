@@ -78,6 +78,8 @@ export interface LogLine {
 export interface Health {
     status: string;
     version: string;
+    commit?: string;
+    builtAt?: string;
 }
 
 export interface PushSubscriptionInput {
@@ -85,6 +87,7 @@ export interface PushSubscriptionInput {
     p256dh?: string;
     auth?: string;
     language?: string;
+    origin?: string;
 }
 
 export interface PushResult {

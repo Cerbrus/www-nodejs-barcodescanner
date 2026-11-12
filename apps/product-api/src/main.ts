@@ -21,7 +21,7 @@ async function bootstrap(): Promise<void> {
 
     const port = process.env['PORT'] ?? defaultPort;
     await app.listen(port);
-    logger.log(`Listening on port ${port}, API under /${globalPrefix}, version ${process.env['APP_VERSION'] ?? 'dev'}`);
+    logger.log(`Listening on port ${port}, API under /${globalPrefix}, version ${process.env['APP_VERSION'] ?? 'dev'} (${process.env['APP_COMMIT']?.slice(0, 7) ?? 'local'})`);
 }
 
 bootstrap();

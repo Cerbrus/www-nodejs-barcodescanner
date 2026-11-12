@@ -6,7 +6,7 @@ How the product runs on the Raspberry Pi. Everything here is in place on the ser
 
 The Pi pulls; nothing pushes to the Pi.
 
-1. A push to `master` makes GitHub Actions build the `app` and `hardware-agent` images and publish them to GitHub's container registry (`ghcr.io`), tagged `latest` and with the commit hash.
+1. A push to `master` makes GitHub Actions build the `app` and `hardware-agent` images and publish them to GitHub's container registry (`ghcr.io`), tagged `latest`, with the version number and with the commit hash.
 2. A systemd timer on the Pi runs every 5 minutes: fetch the compose file, pull images, restart what changed.
 3. The Pi needs Docker and outbound internet, plus `git` and `sqlite3` for the backup. No inbound port for deployment, no SSH key in GitHub, no Node or Python on the Pi.
 
@@ -86,16 +86,27 @@ The updater, `deployment/update.sh`, fetches the current `docker-compose.yml`, i
 
 Built by `.github/workflows/build.yml` on a GitHub-hosted ARM runner, so no emulation:
 
-- `ghcr.io/cerbrus/barcodescanner-app`: root `Dockerfile`. Builds API and frontend, then installs only the API's runtime packages. The commit hash is baked in as `APP_VERSION` and shown by the health endpoint.
+- `ghcr.io/cerbrus/barcodescanner-app`: root `Dockerfile`. Builds API and frontend, then installs only the API's runtime packages. The version, commit hash and build time are baked in as `APP_VERSION`, `APP_COMMIT` and `APP_BUILT` and shown by the health endpoint and the System page.
 - `ghcr.io/cerbrus/barcodescanner-agent`: `apps/hardware-agent/Dockerfile`.
 
-A `checks` job runs first: lint for both apps and the API tests. Images are only built when it passes. Pushes to `master` publish `latest` and a commit-hash tag. Pull requests only build.
+A `checks` job runs first: lint for both apps and the API tests. Images are only built when it passes. Pushes to `master` publish `latest`, a version tag and a commit-hash tag. Pull requests only build.
+
+### Version numbers
+
+Every build of `master` gets a version `major.minor.patch`, for example `1.0.20`, worked out by `.github/scripts/version.sh`:
+
+- `major.minor` comes from `version` in the root `package.json` and is raised by hand when a change deserves it.
+- `patch` is the number of commits since `major.minor` last changed, so it rises with every push without anyone doing anything, and the same commit always gets the same number. The commit that raises `major.minor` is patch 0: `1.0.56`, then `1.1.0`, `1.1.1`, and so on.
+- A new minor or major release is therefore one edit: change `version` in `package.json` to `1.1.0` or `2.0.0` and push. The third number in that file is not used.
+- After the images are published, the workflow puts the git tag `v<version>` on the commit, so a version on the System page leads back to its code.
+
+A local run without the build arguments reports version `dev`.
 
 ## Settings (`.env`)
 
 | Variable | Meaning |
 |---|---|
-| `IMAGE_TAG` | `latest` by default. Set a commit hash to pin a version. |
+| `IMAGE_TAG` | `latest` by default. Set a version number such as `1.0.20` to pin that version. |
 | `APP_PORT` | Host port of the web app and API, default `3020` |
 | `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
@@ -130,8 +141,8 @@ When the site's public name points at the router, some routers pass requests fro
 ## Updates, rollback, backup
 
 - **Update**: push to `master`; the Pi follows within about 5 minutes plus build time.
-- **Check**: `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
-- **Rollback**: set `IMAGE_TAG=<commit hash>` in `.env` and run the updater. Database migrations only go forward, so restore the database backup when rolling back past a migration.
+- **Check**: the System page or `curl http://127.0.0.1:3020/api/v1/health` for the running version, `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
+- **Rollback**: set `IMAGE_TAG=<version>` in `.env`, for example `1.0.20`, and run the updater. Images built before version numbers existed are only tagged with their commit hash. Database migrations only go forward, so restore the database backup when rolling back past a migration.
 - **Backup**: see the next section. The log files are not backed up.
 - **Logs**: the System page shows the live log; the same lines are in `/opt/barcodescanner/data/logs/app.log` (JSON lines, rotated at 256 KB, three old files kept).
 

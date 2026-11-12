@@ -74,7 +74,12 @@ Decided during the feedback rounds on 2026-11-12:
 - Appearance follows the device, with a switch for light or dark on the System page.
 - New products can be created wherever a product is searched: in the naming prompt and in the list search.
 - The camera decoder is `@zxing/browser`.
+- Each lookup result shows the logo of its source, Albert Heijn or Open Food Facts, to credit where the information comes from. The two logo files are committed for that purpose only.
 - Log files rotate at 256 KB with three old files kept; the page shows the last 500 lines.
+
+## Version numbers
+
+Decided 2026-11-12: versions are `major.minor.patch` with an automatic patch, the number of commits since `major.minor` was last raised in `package.json`, instead of bare commit hashes. The patch restarts at zero with every new minor or major version. Chosen over hand-bumped versions (easy to forget) and versions computed from commit messages (needs a strict message format). Each built commit gets a git tag. Details in `deployment.md`.
 
 ## Functional reference
 

@@ -53,7 +53,7 @@ export class AppComponent {
         api.getHealth()
             .pipe(
                 catchError(() => of(undefined)),
-                tap((health) => printConsoleBanner({ version: health?.version, apiBase: api.baseUrl, language })),
+                tap((health) => printConsoleBanner({ version: health?.version, commit: health?.commit, builtAt: health?.builtAt, apiBase: api.baseUrl, language })),
                 takeUntilDestroyed()
             )
             .subscribe();

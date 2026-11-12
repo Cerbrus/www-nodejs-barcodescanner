@@ -46,7 +46,7 @@ yarn product-api:test                 # scan rules
 yarn product-api:test:integration     # real modules against a temporary SQLite file
 ```
 
-The API keeps its data in a SQLite file, `data/app.db` by default (`DATABASE_PATH` overrides it). It is created and seeded from `data/seed-items.json` on first start and is not committed. `GET /api/v1/health` reports the status and the running version.
+The API keeps its data in a SQLite file, `data/app.db` by default (`DATABASE_PATH` overrides it). It is created and seeded from `data/seed-items.json` on first start and is not committed. `GET /api/v1/health` reports the status and the running version (`dev` locally; builds of `master` get a version such as `1.0.20`, see docs/deployment.md).
 
 The camera and notifications need HTTPS, so they work through the reverse proxy and on `localhost`, not on a plain LAN address.
 

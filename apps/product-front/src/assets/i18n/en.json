@@ -111,7 +111,8 @@
         "status": "Status",
         "connection": "Connection",
         "version": "Version",
-        "theme": "Appearance"
+        "theme": "Appearance",
+        "built": "Built"
     },
     "icons": {
         "title": "Pick an icon",

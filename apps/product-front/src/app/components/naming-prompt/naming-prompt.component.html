@@ -4,7 +4,13 @@
 
     <div class="mt-3 flex flex-col gap-2">
         @for (suggestion of suggestions(); track suggestion.connectorId) {
-            <button type="button" class="card flex items-center gap-3 text-left" (click)="useSuggestion(suggestion)">
+            <button
+                type="button"
+                class="card flex items-center gap-3 text-left"
+                [class.selected]="search() === suggestion.title"
+                [attr.aria-pressed]="search() === suggestion.title"
+                (click)="useSuggestion(suggestion)"
+            >
                 @if (suggestion.imageUrl) {
                     <img class="h-14 w-14 rounded-lg bg-white object-contain" [src]="suggestion.imageUrl" alt="" />
                 }
@@ -18,7 +24,14 @@
                         {{ suggestion.category }}
                     </span>
                 </span>
-                <span class="muted text-xs uppercase">{{ suggestion.connectorId }}</span>
+                @if (search() === suggestion.title) {
+                    <i class="material-symbols-outlined" style="color: var(--accent)">check_circle</i>
+                }
+                @if (connectors[suggestion.connectorId]; as connector) {
+                    <img class="h-6 w-6 shrink-0 rounded object-contain" [src]="connector.logo" [alt]="connector.name" [title]="connector.name" />
+                } @else {
+                    <span class="muted text-xs uppercase">{{ suggestion.connectorId }}</span>
+                }
             </button>
         } @empty {
             <p class="muted text-sm">

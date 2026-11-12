@@ -11,6 +11,11 @@ import { ItemAutocompleteComponent } from '../item-autocomplete/item-autocomplet
 import { NewItemFormComponent } from '../new-item-form/new-item-form.component';
 import { SheetComponent } from '../sheet/sheet.component';
 
+const CONNECTORS: Record<string, { name: string; logo: string }> = {
+    ah: { name: 'Albert Heijn', logo: 'assets/connectors/ah.svg' },
+    off: { name: 'Open Food Facts', logo: 'assets/connectors/off.svg' }
+};
+
 export type NamingOutcome = { kind: 'linked'; item: CatalogItem } | { kind: 'later' } | { kind: 'discarded' };
 
 @Component({
@@ -25,6 +30,7 @@ export class NamingPromptComponent {
     public readonly closed = output<NamingOutcome>();
 
     protected readonly store = inject(ShoppingStore);
+    protected readonly connectors = CONNECTORS;
     protected readonly barcode = signal<Barcode | undefined>(undefined);
     protected readonly search = signal('');
     protected readonly newName = signal<string | undefined>(undefined);

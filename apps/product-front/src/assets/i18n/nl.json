@@ -111,7 +111,8 @@
         "status": "Status",
         "connection": "Verbinding",
         "version": "Versie",
-        "theme": "Weergave"
+        "theme": "Weergave",
+        "built": "Gebouwd"
     },
     "icons": {
         "title": "Kies een icoon",

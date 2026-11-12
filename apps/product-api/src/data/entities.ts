@@ -137,6 +137,9 @@ export class PushSubscriptionEntity {
     @Column({ type: 'varchar', default: 'nl' })
     public language: string;
 
+    @Column({ type: 'varchar', nullable: true })
+    public origin?: string;
+
     @Column({ type: 'datetime' })
     public createdAt: Date;
 }

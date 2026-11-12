@@ -18,6 +18,7 @@ export interface PushSubscriptionInput {
     p256dh: string;
     auth: string;
     language?: string;
+    origin?: string;
 }
 
 export interface PushMessage {
@@ -35,6 +36,7 @@ export interface PushResult {
 type Texts = Record<'unknownTitle' | 'unknownNamed' | 'unknownBare' | 'testTitle' | 'testBody', string>;
 
 const TIME_TO_LIVE_SECONDS = 24 * 60 * 60;
+const DECLARATIVE_PUSH_MARKER = 8030;
 const GONE_STATUS_CODES = [404, 410];
 const DEFAULT_LANGUAGE = 'nl';
 const TEXTS: Record<string, Texts> = {
@@ -113,8 +115,8 @@ export class PushService {
         const keys = this.vapidKeys();
         const badge = await this.barcodes.countBy({ catalogItemId: IsNull() });
         const outcomes = await Promise.all(
-            subscriptions.map(async ({ endpoint, p256dh, auth, language }) => {
-                const payload = JSON.stringify({ ...compose(TEXTS[language] ?? TEXTS[DEFAULT_LANGUAGE]), badge });
+            subscriptions.map(async ({ endpoint, p256dh, auth, language, origin }) => {
+                const payload = JSON.stringify(this.payload(compose(TEXTS[language] ?? TEXTS[DEFAULT_LANGUAGE]), badge, language, origin));
                 try {
                     await webpush.sendNotification({ endpoint, keys: { p256dh, auth } }, payload, {
                         TTL: TIME_TO_LIVE_SECONDS,
@@ -130,6 +132,25 @@ export class PushService {
         const sent = outcomes.filter((ok) => ok).length;
 
         return { sent, failed: outcomes.length - sent };
+    }
+
+    private payload(message: PushMessage, badge: number, language: string, origin?: string): object {
+        if (!origin) {
+            return { ...message, badge };
+        }
+
+        return {
+            web_push: DECLARATIVE_PUSH_MARKER,
+            notification: {
+                title: message.title,
+                body: message.body,
+                navigate: new URL(message.url, origin).href,
+                tag: message.tag,
+                lang: language,
+                silent: false,
+                app_badge: String(badge)
+            }
+        };
     }
 
     private async handleFailure(endpoint: string, error: unknown): Promise<void> {

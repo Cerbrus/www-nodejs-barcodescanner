@@ -27,7 +27,11 @@ COPY data/seed-items.json ./data/seed-items.json
 COPY data/icons ./data/icons
 
 ARG APP_VERSION=dev
-ENV APP_VERSION=$APP_VERSION
+ARG APP_COMMIT=
+ARG APP_BUILT=
+ENV APP_VERSION=$APP_VERSION \
+    APP_COMMIT=$APP_COMMIT \
+    APP_BUILT=$APP_BUILT
 
 EXPOSE 3020
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \

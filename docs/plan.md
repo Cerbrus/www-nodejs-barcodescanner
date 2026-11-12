@@ -33,7 +33,7 @@ Result: scans are logged, nothing reaches the Pi's console, the agent reconnects
 ### 2. Pull-based deployment: done
 
 - Dockerfiles for `app` (multi-stage, Node slim) and `hardware-agent`.
-- GitHub workflow: lint and tests, then both images for `linux/arm64`, pushed to `ghcr.io` with `latest` and commit-hash tags.
+- GitHub workflow: lint and tests, then both images for `linux/arm64`, pushed to `ghcr.io` with `latest`, version and commit-hash tags; the commit gets a `v<version>` git tag.
 - `deployment/docker-compose.yml`, `install.sh`, `update.sh`, `firewall.sh`, the update timer and firewall service.
 - Nginx Proxy Manager host with certificate and access list.
 

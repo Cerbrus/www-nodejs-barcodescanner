@@ -21,6 +21,11 @@ class PushSubscriptionDto {
     @IsOptional()
     @IsIn(['nl', 'en'])
     public language?: string;
+
+    @IsOptional()
+    @IsUrl({ protocols: ['https', 'http'], require_protocol: true, require_tld: false })
+    @MaxLength(200)
+    public origin?: string;
 }
 
 class PushEndpointDto {

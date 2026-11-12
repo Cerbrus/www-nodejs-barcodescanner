@@ -15,6 +15,8 @@ const LABEL_WIDTH = 12;
 
 export interface BannerDetails {
     version?: string;
+    commit?: string;
+    builtAt?: string;
     apiBase: string;
     language: string;
 }
@@ -24,6 +26,8 @@ export function printConsoleBanner(details: BannerDetails): void {
         window.matchMedia('(display-mode: standalone)').matches || 'standalone' in navigator && navigator.standalone === true;
     const rows: Array<[string, string]> = [
         ['version', details.version ?? 'unknown (server not reachable)'],
+        ['commit', details.commit ?? '-'],
+        ['built', details.builtAt ?? '-'],
         ['api', new URL(details.apiBase, window.location.origin).href],
         ['page', window.location.href],
         ['language', details.language],

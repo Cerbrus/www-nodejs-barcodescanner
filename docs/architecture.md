@@ -73,7 +73,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox |
 | `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
 | `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `previous_state`, `previous_quantity` | History and undo; the `previous_` columns hold what the list entry was before the scan |
-| `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
+| `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `origin`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
 
 On first start with an empty database, the app imports sections, items and the current list from `data/seed-items.json`.
 
@@ -113,7 +113,7 @@ interface ProductSuggestion {
 - The lookup runs in the background after the scan is answered, so a slow connector never delays the scanner. Results are stored on the barcode row, so a barcode is looked up once, and a `barcode` event tells open pages they arrived.
 - `CONNECTORS` in `.env` picks the enabled ones (default `ah,off`).
 - `category` and `title` feed the section guess in the naming prompt.
-- Built: Albert Heijn (unofficial API, anonymous token) and Open Food Facts (official open API, with a generic User-Agent). Adding a source is one new class.
+- Built: Albert Heijn (unofficial API, anonymous token) and Open Food Facts (official open API, with a generic User-Agent). Adding a source is one new class, plus its logo in `apps/product-front/src/assets/connectors/` and a line in the naming prompt's connector table; without a logo the prompt shows the connector's id as text.
 
 ## API
 
@@ -139,7 +139,7 @@ interface ProductSuggestion {
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
 | `POST /api/v1/push/test` | Send a test notification to every subscribed device |
-| `GET /api/v1/health` | Status and running version; also Docker's health check |
+| `GET /api/v1/health` | Status, version, commit and build time; also Docker's health check |
 
 ## Staying connected
 
@@ -149,6 +149,7 @@ The page listens to `/api/v1/events`. When that stream ends for good, which happ
 
 Web push, so it works with the app closed. The frontend registers a small service worker (`/sw.js`, no caching) that shows the notification, sets the number on the app icon, and opens the inbox when tapped. A tap stores the page to open in a small cache entry and wakes the app; the app reads the entry when it gets the message, when it returns to the foreground, when it starts, and every 1.5 seconds while it is visible. A message alone is not enough: on the iPhone it did not arrive, with the app in the background or in front. Each tap also writes a line to the system log.
 
+- Message format: declarative web push (`"web_push": 8030` with a `notification` that carries title, body, badge and the address to open). A browser that knows the format, Safari from iOS 18.4, shows the notification and opens the address itself, without the service worker; that is what makes a tap open the inbox on the iPhone, where the service worker's own tap handling did not. Other browsers hand the same message to the service worker, which shows it and handles the tap. The address needs the site's own origin, which each device sends along when it subscribes.
 - Sent when: a scan from the handheld scanner ends in `needs_name`. Scans from the phone camera do not notify; the phone is already showing the naming prompt. The notification goes out after the connector lookup, so it can name the product the supermarket knows for that barcode.
 - Content: title, the suggested product name with the barcode, and the number of barcodes in the inbox as badge. Texts are Dutch or English, following the language the device had when it subscribed.
 - The badge is also set by the open app whenever the inbox changes. With the app closed it only changes when a notification arrives, because every push must show a notification.
