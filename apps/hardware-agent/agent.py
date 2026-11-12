@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import select
 import time
 import urllib.error
 import urllib.request
@@ -16,24 +17,45 @@ DIGIT_KEYS = {
     **{getattr(ecodes, f'KEY_{digit}'): str(digit) for digit in range(10)},
     **{getattr(ecodes, f'KEY_KP{digit}'): str(digit) for digit in range(10)},
 }
-ENTER_KEYS = {ecodes.KEY_ENTER, ecodes.KEY_KPENTER}
+END_KEYS = {ecodes.KEY_ENTER, ecodes.KEY_KPENTER, ecodes.KEY_TAB}
+MODIFIER_KEYS = {ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT, ecodes.KEY_LEFTCTRL, ecodes.KEY_RIGHTCTRL,
+                 ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT, ecodes.KEY_CAPSLOCK, ecodes.KEY_NUMLOCK}
 KEY_DOWN = 1
+IDLE_SECONDS = 0.3
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO').upper(),
+                    format='%(asctime)s %(levelname)s %(message)s')
 log = logging.getLogger('hardware-agent')
 
 
 def read_scans(device):
     digits = ''
-    for event in device.read_loop():
-        if event.type != ecodes.EV_KEY or event.value != KEY_DOWN:
-            continue
-        if event.code in ENTER_KEYS:
+    other_keys = 0
+    while True:
+        waiting_for_end = digits or other_keys
+        ready, _, _ = select.select([device.fd], [], [], IDLE_SECONDS if waiting_for_end else None)
+        if not ready:
+            if other_keys:
+                log.warning('scan without end key: %d digits "%s" and %d other keys', len(digits), digits, other_keys)
             if digits:
                 yield digits
-            digits = ''
-        elif event.code in DIGIT_KEYS:
-            digits += DIGIT_KEYS[event.code]
+            digits, other_keys = '', 0
+            continue
+
+        for event in device.read():
+            if event.type != ecodes.EV_KEY or event.value != KEY_DOWN:
+                continue
+            log.debug('key %s', ecodes.KEY.get(event.code, event.code))
+            if event.code in END_KEYS:
+                if other_keys:
+                    log.warning('scan with %d non-digit keys, digits "%s"', other_keys, digits)
+                if digits:
+                    yield digits
+                digits, other_keys = '', 0
+            elif event.code in DIGIT_KEYS:
+                digits += DIGIT_KEYS[event.code]
+            elif event.code not in MODIFIER_KEYS:
+                other_keys += 1
 
 
 def post_scan(code):
