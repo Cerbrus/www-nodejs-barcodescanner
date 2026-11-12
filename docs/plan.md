@@ -43,7 +43,7 @@ Status 2026-11-12: passed. `apps/hardware-agent/` runs on the Pi in an unprivile
 
 Done when: a trivial change pushed to `master` is live on the Pi within minutes without touching the Pi, and the site opens over HTTPS behind the login.
 
-Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh` ran on the Pi; app (healthy, about 85 MB) and hardware agent run from the published images; the update timer is active. Lint on pull requests is postponed to milestone 4, when the frontend leftovers are gone. Still open: the proxy host in Nginx Proxy Manager and the firewall rule for port 3020.
+Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh` ran on the Pi; app (healthy, about 85 MB) and hardware agent run from the published images; the update timer is active. Lint on pull requests is postponed to milestone 4, when the frontend leftovers are gone. A push to `master` reached the Pi by itself in about three and a half minutes. The app's port is limited to the reverse proxy's address by `deployment/firewall.sh`. Still open: the proxy host `shopping` in Nginx Proxy Manager, which the user sets up.
 
 ### 3. Backend core
 

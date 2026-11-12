@@ -15,13 +15,19 @@ else
     echo "could not fetch compose file, keeping the current one" >&2
 fi
 
-if curl -fsSL -o update.sh.new "$REPO_RAW/update.sh"; then
-    chmod +x update.sh.new
-    mv update.sh.new update.sh
-else
-    rm -f update.sh.new
-fi
+for script in update.sh firewall.sh; do
+    if curl -fsSL -o "$script.new" "$REPO_RAW/$script"; then
+        chmod +x "$script.new"
+        mv "$script.new" "$script"
+    else
+        rm -f "$script.new"
+    fi
+done
 
 docker compose pull --quiet
 docker compose up -d --remove-orphans
 docker image prune -f >/dev/null
+
+if [ -x firewall.sh ]; then
+    ./firewall.sh
+fi

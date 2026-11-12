@@ -43,8 +43,10 @@ fi
 echo "==> $APP_DIR"
 mkdir -p "$APP_DIR/data"
 chown -R "$DATA_OWNER" "$APP_DIR/data"
-curl -fsSL -o "$APP_DIR/update.sh" "$REPO_RAW/update.sh"
-chmod +x "$APP_DIR/update.sh"
+for script in update.sh firewall.sh; do
+    curl -fsSL -o "$APP_DIR/$script" "$REPO_RAW/$script"
+    chmod +x "$APP_DIR/$script"
+done
 if [ ! -f "$APP_DIR/.env" ]; then
     curl -fsSL -o "$APP_DIR/.env" "$REPO_RAW/env.template"
     SCANNER=$(find /dev/input/by-id -name '*-event-kbd' 2>/dev/null | head -1 || true)
@@ -83,8 +85,24 @@ RandomizedDelaySec=30
 WantedBy=timers.target
 EOF
 
+cat > /etc/systemd/system/barcodescanner-firewall.service <<EOF
+[Unit]
+Description=Limit the barcode scanner port to the reverse proxy
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=$APP_DIR/firewall.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 systemctl daemon-reload
 systemctl enable --now barcodescanner-update.timer
+systemctl enable barcodescanner-firewall.service
+systemctl start barcodescanner-firewall.service || echo "    firewall rule failed: journalctl -u barcodescanner-firewall"
 
 echo "==> First update"
 systemctl start barcodescanner-update.service || echo "    first update failed: journalctl -u barcodescanner-update"

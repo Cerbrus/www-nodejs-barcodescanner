@@ -85,6 +85,7 @@ Pushes to `master` publish `latest` and a commit-hash tag. Pull requests only bu
 |---|---|
 | `IMAGE_TAG` | `latest` by default. Set a commit hash to pin a version. |
 | `APP_PORT` | Host port of the web app and API, default `3020` |
+| `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
 
 Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Later milestones add settings for connectors and feedback output.
@@ -93,8 +94,9 @@ Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongl
 
 Add a proxy host:
 
-- **Forward to**: the LAN address of the server Pi, port `3020`. Nginx Proxy Manager runs on a different Pi, so give the server Pi a fixed address.
-- **Firewall on the server Pi**: allow port 3020 only from the proxy Pi's address. The app has no login, so anything else on the LAN that can reach 3020 bypasses the proxy's login.
+- **Domain name**: `shopping.<your domain>`.
+- **Forward to**: scheme `http`, the wired LAN address of the server Pi, port `3020`. Nginx Proxy Manager runs as an add-on in Home Assistant on another machine, so give the server Pi a fixed address.
+- **Firewall on the server Pi**: set `ALLOWED_SOURCE` in `.env` to the proxy's address. `deployment/firewall.sh` then drops every other source for the app's port; it runs at boot (`barcodescanner-firewall.service`) and after every update. The app has no login, so without this anything on the LAN that can reach the port bypasses the proxy's login. Requests made on the Pi itself, such as `curl http://127.0.0.1:3020/api/v1/health`, keep working.
 - **SSL**: request a certificate, force SSL.
 - **Access List**: attach one for the login. The app itself has no authentication, so never expose port 3020 directly.
 - **Advanced**, for the live event stream:
