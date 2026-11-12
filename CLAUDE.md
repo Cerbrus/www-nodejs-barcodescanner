@@ -26,8 +26,8 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 
 | App | Directory | Stack | Fate |
 |---|---|---|---|
-| Product API | `apps/product-api/` | NestJS, TypeORM, SQLite | Skeleton: health endpoint, static frontend, Albert Heijn connector. Modules come in milestone 3 |
-| Product Frontend | `apps/product-front/` | Angular 20, TailwindCSS | Rebuild pages, drop poll leftovers |
+| Product API | `apps/product-api/` | NestJS, TypeORM, SQLite | Modules: scan, catalog, list, connectors, events, log |
+| Product Frontend | `apps/product-front/` | Angular 20, TailwindCSS | Mobile-first pages under `src/app/pages/`, shared state in `services/shopping.store.ts` |
 | Hardware Agent | `apps/hardware-agent/` | Python, evdev | Reads the scanner; posts scans to the API from milestone 3 |
 
 Nx project names: `product-api`, `product-front`.
@@ -41,7 +41,8 @@ yarn product-api:build
 yarn product-front:serve    # port 4200
 yarn product-front:build
 yarn lint:all
-yarn test:all
+yarn product-api:test                 # scan rules
+yarn product-api:test:integration     # real modules, temporary SQLite file
 ```
 
 Don't start the serve commands from a session; ask the user to run them.

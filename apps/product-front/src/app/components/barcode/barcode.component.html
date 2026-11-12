@@ -1,17 +1,17 @@
-@let barcode = encodeBarcode() ;
+@let encoded = encodeBarcode();
 
-@if (barcode) {
+@if (encoded) {
     <div class="barcode-container"
-         [style.width.px]="barcode.sizes.width"
-         [style.height.px]="barcode.sizes.height"
-         [style.font-size.pt]="barcode.sizes.font"
-         [title]="barcode.input">
+         [style.width.px]="encoded.sizes.width"
+         [style.height.px]="encoded.sizes.height"
+         [style.font-size.pt]="encoded.sizes.font"
+         [title]="encoded.input">
         <div class="numeric encoding">
-            <span>{{ barcode.encoding }}</span>
+            <span>{{ encoded.encoding }}</span>
         </div>
         <div class="barcode">
             <div class="barcode-bars">
-                @for (bar of barcode.bars; track $index) {
+                @for (bar of encoded.bars; track $index) {
                     <div class="barcode-bar"
                          [class]="bar.styling.class"
                          [style]="bar.styling.style"
@@ -19,8 +19,8 @@
                 }
             </div>
             <div class="numeric">
-                <span>{{ barcode.left }}</span>
-                <span>{{ barcode.right }}</span>
+                <span>{{ encoded.left }}</span>
+                <span>{{ encoded.right }}</span>
             </div>
         </div>
     </div>

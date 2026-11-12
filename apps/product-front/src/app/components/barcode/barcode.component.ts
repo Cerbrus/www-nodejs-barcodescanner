@@ -9,20 +9,20 @@ import { BARCODE_CONSTANTS as BC, Bar, BarcodeResult, Sizes, TBit, TParity } fro
     standalone: true
 })
 export class BarcodeComponent {
-    public lockRatioInput = input(true, { alias: 'lockRatio' });
-    public barcodeInput = input.required<number | string>({ alias: 'barcode' });
-    public widthInput = input(300, { alias: 'width', transform: this.fixWidth.bind(this) });
-    public heightInput = input(200, { alias: 'height', transform: this.fixHeight.bind(this) });
+    public lockRatio = input(true);
+    public barcode = input.required<number | string>();
+    public width = input(300, { transform: this.fixWidth.bind(this) });
+    public height = input(200, { transform: this.fixHeight.bind(this) });
 
     protected sizes = computed(() => {
-        const width = this.fixWidth(this.widthInput());
-        const height = this.fixHeight(this.heightInput());
+        const width = this.fixWidth(this.width());
+        const height = this.fixHeight(this.height());
 
         return { width, height, font: Math.round(width / 15) } as Sizes;
     });
 
     protected encodeBarcode: Signal<BarcodeResult | undefined> = computed(() => {
-        const input = this.barcodeInput()?.toString() ?? '';
+        const input = this.barcode()?.toString() ?? '';
         const barcode = input.length === 12 ? `0${input}` : input;
 
         if (!/^(\d{8}|\d{13})$/.test(barcode))
@@ -52,8 +52,8 @@ export class BarcodeComponent {
             return bars;
         }, [] as Array<Bar>);
 
-        const width = this.fixWidth(this.widthInput());
-        const height = this.fixHeight(this.heightInput());
+        const width = this.fixWidth(this.width());
+        const height = this.fixHeight(this.height());
 
         return {
             input: barcode,
@@ -73,7 +73,7 @@ export class BarcodeComponent {
         return [...bits].map((bit) => this.toBar(bit as TBit, isGuard));
     }
 
-    private toBar(bit: TBit, isGuard: boolean) {
+    private toBar(bit: TBit, isGuard: boolean): Bar {
         return {
             bit,
             isGuard,
@@ -85,14 +85,14 @@ export class BarcodeComponent {
         };
     }
 
-    private fixWidth(w: number) {
+    private fixWidth(w: number): number {
         return Math.max(w, 150);
     }
 
-    private fixHeight(h: number) {
-        return this.lockRatioInput()
-            ? Math.round(this.widthInput() / 2)
-            : Math.max(h, Math.round(this.widthInput() / 3.75));
+    private fixHeight(h: number): number {
+        return this.lockRatio()
+            ? Math.round(this.width() / 2)
+            : Math.max(h, Math.round(this.width() / 3.75));
     }
 
     private equals(a: Bar, b: Bar): boolean {

@@ -14,7 +14,21 @@ env:
     IMAGE_PREFIX: ghcr.io/cerbrus/barcodescanner
 
 jobs:
+    checks:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: actions/setup-node@v4
+                with:
+                    node-version: 24
+                    cache: yarn
+            -   run: yarn install --immutable
+            -   run: yarn lint:all
+            -   run: yarn product-api:test
+            -   run: yarn product-api:test:integration
+
     images:
+        needs: checks
         runs-on: ubuntu-24.04-arm
         strategy:
             fail-fast: false

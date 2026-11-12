@@ -77,7 +77,7 @@ Built by `.github/workflows/build.yml` on a GitHub-hosted ARM runner, so no emul
 - `ghcr.io/cerbrus/barcodescanner-app`: root `Dockerfile`. Builds API and frontend, then installs only the API's runtime packages. The commit hash is baked in as `APP_VERSION` and shown by the health endpoint.
 - `ghcr.io/cerbrus/barcodescanner-agent`: `apps/hardware-agent/Dockerfile`.
 
-Pushes to `master` publish `latest` and a commit-hash tag. Pull requests only build.
+A `checks` job runs first: lint for both apps and the API tests. Images are only built when it passes. Pushes to `master` publish `latest` and a commit-hash tag. Pull requests only build.
 
 ## Settings (`.env`)
 

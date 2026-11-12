@@ -14,6 +14,7 @@ export interface LogLine {
 }
 
 const MAX_LINES = 500;
+const STARTUP_NOISE = ['RouterExplorer', 'RoutesResolver', 'InstanceLoader'];
 
 class LogBuffer {
     private readonly lines: Array<LogLine> = [];
@@ -43,7 +44,9 @@ export const logBuffer = new LogBuffer();
 export class BufferedLogger extends ConsoleLogger {
     public override log(message: unknown, ...rest: Array<unknown>): void {
         super.log(message, ...rest);
-        logBuffer.add('app', 'info', this.describe(message, rest));
+        if (!STARTUP_NOISE.includes(String(rest.at(-1)))) {
+            logBuffer.add('app', 'info', this.describe(message, rest));
+        }
     }
 
     public override warn(message: unknown, ...rest: Array<unknown>): void {

@@ -11,7 +11,7 @@ export class LazyTranslateLoader implements TranslateLoader {
     public translationsLoaded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     public getTranslation(lang: string): Observable<unknown> {
-        return from(import(`../../assets/i18n/${lang}.json`)).pipe(tap((x) => this.translationsLoaded$.next(true)));
+        return from(import(`../../assets/i18n/${lang}.json`)).pipe(tap(() => this.translationsLoaded$.next(true)));
     }
 }
 

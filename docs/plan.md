@@ -68,6 +68,8 @@ Done when: a handheld scan of a mapped barcode changes the list in the database,
 - Catalog page, and a management page per catalog item listing its barcodes as drawn, scannable images (UC-6). Extend the barcode component to 8-digit codes.
 - History page.
 - Log page (UC-11): terminal-like, monospaced, live. Needs the `log` module in the API and the hardware agent posting its log lines.
+
+Status 2026-11-12: built and deployed, not yet seen in a browser by anyone. Pages: list, camera scan, inbox with naming prompt, catalog, item page with drawn barcodes (8 and 13 digits), history with undo, log, and a page for language and status. The `log` module and the agent's log posting exist. Lint is clean for both apps and, with the API tests, now gates the image build. Checked without a browser: the pages and scripts are served, the API answers on the same origin, agent lines reach the log. Still to do: look at every page on the iPhone, test the camera there, and an icon picker (milestone 5).
 - Signals and `@for`/`@empty` as in the code style; Dutch and English texts.
 
 Done when: every use case in [use-cases.md](use-cases.md) except offline use and sound works on the phone through the proxy.
