@@ -37,7 +37,9 @@ Plain NestJS modules, no CQRS. A controller calls a service; a service uses Type
 | `connectors` | Product lookup behind one interface |
 | `events` | Server-sent events to open pages |
 
-Frontend pages: list, scan (camera), inbox with naming prompt, catalog and mappings, history.
+Frontend pages: list, scan (camera), inbox with naming prompt, catalog, a management page per catalog item with its barcodes, history.
+
+Barcodes are drawn in the browser by the existing `BarcodeComponent` (`apps/product-front/src/app/components/barcode/`). It handles 13-digit EAN codes today; 8-digit codes, which the scanner also reads, still need support.
 
 ## Data model
 
@@ -97,6 +99,7 @@ interface ProductSuggestion {
 | `GET /api/v1/list` | List entries with their catalog items |
 | `PATCH /api/v1/list/:itemId` | State, quantity, note |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
+| `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) |
 | `GET /api/v1/barcodes?unmapped=true` | Inbox |
 | `PUT /api/v1/barcodes/:code` | Set or change the mapping |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |

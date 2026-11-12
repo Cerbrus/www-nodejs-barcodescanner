@@ -50,8 +50,13 @@ A second read of the same barcode within 3 seconds is ignored.
 
 ### UC-6 Manage mappings and catalog
 
-- Point a barcode at a different catalog item, or delete the mapping.
-- Rename a catalog item, change its section or icon, or delete it.
+Each catalog item has its own management page:
+
+- It shows the item's name, section and icon, and every barcode attached to it. Each barcode is drawn as a scannable image with its number, the product title a connector suggested, how often it was scanned and when it was last scanned.
+- Rename the item, change its section or icon, or delete it.
+- Move a barcode to a different catalog item, or detach it. A detached barcode returns to the inbox on its next scan.
+
+The drawn barcode is there to recognise which package a number belongs to, and to rescan it from the screen with the handheld scanner when testing.
 
 ## Shopping list
 

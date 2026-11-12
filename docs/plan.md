@@ -43,7 +43,7 @@ Status 2026-11-12: passed. `apps/hardware-agent/` runs on the Pi in an unprivile
 
 Done when: a trivial change pushed to `master` is live on the Pi within minutes without touching the Pi, and the site opens over HTTPS behind the login.
 
-Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh` ran on the Pi; app (healthy, about 85 MB) and hardware agent run from the published images; the update timer is active. Lint on pull requests is postponed to milestone 4, when the frontend leftovers are gone. A push to `master` reached the Pi by itself in about three and a half minutes. The app's port is limited to the reverse proxy's address by `deployment/firewall.sh`. Still open: the proxy host `shopping` in Nginx Proxy Manager, which the user sets up.
+Status 2026-11-12: images build on GitHub and are publicly pullable; `install.sh` ran on the Pi; app (healthy, about 85 MB) and hardware agent run from the published images; the update timer is active. Lint on pull requests is postponed to milestone 4, when the frontend leftovers are gone. A push to `master` reached the Pi by itself in about three and a half minutes. The app's port is limited to the reverse proxy's address by `deployment/firewall.sh`. The proxy host `shopping` in Nginx Proxy Manager works (confirmed by the user). Milestone 2 is complete.
 
 ### 3. Backend core
 
@@ -59,11 +59,12 @@ Done when: a handheld scan of a mapped barcode changes the list in the database,
 
 ### 4. Frontend
 
-- Remove the poll leftovers and unused components.
+- Remove the poll leftovers and unused components. Keep `components/barcode`: it draws barcodes and is used on the item page.
 - List page: tiles by section, quantity, note, check-off, recent, manual add, offline banner.
 - Naming prompt and inbox, fed by events.
 - Scan page with the phone camera, continuous mode, undo toast. Test the decoder on the real phone first.
-- Catalog and mappings page; history page.
+- Catalog page, and a management page per catalog item listing its barcodes as drawn, scannable images (UC-6). Extend the barcode component to 8-digit codes.
+- History page.
 - Signals and `@for`/`@empty` as in the code style; Dutch and English texts.
 
 Done when: every use case in [use-cases.md](use-cases.md) except offline use and sound works on the phone through the proxy.
