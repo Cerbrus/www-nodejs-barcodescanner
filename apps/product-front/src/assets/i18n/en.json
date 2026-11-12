@@ -194,6 +194,7 @@
         "error": {
             "not_allowed": "This Google account has no access.",
             "failed": "Logging in failed. Try again."
-        }
+        },
+        "logoutConfirm": "Log out on this device? You will have to log in with Google again."
     }
 }

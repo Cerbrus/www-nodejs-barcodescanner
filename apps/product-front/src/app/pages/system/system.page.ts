@@ -101,13 +101,30 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 
             @if (auth.state()?.enabled) {
                 <h2 class="section-title">{{ 'login.account' | translate }}</h2>
-                <div class="card flex items-center gap-3 text-sm">
-                    <i class="material-symbols-outlined muted">account_circle</i>
-                    <span class="grow truncate">{{ auth.state()?.email }}</span>
-                    <button type="button" class="btn" (click)="logout()">
-                        <i class="material-symbols-outlined">logout</i>
-                        {{ 'login.logout' | translate }}
-                    </button>
+                <div class="card text-sm">
+                    <div class="flex items-center gap-3">
+                        <i class="material-symbols-outlined muted">account_circle</i>
+                        <span class="grow truncate">{{ auth.state()?.email }}</span>
+                        @if (!confirmingLogout()) {
+                            <button type="button" class="btn danger" (click)="confirmingLogout.set(true)">
+                                <i class="material-symbols-outlined">logout</i>
+                                {{ 'login.logout' | translate }}
+                            </button>
+                        }
+                    </div>
+                    @if (confirmingLogout()) {
+                        <p class="mt-3">{{ 'login.logoutConfirm' | translate }}</p>
+                        <div class="mt-3 flex gap-2">
+                            <button type="button" class="btn danger basis-0 grow" (click)="logout()">
+                                <i class="material-symbols-outlined">logout</i>
+                                {{ 'login.logout' | translate }}
+                            </button>
+                            <button type="button" class="btn basis-0 grow" (click)="confirmingLogout.set(false)">
+                                <i class="material-symbols-outlined">close</i>
+                                {{ 'common.cancel' | translate }}
+                            </button>
+                        </div>
+                    }
                 </div>
             }
 
@@ -136,6 +153,7 @@ export class SystemPage {
     protected readonly theme = inject(ThemeService);
     protected readonly push = inject(PushService);
     protected readonly auth = inject(AuthService);
+    protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');

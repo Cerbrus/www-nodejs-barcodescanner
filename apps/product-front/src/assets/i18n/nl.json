@@ -194,6 +194,7 @@
         "error": {
             "not_allowed": "Dit Google-account heeft geen toegang.",
             "failed": "Inloggen is niet gelukt. Probeer het opnieuw."
-        }
+        },
+        "logoutConfirm": "Uitloggen op dit apparaat? Je moet daarna opnieuw inloggen met Google."
     }
 }
