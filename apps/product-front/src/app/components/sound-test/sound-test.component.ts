@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { catchError, finalize, of, tap } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 
 import { FeedbackSettings } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -30,7 +30,7 @@ const NO_SOUND = 'none';
                                     type="button"
                                     class="play"
                                     [attr.aria-label]="'sound.play' | translate"
-                                    [disabled]="busy() || row.soundId === noSound"
+                                    [disabled]="row.soundId === noSound"
                                     (click)="play(row.soundId)"
                                 >
                                     <i class="material-symbols-outlined">volume_up</i>
@@ -63,7 +63,7 @@ const NO_SOUND = 'none';
                 @if (showAll()) {
                     <div class="mt-2 grid grid-cols-2 gap-2">
                         @for (sound of settings.sounds; track sound.id) {
-                            <button type="button" class="btn !justify-start text-left" [disabled]="busy()" (click)="play(sound.id)">
+                            <button type="button" class="btn !justify-start text-left" (click)="play(sound.id)">
                                 <i class="material-symbols-outlined">graphic_eq</i>
                                 <span>{{ 'sound.name.' + sound.id | translate }}</span>
                             </button>
@@ -84,7 +84,6 @@ const NO_SOUND = 'none';
 export class SoundTestComponent {
     protected readonly noSound = NO_SOUND;
     protected readonly settings = signal<FeedbackSettings | undefined>(undefined);
-    protected readonly busy = signal(false);
     protected readonly showAll = signal(false);
     protected readonly failed = signal(false);
 
@@ -114,10 +113,6 @@ export class SoundTestComponent {
     }
 
     protected play(soundId: string): void {
-        this.busy.set(true);
-        this.api
-            .testSound(soundId)
-            .pipe(finalize(() => this.busy.set(false)))
-            .subscribe();
+        this.api.testSound(soundId).subscribe();
     }
 }
