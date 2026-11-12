@@ -88,7 +88,7 @@ Pushes to `master` publish `latest` and a commit-hash tag. Pull requests only bu
 | `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
 | `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Later milestones add settings for connectors and feedback output.
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. A later milestone adds a setting for feedback output.
 
 ## Reverse proxy (Nginx Proxy Manager)
 

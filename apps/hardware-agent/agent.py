@@ -1,11 +1,16 @@
+import json
 import logging
 import os
 import time
+import urllib.error
+import urllib.request
 
 from evdev import InputDevice, ecodes
 
 DEVICE_PATH = os.environ['SCANNER_DEVICE']
+API_URL = os.environ.get('API_URL', 'http://app:3020/api/v1/scans')
 RETRY_SECONDS = 2
+API_TIMEOUT_SECONDS = 5
 
 DIGIT_KEYS = {
     **{getattr(ecodes, f'KEY_{digit}'): str(digit) for digit in range(10)},
@@ -31,8 +36,24 @@ def read_scans(device):
             digits += DIGIT_KEYS[event.code]
 
 
+def post_scan(code):
+    body = json.dumps({'code': code, 'source': 'handheld'}).encode()
+    request = urllib.request.Request(API_URL, data=body, headers={'Content-Type': 'application/json'})
+    with urllib.request.urlopen(request, timeout=API_TIMEOUT_SECONDS) as response:
+        return json.load(response)
+
+
 def handle_scan(code):
-    log.info('scan %s', code)
+    try:
+        outcome = post_scan(code)
+    except urllib.error.HTTPError as error:
+        log.warning('scan %s rejected by the API: %s %s', code, error.code, error.read().decode(errors='replace'))
+        return
+    except (urllib.error.URLError, OSError, ValueError) as error:
+        log.warning('scan %s not delivered: %s', code, error)
+        return
+
+    log.info('scan %s: %s %s', code, outcome.get('result'), outcome.get('itemName') or '')
 
 
 def run():

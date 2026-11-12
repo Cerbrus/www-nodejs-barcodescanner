@@ -45,12 +45,13 @@ Barcodes are drawn in the browser by the existing `BarcodeComponent` (`apps/prod
 
 | Table | Columns | Notes |
 |---|---|---|
-| `catalog_item` | `id`, `name` (unique), `section`, `icon` | `icon` is an emoji or a file name in the icon folder |
+| `section` | `id`, `name`, `sort_order`, `emoji` | Seeded from `data/seed-items.json` |
+| `catalog_item` | `id`, `name` (unique), `section_id`, `icon`, `emoji`, `custom` | `icon` is a file name in the icon folder, served under `/icons/<icon>.png` |
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox |
 | `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
-| `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at` | History and undo |
+| `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `previous_state`, `previous_quantity` | History and undo; the `previous_` columns hold what the list entry was before the scan |
 
-Sections are a fixed list in code, each with a sort order.
+On first start with an empty database, the app imports sections, items and the current list from `data/seed-items.json`.
 
 ## Scan rules
 
@@ -85,7 +86,8 @@ interface ProductSuggestion {
 ```
 
 - All enabled connectors run in parallel with a timeout of a few seconds. A failure or timeout yields no suggestion and is logged.
-- Results are stored on the barcode row, so a barcode is looked up once.
+- The lookup runs in the background after the scan is answered, so a slow connector never delays the scanner. Results are stored on the barcode row, so a barcode is looked up once, and a `barcode` event tells open pages they arrived.
+- `CONNECTORS` in `.env` picks the enabled ones (default `ah,off`).
 - `category` is mapped to a shop section to prefill the naming prompt.
 - Start: Albert Heijn (existing TypeScript connector, unofficial API) and Open Food Facts (official open API; send a descriptive User-Agent). Adding a source is one new class.
 
@@ -100,10 +102,13 @@ interface ProductSuggestion {
 | `PATCH /api/v1/list/:itemId` | State, quantity, note |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
 | `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) |
+| `GET /api/v1/sections` | Shop sections in display order |
 | `GET /api/v1/barcodes?unmapped=true` | Inbox |
+| `GET /api/v1/barcodes/:code` | One barcode with its suggestions |
 | `PUT /api/v1/barcodes/:code` | Set or change the mapping |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
-| `GET /api/v1/events` | Server-sent events |
+| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, and a `ping` every 25 seconds |
+| `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/health` | Health check for Docker |
 
 ## Phone camera

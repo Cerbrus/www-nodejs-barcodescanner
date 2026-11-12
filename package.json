@@ -7,6 +7,8 @@
         "product-api:build": "nx run product-api:build",
         "product-api:serve": "nx run product-api:serve",
         "product-api:lint": "nx run product-api:lint",
+        "product-api:test": "node --import tsx --test apps/product-api/src/scan/scan-rules.spec.ts",
+        "product-api:test:integration": "TS_NODE_PROJECT=apps/product-api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register --test apps/product-api/src/app.integration.spec.ts",
         "product-front:build": "nx run product-front:build",
         "product-front:serve": "nx run product-front:serve",
         "product-front:lint": "nx run product-front:lint",
