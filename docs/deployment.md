@@ -22,17 +22,19 @@ Checked over SSH on 2026-11-12:
 | OS | Debian 13 (trixie), 64-bit (`aarch64`) |
 | Memory | about 900 MB, plus the same amount of swap; roughly 600 MB available |
 | Disk | 10 GB free |
-| Docker | not installed |
+| Docker | Engine 29.9.3 and compose plugin v5.7.1, installed 2026-11-12 from Docker's Debian repository |
 | Other services | `recipes` and `webserver` (ports 3000 and 3010), `fan-control` |
 | Port 3020 | free |
 | Network | wired and wifi interface; point the proxy at the wired address |
-| Scanner dongle | not plugged in at the time of the check |
+| Scanner dongle | `/dev/input/by-id/usb-0581_011c-event-kbd` |
+| Memory limits | available since 2026-11-12: `cgroup_enable=memory cgroup_memory=1` added to `/boot/firmware/cmdline.txt` (backup next to it) |
 
 Consequences:
 
 - Build `linux/arm64` images only.
-- The install script must install Docker Engine and the compose plugin.
-- Memory is tight. Nothing is built on the Pi, and the app container gets a memory limit so it cannot starve the other services.
+- The install script must install Docker Engine and the compose plugin on a fresh Pi; on this one they are present.
+- Memory is tight, so nothing is built on the Pi.
+- Every container in the compose file gets a memory limit, so the app cannot starve the other services. A fresh Pi needs the kernel parameters above before limits work; the install script adds them and asks for a reboot.
 
 ## On the Pi
 

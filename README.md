@@ -18,7 +18,7 @@ The repository holds a prototype that is being rebuilt. Start with the documenta
 |---|---|---|
 | Product API | `apps/product-api/` | NestJS, TypeORM |
 | Product Frontend | `apps/product-front/` | Angular 20, TailwindCSS |
-| Input Listener | `apps/input-listener/` | Python |
+| Hardware Agent | `apps/hardware-agent/` | Python, evdev, Docker |
 
 ## Development
 

@@ -28,8 +28,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 |---|---|---|---|
 | Product API | `apps/product-api/` | NestJS, TypeORM, PostgreSQL, CQRS | Trim to plain modules, SQLite |
 | Product Frontend | `apps/product-front/` | Angular 20, TailwindCSS | Rebuild pages, drop poll leftovers |
-| Input Listener | `apps/input-listener/` | Python | Becomes the hardware agent |
-| Supermarkt Connector | `apps/supermarkt-connector/` | Python, Flask | Delete |
+| Hardware Agent | `apps/hardware-agent/` | Python, evdev | Reads the scanner; posts scans to the API from milestone 3 |
 
 Nx project names: `product-api`, `product-front`.
 

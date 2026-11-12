@@ -5,7 +5,6 @@ Decisions behind this plan are in [decisions.md](decisions.md); the target is in
 ## Where the prototype stands (2026-11-12)
 
 - The repository has no commits yet.
-- No scan reaches anything: the listener posts to a route that does not exist, and `supermarkt-connector/server.py` cannot start (duplicate function name).
 - The API has entities and a migration for PostgreSQL, a working Albert Heijn connector in TypeScript, and no endpoint that writes a scan.
 - The frontend is a leftover Slack-poll app whose only page renders a barcode image.
 - Both Python `requirements.txt` files are UTF-16 and list unrelated heavy packages.
@@ -31,6 +30,8 @@ Done when: the repo is on GitHub with no secrets in it, and the image platform i
 - Run it on the Pi in a container with the `/dev/input` mount and the cgroup rule.
 
 Done when: scans are logged from inside the container, nothing is typed into the Pi's console, and scanning still works after unplugging and replugging the dongle and after a reboot. If not, switch to the host systemd fallback and note it in `decisions.md`.
+
+Status 2026-11-12: passed. `apps/hardware-agent/` runs on the Pi in an unprivileged container (image built on the Pi for the spike only). Scans are logged, nothing reaches the Pi's console, the agent reconnects by itself after a replug, and after a reboot the container starts and reconnects without help. The Docker approach stays; no host-service fallback needed. The scanner sometimes reads one code twice within two seconds, which the debounce in milestone 3 covers.
 
 ### 2. Pull-based deployment
 
@@ -84,8 +85,9 @@ Done when: naming a typical new barcode takes one or two taps.
 
 ### 7. Sound feedback
 
-- Choose hardware (USB speaker or GPIO buzzer on a free pin).
-- Implement that output in the hardware agent; give the container access to the audio device or GPIO.
+- Preferred, if possible: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12.
+- Otherwise: choose hardware (USB speaker or GPIO buzzer on a free pin).
+- Implement the chosen output in the hardware agent; give the container access to the vendor HID interface, the audio device or GPIO.
 
 ### 8. Offline shopping
 
@@ -95,6 +97,6 @@ Done when: naming a typical new barcode takes one or two taps.
 
 | Point | Needed by |
 |---|---|
-| Feedback hardware (still to be decided) | Milestone 7 |
+| Feedback output: scanner's own beeper (waiting for Tera's answer) or a speaker or buzzer on the Pi | Milestone 7 |
 
 Answered: Nginx Proxy Manager runs on a different Pi; scanning phone is an iPhone; the server Pi is a 3 Model B+ with a 64-bit OS and no Docker yet ([deployment.md](deployment.md)).

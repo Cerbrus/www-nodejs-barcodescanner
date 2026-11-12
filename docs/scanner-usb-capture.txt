@@ -1,0 +1,135 @@
+# USB capture of the scanner dongle (0581:011c), Windows PC, 2026-11-12
+# Source: Wireshark + USBPcap, 19 s. Only frames of the dongle (bus 2, address 9) are kept.
+# Actions during capture: one barcode scanned (20383480), then Tera 'Time Sync Tool V1.1' started.
+# Result: tool reported 'device not found' and sent nothing; no traffic on the vendor interface (report 0xBA).
+
+## Frames: number, time (s), endpoint, transfer type (1=interrupt, 2=control), direction (0=host to device, 1=device to host), length, data
+97 0.000000000 0x80 0x02 0x00 8  
+98 0.000000000 0x80 0x02 0x01 18  
+99 0.000000000 0x80 0x02 0x00 8  
+100 0.000000000 0x80 0x02 0x01 66  
+101 0.000000000 0x00 0x02 0x00 8  
+102 0.000000000 0x00 0x02 0x01 0  
+587 7.215010000 0x81 0x01 0x01 8 0000000000000000 
+588 7.215060000 0x81 0x01 0x00 0  
+589 7.215986000 0x81 0x01 0x01 8 00001f0000000000 
+590 7.216012000 0x81 0x01 0x00 0  
+591 7.216962000 0x81 0x01 0x01 8 0000000000000000 
+592 7.216986000 0x81 0x01 0x00 0  
+593 7.217958000 0x81 0x01 0x01 8 0000270000000000 
+594 7.217977000 0x81 0x01 0x00 0  
+595 7.218958000 0x81 0x01 0x01 8 0000000000000000 
+596 7.218977000 0x81 0x01 0x00 0  
+597 7.219959000 0x81 0x01 0x01 8 0000200000000000 
+598 7.219975000 0x81 0x01 0x00 0  
+599 7.220958000 0x81 0x01 0x01 8 0000000000000000 
+600 7.220973000 0x81 0x01 0x00 0  
+601 7.221960000 0x81 0x01 0x01 8 0000250000000000 
+602 7.221977000 0x81 0x01 0x00 0  
+603 7.222975000 0x81 0x01 0x01 8 0000000000000000 
+604 7.222992000 0x81 0x01 0x00 0  
+605 7.223964000 0x81 0x01 0x01 8 0000200000000000 
+606 7.223985000 0x81 0x01 0x00 0  
+607 7.224956000 0x81 0x01 0x01 8 0000000000000000 
+608 7.224974000 0x81 0x01 0x00 0  
+609 7.225957000 0x81 0x01 0x01 8 0000210000000000 
+610 7.225975000 0x81 0x01 0x00 0  
+611 7.226956000 0x81 0x01 0x01 8 0000000000000000 
+612 7.226972000 0x81 0x01 0x00 0  
+613 7.227957000 0x81 0x01 0x01 8 0000250000000000 
+614 7.227974000 0x81 0x01 0x00 0  
+615 7.228953000 0x81 0x01 0x01 8 0000000000000000 
+616 7.228969000 0x81 0x01 0x00 0  
+621 7.246999000 0x81 0x01 0x01 8 0000000000000000 
+622 7.247026000 0x81 0x01 0x00 0  
+623 7.247970000 0x81 0x01 0x01 8 0000270000000000 
+624 7.248006000 0x81 0x01 0x00 0  
+625 7.248967000 0x81 0x01 0x01 8 0000000000000000 
+626 7.248989000 0x81 0x01 0x00 0  
+627 7.249963000 0x81 0x01 0x01 8 0000280000000000 
+628 7.249983000 0x81 0x01 0x00 0  
+629 7.250975000 0x81 0x01 0x01 8 0000000000000000 
+630 7.251015000 0x81 0x01 0x00 0  
+
+## Descriptor frames, decoded
+DEVICE DESCRIPTOR
+    bLength: 18
+    bDescriptorType: 0x01 (DEVICE)
+    bcdUSB: 0x0110
+    bDeviceClass: Device (0x00)
+    bDeviceSubClass: 0
+    bDeviceProtocol: 0 (Use class code info from Interface Descriptors)
+    bMaxPacketSize0: 32
+    idVendor: Racal Data Group (0x0581)
+    idProduct: Tera 5100 dongle (0x011c)
+    bcdDevice: 0x0224
+    iManufacturer: 0
+    iProduct: 0
+    bNumConfigurations: 1
+CONFIGURATION DESCRIPTOR
+    bLength: 9
+    bDescriptorType: 0x02 (CONFIGURATION)
+    wTotalLength: 66
+    bNumInterfaces: 2
+    bConfigurationValue: 1
+    bMaxPower: 101  (202mA)
+INTERFACE DESCRIPTOR (0.0): class HID
+    bLength: 9
+    bDescriptorType: 0x04 (INTERFACE)
+    bInterfaceNumber: 0
+    bAlternateSetting: 0
+    bNumEndpoints: 1
+    bInterfaceClass: HID (0x03)
+    bInterfaceSubClass: Boot Interface (0x01)
+    bInterfaceProtocol: Keyboard (0x01)
+HID DESCRIPTOR
+    bLength: 9
+    bDescriptorType: 0x21 (HID)
+    bcdHID: 0x0110
+    bCountryCode: Not Supported (0x00)
+    bNumDescriptors: 1
+    bDescriptorType: HID Report (0x22)
+    wDescriptorLength: 63
+ENDPOINT DESCRIPTOR
+    bLength: 7
+    bDescriptorType: 0x05 (ENDPOINT)
+    bEndpointAddress: 0x81  IN  Endpoint:1
+    bmAttributes: 0x03
+    wMaxPacketSize: 8
+    bInterval: 1
+INTERFACE DESCRIPTOR (1.0): class HID
+    bLength: 9
+    bDescriptorType: 0x04 (INTERFACE)
+    bInterfaceNumber: 1
+    bAlternateSetting: 0
+    bNumEndpoints: 2
+    bInterfaceClass: HID (0x03)
+    bInterfaceSubClass: Boot Interface (0x01)
+    bInterfaceProtocol: None (0x00)
+HID DESCRIPTOR
+    bLength: 9
+    bDescriptorType: 0x21 (HID)
+    bcdHID: 0x0110
+    bCountryCode: Not Supported (0x00)
+    bNumDescriptors: 1
+    bDescriptorType: HID Report (0x22)
+    wDescriptorLength: 55
+ENDPOINT DESCRIPTOR
+    bLength: 7
+    bDescriptorType: 0x05 (ENDPOINT)
+    bEndpointAddress: 0x82  IN  Endpoint:2
+    bmAttributes: 0x03
+    wMaxPacketSize: 8
+    bInterval: 1
+ENDPOINT DESCRIPTOR
+    bLength: 7
+    bDescriptorType: 0x05 (ENDPOINT)
+    bEndpointAddress: 0x02  OUT  Endpoint:2
+    bmAttributes: 0x03
+    wMaxPacketSize: 8
+    bInterval: 1
+
+## HID report descriptors, read on the Raspberry Pi (hex)
+interface 0 (keyboard, 63 bytes): 05 01 09 06 a1 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 01 75 08 81 03 95 06 75 08 15 00 25 e7 05 07 19 00 29 90 81 00 95 05 75 01 05 08 19 01 29 05 91 02 95 01 75 03 91 03 c0
+interface 1 (vendor, 55 bytes):   05 01 09 10 a1 01 05 07 85 ba 19 e0 29 e7 15 00 25 ff 75 07 95 08 81 02 85 ba 95 08 75 07 05 08 19 01 29 05 91 02 85 02 19 e0 29 e7 15 00 25 ff 75 07 95 08 81 02 c0
+interface 1 summary: report ID 0xBA in and out (7 bytes payload), report ID 0x02 in; endpoints 0x82 IN and 0x02 OUT, 8 bytes
