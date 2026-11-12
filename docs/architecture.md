@@ -129,6 +129,7 @@ interface ProductSuggestion {
 | `GET /api/v1/scans` | History |
 | `GET /api/v1/list` | List entries with their catalog items |
 | `PATCH /api/v1/list/:itemId` | State, quantity, note |
+| `DELETE /api/v1/list/:itemId` | Delete the entry; the web app uses it to remove a product from recent |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
 | `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) and `defaultIcon`, the icon the seed file gives a product of that name |
 | `GET /api/v1/sections` | Shop sections in display order |

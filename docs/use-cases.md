@@ -74,6 +74,8 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 - Search the catalog and add an item without scanning.
 - When the search finds no exact match, create the product from there: name, section, icon, emoji. It goes on the list at once.
 - Open a tile's menu to change the quantity with plus and minus, edit the note, or jump to the product's management page.
+- At quantity 1 the minus button takes the product off the list and moves it to *recent*, the same as checking it off.
+- A *recent* tile has a menu too: put it on the list, edit the product, or remove it from *recent* after a confirmation. Removing only clears it from the list page; the product and its barcodes stay.
 
 ## Oversight
 

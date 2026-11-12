@@ -60,6 +60,17 @@ async function checkFeedbackSettings(feedback: FeedbackService): Promise<void> {
     await assert.rejects(feedback.setSound('added', 'does-not-exist'));
 }
 
+async function checkRemoveFromList(list: ListService, catalogItemId: number): Promise<void> {
+    await list.change(catalogItemId, { state: 'to_buy', quantity: 2 });
+    assert.equal((await list.getSnapshot(catalogItemId))?.quantity, 2);
+
+    await list.remove(catalogItemId);
+    assert.equal(await list.getSnapshot(catalogItemId), undefined);
+    assert.equal((await list.getEntries()).some((entry) => entry.catalogItemId === catalogItemId), false);
+
+    await list.remove(catalogItemId);
+}
+
 describe('scan flow against a real database', () => {
     let app: INestApplicationContext;
     let scans: ScanService;
@@ -134,4 +145,6 @@ describe('scan flow against a real database', () => {
     });
 
     it('keeps a chosen sound per event and falls back to the default', () => checkFeedbackSettings(app.get(FeedbackService)));
+
+    it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));
 });

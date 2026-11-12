@@ -95,6 +95,10 @@ export class ShoppingStore {
         return this.api.changeListEntry(catalogItemId, change).pipe(switchMap(() => this.refreshListAndInbox()));
     }
 
+    public removeEntry(catalogItemId: number): Observable<void> {
+        return this.api.removeListEntry(catalogItemId).pipe(switchMap(() => this.refreshListAndInbox()));
+    }
+
     public mapBarcode(code: string, catalogItemId: number): Observable<void> {
         return this.api.mapBarcode(code, catalogItemId).pipe(switchMap(() => this.refreshListAndInbox()));
     }

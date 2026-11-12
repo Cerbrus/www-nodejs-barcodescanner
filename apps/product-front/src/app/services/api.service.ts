@@ -69,6 +69,10 @@ export class ApiService {
         return this.http.patch<ListEntry>(`${this.baseUrl}/list/${catalogItemId}`, change);
     }
 
+    public removeListEntry(catalogItemId: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/list/${catalogItemId}`);
+    }
+
     public getInbox(): Observable<Array<Barcode>> {
         return this.http.get<Array<Barcode>>(`${this.baseUrl}/barcodes`, { params: { unmapped: true } });
     }

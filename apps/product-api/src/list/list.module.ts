@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Module, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Module, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
@@ -38,6 +38,12 @@ export class ListController {
         @Body() change: ListEntryChangeDto
     ): Promise<ListEntryEntity> {
         return this.list.change(catalogItemId, change);
+    }
+
+    @Delete(':catalogItemId')
+    @HttpCode(204)
+    public remove(@Param('catalogItemId', ParseIntPipe) catalogItemId: number): Promise<void> {
+        return this.list.remove(catalogItemId);
     }
 }
 

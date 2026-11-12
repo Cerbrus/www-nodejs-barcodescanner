@@ -26,7 +26,14 @@
         "quantity": "Quantity",
         "note": "Note",
         "editItem": "Edit product",
-        "createAndAdd": "Create and add to the list"
+        "createAndAdd": "Create and add to the list",
+        "remove": "Remove from recent",
+        "removeConfirm": "Remove \"{name}\" from recent? The product itself stays.",
+        "less": "One less",
+        "more": "One more",
+        "toRecent": "Off the list, to recent",
+        "recentDetails": "Options",
+        "addToList": "Put on the list"
     },
     "scan": {
         "camera": {

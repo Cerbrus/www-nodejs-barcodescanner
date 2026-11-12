@@ -46,6 +46,10 @@ export class ListService {
         this.events.emit('list', { catalogItemId });
     }
 
+    public async remove(catalogItemId: number): Promise<void> {
+        await this.setSnapshot(catalogItemId, undefined);
+    }
+
     public async change(catalogItemId: number, change: ListEntryChange): Promise<ListEntryEntity> {
         if (!(await this.items.existsBy({ id: catalogItemId }))) {
             throw new NotFoundException(`Catalog item ${catalogItemId} does not exist`);

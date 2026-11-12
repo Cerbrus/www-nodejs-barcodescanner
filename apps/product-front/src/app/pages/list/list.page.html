@@ -51,7 +51,7 @@
                             [showDetails]="true"
                             [detailsLabel]="'list.details' | translate"
                             (selected)="checkOff(entry)"
-                            (details)="openItemId.set(entry.catalogItemId)"
+                            (details)="confirmingRemove.set(false); openItemId.set(entry.catalogItemId)"
                         />
                     </div>
                 }
@@ -63,7 +63,15 @@
         <h2 class="section-title">{{ 'list.recent' | translate }}</h2>
         <div class="tile-grid">
             @for (entry of store.recent(); track entry.catalogItemId) {
-                <app-item-tile tone="recent" [item]="entry.catalogItem" [note]="entry.note" (selected)="add(entry.catalogItem)" />
+                <app-item-tile
+                    tone="recent"
+                    [item]="entry.catalogItem"
+                    [note]="entry.note"
+                    [showDetails]="true"
+                    [detailsLabel]="'list.recentDetails' | translate"
+                    (selected)="add(entry.catalogItem)"
+                    (details)="confirmingRemove.set(false); openItemId.set(entry.catalogItemId)"
+                />
             } @empty {
                 <p class="empty col-span-full">{{ 'list.noRecent' | translate }}</p>
             }
@@ -72,42 +80,76 @@
 </div>
 
 @if (openEntry(); as entry) {
-    <app-sheet (closed)="openItemId.set(undefined)">
+    <app-sheet (closed)="closeEntry()">
         <h2 class="page-title">{{ entry.catalogItem.name }}</h2>
 
-        <span class="field-label">{{ 'list.quantity' | translate }}</span>
-        <div class="flex items-center gap-3">
-            <button type="button" class="btn" [disabled]="entry.quantity <= 1" (click)="changeQuantity(entry, -1)">
-                <i class="material-symbols-outlined">remove</i>
-            </button>
-            <span class="min-w-8 text-center text-xl font-bold">{{ entry.quantity }}</span>
-            <button type="button" class="btn" (click)="changeQuantity(entry, 1)">
-                <i class="material-symbols-outlined">add</i>
-            </button>
-        </div>
+        @if (entry.state === 'to_buy') {
+            <span class="field-label">{{ 'list.quantity' | translate }}</span>
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    class="btn"
+                    [attr.aria-label]="(entry.quantity <= 1 ? 'list.toRecent' : 'list.less') | translate"
+                    (click)="decrease(entry)"
+                >
+                    <i class="material-symbols-outlined">{{ entry.quantity <= 1 ? 'remove_shopping_cart' : 'remove' }}</i>
+                </button>
+                <span class="min-w-8 text-center text-xl font-bold">{{ entry.quantity }}</span>
+                <button type="button" class="btn" [attr.aria-label]="'list.more' | translate" (click)="changeQuantity(entry, 1)">
+                    <i class="material-symbols-outlined">add</i>
+                </button>
+            </div>
 
-        <label class="field-label" for="entry-note">{{ 'list.note' | translate }}</label>
-        <input
-            #note
-            id="entry-note"
-            class="field"
-            type="text"
-            maxlength="200"
-            [value]="entry.note"
-            (blur)="saveNote(entry, note.value)"
-            (keyup.enter)="saveNote(entry, note.value)"
-        />
+            <label class="field-label" for="entry-note">{{ 'list.note' | translate }}</label>
+            <input
+                #note
+                id="entry-note"
+                class="field"
+                type="text"
+                maxlength="200"
+                [value]="entry.note"
+                (blur)="saveNote(entry, note.value)"
+                (keyup.enter)="saveNote(entry, note.value)"
+            />
 
-        <div class="mt-4 flex flex-wrap gap-2">
-            <a class="btn" [routerLink]="['/catalog', entry.catalogItemId]">
-                <i class="material-symbols-outlined">edit</i>
-                {{ 'list.editItem' | translate }}
-            </a>
-            <button type="button" class="btn primary grow" (click)="saveNote(entry, note.value); openItemId.set(undefined)">
-                <i class="material-symbols-outlined">check</i>
-                {{ 'common.done' | translate }}
-            </button>
-        </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <a class="btn" [routerLink]="['/catalog', entry.catalogItemId]">
+                    <i class="material-symbols-outlined">edit</i>
+                    {{ 'list.editItem' | translate }}
+                </a>
+                <button type="button" class="btn primary grow" (click)="saveNote(entry, note.value); closeEntry()">
+                    <i class="material-symbols-outlined">check</i>
+                    {{ 'common.done' | translate }}
+                </button>
+            </div>
+        } @else if (confirmingRemove()) {
+            <p>{{ 'list.removeConfirm' | translate: { name: entry.catalogItem.name } }}</p>
+            <div class="mt-4 flex gap-2">
+                <button type="button" class="btn danger basis-0 grow" (click)="remove(entry)">
+                    <i class="material-symbols-outlined">delete</i>
+                    {{ 'list.remove' | translate }}
+                </button>
+                <button type="button" class="btn basis-0 grow" (click)="confirmingRemove.set(false)">
+                    <i class="material-symbols-outlined">close</i>
+                    {{ 'common.cancel' | translate }}
+                </button>
+            </div>
+        } @else {
+            <div class="flex flex-col gap-2">
+                <button type="button" class="btn primary" (click)="add(entry.catalogItem); closeEntry()">
+                    <i class="material-symbols-outlined">add_shopping_cart</i>
+                    {{ 'list.addToList' | translate }}
+                </button>
+                <a class="btn" [routerLink]="['/catalog', entry.catalogItemId]">
+                    <i class="material-symbols-outlined">edit</i>
+                    {{ 'list.editItem' | translate }}
+                </a>
+                <button type="button" class="btn danger" (click)="confirmingRemove.set(true)">
+                    <i class="material-symbols-outlined">delete</i>
+                    {{ 'list.remove' | translate }}
+                </button>
+            </div>
+        }
     </app-sheet>
 }
 

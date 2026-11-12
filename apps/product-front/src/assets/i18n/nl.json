@@ -26,7 +26,14 @@
         "quantity": "Aantal",
         "note": "Notitie",
         "editItem": "Product bewerken",
-        "createAndAdd": "Aanmaken en op de lijst zetten"
+        "createAndAdd": "Aanmaken en op de lijst zetten",
+        "remove": "Uit recent verwijderen",
+        "removeConfirm": "\"{name}\" uit recent verwijderen? Het product zelf blijft bestaan.",
+        "less": "Eén minder",
+        "more": "Eén meer",
+        "toRecent": "Van de lijst, naar recent",
+        "recentDetails": "Opties",
+        "addToList": "Op de lijst zetten"
     },
     "scan": {
         "camera": {

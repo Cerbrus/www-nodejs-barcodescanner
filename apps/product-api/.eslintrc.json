@@ -29,6 +29,14 @@
                 "*.jsx"
             ],
             "rules": {}
+        },
+        {
+            "files": [
+                "*.spec.ts"
+            ],
+            "rules": {
+                "max-lines-per-function": "off"
+            }
         }
     ]
 }

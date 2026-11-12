@@ -24,6 +24,7 @@ export class ListPage {
     protected readonly openItemId = signal<number | undefined>(undefined);
 
     protected readonly creatingName = signal<string | undefined>(undefined);
+    protected readonly confirmingRemove = signal(false);
 
     protected readonly canCreate = computed(() => {
         const term = this.search().trim().toLowerCase();
@@ -54,6 +55,25 @@ export class ListPage {
     protected add(item: CatalogItem): void {
         this.search.set('');
         this.store.changeEntry(item.id, { state: 'to_buy', quantity: 1 }).subscribe();
+    }
+
+    protected closeEntry(): void {
+        this.confirmingRemove.set(false);
+        this.openItemId.set(undefined);
+    }
+
+    protected decrease(entry: ListEntry): void {
+        if (entry.quantity <= 1) {
+            this.closeEntry();
+            this.checkOff(entry);
+        } else {
+            this.changeQuantity(entry, -1);
+        }
+    }
+
+    protected remove(entry: ListEntry): void {
+        this.closeEntry();
+        this.store.removeEntry(entry.catalogItemId).subscribe();
     }
 
     protected changeQuantity(entry: ListEntry, delta: number): void {
