@@ -5,7 +5,7 @@ const ART = String.raw`
 ━━▐█▌█━▌██▐━█▌▐█━█▌▌█▐█━▌█▌▐██━▌█▐▌━█▐█▌━━
   ▐█▌█ ▌██▐ █▌▐█ █▌▌█▐█ ▌█▌▐██ ▌█▐▌ █▐█▌
   ▐█▌█ ▌██▐ █▌▐█ █▌▌█▐█ ▌█▌▐██ ▌█▐▌ █▐█▌
-  ▐█▌  B O O D S C H A P P E N    █▐█▌
+  ▐█▌    B O O D S C H A P P E N    █▐█▌
 `;
 
 const ART_STYLE = 'color: #2dd4bf; font-family: ui-monospace, Menlo, Consolas, monospace; line-height: 1.05;';

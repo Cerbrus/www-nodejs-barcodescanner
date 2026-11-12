@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -19,6 +20,8 @@ export interface CatalogItemInput {
 @Injectable()
 export class CatalogService {
     private readonly iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icons');
+    private readonly seedPath = process.env['SEED_PATH'] ?? join(process.cwd(), 'data', 'seed-items.json');
+    private seedIcons?: Map<string, string>;
 
     constructor(
         @InjectRepository(SectionEntity) private readonly sections: Repository<SectionEntity>,
@@ -122,6 +125,20 @@ export class CatalogService {
                 .sort();
         } catch {
             return [];
+        }
+    }
+
+    public defaultIcon(name: string): string | undefined {
+        this.seedIcons ??= this.readSeedIcons();
+        return this.seedIcons.get(name.toLowerCase());
+    }
+
+    private readSeedIcons(): Map<string, string> {
+        try {
+            const seed = JSON.parse(readFileSync(this.seedPath, 'utf-8')) as { items: Array<{ name: string; icon?: string }> };
+            return new Map(seed.items.flatMap(({ name, icon }) => (icon ? [[name.toLowerCase(), icon] as const] : [])));
+        } catch {
+            return new Map();
         }
     }
 

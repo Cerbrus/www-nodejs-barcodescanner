@@ -19,7 +19,7 @@ const REFRESH_DELAY_MILLISECONDS = 200;
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
-            <a class="muted inline-flex items-center gap-1 text-sm" routerLink="/system">
+            <a class="back-bar" routerLink="/system">
                 <i class="material-symbols-outlined">arrow_back</i>
                 {{ 'nav.system' | translate }}
             </a>

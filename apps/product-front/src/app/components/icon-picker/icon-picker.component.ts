@@ -29,6 +29,12 @@ import { SheetComponent } from '../sheet/sheet.component';
                     <i class="material-symbols-outlined">block</i>
                     <span>{{ 'icons.none' | translate }}</span>
                 </button>
+                @if (suggested(); as name) {
+                    <button type="button" class="icon" [class.selected]="name === selected()" [title]="name" (click)="picked.emit(name)">
+                        <img alt="" [src]="iconsUrl + '/' + name + '.png'" />
+                        <span>{{ 'icons.standard' | translate }}</span>
+                    </button>
+                }
                 @for (name of matches(); track name) {
                     <button type="button" class="icon" [class.selected]="name === selected()" [title]="name" (click)="picked.emit(name)">
                         <img loading="lazy" alt="" [src]="iconsUrl + '/' + name + '.png'" />
@@ -62,6 +68,7 @@ import { SheetComponent } from '../sheet/sheet.component';
 })
 export class IconPickerComponent {
     public readonly selected = input('');
+    public readonly suggested = input<string | undefined>(undefined);
     public readonly picked = output<string>();
     public readonly closed = output<void>();
 

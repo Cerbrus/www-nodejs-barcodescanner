@@ -19,29 +19,40 @@
     --tile-recent: #2f855a;
     --tile-neutral: #5b6779;
     --tile-text: #fff;
-    --badge: #fbbf24;
-    --badge-text: #1c2330;
     --warning: #fbbf24;
     --warning-text: #1c2330;
     --danger: #dc2626;
     --toast: #1f2937;
     --toast-text: #fff;
-    color-scheme: light dark;
+    color-scheme: light;
+}
+
+@mixin dark-theme {
+    --page: #111418;
+    --surface: #1a1f26;
+    --text: #e8eaed;
+    --text-muted: #9aa3af;
+    --line: #2a313b;
+    --accent: #2dd4bf;
+    --accent-text: #0b1512;
+    --tile-buy: #b03a2e;
+    --tile-recent: #2a7a52;
+    --tile-neutral: #465163;
+    color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --page: #111418;
-        --surface: #1a1f26;
-        --text: #e8eaed;
-        --text-muted: #9aa3af;
-        --line: #2a313b;
-        --accent: #2dd4bf;
-        --accent-text: #0b1512;
-        --tile-buy: #b03a2e;
-        --tile-recent: #2a7a52;
-        --tile-neutral: #465163;
+    :root:not([data-theme='light']) {
+        @include dark-theme;
     }
+}
+
+:root[data-theme='dark'] {
+    @include dark-theme;
+}
+
+* {
+    touch-action: manipulation;
 }
 
 html,
@@ -62,6 +73,20 @@ body {
     max-width: 720px;
     margin: 0 auto;
     padding: 12px 12px 24px;
+}
+
+.back-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: -12px -12px 4px;
+    padding: 10px 12px;
+    background: var(--page);
+    color: var(--text-muted);
+    font-size: 0.875rem;
 }
 
 .page-title {

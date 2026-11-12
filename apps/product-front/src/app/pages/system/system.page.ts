@@ -6,10 +6,16 @@ import { catchError, of } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
+import { Theme, ThemeService } from '../../services/theme.service';
 
 const LANGUAGES = ['nl', 'en'] as const;
 const LANGUAGE_STORAGE_KEY = 'language';
 const VERSION_LENGTH = 7;
+const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
+    { theme: 'auto', icon: 'brightness_auto' },
+    { theme: 'light', icon: 'light_mode' },
+    { theme: 'dark', icon: 'dark_mode' }
+];
 
 @Component({
     selector: 'app-system-page',
@@ -47,6 +53,21 @@ const VERSION_LENGTH = 7;
                 }
             </div>
 
+            <h2 class="section-title">{{ 'system.theme' | translate }}</h2>
+            <div class="flex gap-2">
+                @for (option of themeOptions; track option.theme) {
+                    <button
+                        type="button"
+                        class="btn basis-0 grow"
+                        [class.primary]="theme.theme() === option.theme"
+                        (click)="theme.use(option.theme)"
+                    >
+                        <i class="material-symbols-outlined">{{ option.icon }}</i>
+                        {{ 'theme.' + option.theme | translate }}
+                    </button>
+                }
+            </div>
+
             <h2 class="section-title">{{ 'system.status' | translate }}</h2>
             <div class="card text-sm">
                 <p>
@@ -63,7 +84,9 @@ const VERSION_LENGTH = 7;
 })
 export class SystemPage {
     protected readonly events = inject(EventsService);
+    protected readonly theme = inject(ThemeService);
     protected readonly languages = LANGUAGES;
+    protected readonly themeOptions = THEME_OPTIONS;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');
 
     protected readonly health = toSignal(

@@ -29,41 +29,14 @@
 
     @if (newName(); as name) {
         <div class="card mt-3">
-            <div class="flex items-center gap-3">
-                <span class="h-12 w-12 shrink-0 rounded-xl p-1.5" style="background: var(--tile-neutral); color: var(--tile-text)">
-                    <app-item-icon [item]="newPreview()" />
-                </span>
-                <p class="grow font-semibold">{{ 'naming.newItem' | translate: { name } }}</p>
-                <button type="button" class="btn" [attr.aria-label]="'common.cancel' | translate" (click)="newName.set(undefined)">
-                    <i class="material-symbols-outlined">close</i>
-                </button>
-            </div>
-
-            <label class="field-label" for="naming-section">{{ 'item.section' | translate }}</label>
-            <select id="naming-section" class="field" [ngModel]="newSectionId()" (ngModelChange)="newSectionId.set($event)">
-                @for (section of store.sections(); track section.id) {
-                    <option [value]="section.id">{{ section.emoji }} {{ section.name }}</option>
-                }
-            </select>
-
-            <div class="flex items-end gap-3">
-                <div class="grow">
-                    <span class="field-label">{{ 'item.icon' | translate }}</span>
-                    <button type="button" class="btn w-full !justify-start" (click)="pickingIcon.set(true)">
-                        <i class="material-symbols-outlined">image</i>
-                        {{ 'item.chooseIcon' | translate }}
-                    </button>
-                </div>
-                <div class="w-24">
-                    <label class="field-label" for="naming-emoji">{{ 'item.emoji' | translate }}</label>
-                    <input id="naming-emoji" class="field" type="text" maxlength="8" [ngModel]="newEmoji()" (ngModelChange)="newEmoji.set($event)" />
-                </div>
-            </div>
-
-            <button type="button" class="btn primary mt-3 w-full" [disabled]="busy()" (click)="create()">
-                <i class="material-symbols-outlined">add_link</i>
-                {{ 'naming.createAndLink' | translate }}
-            </button>
+            <app-new-item-form
+                submitIcon="add_link"
+                [initialName]="name"
+                [hint]="suggestionText()"
+                [submitLabel]="'naming.createAndLink' | translate"
+                (created)="choose($event)"
+                (cancelled)="newName.set(undefined)"
+            />
         </div>
     } @else {
         <span class="field-label">{{ 'naming.searchLabel' | translate }}</span>
@@ -72,7 +45,7 @@
             [allowCreate]="true"
             [(text)]="search"
             (picked)="choose($event)"
-            (create)="startCreating($event)"
+            (create)="newName.set($event)"
         />
     }
 
@@ -87,7 +60,3 @@
         </button>
     </div>
 </app-sheet>
-
-@if (pickingIcon()) {
-    <app-icon-picker [selected]="newIcon()" (picked)="chooseIcon($event)" (closed)="pickingIcon.set(false)" />
-}

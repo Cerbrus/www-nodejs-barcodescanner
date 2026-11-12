@@ -17,6 +17,12 @@
                 <p class="empty col-span-full">{{ 'list.noSearchResults' | translate }}</p>
             }
         </div>
+        @if (canCreate()) {
+            <button type="button" class="btn mt-3 w-full" (click)="creatingName.set(search().trim())">
+                <i class="material-symbols-outlined">add_circle</i>
+                {{ 'naming.newItem' | translate: { name: search().trim() } }}
+            </button>
+        }
     } @else if (!store.loaded()) {
         <p class="empty">{{ 'common.loading' | translate }}</p>
     } @else {
@@ -94,5 +100,17 @@
                 {{ 'common.done' | translate }}
             </button>
         </div>
+    </app-sheet>
+}
+
+@if (creatingName(); as name) {
+    <app-sheet (closed)="creatingName.set(undefined)">
+        <h2 class="page-title">{{ 'naming.newItem' | translate: { name } }}</h2>
+        <app-new-item-form
+            [initialName]="name"
+            [submitLabel]="'list.createAndAdd' | translate"
+            (created)="creatingName.set(undefined); add($event)"
+            (cancelled)="creatingName.set(undefined)"
+        />
     </app-sheet>
 }

@@ -1,5 +1,5 @@
 <div class="page">
-    <a class="muted inline-flex items-center gap-1 text-sm" routerLink="/catalog">
+    <a class="back-bar" routerLink="/catalog">
         <i class="material-symbols-outlined">arrow_back</i>
         {{ 'catalog.title' | translate }}
     </a>
@@ -116,5 +116,5 @@
 </div>
 
 @if (pickingIcon()) {
-    <app-icon-picker [selected]="icon()" (picked)="chooseIcon($event)" (closed)="pickingIcon.set(false)" />
+    <app-icon-picker [selected]="icon()" [suggested]="item()?.defaultIcon" (picked)="chooseIcon($event)" (closed)="pickingIcon.set(false)" />
 }

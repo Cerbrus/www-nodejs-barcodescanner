@@ -17,8 +17,8 @@ export interface LogLine {
 }
 
 const MAX_LINES = 500;
-const MAX_FILE_BYTES = 1024 * 1024;
-const MAX_OLD_FILES = 5;
+const MAX_FILE_BYTES = 256 * 1024;
+const MAX_OLD_FILES = 3;
 const LOG_FILE = process.env['LOG_PATH'] ?? join(dirname(process.env['DATABASE_PATH'] ?? join(process.cwd(), 'data', 'app.db')), 'logs', 'app.log');
 const STARTUP_NOISE = ['RouterExplorer', 'RoutesResolver', 'InstanceLoader'];
 

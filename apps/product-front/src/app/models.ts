@@ -17,6 +17,7 @@ export interface CatalogItem {
     icon?: string;
     emoji?: string;
     custom: boolean;
+    defaultIcon?: string;
     section?: Section;
     barcodes?: Array<Barcode>;
 }

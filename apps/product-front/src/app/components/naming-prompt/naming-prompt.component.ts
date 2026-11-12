@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, switchMap, tap } from 'rxjs';
 
@@ -8,32 +7,16 @@ import { Barcode, CatalogItem, ProductSuggestion } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
 import { ShoppingStore } from '../../services/shopping.store';
-import { IconPickerComponent } from '../icon-picker/icon-picker.component';
 import { ItemAutocompleteComponent } from '../item-autocomplete/item-autocomplete.component';
-import { ItemIconComponent } from '../item-icon/item-icon.component';
+import { NewItemFormComponent } from '../new-item-form/new-item-form.component';
 import { SheetComponent } from '../sheet/sheet.component';
-
-const SECTION_KEYWORDS: Record<string, Array<string>> = {
-    'zuivel': ['zuivel', 'melk', 'milk', 'kaas', 'cheese', 'yoghurt', 'yogurt', 'dair', 'eieren', 'egg', 'boter', 'butter'],
-    'dranken': ['drank', 'cola', 'sap', 'juice', 'bier', 'beer', 'wijn', 'wine', 'water', 'koffie', 'coffee', 'thee', 'tea', 'beverage', 'drink', 'soda'],
-    'brood-gebak': ['brood', 'bread', 'bakker', 'gebak', 'bakery', 'pastr'],
-    'vlees-vis': ['vlees', 'meat', 'vis', 'fish', 'kip', 'chicken', 'worst', 'sausage', 'vega'],
-    'fruit-groenten': ['fruit', 'groente', 'vegetable', 'aardappel', 'potato', 'salade', 'salad'],
-    'graanproducten': ['pasta', 'rijst', 'rice', 'ontbijtgranen', 'cereal', 'muesli', 'noodle', 'meel', 'flour'],
-    'snacks-snoep': ['snoep', 'candy', 'chips', 'koek', 'cookie', 'biscuit', 'chocola', 'snack', 'beleg', 'spread', 'jam', 'sweet'],
-    'gereed-diepvries': ['diepvries', 'frozen', 'maaltijd', 'meal', 'pizza', 'soep', 'soup', 'ijs'],
-    'ingredienten-kruiden': ['kruiden', 'spice', 'saus', 'sauce', 'olie', 'oil', 'conserven', 'canned', 'bakken', 'baking', 'suiker', 'sugar', 'azijn'],
-    'huishouden': ['huishoud', 'household', 'schoonmaak', 'clean', 'wasmiddel', 'laundry', 'afwas', 'papier'],
-    'verzorging-gezondheid': ['verzorging', 'drogist', 'care', 'hygi', 'shampoo', 'tand', 'health', 'baby'],
-    'dierenvoeding': ['dier', 'huisdier', 'pet', 'kat', 'hond']
-};
 
 export type NamingOutcome = { kind: 'linked'; item: CatalogItem } | { kind: 'later' } | { kind: 'discarded' };
 
 @Component({
     selector: 'app-naming-prompt',
     standalone: true,
-    imports: [FormsModule, TranslateModule, IconPickerComponent, ItemAutocompleteComponent, ItemIconComponent, SheetComponent],
+    imports: [TranslateModule, ItemAutocompleteComponent, NewItemFormComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './naming-prompt.component.html'
 })
@@ -45,29 +28,15 @@ export class NamingPromptComponent {
     protected readonly barcode = signal<Barcode | undefined>(undefined);
     protected readonly search = signal('');
     protected readonly newName = signal<string | undefined>(undefined);
-    protected readonly newSectionId = signal('');
-    protected readonly newIcon = signal('');
-    protected readonly newEmoji = signal('');
-    protected readonly pickingIcon = signal(false);
     protected readonly busy = signal(false);
 
     protected readonly suggestions = computed(() => this.barcode()?.suggestions ?? []);
     protected readonly lookupPending = computed(() => this.barcode() !== undefined && !this.barcode()?.suggestions);
-    protected readonly newPreview = computed(() => ({
-        name: this.newName() ?? '?',
-        icon: this.newIcon() || undefined,
-        emoji: this.newEmoji() || undefined
-    }));
-
-    protected readonly suggestedSectionId = computed(() => {
-        const text = this.suggestions()
+    protected readonly suggestionText = computed(() =>
+        this.suggestions()
             .map((suggestion) => `${suggestion.category ?? ''} ${suggestion.title}`)
             .join(' ')
-            .toLowerCase();
-        const match = Object.entries(SECTION_KEYWORDS).find(([, keywords]) => keywords.some((word) => text.includes(word)));
-
-        return match?.[0];
-    });
+    );
 
     private readonly api = inject(ApiService);
     private readonly events = inject(EventsService);
@@ -103,38 +72,6 @@ export class NamingPromptComponent {
         this.store
             .mapBarcode(this.code(), item.id)
             .pipe(tap(() => this.closed.emit({ kind: 'linked', item })))
-            .subscribe();
-    }
-
-    protected startCreating(name: string): void {
-        this.newSectionId.set(this.suggestedSectionId() ?? this.store.sections()[0]?.id ?? '');
-        this.newName.set(name);
-    }
-
-    protected chooseIcon(icon: string): void {
-        this.newIcon.set(icon);
-        this.pickingIcon.set(false);
-    }
-
-    protected create(): void {
-        const name = this.newName()?.trim();
-        if (!name || !this.newSectionId()) {
-            return;
-        }
-
-        this.busy.set(true);
-        this.store
-            .createItem({
-                name,
-                sectionId: this.newSectionId(),
-                icon: this.newIcon() || undefined,
-                emoji: this.newEmoji().trim() || undefined
-            })
-            .pipe(
-                switchMap((item) =>
-                    this.store.mapBarcode(this.code(), item.id).pipe(tap(() => this.closed.emit({ kind: 'linked', item })))
-                )
-            )
             .subscribe();
     }
 

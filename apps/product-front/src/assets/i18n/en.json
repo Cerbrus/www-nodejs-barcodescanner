@@ -24,7 +24,8 @@
         "details": "Quantity and note",
         "quantity": "Quantity",
         "note": "Note",
-        "editItem": "Edit product"
+        "editItem": "Edit product",
+        "createAndAdd": "Create and add to the list"
     },
     "scan": {
         "camera": {
@@ -108,12 +109,19 @@
         "language": "Language",
         "status": "Status",
         "connection": "Connection",
-        "version": "Version"
+        "version": "Version",
+        "theme": "Appearance"
     },
     "icons": {
         "title": "Pick an icon",
         "search": "Search…",
         "none": "None",
-        "noResults": "No icon found"
+        "noResults": "No icon found",
+        "standard": "Standard"
+    },
+    "theme": {
+        "auto": "Automatic",
+        "light": "Light",
+        "dark": "Dark"
     }
 }

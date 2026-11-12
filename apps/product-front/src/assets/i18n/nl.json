@@ -24,7 +24,8 @@
         "details": "Aantal en notitie",
         "quantity": "Aantal",
         "note": "Notitie",
-        "editItem": "Product bewerken"
+        "editItem": "Product bewerken",
+        "createAndAdd": "Aanmaken en op de lijst zetten"
     },
     "scan": {
         "camera": {
@@ -108,12 +109,19 @@
         "language": "Taal",
         "status": "Status",
         "connection": "Verbinding",
-        "version": "Versie"
+        "version": "Versie",
+        "theme": "Weergave"
     },
     "icons": {
         "title": "Kies een icoon",
         "search": "Zoeken (Engelse namen)…",
         "none": "Geen",
-        "noResults": "Geen icoon gevonden"
+        "noResults": "Geen icoon gevonden",
+        "standard": "Standaard"
+    },
+    "theme": {
+        "auto": "Automatisch",
+        "light": "Licht",
+        "dark": "Donker"
     }
 }

@@ -82,8 +82,9 @@ export class CatalogController {
     }
 
     @Get(':id')
-    public getItem(@Param('id', ParseIntPipe) id: number): Promise<CatalogItemEntity> {
-        return this.catalog.getItem(id);
+    public async getItem(@Param('id', ParseIntPipe) id: number): Promise<CatalogItemEntity & { defaultIcon?: string }> {
+        const item = await this.catalog.getItem(id);
+        return { ...item, defaultIcon: this.catalog.defaultIcon(item.name) };
     }
 
     @Post()
