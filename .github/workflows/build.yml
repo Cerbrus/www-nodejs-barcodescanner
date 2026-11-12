@@ -26,8 +26,24 @@ jobs:
             -   name: Work out the version
                 id: version
                 run: |
-                    echo "version=$(bash .github/scripts/version.sh)" >> "$GITHUB_OUTPUT"
-                    echo "built=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+                    VERSION=$(bash .github/scripts/version.sh)
+                    BUILT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+                    echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+                    echo "built=$BUILT" >> "$GITHUB_OUTPUT"
+                    {
+                        echo "## Version $VERSION"
+                        echo
+                        echo "| | |"
+                        echo "|---|---|"
+                        echo "| Commit | \`${GITHUB_SHA::7}\` |"
+                        echo "| Built | $BUILT |"
+                        if [ "$GITHUB_EVENT_NAME" = push ]; then
+                            echo "| Published | images tagged latest and $VERSION, git tag v$VERSION |"
+                        else
+                            echo "| Published | no: pull request, build only |"
+                        fi
+                    } >> "$GITHUB_STEP_SUMMARY"
+                    echo "::notice title=Version::$VERSION"
             -   uses: actions/setup-node@v4
                 with:
                     node-version: 24
@@ -38,6 +54,7 @@ jobs:
             -   run: yarn product-api:test:integration
 
     images:
+        name: ${{ matrix.name }} image ${{ needs.checks.outputs.version }}
         needs: checks
         runs-on: ubuntu-24.04-arm
         strategy:
@@ -82,6 +99,7 @@ jobs:
                     cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
     tag:
+        name: tag v${{ needs.checks.outputs.version }}
         needs: [ checks, images ]
         if: github.event_name == 'push'
         runs-on: ubuntu-latest
