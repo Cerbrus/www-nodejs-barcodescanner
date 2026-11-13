@@ -24,7 +24,7 @@ Weight: **A** affects daily use or safety, **B** worth doing, **C** nice to have
 | W2 | Use case UC-1 says any open page shows a toast with an undo button after a handheld scan. No code does that; the page only refreshes its data. | A | Built: `feature/web-feedback` |
 | W3 | Checking off is one tap on a tile, so a mis-tap happens, and there is no undo except finding the tile under "recent". | B | Built: `feature/web-feedback` |
 | W4 | After logout or an expired session the page keeps trying to reopen the event stream every 3 seconds, forever. | C | Built: `feature/web-feedback` |
-| W5 | The web app has no automated tests at all. Every change is checked by hand, mostly by the owner on the phone. | B | Planned, see "Plans" |
+| W5 | The web app has no automated tests at all. Every change is checked by hand, mostly by the owner on the phone. | B | Planned: milestone 9 in [plan.md](plan.md) |
 | W6 | Shopping without a connection (milestone 8) is not built; in a shop with poor signal the list does not load. | A | Read-only part built after the first report: branch `feature/offline-read`. Changing the list offline is planned in [offline-plan.md](offline-plan.md) and needs the owner's choices |
 | W7 | No one has checked the pages with a screen reader or at large text sizes. | C | Noted |
 

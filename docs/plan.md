@@ -99,6 +99,17 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 02:08, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
 - Built on the same branch, not released: changes to the list without a connection, queued and sent on reconnect; see [offline-plan.md](offline-plan.md). Open: trying it on the phone in a shop.
 
+### 9. Tests for the web app: open
+
+The API and the hardware agent are tested; the web app is not. Every change to it is checked by hand, in a browser or on the phone. Wanted, in this order:
+
+1. A test runner for the web app that needs no browser window, added to the `checks` job.
+2. Tests where the logic is: the shopping store (grouping, refresh on events, the offline snapshot and outbox), the autocomplete (ranking, the create option), the event stream's reconnect rules, the drawn barcodes (check digits), the failed-change interceptor.
+3. Component tests for the pieces with behaviour of their own: naming prompt, new-product form, icon picker, list page with its sheets.
+4. One end-to-end run in a headless browser against the built image, login off: scan by typing a code, name it, check it off, undo; and the same list without a connection.
+
+Requested by the owner on 2026-11-13. The choice of runner is open; it should follow the Angular and Nx versions after their upgrade, so this comes after the package work.
+
 ## Open points
 
 | Point | Needed by |
