@@ -217,5 +217,9 @@
         "notFound": "This no longer exists; the page will update",
         "conflict": "A product with this name already exists",
         "generic": "Something went wrong; the change was not saved"
+    },
+    "offline": {
+        "waiting": "{count, plural, one {# change waiting} other {# changes waiting}}",
+        "serverWon": "List updated from the server"
     }
 }

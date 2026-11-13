@@ -18,10 +18,12 @@ import {
     ScanOutcome,
     Section
 } from '../models';
-import { QUIET_FAILURE } from './failed-change.interceptor';
+import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
+import { PendingChange } from './outbox';
 import { SettingsService } from './settings/settings.service';
 
 const QUIET = new HttpContext().set(QUIET_FAILURE, true);
+const QUEUED_WITHOUT_CONNECTION = new HttpContext().set(QUIET_WITHOUT_CONNECTION, true);
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -73,7 +75,11 @@ export class ApiService {
     }
 
     public changeListEntry(catalogItemId: number, change: ListEntryChange): Observable<ListEntry> {
-        return this.http.patch<ListEntry>(`${this.baseUrl}/list/${catalogItemId}`, change);
+        return this.http.patch<ListEntry>(`${this.baseUrl}/list/${catalogItemId}`, change, { context: QUEUED_WITHOUT_CONNECTION });
+    }
+
+    public sendOfflineChanges(changes: Array<PendingChange>): Observable<{ applied: number; skipped: Array<number> }> {
+        return this.http.post<{ applied: number; skipped: Array<number> }>(`${this.baseUrl}/list/offline-changes`, { changes }, { context: QUIET });
     }
 
     public removeListEntry(catalogItemId: number): Observable<void> {

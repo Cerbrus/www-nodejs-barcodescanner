@@ -1,10 +1,14 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, debounceTime, filter, forkJoin, interval, map, of, switchMap, tap } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable, catchError, debounceTime, defer, filter, forkJoin, fromEvent, interval, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { Barcode, CatalogItem, CatalogItemInput, ListEntry, ListEntryChange, Section } from '../models';
 import { ApiService } from './api.service';
 import { EventsService } from './events.service';
+import { PendingChange, loadOutbox, saveOutbox } from './outbox';
 import { loadSnapshot, saveSnapshot } from './snapshot';
+import { ToastService } from './toast.service';
 
 export interface SectionGroup<T> {
     section: Section;
@@ -13,6 +17,7 @@ export interface SectionGroup<T> {
 
 const REFRESH_DELAY_MILLISECONDS = 150;
 const RETRY_MILLISECONDS = 5000;
+const NO_CONNECTION = 0;
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingStore {
@@ -24,6 +29,8 @@ export class ShoppingStore {
     public readonly failed = signal(false);
     public readonly settled = signal(false);
     public readonly updatedAt = signal<string | undefined>(undefined);
+    public readonly pending = signal<Array<PendingChange>>(loadOutbox());
+    public readonly pendingIds = computed(() => new Set(this.pending().map((change) => change.catalogItemId)));
 
     public readonly toBuy = computed(() => this.entries().filter((entry) => entry.state === 'to_buy'));
     public readonly recent = computed(() => this.entries().filter((entry) => entry.state === 'recent'));
@@ -33,6 +40,8 @@ export class ShoppingStore {
 
     private readonly api = inject(ApiService);
     private readonly events = inject(EventsService);
+    private readonly toasts = inject(ToastService);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         this.restore();
@@ -55,6 +64,9 @@ export class ShoppingStore {
             .subscribe();
 
         this.events.resumed.pipe(switchMap(() => this.refreshAll())).subscribe();
+        fromEvent(window, 'online')
+            .pipe(switchMap(() => this.refreshAll()))
+            .subscribe();
 
         interval(RETRY_MILLISECONDS)
             .pipe(
@@ -69,7 +81,8 @@ export class ShoppingStore {
     }
 
     public refreshAll(): Observable<void> {
-        return forkJoin([this.api.getSections(), this.api.getCatalog(), this.api.getList(), this.api.getInbox()]).pipe(
+        return this.sendPending().pipe(
+            switchMap(() => forkJoin([this.api.getSections(), this.api.getCatalog(), this.api.getList(), this.api.getInbox()])),
             tap(([sections, items, entries, inbox]) => {
                 this.sections.set(sections);
                 this.items.set(items);
@@ -84,7 +97,8 @@ export class ShoppingStore {
     }
 
     public refreshListAndInbox(): Observable<void> {
-        return forkJoin([this.api.getList(), this.api.getInbox()]).pipe(
+        return this.sendPending().pipe(
+            switchMap(() => forkJoin([this.api.getList(), this.api.getInbox()])),
             tap(([entries, inbox]) => {
                 this.entries.set(entries);
                 this.inbox.set(inbox);
@@ -96,7 +110,19 @@ export class ShoppingStore {
     }
 
     public changeEntry(catalogItemId: number, change: ListEntryChange): Observable<void> {
-        return this.api.changeListEntry(catalogItemId, change).pipe(switchMap(() => this.refreshListAndInbox()));
+        if (this.pending().length || !navigator.onLine) {
+            return this.keepForLater(catalogItemId, change);
+        }
+
+        return this.api.changeListEntry(catalogItemId, change).pipe(
+            switchMap(() => this.refreshListAndInbox()),
+            catchError((error: HttpErrorResponse) => (error.status === NO_CONNECTION ? this.keepForLater(catalogItemId, change) : throwError(() => error)))
+        );
+    }
+
+    public forgetLocalData(): void {
+        this.pending.set([]);
+        saveOutbox([]);
     }
 
     public removeEntry(catalogItemId: number): Observable<void> {
@@ -111,6 +137,61 @@ export class ShoppingStore {
         return this.api
             .createCatalogItem(input)
             .pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
+    }
+
+    private keepForLater(catalogItemId: number, change: ListEntryChange): Observable<void> {
+        this.pending.update((pending) => [...pending, { ...change, catalogItemId, changedAt: new Date().toISOString() }]);
+        saveOutbox(this.pending());
+        this.entries.update((entries) => this.withLocalChange(entries, catalogItemId, change));
+        this.saveSnapshotNow(this.updatedAt() ?? new Date().toISOString());
+        this.failed.set(true);
+        this.settled.set(true);
+
+        return of(undefined);
+    }
+
+    private withLocalChange(entries: Array<ListEntry>, catalogItemId: number, change: ListEntryChange): Array<ListEntry> {
+        const current = entries.find((entry) => entry.catalogItemId === catalogItemId);
+        const catalogItem = current?.catalogItem ?? this.itemById(catalogItemId);
+        if (!catalogItem) {
+            return entries;
+        }
+
+        const state = change.state ?? current?.state ?? 'to_buy';
+        const changed: ListEntry = {
+            catalogItemId,
+            catalogItem,
+            state,
+            quantity: state === 'recent' ? 0 : Math.max(1, change.quantity ?? current?.quantity ?? 1),
+            note: change.note ?? current?.note ?? '',
+            updatedAt: new Date().toISOString()
+        };
+
+        return [changed, ...entries.filter((entry) => entry.catalogItemId !== catalogItemId)];
+    }
+
+    private sendPending(): Observable<void> {
+        return defer(() => {
+            const changes = this.pending();
+            if (!changes.length) {
+                return of(undefined);
+            }
+
+            return this.api.sendOfflineChanges(changes).pipe(
+                tap((result) => {
+                    this.pending.update((pending) => pending.slice(changes.length));
+                    saveOutbox(this.pending());
+                    if (result.skipped.length) {
+                        this.toasts.show({ kind: 'attention', text: this.translate.instant('offline.serverWon') });
+                    }
+                }),
+                map(() => undefined)
+            );
+        });
+    }
+
+    private saveSnapshotNow(savedAt: string): void {
+        saveSnapshot({ savedAt, sections: this.sections(), items: this.items(), entries: this.entries(), inbox: this.inbox() });
     }
 
     private restore(): void {
@@ -132,7 +213,7 @@ export class ShoppingStore {
         this.failed.set(false);
         this.settled.set(true);
         this.updatedAt.set(savedAt);
-        saveSnapshot({ savedAt, sections: this.sections(), items: this.items(), entries: this.entries(), inbox: this.inbox() });
+        this.saveSnapshotNow(savedAt);
     }
 
     private markFailed(): Observable<void> {

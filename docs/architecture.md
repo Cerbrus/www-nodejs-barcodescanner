@@ -143,7 +143,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 - `index.html` paints the page background in the right theme and the outline of the navigation bar before the scripts run, so a cold start or reload does not flash an empty screen.
 - Installable: `assets/manifest.webmanifest`, the home-screen icons and the titles in `index.html`.
 - `src/sw.js` is the service worker. It handles notifications, and keeps the files of the web app so the app starts without a connection: the page itself comes from the network when there is one and from the cache otherwise; files with a version in their name come from the cache; other files come from the cache and are refreshed in the background. It never touches API calls.
-- **Without a connection** the list is shown from a snapshot of the last loaded data, kept in the browser's storage and removed at logout. The banner says from when the list is. Changes are not possible offline yet: a tap shows "no connection".
+- **Without a connection** the list is shown from a snapshot of the last loaded data, kept in the browser's storage and removed at logout. The banner says from when the list is. Checking off, putting back, quantity and note also work offline: the change is shown at once, marked with a small clock on the tile, and kept in an outbox in the browser's storage with the moment it was made. When the connection returns the outbox is sent in order to `POST /api/v1/list/offline-changes`, before the list is reloaded. The server applies each change unless that list entry was changed on the server after the change was made; then the server's state stays and the page says the list was updated from the server. Scanning, naming, creating and removing products need a connection.
 
 ## Data model
 
@@ -206,6 +206,7 @@ interface ProductSuggestion {
 | `GET /api/v1/scans` | History |
 | `GET /api/v1/list` | List entries with their catalog items |
 | `PATCH /api/v1/list/:itemId` | State, quantity, note |
+| `POST /api/v1/list/offline-changes` | Changes made without a connection, each with its time; answers how many were applied and which entries the server kept |
 | `DELETE /api/v1/list/:itemId` | Delete the entry; the web app uses it to remove a product from recent |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
 | `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) and `defaultIcon`, the icon the seed file gives a product of that name |

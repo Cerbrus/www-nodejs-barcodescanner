@@ -12,6 +12,16 @@ export interface ListEntryChange {
     note?: string;
 }
 
+export interface OfflineChange extends ListEntryChange {
+    catalogItemId: number;
+    changedAt: Date;
+}
+
+export interface OfflineResult {
+    applied: number;
+    skipped: Array<number>;
+}
+
 @Injectable()
 export class ListService {
     constructor(
@@ -47,6 +57,25 @@ export class ListService {
     public async remove(catalogItemId: number): Promise<void> {
         await this.writeSnapshot(catalogItemId, undefined);
         this.events.emit('list', { catalogItemId });
+    }
+
+    public async applyOffline(changes: Array<OfflineChange>): Promise<OfflineResult> {
+        const skipped = new Set<number>();
+        let applied = 0;
+
+        for (const { catalogItemId, changedAt, ...change } of changes) {
+            const current = await this.entries.findOneBy({ catalogItemId });
+            const changedOnServerSince = current !== null && current.updatedAt.getTime() > changedAt.getTime();
+            if (changedOnServerSince || !(await this.items.existsBy({ id: catalogItemId }))) {
+                skipped.add(catalogItemId);
+                continue;
+            }
+
+            await this.change(catalogItemId, change);
+            applied++;
+        }
+
+        return { applied, skipped: [...skipped] };
     }
 
     public async change(catalogItemId: number, change: ListEntryChange): Promise<ListEntryEntity> {

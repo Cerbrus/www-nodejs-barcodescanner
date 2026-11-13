@@ -6,6 +6,9 @@
             @if (store.updatedAt(); as updatedAt) {
                 · {{ 'common.listFrom' | translate: { time: (updatedAt | date: 'd MMM HH:mm') } }}
             }
+            @if (store.pending().length; as count) {
+                · {{ 'offline.waiting' | translate: { count } }}
+            }
         </span>
     </div>
 }

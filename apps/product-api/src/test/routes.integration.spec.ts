@@ -147,6 +147,35 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('DELETE', `/list/${milkId}`, asUser)).status, 204);
     });
 
+    it('applies changes made offline in order, unless the server changed the entry later', async () => {
+        const butter = (await call<Array<{ id: number; name: string }>>('GET', '/catalog', asUser)).body.find((item) => item.name === 'Boter')?.id as number;
+        const at = (secondsAgo: number): string => new Date(Date.now() - secondsAgo * 1000).toISOString();
+        type Entry = { catalogItemId: number; state: string; quantity: number };
+        const entryOf = async (id: number): Promise<Entry | undefined> =>
+            (await call<Array<Entry>>('GET', '/list', asUser)).body.find((entry) => entry.catalogItemId === id);
+
+        await call('PATCH', `/list/${butter}`, asUser, { state: 'to_buy', quantity: 1 });
+        const sent = await call<{ applied: number; skipped: Array<number> }>('POST', '/list/offline-changes', asUser, {
+            changes: [
+                { catalogItemId: butter, quantity: 3, changedAt: at(-2) },
+                { catalogItemId: butter, state: 'recent', changedAt: at(-3) },
+                { catalogItemId: 999999, state: 'to_buy', changedAt: at(-3) }
+            ]
+        });
+        assert.deepEqual([sent.status, sent.body.applied, sent.body.skipped], [200, 2, [999999]]);
+        assert.equal((await entryOf(butter))?.state, 'recent');
+
+        await call('PATCH', `/list/${butter}`, asUser, { state: 'to_buy', quantity: 2 });
+        const late = await call<{ applied: number; skipped: Array<number> }>('POST', '/list/offline-changes', asUser, {
+            changes: [{ catalogItemId: butter, state: 'recent', changedAt: at(600) }]
+        });
+        assert.deepEqual([late.body.applied, late.body.skipped], [0, [butter]]);
+        assert.deepEqual([(await entryOf(butter))?.state, (await entryOf(butter))?.quantity], ['to_buy', 2]);
+
+        assert.equal((await call('POST', '/list/offline-changes', asUser, { changes: [{ catalogItemId: butter, state: 'gone', changedAt: at(1) }] })).status, 400);
+        assert.equal((await call('POST', '/list/offline-changes', asAgent, { changes: [] })).status, 403);
+    });
+
     it('checks new and changed products', async () => {
         assert.equal((await call('POST', '/catalog', asUser, { sectionId: 'zuivel' })).status, 400);
         assert.equal((await call('POST', '/catalog', asUser, { name: 'Melk', sectionId: 'zuivel' })).status, 409);

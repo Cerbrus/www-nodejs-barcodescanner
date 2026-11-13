@@ -6,9 +6,11 @@ import { catchError, throwError } from 'rxjs';
 import { ToastService } from './toast.service';
 
 export const QUIET_FAILURE = new HttpContextToken<boolean>(() => false);
+export const QUIET_WITHOUT_CONNECTION = new HttpContextToken<boolean>(() => false);
 
 const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 const UNAUTHORIZED = 401;
+const NO_CONNECTION = 0;
 const MESSAGE_BY_STATUS: Record<number, string> = {
     0: 'error.noConnection',
     400: 'error.invalid',
@@ -22,7 +24,11 @@ export const reportFailedChanges: HttpInterceptorFn = (request, next) => {
 
     return next(request).pipe(
         catchError((error: HttpErrorResponse) => {
-            const silent = READ_METHODS.includes(request.method) || request.context.get(QUIET_FAILURE) || error.status === UNAUTHORIZED;
+            const silent =
+                READ_METHODS.includes(request.method) ||
+                request.context.get(QUIET_FAILURE) ||
+                error.status === UNAUTHORIZED ||
+                (error.status === NO_CONNECTION && request.context.get(QUIET_WITHOUT_CONNECTION));
             if (!silent) {
                 toasts.show({ kind: 'error', text: translate.instant(MESSAGE_BY_STATUS[error.status] ?? 'error.generic') });
             }

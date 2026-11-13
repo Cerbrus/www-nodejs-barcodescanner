@@ -97,7 +97,7 @@ Done when: naming a typical new barcode takes one or two taps.
 ### 8. Offline shopping: open
 
 - Done 2026-11-13 02:08, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
-- Open: queued check-offs and adds, sync on reconnect; see [offline-plan.md](offline-plan.md).
+- Built on the same branch, not released: changes to the list without a connection, queued and sent on reconnect; see [offline-plan.md](offline-plan.md). Open: trying it on the phone in a shop.
 
 ## Open points
 

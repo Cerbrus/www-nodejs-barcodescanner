@@ -217,5 +217,9 @@
         "notFound": "Dit bestaat niet meer; de pagina wordt bijgewerkt",
         "conflict": "Er bestaat al een product met deze naam",
         "generic": "Er ging iets mis; de wijziging is niet opgeslagen"
+    },
+    "offline": {
+        "waiting": "{count, plural, one {# wijziging wacht} other {# wijzigingen wachten}}",
+        "serverWon": "Lijst bijgewerkt vanaf de server"
     }
 }

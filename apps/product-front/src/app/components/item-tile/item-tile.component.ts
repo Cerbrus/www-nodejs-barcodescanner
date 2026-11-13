@@ -21,6 +21,9 @@ import { ItemIconComponent } from '../item-icon/item-icon.component';
                 }
             </span>
         </button>
+        @if (pending()) {
+            <i class="material-symbols-outlined waiting" aria-hidden="true">schedule</i>
+        }
         @if (showDetails()) {
             <button type="button" class="details" [attr.aria-label]="detailsLabel()" (click)="details.emit()">
                 <i class="material-symbols-outlined">more_horiz</i>
@@ -52,6 +55,7 @@ import { ItemIconComponent } from '../item-icon/item-icon.component';
             border-radius: 12px; color: var(--tile-text); opacity: 0.8;
         }
         .details i { font-size: 20px; }
+        .waiting { position: absolute; right: 5px; bottom: 5px; color: var(--tile-text); font-size: 16px; opacity: 0.9; pointer-events: none; }
     `
 })
 export class ItemTileComponent {
@@ -60,6 +64,7 @@ export class ItemTileComponent {
     public readonly note = input('');
     public readonly tone = input<'buy' | 'recent' | 'neutral'>('neutral');
     public readonly showDetails = input(false);
+    public readonly pending = input(false);
     public readonly detailsLabel = input('');
 
     public readonly selected = output<void>();

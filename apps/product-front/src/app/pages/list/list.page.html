@@ -45,6 +45,7 @@
                         }
                         <app-item-tile
                             tone="buy"
+                            [pending]="store.pendingIds().has(entry.catalogItemId)"
                             [item]="entry.catalogItem"
                             [quantity]="entry.quantity"
                             [note]="entry.note"
@@ -65,6 +66,7 @@
             @for (entry of store.recent(); track entry.catalogItemId) {
                 <app-item-tile
                     tone="recent"
+                    [pending]="store.pendingIds().has(entry.catalogItemId)"
                     [item]="entry.catalogItem"
                     [note]="entry.note"
                     [showDetails]="true"
