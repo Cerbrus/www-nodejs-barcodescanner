@@ -18,6 +18,9 @@ export class BarcodeEntity {
     @Column({ type: 'simple-json', nullable: true })
     public suggestions?: Array<ProductSuggestion>;
 
+    @Column({ type: 'simple-json', nullable: true })
+    public lookupFailed?: Array<string>;
+
     @Column({ type: 'integer', default: 0 })
     public scanCount: number;
 

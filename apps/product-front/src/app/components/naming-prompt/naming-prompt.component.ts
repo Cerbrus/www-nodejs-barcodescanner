@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
-import { filter, switchMap, tap } from 'rxjs';
+import { filter, finalize, switchMap, tap } from 'rxjs';
 
 import { Barcode, CatalogItem, ProductSuggestion } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -37,6 +37,11 @@ export class NamingPromptComponent {
     protected readonly busy = signal(false);
 
     protected readonly suggestions = computed(() => this.barcode()?.suggestions ?? []);
+    protected readonly lookingUp = signal(false);
+    protected readonly failedSources = computed(() =>
+        (this.barcode()?.lookupFailed ?? []).map((connectorId) => this.connectors[connectorId]?.name ?? connectorId)
+    );
+
     protected readonly lookupPending = computed(() => this.barcode() !== undefined && !this.barcode()?.suggestions);
     protected readonly suggestionText = computed(() =>
         this.suggestions()
@@ -64,6 +69,17 @@ export class NamingPromptComponent {
                 switchMap(() => this.api.getBarcode(this.code())),
                 tap((barcode) => this.barcode.set(barcode)),
                 takeUntilDestroyed()
+            )
+            .subscribe();
+    }
+
+    protected lookUpAgain(): void {
+        this.lookingUp.set(true);
+        this.api
+            .repeatLookup(this.code())
+            .pipe(
+                tap((barcode) => this.barcode.set(barcode)),
+                finalize(() => this.lookingUp.set(false))
             )
             .subscribe();
     }

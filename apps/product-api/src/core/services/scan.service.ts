@@ -112,6 +112,13 @@ export class ScanService {
         return undone;
     }
 
+    public async repeatLookup(code: string): Promise<BarcodeEntity> {
+        const barcode = await this.barcodes.get(code);
+        await this.fetchSuggestions(code, barcode.suggestions);
+
+        return this.barcodes.get(code);
+    }
+
     public history(limit: number): Promise<Array<ScanEntity>> {
         return this.scans.find({ order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
     }
@@ -199,13 +206,16 @@ export class ScanService {
         }
     }
 
-    private async fetchSuggestions(code: string): Promise<Array<ProductSuggestion> | undefined> {
+    private async fetchSuggestions(code: string, keep: Array<ProductSuggestion> = []): Promise<Array<ProductSuggestion> | undefined> {
         try {
-            const suggestions = await this.connectors.lookupAll(code);
-            this.logger.log(`lookup ${code}: ${suggestions.map((s) => `${s.connectorId} "${s.title}"`).join(', ') || 'no result'}`);
-            await this.barcodes.storeSuggestions(code, suggestions);
+            const { suggestions, failed } = await this.connectors.lookupAll(code);
+            const kept = keep.filter((known) => failed.includes(known.connectorId));
+            const all = [...kept, ...suggestions];
+            const found = suggestions.map((s) => `${s.connectorId} "${s.title}"`).join(', ') || 'no result';
+            this.logger.log(`lookup ${code}: ${found}${failed.length ? `; no answer from ${failed.join(', ')}` : ''}`);
+            await this.barcodes.storeLookup(code, all, failed);
 
-            return suggestions;
+            return all;
         } catch (error) {
             this.logger.warn(`Storing suggestions for ${code} failed: ${error}`);
 

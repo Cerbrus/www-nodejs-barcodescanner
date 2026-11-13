@@ -11,10 +11,12 @@ import { NestFactory } from '@nestjs/core';
 
 import { testFolder } from './test-env';
 import { AppConfigModule } from '../config/config.module';
+import { ProductConnector, ProductSuggestion } from '../core/connectors/connector.model';
 import { CoreModule } from '../core/core.module';
 import { DEBOUNCE_MILLISECONDS } from '../core/rules/scan-rules';
 import { BarcodeService } from '../core/services/barcode.service';
 import { CatalogService } from '../core/services/catalog.service';
+import { ConnectorService } from '../core/services/connector.service';
 import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
 import { ScanService } from '../core/services/scan.service';
@@ -131,6 +133,32 @@ describe('scan flow against a real database', () => {
     it('keeps a chosen sound per event and falls back to the default', () => checkFeedbackSettings(app.get(FeedbackService)));
 
     it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));
+
+    it('remembers which lookup source gave no answer, and fills it in on a repeat', async () => {
+        const connectors = app.get(ConnectorService) as unknown as { connectors: Array<ProductConnector> };
+        let supermarketDown = true;
+        const askSupermarket = (): Promise<ProductSuggestion> =>
+            supermarketDown ? Promise.reject(new Error('timeout')) : Promise.resolve({ connectorId: 'ah', title: 'AH Pindakaas' });
+        const askOpenData = (): Promise<ProductSuggestion> => Promise.resolve({ connectorId: 'off', title: 'Peanut butter' });
+        connectors.connectors = [
+            { id: 'ah', lookup: askSupermarket },
+            { id: 'off', lookup: askOpenData }
+        ];
+
+        await scans.register('8712345678906', 'handheld');
+        await wait(100);
+        const first = await barcodes.get('8712345678906');
+        assert.deepEqual(first.lookupFailed, ['ah']);
+        assert.deepEqual(first.suggestions?.map((suggestion) => suggestion.connectorId), ['off']);
+
+        supermarketDown = false;
+        const second = await scans.repeatLookup('8712345678906');
+        assert.deepEqual(second.lookupFailed, []);
+        assert.deepEqual(second.suggestions?.map((suggestion) => suggestion.connectorId).sort(), ['ah', 'off']);
+
+        connectors.connectors = [];
+        await scans.discardBarcode('8712345678906');
+    });
 
     it('writes nothing when a scan fails halfway', async () => {
         const before = { scans: (await scans.history(100)).length, entry: await list.getSnapshot(milkId), count: (await barcodes.get(CODE)).scanCount };

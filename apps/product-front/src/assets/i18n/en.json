@@ -62,7 +62,9 @@
         "newItem": "New product \"{name}\"",
         "createAndLink": "Create and link",
         "later": "Later",
-        "discard": "Cancel scan"
+        "discard": "Cancel scan",
+        "noAnswer": "No answer from {sources}",
+        "tryAgain": "Try again"
     },
     "inbox": {
         "title": "Inbox",

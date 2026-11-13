@@ -36,6 +36,12 @@ export class BarcodeController {
         return this.barcodes.unlink(code);
     }
 
+    @Post(':code/lookup')
+    @HttpCode(200)
+    public repeatLookup(@Param('code') code: string): Promise<BarcodeEntity> {
+        return this.scans.repeatLookup(code);
+    }
+
     @Post(':code/discard')
     @HttpCode(204)
     public discardBarcode(@Param('code') code: string): Promise<void> {

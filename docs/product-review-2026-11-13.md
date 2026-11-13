@@ -34,7 +34,7 @@ Weight: **A** affects daily use or safety, **B** worth doing, **C** nice to have
 |---|---|---|---|
 | A1 | The `scan` table grows without end; every scan is kept forever. Small today, but it is also in every hourly backup. | C | Question 1 |
 | A2 | Responses carry no security headers: nothing forbids framing the site or guessing content types. | B | Built: the safe headers, on `feature/ops-visibility`. A content security policy is question 2 |
-| A3 | Lookup failures of the product connectors are only in the system log (open item of milestone 6). In the naming prompt "no result" and "Albert Heijn did not answer" look the same. | B | Planned, see "Plans" |
+| A3 | Lookup failures of the product connectors are only in the system log (open item of milestone 6). In the naming prompt "no result" and "Albert Heijn did not answer" look the same. | B | Built after the first report: branch `feature/connector-failures` |
 | A4 | The shop section for a new product is guessed from a short keyword list in the web app (open item of milestone 5). | C | Planned, see "Plans" |
 | A5 | The login routes have no rate limit. Low risk: the password check is Google's, and a session cannot be guessed. | C | Noted |
 

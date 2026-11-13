@@ -62,7 +62,9 @@
         "newItem": "Nieuw product \"{name}\"",
         "createAndLink": "Aanmaken en koppelen",
         "later": "Later",
-        "discard": "Scan annuleren"
+        "discard": "Scan annuleren",
+        "noAnswer": "Geen antwoord van {sources}",
+        "tryAgain": "Opnieuw"
     },
     "inbox": {
         "title": "Inbox",

@@ -42,7 +42,7 @@ A second read of the same barcode within 1 second is ignored. A buzzer at the sc
 
 ### UC-5 Name a barcode (once per barcode)
 
-1. The prompt shows the barcode and every connector suggestion (title, brand, category, photo, and the logo of the source it came from). Tapping a suggestion copies its title into the search field and marks that suggestion with a coloured border and a check mark.
+1. The prompt shows the barcode and every connector suggestion (title, brand, category, photo, and the logo of the source it came from). When a source gave no answer, the prompt says which one and offers to try again. Tapping a suggestion copies its title into the search field and marks that suggestion with a coloured border and a check mark.
 2. The user picks an existing catalog item from the search field, which lists matches while typing.
 3. If no item fits, the user chooses "new product" in the same list and fills in the form: name, shop section, icon from a visual picker, emoji. The section is guessed from the suggestions and the name.
 4. "Later" leaves the barcode in the inbox. "Cancel scan" discards the waiting scans and removes the barcode from the inbox.

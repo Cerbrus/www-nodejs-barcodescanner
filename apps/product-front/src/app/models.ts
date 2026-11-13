@@ -35,6 +35,7 @@ export interface Barcode {
     catalogItemId?: number;
     catalogItem?: CatalogItem;
     suggestions?: Array<ProductSuggestion>;
+    lookupFailed?: Array<string>;
     scanCount: number;
     lastScannedAt?: string;
 }

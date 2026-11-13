@@ -65,9 +65,9 @@ export class BarcodeService {
         await this.in(manager).delete({ code });
     }
 
-    public async storeSuggestions(code: string, suggestions: Array<ProductSuggestion>): Promise<void> {
-        await this.barcodes.update({ code }, { suggestions });
-        this.events.emit('barcode', { code, suggestions: suggestions.length });
+    public async storeLookup(code: string, suggestions: Array<ProductSuggestion>, failed: Array<string>): Promise<void> {
+        await this.barcodes.update({ code }, { suggestions, lookupFailed: failed });
+        this.events.emit('barcode', { code, suggestions: suggestions.length, failed: failed.length });
     }
 
     private in(manager?: EntityManager): Repository<BarcodeEntity> {

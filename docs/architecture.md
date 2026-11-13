@@ -149,7 +149,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 |---|---|---|
 | `section` | `id`, `name`, `sort_order`, `emoji` | Seeded from `data/seed-items.json` |
 | `catalog_item` | `id`, `name` (unique), `section_id`, `icon`, `emoji`, `custom` | `icon` is a file name in the icon folder, served under `/icons/<icon>.png` |
-| `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox |
+| `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `lookup_failed` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox. `lookup_failed` lists the connectors that gave no answer |
 | `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
 | `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `previous_state`, `previous_quantity` | History and undo; the `previous_` columns hold what the list entry was before the scan |
 | `feedback_setting` | `event` (key), `sound_id` | Chosen buzzer sound per scan result; no row means the default |
@@ -189,7 +189,7 @@ interface ProductSuggestion {
 }
 ```
 
-- All enabled connectors run in parallel with a timeout of a few seconds. A failure or timeout yields no suggestion and is logged.
+- All enabled connectors run in parallel with a timeout of a few seconds. A failure or timeout yields no suggestion, is logged, and is remembered on the barcode, so the naming prompt can say which source gave no answer and offer to ask again. "No result" and "no answer" are different things.
 - The lookup runs in the background after the scan is answered, so a slow connector never delays the scanner. Results are stored on the barcode row, so a barcode is looked up once, and a `barcode` event tells open pages they arrived.
 - `CONNECTORS` in `.env` picks the enabled ones (default `ah,off`).
 - `category` and `title` feed the section guess in the naming prompt.
@@ -215,6 +215,7 @@ interface ProductSuggestion {
 | `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, `feedback_settings`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/icons` | Names of the available icons, for the icon picker |
+| `POST /api/v1/barcodes/:code/lookup` | Ask the connectors again; keeps what was found before |
 | `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
 | `GET /api/v1/feedback/settings` | The sound chosen per event, and the library of sounds |
 | `PUT /api/v1/feedback/settings/:event` | Choose the sound for an event, or `none` |

@@ -87,6 +87,10 @@ export class ApiService {
         return this.http.put<Barcode>(`${this.baseUrl}/barcodes/${code}`, { catalogItemId });
     }
 
+    public repeatLookup(code: string): Observable<Barcode> {
+        return this.http.post<Barcode>(`${this.baseUrl}/barcodes/${code}/lookup`, {});
+    }
+
     public unmapBarcode(code: string): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/barcodes/${code}`);
     }
