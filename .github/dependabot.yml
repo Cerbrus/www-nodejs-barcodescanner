@@ -6,13 +6,18 @@ updates:
         schedule:
             interval: weekly
             day: monday
-        open-pull-requests-limit: 3
+        open-pull-requests-limit: 8
         groups:
+            angular:
+                patterns: [ '@angular/*', '@angular-devkit/*', '@schematics/angular', 'angular-eslint', '@angular-eslint/*', 'zone.js' ]
+            nx:
+                patterns: [ 'nx', '@nx/*' ]
+            nestjs:
+                patterns: [ '@nestjs/*' ]
+            linting:
+                patterns: [ 'eslint', 'eslint-*', '@eslint/*', '@typescript-eslint/*', 'jsonc-eslint-parser', 'prettier' ]
             minor-and-patch:
                 update-types: [ minor, patch ]
-        ignore:
-            -   dependency-name: '*'
-                update-types: [ 'version-update:semver-major' ]
 
     -   package-ecosystem: docker
         directories: [ /, /apps/hardware-agent ]
@@ -23,8 +28,8 @@ updates:
             base-images:
                 patterns: [ '*' ]
         ignore:
-            -   dependency-name: '*'
-                update-types: [ 'version-update:semver-major' ]
+            -   dependency-name: node
+                versions: [ '25.x', '27.x', '29.x' ]
 
     -   package-ecosystem: github-actions
         directory: /

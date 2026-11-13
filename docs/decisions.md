@@ -113,7 +113,7 @@ Decided 2026-11-13:
 - A handheld scan made while the app is unreachable is held by the agent and delivered later, with its own sound; it is not lost and should not be scanned again.
 - Scan history is kept forever; nothing prunes it. The volume of a household is small, and undo, history and backup all stay simple.
 - No licence file. The code is public to read; reuse is not granted.
-- Dependency updates come as weekly pull requests from Dependabot, minor and patch versions grouped, majors left out.
+- Dependency updates come as weekly pull requests from Dependabot: families that move together (Angular, Nx, NestJS, linting) as one pull request each, majors included; minor and patch versions of the rest grouped; other majors on their own. Changed on 2026-11-13 from leaving majors out: the owner has no objection to major versions, and the reviewer judges each one.
 - Every version gets a GitHub release with the commit subjects since the previous version.
 - A Claude agent reviews every Dependabot pull request once it is a day old: not only whether the checks pass, but whether the update changes or breaks what the product does. It repairs small things and leaves a verdict, so the owner only has to merge or not. It has no right to merge, a short list of tools, and treats changelogs as outside text.
 
