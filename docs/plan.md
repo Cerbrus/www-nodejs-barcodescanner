@@ -16,9 +16,9 @@ In daily-use shape and running on the Pi:
 
 In this order, agreed with the owner on 2026-11-13:
 
-1. **Tests for the web app** (milestone 9), mostly done: runner, 89 tests and the end-to-end run are built; component tests are open. Why first: on 2026-11-13 alone the reload after an update, the "+1" in the search, the new System page and the change of message formatter went out checked by hand only. The package work it waited for is done.
+1. **Tests for the web app** (milestone 9): built, 195 tests and an end-to-end run; waits for the owner's release.
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
-3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two-factor login on the GitHub account; two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
+3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
 5. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
 
@@ -98,7 +98,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 19:35: weekly Dependabot updates, a reviewer that judges each of them for its effect on the product, and a GitHub release per version.
 - Done 2026-11-13 21:40, released in 1.1.29: an open app reloads itself when a newer web app is published (UC-10). Confirmed by the owner on the iPhone with the release of 1.1.30.
 - Done 2026-11-13 22:28, released in 1.1.32: a content security policy in report-only mode, with reports in the system log, and FormatJS as message formatter because the former one needs `eval`. Open: read the log after a week and set `CSP_MODE=enforce`.
-- Done 2026-11-13: a ruleset on `master` that forbids deleting it and force-pushing to it. Open: two-factor login on the GitHub account, by the owner.
+- Done 2026-11-13: a ruleset on `master` that forbids deleting it and force-pushing to it. Two-factor login on the GitHub account is on, confirmed by the owner on 2026-11-14.
 
 ### 7. Feedback at the scanner: mostly done
 
@@ -121,15 +121,14 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 22:28, released in 1.1.32: `@messageformat/core` and its ngx-translate wrapper replaced by `intl-messageformat`.
 - Open, one family at a time: TypeScript 7 (needs the old module resolution and `ignoreDeprecations` out of the tsconfig files first), ESLint 10, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, better-sqlite3 13, web-push 4.
 
-### 9. Tests for the web app: mostly done
+### 9. Tests for the web app: done 2026-11-14 00:26
 
-On branch `feature/web-app-tests`, not released yet.
+On branch `feature/web-app-tests`, not released yet: the owner releases it when satisfied with the coverage.
 
 - Done 2026-11-13 23:10: a test runner for the web app, Vitest through Angular's own `unit-test` builder with happy-dom, so no browser is needed. `yarn product-front:test`, part of the `checks` job. The web app's build and serve targets use the `@angular/build` builders by name, which the test builder asks for.
-- Done 2026-11-13 23:51: 89 tests. The shopping store (split and grouping, snapshot, refresh on events, changes kept for later and sent in order, the retry), the event stream's reconnect rules, the update check, the message adapter, the failed-change interceptor, the autocomplete, the drawn barcodes, the login guards and the redirect when a login runs out, push (status, on and off, following a tapped notification), the service worker's caching and notification rules in a stand-in worker scope, and the camera page's rules with a stand-in barcode reader.
-- Done 2026-11-13 23:51: an end-to-end run, `yarn e2e`, part of the `checks` job. Playwright drives the installed Chrome, headless, against the built API and web app on an empty database with login off: type a code, name it, check it off, undo; scan it again for one more; check off without a connection and see it sent later, which needs the real service worker; read a barcode with the camera, from a picture the test draws itself and feeds to Chrome as camera; open every page and require that the browser reported nothing the content security policy would block.
-- Open: component tests for the naming prompt, new-product form, icon picker, list page with its sheets, and the System page for owner and other accounts.
-- Differs from production: the end-to-end run starts the built bundles with Node, not the Docker image, and runs Chrome, not Safari. Real push delivery, the iPhone's camera and what iOS does with an installed app stay checks by hand.
+- Done 2026-11-14 00:26: 195 tests in 22 files, reaching 95% of the statements and 96% of the lines of the web app (`yarn product-front:test:coverage`). Services: the shopping store, the event stream, the update check, login guards and logout, push, every API call with its route and body, settings, saved data, appearance, the message adapter, the failed-change interceptor. The service worker, in a stand-in worker scope. Every page and component: list with its sheets, scan with a stand-in barcode reader, inbox, products, product page, history, log, login, sounds, System page for the owner, another account and login off, the shell with its banner and messages, naming prompt, new-product form, icon picker, autocomplete, tile and icon, the drawn barcodes, the app's start and its routes.
+- Done 2026-11-14 00:05: an end-to-end run, `yarn e2e`, part of the `checks` job. Playwright drives the installed Chrome, headless, against the built API and web app on an empty database with login off: type a code, name it, check it off, undo; scan it again for one more; check off without a connection and see it sent later, which needs the real service worker; read a barcode with the camera, from a picture the test draws itself and feeds to Chrome as camera; open every page and require that the browser reported nothing the content security policy would block.
+- Differs from production: the end-to-end run starts the built bundles with Node, not the Docker image, and runs Chrome, not Safari. Real push delivery, the iPhone's camera and what iOS does with an installed app stay checks by hand. The tests do not look at how a page is drawn: colours, spacing and wrapping are still judged by eye.
 
 Requested by the owner on 2026-11-13.
 
@@ -149,7 +148,6 @@ Requested by the owner on 2026-11-13.
 | Point | Needed by |
 |---|---|
 | Content security policy: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi | Milestone 6 |
-| Two-factor login on the GitHub account, by the owner | Milestone 6 |
 | Tera's answer on the beeper commands | Milestone 7 |
 
 ## Never tested

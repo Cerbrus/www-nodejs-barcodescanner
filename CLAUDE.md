@@ -49,11 +49,12 @@ yarn lint:all
 yarn product-api:test                 # scan rules, session signing
 yarn product-api:test:integration     # services on a temporary SQLite file; login guard, data routes and the whole app over HTTP
 yarn product-front:test               # the web app's logic and components, in Vitest without a browser
+yarn product-front:test:coverage      # the same, with a table of what the tests reach per file
 yarn e2e                              # builds both apps, starts them on port 3931 with an empty database and drives them in headless Chrome
 yarn hardware-agent:test              # the agent with a fake scanner, buzzer and API; needs Python 3 only
 ```
 
-Don't start the serve commands from a session; ask the user to run them. The build runs lint, all four test commands and `yarn e2e` first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`.
+Don't start the serve commands from a session; ask the user to run them. The build runs lint, all four test commands and `yarn e2e` first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`; shared stand-ins for the store and the event stream are in `src/testing/fakes.ts`. A change to the web app comes with its test.
 
 ## Code style
 
