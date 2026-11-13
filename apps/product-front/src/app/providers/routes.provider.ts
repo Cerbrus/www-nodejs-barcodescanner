@@ -45,6 +45,11 @@ export const appRoutes: Array<Route> = [
                 loadComponent: () => import('../pages/log/log.page').then((m) => m.LogPage)
             },
             {
+                path: 'sounds',
+                canActivate: [requireOwner],
+                loadComponent: () => import('../pages/sounds/sounds.page').then((m) => m.SoundsPage)
+            },
+            {
                 path: 'system',
                 loadComponent: () => import('../pages/system/system.page').then((m) => m.SystemPage)
             }

@@ -1,11 +1,10 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
-import { SoundTestComponent } from '../../components/sound-test/sound-test.component';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
@@ -17,6 +16,11 @@ const LANGUAGES = ['nl', 'en'] as const;
 const LANGUAGE_STORAGE_KEY = 'language';
 const COMMIT_LENGTH = 7;
 const AGENT_REFRESH_MILLISECONDS = 60 * 1000;
+const MANAGEMENT_LINKS = [
+    { path: '/sounds', icon: 'volume_up', title: 'sound.title' },
+    { path: '/history', icon: 'history', title: 'history.title' },
+    { path: '/log', icon: 'terminal', title: 'log.title' }
+];
 const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
     { theme: 'auto', icon: 'brightness_auto' },
     { theme: 'light', icon: 'light_mode' },
@@ -26,92 +30,83 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 @Component({
     selector: 'app-system-page',
     standalone: true,
-    imports: [DatePipe, RouterLink, TranslateModule, SoundTestComponent],
+    imports: [DatePipe, LowerCasePipe, RouterLink, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
             <h1 class="page-title">{{ 'nav.system' | translate }}</h1>
 
-            @if (auth.owner()) {
-                <div class="flex flex-col gap-2">
-                    <a class="card flex items-center gap-3" routerLink="/history">
-                        <i class="material-symbols-outlined">history</i>
-                        <span class="grow font-semibold">{{ 'history.title' | translate }}</span>
-                        <i class="material-symbols-outlined muted">chevron_right</i>
-                    </a>
-                    <a class="card flex items-center gap-3" routerLink="/log">
-                        <i class="material-symbols-outlined">terminal</i>
-                        <span class="grow font-semibold">{{ 'log.title' | translate }}</span>
-                        <i class="material-symbols-outlined muted">chevron_right</i>
-                    </a>
-                </div>
-            }
-
-            <h2 class="section-title">{{ 'system.language' | translate }}</h2>
-            <div class="flex gap-2">
-                @for (language of languages; track language) {
-                    <button
-                        type="button"
-                        class="btn basis-0 grow"
-                        [class.primary]="currentLanguage() === language"
-                        (click)="useLanguage(language)"
-                    >
-                        {{ 'language.' + language | translate }}
-                    </button>
-                }
-            </div>
-
-            <h2 class="section-title">{{ 'system.theme' | translate }}</h2>
-            <div class="flex gap-2">
-                @for (option of themeOptions; track option.theme) {
-                    <button
-                        type="button"
-                        class="btn basis-0 grow"
-                        [class.primary]="theme.theme() === option.theme"
-                        (click)="theme.use(option.theme)"
-                    >
-                        <i class="material-symbols-outlined">{{ option.icon }}</i>
-                        {{ 'theme.' + option.theme | translate }}
-                    </button>
-                }
-            </div>
-
-            <h2 class="section-title">{{ 'push.title' | translate }}</h2>
-            <div class="card text-sm">
-                <p class="muted">{{ 'push.intro' | translate }}</p>
-                <p class="mt-2 font-semibold">{{ 'push.' + push.status() | translate }}</p>
-                @if (push.status() === 'off') {
-                    <button type="button" class="btn primary mt-3 w-full" [disabled]="push.busy()" (click)="enablePush()">
-                        <i class="material-symbols-outlined">notifications_active</i>
-                        {{ 'push.enable' | translate }}
-                    </button>
-                } @else if (push.status() === 'on') {
-                    <div class="mt-3 flex gap-2">
-                        @if (auth.owner()) {
-                            <button type="button" class="btn basis-0 grow" (click)="testPush()">
-                                <i class="material-symbols-outlined">send</i>
-                                {{ 'push.test' | translate }}
+            <h2 class="section-title">{{ 'system.device' | translate }}</h2>
+            <div class="card group">
+                <div class="row">
+                    <span class="label">{{ 'system.language' | translate }}</span>
+                    <div class="segments">
+                        @for (language of languages; track language) {
+                            <button
+                                type="button"
+                                class="segment"
+                                [class.chosen]="currentLanguage() === language"
+                                (click)="useLanguage(language)"
+                            >
+                                {{ 'language.' + language | translate }}
                             </button>
                         }
-                        <button type="button" class="btn basis-0 grow" (click)="push.disable()">
-                            <i class="material-symbols-outlined">notifications_off</i>
-                            {{ 'push.disable' | translate }}
-                        </button>
                     </div>
+                </div>
+                <div class="row">
+                    <span class="label">{{ 'system.theme' | translate }}</span>
+                    <div class="segments">
+                        @for (option of themeOptions; track option.theme) {
+                            <button
+                                type="button"
+                                class="segment"
+                                [class.chosen]="theme.theme() === option.theme"
+                                (click)="theme.use(option.theme)"
+                            >
+                                <i class="material-symbols-outlined">{{ option.icon }}</i>
+                                {{ 'theme.' + option.theme | translate }}
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <span class="label">
+                        {{ 'push.title' | translate }}
+                        <span class="hint">{{ 'push.state.' + push.status() | translate }}</span>
+                    </span>
+                    @if (push.status() === 'off') {
+                        <button type="button" class="btn primary" [disabled]="push.busy()" (click)="enablePush()">
+                            <i class="material-symbols-outlined">notifications_active</i>
+                            {{ 'push.turnOn' | translate }}
+                        </button>
+                    } @else if (push.status() === 'on') {
+                        <div class="flex gap-2">
+                            @if (auth.owner()) {
+                                <button type="button" class="btn" (click)="testPush()">
+                                    <i class="material-symbols-outlined">send</i>
+                                    {{ 'push.test' | translate }}
+                                </button>
+                            }
+                            <button type="button" class="btn" (click)="push.disable()">
+                                <i class="material-symbols-outlined">notifications_off</i>
+                                {{ 'push.disable' | translate }}
+                            </button>
+                        </div>
+                    }
+                </div>
+                @if (push.status() !== 'on') {
+                    <p class="note">
+                        {{ (push.status() === 'off' ? 'push.intro' : 'push.' + push.status()) | translate }}
+                    </p>
                 }
             </div>
-
-            @if (auth.owner()) {
-                <h2 class="section-title">{{ 'sound.title' | translate }}</h2>
-                <app-sound-test />
-            }
 
             @if (auth.state()?.enabled) {
                 <h2 class="section-title">{{ 'login.account' | translate }}</h2>
-                <div class="card text-sm">
-                    <div class="flex items-center gap-3">
+                <div class="card group">
+                    <div class="row">
                         <i class="material-symbols-outlined muted">account_circle</i>
-                        <span class="grow truncate">{{ auth.state()?.email }}</span>
+                        <span class="label truncate">{{ auth.state()?.email }}</span>
                         @if (!confirmingLogout()) {
                             <button type="button" class="btn danger" (click)="confirmingLogout.set(true)">
                                 <i class="material-symbols-outlined">logout</i>
@@ -120,8 +115,8 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                         }
                     </div>
                     @if (confirmingLogout()) {
-                        <p class="mt-3">{{ 'login.logoutConfirm' | translate }}</p>
-                        <div class="mt-3 flex gap-2">
+                        <p class="note">{{ 'login.logoutConfirm' | translate }}</p>
+                        <div class="row">
                             <button type="button" class="btn danger basis-0 grow" (click)="logout()">
                                 <i class="material-symbols-outlined">logout</i>
                                 {{ 'login.logout' | translate }}
@@ -136,40 +131,65 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
             }
 
             @if (auth.owner()) {
-                <h2 class="section-title">{{ 'system.status' | translate }}</h2>
-                <div class="card text-sm">
-                    <p>
-                        {{ 'system.connection' | translate }}:
-                        <strong>{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</strong>
-                    </p>
-                    <p>
-                        {{ 'system.scanner' | translate }}:
-                        <strong [style.color]="scannerState() === 'connected' ? null : 'var(--danger)'">
-                            {{ 'system.scannerState.' + scannerState() | translate }}
-                        </strong>
-                        @if (agent()?.device; as device) {
-                            <span class="muted">({{ device }})</span>
-                        }
-                    </p>
-                    @if (agent()?.lastHandheldScanAt; as lastScan) {
-                        <p>
-                            {{ 'system.lastHandheldScan' | translate }}:
-                            {{ lastScan | date: 'd MMM y HH:mm' }}
-                        </p>
-                    }
-                    <p>
-                        {{ 'system.version' | translate }}:
-                        <span class="font-mono">{{ version() }}</span>
-                    </p>
-                    @if (health()?.builtAt; as builtAt) {
-                        <p>
-                            {{ 'system.built' | translate }}:
-                            {{ builtAt | date: 'd MMM y HH:mm' }}
-                        </p>
+                <h2 class="section-title">{{ 'system.management' | translate }}</h2>
+                <div class="card group">
+                    <div class="row">
+                        <span class="dot" [class.bad]="!events.connected()"></span>
+                        <span class="label">{{ 'system.connection' | translate }}</span>
+                        <span class="value">{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</span>
+                    </div>
+                    <div class="row">
+                        <span class="dot" [class.bad]="scannerState() !== 'connected'"></span>
+                        <span class="label">
+                            {{ 'system.scanner' | translate }}
+                            @if (agent()?.lastHandheldScanAt; as lastScan) {
+                                <span class="hint">
+                                    {{ 'system.lastHandheldScan' | translate }}: {{ lastScan | date: 'd MMM HH:mm' }}
+                                </span>
+                            }
+                        </span>
+                        <span class="value">{{ 'system.scannerState.' + scannerState() | translate }}</span>
+                    </div>
+                    @for (link of managementLinks; track link.path) {
+                        <a class="row link" [routerLink]="link.path">
+                            <i class="material-symbols-outlined">{{ link.icon }}</i>
+                            <span class="label">{{ link.title | translate }}</span>
+                            <i class="material-symbols-outlined muted">chevron_right</i>
+                        </a>
                     }
                 </div>
+
+                <p class="version">
+                    {{ 'system.version' | translate }} <span class="font-mono">{{ version() }}</span>
+                    @if (health()?.builtAt; as builtAt) {
+                        · {{ 'system.built' | translate | lowercase }} {{ builtAt | date: 'd MMM y HH:mm' }}
+                    }
+                </p>
             }
         </div>
+    `,
+    styles: `
+        .group { padding: 0; }
+        .row {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+            min-height: 52px; padding: 8px 12px;
+        }
+        .row + .row, .note + .row { border-top: 1px solid var(--line); }
+        .label { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; font-weight: 600; }
+        .hint { color: var(--text-muted); font-size: 0.8rem; font-weight: 400; }
+        .value { color: var(--text-muted); font-size: 0.9rem; text-align: right; }
+        .note { padding: 0 12px 10px; color: var(--text-muted); font-size: 0.85rem; }
+        .link:hover, .link:focus-visible { background: var(--page); }
+        .segments { display: flex; padding: 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--page); }
+        .segment {
+            display: flex; align-items: center; gap: 4px; padding: 6px 10px;
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+        }
+        .segment i { font-size: 18px; }
+        .segment.chosen { background: var(--accent); color: var(--accent-text); }
+        .dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+        .dot.bad { background: var(--danger); }
+        .version { margin-top: 12px; color: var(--text-muted); font-size: 0.8rem; text-align: center; }
     `
 })
 export class SystemPage {
@@ -180,6 +200,7 @@ export class SystemPage {
     protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
+    protected readonly managementLinks = MANAGEMENT_LINKS;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');
 
     private readonly agentApi = inject(ApiService);

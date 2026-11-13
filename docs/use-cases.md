@@ -108,7 +108,7 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 ### UC-16 Choose the scanner sounds
 
 1. A buzzer at the scanner beeps after every handheld scan: by default a short beep for a product added, two blips for counted up, a long beep for an unknown barcode, three beeps when the scan did not arrive.
-2. On the System page the user picks, per event, a sound from a list or "no sound". The choice is saved and played at once on the buzzer.
+2. On the sounds page, reached from the System page, the user picks, per event, a sound from a list or "no sound". The choice is saved and played at once on the buzzer.
 3. A button per sound plays it, to compare them and to check the buzzer works.
 
 ## Using it as an app
@@ -126,6 +126,4 @@ The user adds the site to the home screen from the browser's share menu. It then
 
 ### UC-15 Language and appearance
 
-On the System page every account picks Dutch or English and automatic, light or dark appearance, both remembered per device, turns notifications for its device on or off, and sees its account with the logout button.
-
-The owner sees more there: scan history, system log, sounds at the scanner, the test notification, and the status with the live connection, the handheld scanner, its last scan and the running version. Other accounts do not see those parts, and the server refuses them the data behind them.
+The System page has three groups. "This device", for every account: Dutch or English, automatic, light or dark appearance (both remembered per device), and notifications for this device on or off. "Account": the address that is logged in and the logout button. "Management", for the owner only: whether the live connection is up, whether the handheld scanner is connected and when it last scanned, and rows that open the sounds at the scanner, the scan history and the system log. The running version stands below it. The owner also gets the test notification button. Other accounts do not see the management group, and the server refuses them the data behind it.

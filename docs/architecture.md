@@ -272,7 +272,7 @@ Web push, so it works with the app closed. The frontend registers a small servic
 
 ## Feedback at the scanner
 
-The hardware agent turns the result of each scan into a sound on a buzzer connected to a GPIO pin of the Pi. Which sound belongs to which result is chosen on the System page.
+The hardware agent turns the result of each scan into a sound on a buzzer connected to a GPIO pin of the Pi. Which sound belongs to which result is chosen on the sounds page, which the owner opens from the System page.
 
 | Event | Default sound |
 |---|---|
@@ -284,7 +284,7 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 | `ignored`: repeat within the debounce | none |
 
 - **Sounds** are lists of steps: `on` and `off` with a length, and `gate`, which switches the buzzer on and off many times a second. An active buzzer has one fixed pitch, so gating is what gives it other sounds: a trill at 5 to 30 times a second, a rough buzz at a few hundred, a softer tone with a short on-time. The library of sounds is `apps/product-api/src/feedback/sounds.ts`; a new sound is one line there plus its name in both language files.
-- **Settings**: the `feedback_setting` table holds the chosen sound per event; an event without a row uses the default, and `none` means silent. The System page shows a dropdown per event and a button per sound to listen to it.
+- **Settings**: the `feedback_setting` table holds the chosen sound per event; an event without a row uses the default, and `none` means silent. The sounds page shows a dropdown per event and a button per sound to listen to it.
 - **Agent**: fetches the settings, with the steps of each chosen sound, when it connects to the event stream and again on a `feedback_settings` event, and keeps them in memory. So a scan that cannot reach the API still gets its error sound. Before the first contact it uses the built-in defaults.
 - **Test**: `POST /api/v1/feedback/test` sends a sound as a `feedback` event, which the agent plays at once.
 - `FEEDBACK_OUTPUT` picks the output: `none` (default) or `buzzer`. Another output, such as a speaker, would be another class next to `Buzzer`. A passive buzzer gets a square wave made in software.

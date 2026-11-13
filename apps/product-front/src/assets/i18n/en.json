@@ -121,7 +121,6 @@
     },
     "system": {
         "language": "Language",
-        "status": "Status",
         "connection": "Connection",
         "version": "Version",
         "theme": "Appearance",
@@ -132,7 +131,9 @@
             "connected": "connected",
             "waiting": "not found",
             "offline": "scanner service not reachable"
-        }
+        },
+        "device": "This device",
+        "management": "Management"
     },
     "icons": {
         "title": "Pick an icon",
@@ -149,15 +150,19 @@
     "push": {
         "title": "Notifications",
         "intro": "A notification on this device when the handheld scanner reads an unknown product. The app icon shows the number of barcodes in the inbox.",
-        "on": "Notifications are on for this device.",
-        "off": "Notifications are off for this device.",
         "denied": "Notifications are blocked. Allow them in the device settings.",
         "unsupported": "This browser does not support notifications. On an iPhone: add the site to the home screen first and open it there.",
-        "enable": "Turn on notifications",
         "disable": "Turn off",
         "test": "Test notification",
         "testResult": "Test notification sent to {sent} device(s), {failed} failed",
-        "failed": "Turning on notifications failed"
+        "failed": "Turning on notifications failed",
+        "turnOn": "Turn on",
+        "state": {
+            "on": "on",
+            "off": "off",
+            "denied": "blocked",
+            "unsupported": "not available"
+        }
     },
     "sound": {
         "title": "Sound at the scanner",

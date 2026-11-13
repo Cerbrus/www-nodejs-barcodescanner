@@ -121,7 +121,6 @@
     },
     "system": {
         "language": "Taal",
-        "status": "Status",
         "connection": "Verbinding",
         "version": "Versie",
         "theme": "Weergave",
@@ -132,7 +131,9 @@
             "connected": "verbonden",
             "waiting": "niet gevonden",
             "offline": "scannerdienst niet bereikbaar"
-        }
+        },
+        "device": "Dit apparaat",
+        "management": "Beheer"
     },
     "icons": {
         "title": "Kies een icoon",
@@ -149,15 +150,19 @@
     "push": {
         "title": "Meldingen",
         "intro": "Een melding op dit apparaat wanneer de handscanner een onbekend product scant. Het app-icoon toont het aantal barcodes in de inbox.",
-        "on": "Meldingen staan aan op dit apparaat.",
-        "off": "Meldingen staan uit op dit apparaat.",
         "denied": "Meldingen zijn geblokkeerd. Sta ze toe in de instellingen van het apparaat.",
         "unsupported": "Deze browser ondersteunt geen meldingen. Op een iPhone: zet de site eerst op het beginscherm en open hem daar.",
-        "enable": "Meldingen aanzetten",
         "disable": "Uitzetten",
         "test": "Testmelding",
         "testResult": "Testmelding verstuurd naar {sent} apparaat/apparaten, {failed} mislukt",
-        "failed": "Meldingen aanzetten is niet gelukt"
+        "failed": "Meldingen aanzetten is niet gelukt",
+        "turnOn": "Aanzetten",
+        "state": {
+            "on": "aan",
+            "off": "uit",
+            "denied": "geblokkeerd",
+            "unsupported": "niet beschikbaar"
+        }
     },
     "sound": {
         "title": "Geluid bij de scanner",
