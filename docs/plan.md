@@ -99,6 +99,12 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 02:08, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
 - Done 2026-11-13 20:10: changes to the list without a connection, queued and sent on reconnect; see [offline-plan.md](offline-plan.md). Released in 1.1.17 and confirmed by the owner on the iPhone.
 
+### Package upgrades: started
+
+- Done on branch `feature/package-cleanup`, not released: forty unused packages removed, everything updated within its major version, Yarn 4.18, Node 25 in the images and the build.
+- Done on branch `feature/nx-angular-upgrade`, not released: Nx 21 to 24, Angular 20 to 22, TypeScript 5.9 to 6.0, typescript-eslint 6 to 8 and angular-eslint 22. The lint rules moved to `eslint.config.mjs` files, the API build to the Nx webpack plugin, and the web app runs without zone.js.
+- Open, one family at a time: TypeScript 7 (needs the old module resolution and `ignoreDeprecations` out of the tsconfig files first), ESLint 10, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, better-sqlite3 13, web-push 4.
+
 ### 9. Tests for the web app: open
 
 The API and the hardware agent are tested; the web app is not. Every change to it is checked by hand, in a browser or on the phone. Wanted, in this order:

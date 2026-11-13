@@ -8,26 +8,24 @@
     "targets": {
         "build": {
             "executor": "@angular-devkit/build-angular:application",
-            "outputs": [
-                "{options.outputPath}"
-            ],
+            "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/product-front",
                 "index": "apps/product-front/src/index.html",
                 "browser": "apps/product-front/src/main.ts",
-                "polyfills": [
-                    "zone.js"
-                ],
                 "tsConfig": "apps/product-front/tsconfig.app.json",
                 "inlineStyleLanguage": "scss",
                 "assets": [
                     "apps/product-front/src/favicon.ico",
-                    { "glob": "sw.js", "input": "apps/product-front/src", "output": "/" },
+                    {
+                        "glob": "sw.js",
+                        "input": "apps/product-front/src",
+                        "output": "/"
+                    },
                     "apps/product-front/src/assets"
                 ],
-                "styles": [
-                    "apps/product-front/src/styles.scss"
-                ],
+                "styles": ["apps/product-front/src/styles.scss"],
                 "scripts": []
             },
             "configurations": {
@@ -51,11 +49,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "executor": "@angular-devkit/build-angular:dev-server",
+            "defaultConfiguration": "development",
+            "continuous": true,
             "configurations": {
                 "production": {
                     "buildTarget": "product-front:build:production"
@@ -64,17 +63,15 @@
                     "buildTarget": "product-front:build:development"
                 }
             },
-            "defaultConfiguration": "development",
-            "continuous": true
+            "readyWhen": {
+                "signal": true
+            }
         },
         "extract-i18n": {
             "executor": "@angular-devkit/build-angular:extract-i18n",
             "options": {
                 "buildTarget": "product-front:build"
             }
-        },
-        "lint": {
-            "executor": "@nx/eslint:lint"
         }
     }
 }

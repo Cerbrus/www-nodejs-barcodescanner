@@ -6,28 +6,27 @@
             "dependsOn": ["^build"],
             "inputs": ["production", "^production"]
         },
-        "lint": {
-            "cache": true,
-            "inputs": [
-                "default",
-                "{workspaceRoot}/.eslintrc.json",
-                "{workspaceRoot}/.eslintignore",
-                "{workspaceRoot}/eslint.config.js"
-            ]
-        },
+        "lint": [
+            {
+                "cache": true,
+                "inputs": ["default", "{workspaceRoot}/eslint.config.mjs", "{workspaceRoot}/eslint.config.js"]
+            },
+            {
+                "filter": {
+                    "plugin": "@nx/eslint/plugin"
+                },
+                "inputs": [
+                    "default",
+                    "^default",
+                    "{workspaceRoot}/eslint.config.mjs",
+                    "{workspaceRoot}/tools/eslint-rules/**/*"
+                ]
+            }
+        ],
         "@angular-devkit/build-angular:browser": {
             "cache": true,
             "dependsOn": ["^build"],
             "inputs": ["production", "^production"]
-        },
-        "@nx/eslint:lint": {
-            "cache": true,
-            "inputs": [
-                "default",
-                "{workspaceRoot}/.eslintrc.json",
-                "{workspaceRoot}/.eslintignore",
-                "{workspaceRoot}/eslint.config.mjs"
-            ]
         },
         "@angular/build:application": {
             "cache": true,
@@ -44,7 +43,7 @@
             "!{projectRoot}/jest.config.[jt]s",
             "!{projectRoot}/src/test-setup.[jt]s",
             "!{projectRoot}/test-setup.[jt]s",
-            "!{projectRoot}/.eslintrc.json",
+            "!{projectRoot}/eslint.config.mjs",
             "!{projectRoot}/eslint.config.js"
         ],
         "sharedGlobals": []
@@ -74,12 +73,6 @@
         },
         "@schematics/angular:service": {
             "type": "service"
-        },
-        "@nx/angular:scam": {
-            "type": "component"
-        },
-        "@nx/angular:scam-directive": {
-            "type": "directive"
         },
         "@nx/angular:guard": {
             "typeSeparator": "."
@@ -113,5 +106,26 @@
         }
     },
     "useInferencePlugins": false,
-    "defaultBase": "master"
+    "defaultBase": "master",
+    "affected": {
+        "legacy": true
+    },
+    "plugins": [
+        {
+            "plugin": "@nx/eslint/plugin",
+            "options": {
+                "targetName": "lint"
+            }
+        },
+        {
+            "plugin": "@nx/webpack/plugin",
+            "options": {
+                "buildTargetName": "build",
+                "previewTargetName": "preview",
+                "serveStaticTargetName": "serve-static",
+                "serveTargetName": "serve"
+            },
+            "include": ["apps/product-api/**/*"]
+        }
+    ]
 }

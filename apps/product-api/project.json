@@ -6,25 +6,8 @@
     "tags": [],
     "targets": {
         "build": {
-            "executor": "@nx/webpack:webpack",
-            "outputs": [
-                "{options.outputPath}"
-            ],
-            "defaultConfiguration": "production",
-            "options": {
-                "target": "node",
-                "compiler": "tsc",
-                "outputPath": "dist/apps/product",
-                "main": "apps/product-api/src/main.ts",
-                "tsConfig": "apps/product-api/tsconfig.app.json",
-                "assets": [],
-                "generatePackageJson": true,
-                "webpackConfig": "apps/product-api/webpack.config.js"
-            },
-            "configurations": {
-                "development": {},
-                "production": {}
-            }
+            "outputs": ["{workspaceRoot}/dist/apps/product"],
+            "defaultConfiguration": "production"
         },
         "serve": {
             "executor": "@nx/js:node",
@@ -40,12 +23,6 @@
                     "buildTarget": "product-api:build:production"
                 }
             }
-        },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ]
         }
     }
 }

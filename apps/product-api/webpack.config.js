@@ -1,14 +1,15 @@
-/* eslint-disable */
-const { composePlugins, withNx } = require('@nx/webpack');
+const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 
-// Nx plugins for webpack.
-module.exports = composePlugins(
-    withNx({
-        target: 'node',
-    }),
-    (config) => {
-        // Update the webpack config as needed here.
-        // e.g. `config.plugins.push(new MyPlugin())`
-        return config;
-    },
-);
+module.exports = {
+    plugins: [
+        new NxAppWebpackPlugin({
+            target: 'node',
+            compiler: 'tsc',
+            outputPath: '../../dist/apps/product',
+            main: './src/main.ts',
+            tsConfig: './tsconfig.app.json',
+            generatePackageJson: true,
+            outputHashing: 'none'
+        })
+    ]
+};

@@ -13,10 +13,11 @@
         "lib": ["es2023", "dom"],
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
-        "baseUrl": ".",
-        "paths": {
-            "ngx-component-modal": ["libs/ngx-component-modal/src/index.ts"]
-        }
+        "strict": false,
+        "noUncheckedSideEffectImports": false,
+        "types": ["*"],
+        "esModuleInterop": false,
+        "ignoreDeprecations": "6.0"
     },
     "exclude": ["node_modules", "tmp"]
 }

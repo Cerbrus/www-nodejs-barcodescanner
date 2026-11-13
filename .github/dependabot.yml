@@ -9,13 +9,13 @@ updates:
         open-pull-requests-limit: 8
         groups:
             angular:
-                patterns: [ '@angular/*', '@angular-devkit/*', '@schematics/angular', 'angular-eslint', '@angular-eslint/*', 'zone.js' ]
+                patterns: [ '@angular/*', '@angular-devkit/*', '@schematics/angular', 'angular-eslint', '@angular-eslint/*' ]
             nx:
                 patterns: [ 'nx', '@nx/*' ]
             nestjs:
                 patterns: [ '@nestjs/*' ]
             linting:
-                patterns: [ 'eslint', 'eslint-*', '@eslint/*', '@typescript-eslint/*', 'jsonc-eslint-parser', 'prettier' ]
+                patterns: [ 'eslint', 'eslint-*', '@eslint/*', 'typescript-eslint', '@typescript-eslint/*', 'jsonc-eslint-parser', 'prettier' ]
             minor-and-patch:
                 update-types: [ minor, patch ]
 

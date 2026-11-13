@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withHashLocation } from '@angular/router';
 
@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(appRoutes, withComponentInputBinding(), withHashLocation()),
         provideSettings(),
-        provideHttpClient(withInterceptors([redirectOnUnauthorized, reportFailedChanges])),
+        provideHttpClient(withXhr(), withInterceptors([redirectOnUnauthorized, reportFailedChanges])),
         provideTranslation()
     ]
 };
