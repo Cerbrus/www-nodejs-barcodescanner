@@ -3,6 +3,11 @@ name: Build images
 on:
     push:
         branches: [ master ]
+        paths-ignore:
+            - 'docs/**'
+            - '**.md'
+            - '.github/dependabot.yml'
+            - '.github/workflows/dependabot-helper.yml'
     pull_request:
 
 permissions:
