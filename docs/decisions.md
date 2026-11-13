@@ -25,8 +25,8 @@ Outcome of the feature review on 2026-11-12, with later decisions added below. C
 
 | # | Topic | Decision | Reason |
 |---|---|---|---|
-| 15 | Stack | Keep NestJS and Angular, trimmed hard. One app container serves the API and the built frontend. | Familiar stack, far less code. |
-| 16 | Removed | CQRS, mapper and repository layers, Slack-poll leftovers, the Python supermarket connector, PostgreSQL. | Overhead for a home tool with four tables. |
+| 15 | Stack | Keep NestJS and Angular, trimmed hard. One app container serves the API and the built frontend. The API is layered: `api` (controllers, request types, guards), `core` (services, rules), `data` (entities, migrations), `config` (added 2026-11-13). | Familiar stack, far less code. One thing per file, and a fixed place for each kind of thing. |
+| 16 | Removed | CQRS, mapper and repository layers, Slack-poll leftovers, the Python supermarket connector, PostgreSQL. Confirmed 2026-11-13 when the API got its layers: no class per use case, no separate domain models, no mappers. | Overhead for a home tool with a handful of tables. |
 | 17 | Database | SQLite file on a Docker volume. | No database container; backup is one file. See "Database backup" below. |
 | 18 | Scanner input | Small Python hardware agent container using `evdev` with an exclusive grab. | See "Scanner in Docker" below. |
 | 19 | Deployment | Images built by GitHub Actions, pulled by a systemd timer on the Pi. | No inbound access, no SSH secrets, nothing but Docker on the Pi. |
@@ -96,6 +96,15 @@ Decided 2026-11-12: the sound per scan result is a setting in the app, chosen fr
 ## Login
 
 Decided 2026-11-13: login with Google inside the app, for the owner only. Considered and dropped for now: accounts for several people with their own lists and an approval step, as too complex. The allowlist can hold more addresses later; they would share the one list. No user table: the session is a signed cookie, and the hardware agent uses a shared secret.
+
+## API hardening
+
+Decided 2026-11-13, with the layered layout:
+
+- A scan's source comes from who is calling, the agent's token or a browser session; it is not a field in the request. User types in the API may come some day; nothing is prepared for them.
+- The agent's token opens four routes only.
+- Each scan action is one transaction, and they run one at a time.
+- Settings are read in one place.
 
 ## Functional reference
 

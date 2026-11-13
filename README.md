@@ -16,7 +16,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 
 | Part | Directory | Stack |
 |---|---|---|
-| API | `apps/product-api/` | NestJS, TypeORM, SQLite |
+| API | `apps/product-api/` | NestJS, TypeORM, SQLite; layered into `api`, `core`, `data`, `config` |
 | Web app | `apps/product-front/` | Angular 20, TailwindCSS |
 | Hardware agent | `apps/hardware-agent/` | Python, evdev, libgpiod |
 | Deployment | `deployment/` | Docker Compose, systemd timers, shell scripts |
@@ -44,7 +44,7 @@ yarn product-api:serve                # API on port 3020
 yarn product-front:serve              # web app on port 4200, talks to the API on 3020
 yarn lint:all
 yarn product-api:test                 # scan rules and session signing
-yarn product-api:test:integration     # real modules against a temporary SQLite file, and the login guard over HTTP
+yarn product-api:test:integration     # services against a temporary SQLite file; login guard, data routes and the whole app over HTTP
 ```
 
 The API keeps its data in a SQLite file, `data/app.db` by default (`DATABASE_PATH` overrides it). It is created and seeded from `data/seed-items.json` on first start and is not committed. `GET /api/v1/health` reports the status and the running version (`dev` locally; builds of `master` get a version such as `1.0.20`, see docs/deployment.md).

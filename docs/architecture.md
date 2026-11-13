@@ -29,21 +29,95 @@ How the product is built today. What is still open is in [plan.md](plan.md).
 | `app` | NestJS serving `/api/v1/...` and the built Angular app | SQLite at `/data/app.db` on a volume. Icons and the seed file ship inside the image at `/app/data/`. Runs migrations at start. |
 | `hardware-agent` | Python, one file | Reads the scanner, posts scans and its own log lines to `app` over the compose network. Retries while the app is starting. Beeps a buzzer on a GPIO pin according to the scan result, when one is configured. |
 
-## App layout
+## API layout
 
-Plain NestJS modules, no CQRS. A controller calls a service; a service uses TypeORM repositories directly.
+Layered: an outer layer that speaks HTTP, an inner layer with the rules, a layer for storage, and one place for settings. Dependencies point inward only; lint rules enforce it.
 
-| Module | Responsibility |
+```mermaid
+flowchart TB
+    browser["Web app<br/>(session cookie)"]
+    agent["Hardware agent<br/>(agent token)"]
+
+    subgraph api["api: speaks HTTP"]
+        guards["guards<br/>login, who is calling"]
+        controllers["controllers<br/>one per resource"]
+        dto["dto<br/>request shapes, validation"]
+    end
+
+    subgraph core["core: rules and services"]
+        services["services"]
+        rules["rules<br/>pure, tested"]
+        connectors["connectors"]
+    end
+
+    subgraph data["data: storage"]
+        entities["entities"]
+        migrations["migrations"]
+        tx["transaction runner"]
+    end
+
+    config["config<br/>every setting and path"]
+
+    browser --> guards
+    agent --> guards
+    guards --> controllers
+    controllers --> dto
+    controllers --> services
+    services --> rules
+    services --> connectors
+    services --> entities
+    services --> tx
+    api -.-> config
+    core -.-> config
+    data -.-> config
+```
+
+```
+apps/product-api/src/
+├── main.ts, app.module.ts
+├── config/      app.config.ts: the only file that reads the environment
+├── api/
+│   ├── controllers/   auth, barcode, catalog, event, feedback, health, icon, list, log, push, scan, section
+│   ├── dto/           one request shape per file, with its validation
+│   ├── guards/        auth.guard, and the decorators Public, Agent, CalledBy
+│   └── configure-api.ts   prefix, versioning and validation, shared by the server and the tests
+├── core/
+│   ├── services/      barcode, catalog, connector, events, feedback, list, log, push, scan, seed, session
+│   ├── rules/         scan-rules, session, sounds: no framework, no storage
+│   └── connectors/    Albert Heijn, Open Food Facts
+├── data/
+│   ├── entities/      one table per file
+│   ├── migrations/
+│   └── transaction.runner.ts
+└── test/              integration tests: modules, login guard, data routes, whole app
+```
+
+| Layer | May import | Holds |
+|---|---|---|
+| `api` | `core`, `data` (entity types), `config` | Controllers, request types, the guard. No rules, no queries |
+| `core` | `data`, `config` | Services and rules. Knows nothing about HTTP |
+| `data` | `config` | Entities, migrations, the transaction runner |
+| `config` | nothing | `AppConfig` |
+
+What it deliberately does not have: a class per use case, domain models separate from the entities, mappers, repository interfaces. Services use TypeORM entities directly (decision 16).
+
+| Service | Responsibility |
 |---|---|
-| `scan` | Scan endpoint, scan rules, undo, history |
-| `catalog` | Catalog items, sections, barcode mappings, inbox |
+| `scan` | Registers a scan, names a barcode and applies its waiting scans, discards, undoes. Each of these runs in one transaction |
+| `barcode` | The only service that touches the `barcode` table: inbox, links, scan counters, suggestions |
+| `catalog` | Sections, products, icon names, the default icon from the seed file |
 | `list` | List entries: to buy, recent, quantity, note |
-| `connectors` | Product lookup behind one interface |
-| `auth` | Login with Google for the accounts on an allowlist, the session cookie, and the guard in front of every route |
-| `events` | Server-sent events to open pages |
-| `log` | Keeps the last 500 log lines in memory, from the app itself and from the hardware agent, which posts its own lines to `POST /api/v1/logs`. `GET /api/v1/logs` returns them; new lines go out as `log` events. Every line is also appended to `/data/logs/app.log`, which rotates at 256 KB and keeps three old files; the last 500 lines are read back at start, so the log survives restarts and updates |
-| `feedback` | The library of buzzer sounds, the sound chosen per scan result, and test sounds relayed to the hardware agent |
-| `push` | Web push notifications: keeps the subscriptions of devices that turned notifications on, and sends a notification when the handheld scanner reads a barcode without a name. Creates its own key pair in `/data/push-keys.json` on first use |
+| `connector` | Runs the product connectors in parallel |
+| `events` | Server-sent events to open pages and the hardware agent |
+| `feedback` | The library of buzzer sounds, the sound chosen per scan result, test sounds |
+| `push` | Web push: subscriptions and the notification for an unknown handheld scan. Creates its key pair in `/data/push-keys.json` |
+| `log` | The last 500 log lines in memory and in `/data/logs/app.log` (rotates at 256 KB, three old files), from the app, the agent and the phone |
+| `session` | The session secret, issuing and reading login sessions, the allowlist |
+| `seed` | Fills an empty database from `data/seed-items.json` |
+
+**Transactions.** `TransactionRunner` runs a piece of work in one database transaction and handles such pieces one at a time, since SQLite has one writer. A scan that fails halfway leaves nothing behind, and two scans at the same moment are counted in turn. Events, notifications and connector lookups go out after the commit.
+
+**Settings.** `AppConfig` reads every environment setting once and derives the data folder and all file paths from it. No other file may read `process.env`.
 
 The app also serves the icon files under `/icons` and the built web app for every other path.
 
@@ -84,7 +158,7 @@ On first start with an empty database, the app imports sections, items and the c
 
 ## Scan rules
 
-On `POST /api/v1/scans` with `{ code, source }`:
+On `POST /api/v1/scans` with `{ code }`. The source is not sent: a scan posted with the agent's token is `handheld`, one posted by a logged-in browser is `phone`.
 
 1. Same code within 1 second of the previous scan: result `ignored`. The camera page has its own, longer pause of 3 seconds for a code that stays in view.
 2. Barcode has a catalog item:
@@ -124,7 +198,7 @@ interface ProductSuggestion {
 
 | Method and path | Purpose |
 |---|---|
-| `POST /api/v1/scans` | Register a scan |
+| `POST /api/v1/scans` | Register a scan; open to the agent |
 | `POST /api/v1/scans/undo` | Undo the latest scan |
 | `GET /api/v1/scans` | History |
 | `GET /api/v1/list` | List entries with their catalog items |
@@ -144,7 +218,7 @@ interface ProductSuggestion {
 | `GET /api/v1/feedback/settings` | The sound chosen per event, and the library of sounds |
 | `PUT /api/v1/feedback/settings/:event` | Choose the sound for an event, or `none` |
 | `POST /api/v1/feedback/test` | Play one sound from the library at the scanner |
-| `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent posts its own |
+| `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent and the phone post their own |
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
 | `POST /api/v1/push/test` | Send a test notification to every subscribed device |
@@ -160,8 +234,9 @@ Optional, switched on by setting `GOOGLE_CLIENT_ID`. Without it the API is open 
 - **Flow**: the login page links to `GET /api/v1/auth/google`, which sends the browser to Google with a random state kept in a short-lived cookie. Google returns to `/api/v1/auth/google/callback`; the API checks the state, exchanges the code with Google using the client secret, and reads the account from the answer. The account must have a verified address that is listed in `ALLOWED_EMAILS`.
 - **Session**: a cookie holding the address and an expiry, signed with a secret the app creates in `/data/session-secret`. No session table. It lasts 90 days and is renewed when the app is opened after a day or more. `HttpOnly`, `Secure`, `SameSite=Lax`. Removing an address from `ALLOWED_EMAILS` ends its sessions at once.
 - **Guard**: one global guard covers every API route and the event stream. Open without login: the health check and the `auth` routes. The files of the web app and the icons are public; they hold no data.
-- **Hardware agent**: has no Google account. It sends the `AGENT_TOKEN` from `.env` in the `X-Agent-Token` header, which the guard accepts instead of a session.
+- **Hardware agent**: has no Google account. It sends the `AGENT_TOKEN` from `.env` in the `X-Agent-Token` header. The guard records who is calling, `user` or `agent`, and the token only opens the routes marked `@Agent()`: posting a scan, posting a log line, the event stream and reading the sound settings. Anything else answers 403 to the agent.
 - **Other sites**: a request that changes something and names another site as its origin is refused.
+- **Event stream**: a browser's stream is checked once a minute and ends when its session has expired or its account left the allowlist.
 - **Web app**: a route guard asks `GET /api/v1/auth/me` once; without a session it shows the login page. Any "not logged in" answer later sends the user there too. The System page shows the account and a logout button.
 - No passwords, no user table, no roles: everyone on the allowlist shares the one list.
 

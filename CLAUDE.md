@@ -20,7 +20,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 - One `hardware-agent` container: Python `evdev`, reads the scanner, posts scans and its log lines to the API.
 - Product lookup through `ProductConnector` classes, all queried in parallel; results are suggestions, the user names each barcode once.
 - Web push for unknown handheld scans; the service worker (`src/sw.js`) caches nothing.
-- Login with Google for an allowlist of accounts (`auth` module): one global guard, signed session cookie, a token for the hardware agent. New routes are guarded by default; mark one `@Public()` only when it must work without login.
+- Login with Google for an allowlist of accounts: one global guard, signed session cookie, a token for the hardware agent. New routes are for logged-in users by default; mark one `@Public()` only when it must work without login, and `@Agent()` only when the hardware agent needs it.
 - No Bring, no PostgreSQL, no CQRS, no user table.
 - Deployment: GitHub Actions builds images to `ghcr.io`; systemd timers on the Pi pull them and push an hourly database backup to a private repository.
 
@@ -28,7 +28,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 
 | Part | Directory | Notes |
 |---|---|---|
-| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Modules: `auth`, `scan`, `catalog`, `list`, `connectors`, `events`, `log`, `push`, `feedback`. Hand-written migrations in `src/data/migrations/` |
+| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Layers under `src/`: `api` (controllers, dto, guards), `core` (services, rules, connectors), `data` (entities, migrations), `config`. Integration tests in `src/test/` |
 | Web app | `apps/product-front/` | Angular 20, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/` |
 | Hardware agent | `apps/hardware-agent/` | Python, evdev |
 | Deployment | `deployment/` | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh` |
@@ -46,7 +46,7 @@ yarn product-front:serve    # port 4200
 yarn product-front:build
 yarn lint:all
 yarn product-api:test                 # scan rules, session signing
-yarn product-api:test:integration     # real modules on a temporary SQLite file, login guard over HTTP
+yarn product-api:test:integration     # services on a temporary SQLite file; login guard, data routes and the whole app over HTTP
 ```
 
 Don't start the serve commands from a session; ask the user to run them. The image build runs lint and both test commands first, so keep them green.
@@ -57,7 +57,10 @@ Don't start the serve commands from a session; ask the user to run them. The ima
 - ESLint: strict TypeScript (`no-any`, `explicit-member-accessibility`), ordered imports, blank lines between multi-line class members, max 75 lines per function.
 - Angular: prefix `app`, standalone components, signals over observables in components, `@ngx-translate` with EN and NL. Every visible text goes in both language files.
 - Styling: colours come from the CSS variables in `styles.scss`, which carry the light and dark theme. No hard-coded colours in components.
-- NestJS: controller calls service, service uses TypeORM directly. No extra layers. Schema changes need a new migration; `synchronize` is off.
+- NestJS: controller calls service, service uses TypeORM directly. No use-case classes, mappers or repository interfaces. Schema changes need a new migration; `synchronize` is off.
+- API layers: one controller, request type, entity or service per file. Imports point inward only (`api` to `core` to `data`); lint enforces it. Module files only wire things together.
+- Settings: read them through `AppConfig`; `process.env` is forbidden elsewhere.
+- A table has one owning service; other services ask it. Work that writes several tables runs through `TransactionRunner`, and events go out after it.
 - No explanatory comments.
 
 ## Hard rules

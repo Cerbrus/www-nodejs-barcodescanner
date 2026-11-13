@@ -46,7 +46,7 @@ Result: a push to `master` reaches the Pi by itself, typically within ten minute
 - Albert Heijn and Open Food Facts connectors behind one interface.
 - Server-sent events; the hardware agent posts scans and its log lines.
 
-Tests on 2026-11-13: 17 unit tests for the scan rules and session signing (`yarn product-api:test`), and 17 that run the real thing (`yarn product-api:test:integration`): 8 for the modules against a temporary SQLite file and 9 that call the login guard over HTTP. Not covered by tests: the connectors' calls to the outside world, the HTTP layer of the other routes, push sending, the web app. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
+Tests on 2026-11-13, after the restructure: 17 unit tests for the scan rules and session signing (`yarn product-api:test`), and 34 that run the real thing (`yarn product-api:test:integration`): the services against a temporary SQLite file, the login guard, the data routes and the whole app module over HTTP. Not covered by tests: the connectors' calls to the outside world, push sending, the web app. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
 
 ### 4. Frontend: done 2026-11-12 19:09
 
@@ -83,6 +83,8 @@ Done when: naming a typical new barcode takes one or two taps.
 
 - Done 2026-11-13 00:55: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. Open: log in inside the installed iPhone app, one handheld scan with login on, remove the proxy's access list.
 
+- Done 2026-11-13 02:35, on branch `feature/api-restructure`, not yet released: the API restructured into layers and hardened, see [api-restructure-plan.md](api-restructure-plan.md). Releases as version 1.1.0.
+
 ### 7. Feedback at the scanner: mostly done
 
 - Done 2026-11-12 20:05: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
@@ -107,5 +109,5 @@ Done when: naming a typical new barcode takes one or two taps.
 - Rollback with `IMAGE_TAG`.
 - A reboot with the firewall service since it was added.
 - Push notifications on anything but the iPhone (Android, desktop browsers), which take the service worker path.
-- Login inside the installed iPhone app, and a handheld scan with login on. The agent was seen fetching its settings with its token, which uses the same check.
+- After the API restructure is released: the image build, the server start with the real log file, and the hardware agent against the narrowed token.
 - The version in the workflow's job names and run summary, until the first run after 2026-11-13.

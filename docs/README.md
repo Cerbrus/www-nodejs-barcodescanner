@@ -9,6 +9,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 | [deployment.md](deployment.md) | Raspberry Pi setup, automatic updates, reverse proxy, backup and restore |
 | [decisions.md](decisions.md) | Feature and technology choices, with the reasoning |
 | [plan.md](plan.md) | Milestones: what is done, what is open, what was never tested |
+| [api-restructure-plan.md](api-restructure-plan.md) | Plan and outcome of the API restructure of 2026-11-13 |
 | [scanner-usb-capture.txt](scanner-usb-capture.txt) | USB capture of the scanner dongle, kept for the open question of driving its beeper |
 | [../data/seed-items.json](../data/seed-items.json) | Seed data: sections and products with icon and emoji, starting list |
 

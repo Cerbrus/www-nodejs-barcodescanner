@@ -1,6 +1,6 @@
 # Plan: restructure and harden the API
 
-Status: reviewed and decided on 2026-11-13, see the last section. Nothing in this plan is built yet.
+Status: done 2026-11-13 02:35 on branch `feature/api-restructure`, not yet released. Outcome and deviations are in the last section.
 
 Goal: give the API the layered layout with separate `controllers` and `services` folders, and fix the weak points found in the architecture review of 2026-11-13, without changing what the product does.
 
@@ -210,3 +210,25 @@ Order matters for 1 before the rest; 2 to 5 are independent of each other.
 | Release | Everything on one feature branch, one release at the end |
 | Version | The restructured API is released as `1.1.0` |
 | Source of a scan | Taken from who is calling: the agent's secret means handheld, a logged-in browser means phone. The `source` field leaves the request. A notion of user types in the API may come some day; nothing is prepared for it now |
+
+## Outcome (2026-11-13)
+
+All eight findings are handled; lint, both builds and 51 tests pass (17 unit, 34 integration).
+
+| Step | Commit subject | Notes |
+|---|---|---|
+| 1 | Move the API into api, core, data and config layers | 75 files; moves and splits only |
+| 2 | Read every setting through one config class | Session secret handling became `SessionService` in core |
+| 3, 4 | Give the barcode table one owner and run each scan action in one transaction | Done as one commit: the barcode service had to be transaction-aware from the start |
+| 5 | Tell the hardware agent and a logged-in browser apart | Log lines from the phone got their own source |
+| 6 | Test the data routes over HTTP and fence the layers with lint rules | Found and fixed: creating a product without a name answered 500 instead of 400 |
+| 7 | Documentation and version 1.1.0 | A test that starts the whole app module was added as well |
+
+Deviations from the plan as written:
+
+- `api` may import entity *types* from `data`, because controllers return entities. The lint rules forbid the outward directions: `core` to `api`, `data` to `core` or `api`, `config` to anything.
+- Request types for push are in one file (`push-subscription.dto.ts`), as planned; `core/models.ts` was not needed.
+- The hardware agent still sends the `source` field. The API ignores it. It stays until the release has been out for a while, so an old API and a new agent can never disagree during an update.
+- When login is off there is no token to recognise the agent by; a request that carries the agent header, even empty, then counts as the agent.
+
+Not verified, because nothing was released: the image build in GitHub Actions, the bootstrap in `main.ts` with the real log file, and the hardware agent against the new guard on the Pi. Check after release: scanner connects, a scan arrives and beeps, sound settings load, the log shows agent lines.
