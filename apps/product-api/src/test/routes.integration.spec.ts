@@ -150,6 +150,21 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('PUT', '/feedback/settings/added', asAgent, { soundId: 'none' })).status, 403);
     });
 
+    it('shows whether the agent and its scanner are there', async () => {
+        const silent = await call<{ agentOnline: boolean; scanner?: string }>('GET', '/agent/status', asUser);
+        assert.deepEqual([silent.body.agentOnline, silent.body.scanner], [false, undefined]);
+
+        assert.equal((await call('POST', '/agent/status', asAgent, { scanner: 'sleeping' })).status, 400);
+        assert.equal((await call('POST', '/agent/status', asAgent, { scanner: 'connected', device: 'HID 0581:011c' })).status, 204);
+        const connected = await call<{ agentOnline: boolean; scanner: string; device: string; lastHandheldScanAt?: string }>('GET', '/agent/status', asUser);
+        assert.deepEqual([connected.body.agentOnline, connected.body.scanner, connected.body.device], [true, 'connected', 'HID 0581:011c']);
+        assert.ok(connected.body.lastHandheldScanAt);
+
+        await call('POST', '/agent/status', asAgent, { scanner: 'waiting' });
+        assert.equal((await call<{ scanner: string }>('GET', '/agent/status', asUser)).body.scanner, 'waiting');
+        assert.equal((await call('GET', '/agent/status', asAgent)).status, 403);
+    });
+
     it('labels log lines by who sent them', async () => {
         await call('POST', '/logs', asUser, { level: 'info', message: 'notification tapped' });
         const lines = await call<Array<{ source: string; message: string }>>('GET', '/logs?limit=10', asUser);

@@ -39,6 +39,7 @@ FEEDBACK_QUEUE_SIZE = 4
 PASSIVE_TONE_HZ = 2400
 SLEEP_ABOVE_SECONDS = 0.005
 EVENT_STREAM_TIMEOUT_SECONDS = 60
+STATUS_REPEAT_SECONDS = 60
 BLIP, GAP = 0.06, 0.07
 
 
@@ -274,6 +275,29 @@ class Feedback:
             time.sleep(1)
 
 
+class StatusReporter:
+    def __init__(self):
+        self.status = None
+        threading.Thread(target=self.repeat, daemon=True).start()
+
+    def report(self, scanner, device=None):
+        self.status = {'scanner': scanner, **({'device': device} if device else {})}
+        self.send()
+
+    def send(self):
+        if not self.status:
+            return
+        try:
+            post_json('/agent/status', self.status).close()
+        except (urllib.error.URLError, OSError):
+            pass
+
+    def repeat(self):
+        while True:
+            time.sleep(STATUS_REPEAT_SECONDS)
+            self.send()
+
+
 def post_scan(code):
     with post_json('/scans', {'code': code, 'source': 'handheld'}) as response:
         return json.load(response)
@@ -297,6 +321,7 @@ def handle_scan(code, feedback):
 
 def run():
     feedback = Feedback()
+    status = StatusReporter()
     waiting_logged = False
     while True:
         try:
@@ -305,17 +330,20 @@ def run():
         except OSError as error:
             if not waiting_logged:
                 log.warning('scanner not available at %s (%s), waiting', DEVICE_PATH, error)
+                status.report('waiting')
                 waiting_logged = True
             time.sleep(RETRY_SECONDS)
             continue
 
         waiting_logged = False
         log.info('scanner connected: %s (%s)', device.name, DEVICE_PATH)
+        status.report('connected', device.name)
         try:
             for code in read_scans(device):
                 handle_scan(code, feedback)
         except OSError as error:
             log.warning('scanner disconnected (%s)', error)
+            status.report('waiting')
         finally:
             try:
                 device.close()

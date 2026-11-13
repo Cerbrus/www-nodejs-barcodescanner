@@ -124,7 +124,14 @@
         "connection": "Connection",
         "version": "Version",
         "theme": "Appearance",
-        "built": "Built"
+        "built": "Built",
+        "scanner": "Handheld scanner",
+        "lastHandheldScan": "Last handheld scan",
+        "scannerState": {
+            "connected": "connected",
+            "waiting": "not found",
+            "offline": "scanner service not reachable"
+        }
     },
     "icons": {
         "title": "Pick an icon",

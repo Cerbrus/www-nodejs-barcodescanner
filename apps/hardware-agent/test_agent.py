@@ -276,5 +276,27 @@ class HandleScan(unittest.TestCase):
         self.assertEqual(self.feedback.signals, ['error'])
 
 
+class ScannerStatus(unittest.TestCase):
+    def setUp(self):
+        self.api = FakeApi()
+        self.addCleanup(self.api.close)
+        self.addCleanup(setattr, agent, 'API_BASE', agent.API_BASE)
+        agent.API_BASE = self.api.base
+        self.api.answers['/api/v1/agent/status'] = (204, {})
+
+    def test_the_scanner_state_is_reported_with_the_agent_token(self):
+        reporter = agent.StatusReporter()
+        reporter.report('connected', 'HID 0581:011c')
+        reporter.report('waiting')
+
+        self.assertEqual([request[3] for request in self.api.requests],
+                         [{'scanner': 'connected', 'device': 'HID 0581:011c'}, {'scanner': 'waiting'}])
+        self.assertEqual(self.api.requests[0][2], 'secret-for-tests')
+
+    def test_an_unreachable_api_does_not_stop_the_agent(self):
+        agent.API_BASE = 'http://127.0.0.1:9/api/v1'
+        agent.StatusReporter().report('connected', 'HID 0581:011c')
+
+
 if __name__ == '__main__':
     unittest.main()

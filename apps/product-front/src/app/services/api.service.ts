@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
+    AgentStatus,
     Barcode,
     CatalogItem,
     CatalogItemInput,
@@ -33,6 +34,10 @@ export class ApiService {
 
     public get iconsUrl(): string {
         return `${this.settings.getApiUrl('core').replace(/\/api$/, '')}/icons`;
+    }
+
+    public getAgentStatus(): Observable<AgentStatus> {
+        return this.http.get<AgentStatus>(`${this.baseUrl}/agent/status`);
     }
 
     public getHealth(): Observable<Health> {

@@ -1,9 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
 import { SoundTestComponent } from '../../components/sound-test/sound-test.component';
 import { ApiService } from '../../services/api.service';
@@ -16,6 +16,7 @@ import { ToastService } from '../../services/toast.service';
 const LANGUAGES = ['nl', 'en'] as const;
 const LANGUAGE_STORAGE_KEY = 'language';
 const COMMIT_LENGTH = 7;
+const AGENT_REFRESH_MILLISECONDS = 60 * 1000;
 const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
     { theme: 'auto', icon: 'brightness_auto' },
     { theme: 'light', icon: 'light_mode' },
@@ -135,6 +136,21 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                     <strong>{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</strong>
                 </p>
                 <p>
+                    {{ 'system.scanner' | translate }}:
+                    <strong [style.color]="scannerState() === 'connected' ? null : 'var(--danger)'">
+                        {{ 'system.scannerState.' + scannerState() | translate }}
+                    </strong>
+                    @if (agent()?.device; as device) {
+                        <span class="muted">({{ device }})</span>
+                    }
+                </p>
+                @if (agent()?.lastHandheldScanAt; as lastScan) {
+                    <p>
+                        {{ 'system.lastHandheldScan' | translate }}:
+                        {{ lastScan | date: 'd MMM y HH:mm' }}
+                    </p>
+                }
+                <p>
                     {{ 'system.version' | translate }}:
                     <span class="font-mono">{{ version() }}</span>
                 </p>
@@ -157,6 +173,21 @@ export class SystemPage {
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
     protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');
+
+    private readonly agentApi = inject(ApiService);
+
+    protected readonly agent = toSignal(
+        merge(interval(AGENT_REFRESH_MILLISECONDS), this.events.on('agent', 'scan')).pipe(
+            startWith(undefined),
+            switchMap(() => this.agentApi.getAgentStatus().pipe(catchError(() => of(undefined))))
+        )
+    );
+
+    protected readonly scannerState = computed(() => {
+        const agent = this.agent();
+
+        return agent?.agentOnline ? (agent.scanner ?? 'waiting') : 'offline';
+    });
 
     protected readonly health = toSignal(
         inject(ApiService)

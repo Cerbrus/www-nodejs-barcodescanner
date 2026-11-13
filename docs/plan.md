@@ -92,6 +92,8 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-12 23:40: a buzzer on a GPIO pin (GPIO 18, an active type), driven by the hardware agent from the scan result. The sound per event is chosen on the System page from a library of sounds, with a button to hear each one (UC-16). Open: confirm the whole chain from button to buzzer after the first deploy.
 - Considered: a USB speaker of about 12 euro, or any powered speaker on the Pi's headphone jack.
 
+- Done 2026-11-13 02:20, on branch `feature/scanner-status`, not released: the System page shows whether the scanner service runs and sees the scanner, and the time of the last handheld scan. Untested with the real agent and scanner.
+
 ### 8. Offline shopping: open
 
 - Cached list, queued check-offs and adds, sync on reconnect. The service worker that exists today only handles notifications and caches nothing.

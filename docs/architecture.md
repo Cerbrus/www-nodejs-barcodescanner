@@ -112,6 +112,7 @@ What it deliberately does not have: a class per use case, domain models separate
 | `feedback` | The library of buzzer sounds, the sound chosen per scan result, test sounds |
 | `push` | Web push: subscriptions and the notification for an unknown handheld scan. Creates its key pair in `/data/push-keys.json` |
 | `log` | The last 500 log lines in memory and in `/data/logs/app.log` (rotates at 256 KB, three old files), from the app, the agent and the phone |
+| `agent-status` | Remembers, in memory, when the hardware agent last reported and whether it sees the scanner |
 | `session` | The session secret, issuing and reading login sessions, the allowlist |
 | `seed` | Fills an empty database from `data/seed-items.json` |
 
@@ -224,6 +225,7 @@ interface ProductSuggestion {
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
 | `POST /api/v1/push/test` | Send a test notification to every subscribed device |
+| `GET /api/v1/agent/status`, `POST` | Whether the hardware agent is there and sees the scanner, and the time of the last handheld scan; the agent posts its state when it changes and once a minute |
 | `GET /api/v1/auth/me` | Whether login is on, and who is logged in |
 | `GET /api/v1/auth/google`, `GET /api/v1/auth/google/callback` | Start and finish of the Google login |
 | `POST /api/v1/auth/logout` | End the session |

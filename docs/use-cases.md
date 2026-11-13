@@ -126,4 +126,4 @@ The user adds the site to the home screen from the browser's share menu. It then
 
 ### UC-15 Language and appearance
 
-On the System page the user picks Dutch or English, and automatic, light or dark appearance. Both are remembered per device. The page also shows whether the live connection is up and which version runs.
+On the System page the user picks Dutch or English, and automatic, light or dark appearance. Both are remembered per device. The page also shows whether the live connection is up, whether the handheld scanner is connected, when it last scanned, and which version runs.

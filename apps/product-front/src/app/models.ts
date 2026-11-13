@@ -119,6 +119,14 @@ export interface AuthState {
     email?: string;
 }
 
+export interface AgentStatus {
+    agentOnline: boolean;
+    agentSeenAt?: string;
+    scanner?: 'connected' | 'waiting';
+    device?: string;
+    lastHandheldScanAt?: string;
+}
+
 export interface CatalogItemInput {
     name?: string;
     sectionId?: string;

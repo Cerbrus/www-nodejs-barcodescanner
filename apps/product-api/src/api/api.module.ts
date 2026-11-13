@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 
+import { AgentController } from './controllers/agent.controller';
 import { AuthController } from './controllers/auth.controller';
 import { BarcodeController } from './controllers/barcode.controller';
 import { CatalogController } from './controllers/catalog.controller';
@@ -19,6 +20,7 @@ import { CoreModule } from '../core/core.module';
 @Module({
     imports: [CoreModule],
     controllers: [
+        AgentController,
         AuthController,
         BarcodeController,
         CatalogController,

@@ -44,7 +44,7 @@ Weight: **A** affects daily use or safety, **B** worth doing, **C** nice to have
 |---|---|---|---|
 | H1 | The agent has no tests. Its key reading, its sound patterns and its settings handling were only tried by hand. | B | Built: branch `feature/agent-tests-and-script-checks` |
 | H2 | A scan made while the app is unreachable is lost: the agent beeps the error sound and forgets the scan. The app restarts at every update, about 15 seconds each. | B | Question 3 |
-| H3 | Nothing shows whether the scanner is connected, short of reading the system log. A dongle that fell out is noticed when a scan does not arrive. | B | Planned, see "Plans" |
+| H3 | Nothing shows whether the scanner is connected, short of reading the system log. A dongle that fell out is noticed when a scan does not arrive. | B | Built after the first report: branch `feature/scanner-status`. The notification for a scanner that stays away is not built |
 | H4 | The agent still sends the scan source, which the API now ignores. | C | Remove one release after 1.1.0 |
 
 ### Deployment and operations

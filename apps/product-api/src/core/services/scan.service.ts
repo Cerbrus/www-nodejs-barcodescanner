@@ -119,6 +119,12 @@ export class ScanService {
         return this.barcodes.get(code);
     }
 
+    public async lastScanAt(source: ScanSource): Promise<Date | undefined> {
+        const scan = await this.scans.findOne({ where: { source }, order: { createdAt: 'DESC', id: 'DESC' } });
+
+        return scan?.createdAt;
+    }
+
     public history(limit: number): Promise<Array<ScanEntity>> {
         return this.scans.find({ order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
     }

@@ -124,7 +124,14 @@
         "connection": "Verbinding",
         "version": "Versie",
         "theme": "Weergave",
-        "built": "Gebouwd"
+        "built": "Gebouwd",
+        "scanner": "Handscanner",
+        "lastHandheldScan": "Laatste scan met handscanner",
+        "scannerState": {
+            "connected": "verbonden",
+            "waiting": "niet gevonden",
+            "offline": "scannerdienst niet bereikbaar"
+        }
     },
     "icons": {
         "title": "Kies een icoon",
