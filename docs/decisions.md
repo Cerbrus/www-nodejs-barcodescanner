@@ -115,6 +115,7 @@ Decided 2026-11-13:
 - No licence file. The code is public to read; reuse is not granted.
 - Dependency updates come as weekly pull requests from Dependabot, minor and patch versions grouped, majors left out.
 - Every version gets a GitHub release with the commit subjects since the previous version.
+- A Claude agent tidies Dependabot pull requests that are a day old and stuck, so the owner only has to merge. It has no right to merge, a short list of tools, and treats changelogs as outside text.
 
 ## Functional reference
 

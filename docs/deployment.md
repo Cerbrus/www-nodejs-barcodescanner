@@ -109,6 +109,10 @@ A local run without the build arguments reports version `dev`.
 
 Dependabot (`.github/dependabot.yml`) opens pull requests every Monday: one for minor and patch updates of the npm packages, one for the Docker base images, one for the GitHub Actions. Major versions are left out; they need a deliberate upgrade. A pull request runs the checks and builds both images without publishing. Nothing reaches the Pi until the pull request is merged into `master`.
 
+**Helper.** `.github/workflows/dependabot-helper.yml` runs every morning. Its first job costs nothing: it lists the Dependabot pull requests and keeps those that are at least 24 hours old, have finished their checks, and either conflict with `master` or have a failing check. Only for those does it start a Claude agent, which rebases, repairs what the update broke, pushes to the same branch and leaves one comment. It never merges. Its rules are in `.github/dependabot-helper.md`.
+
+Limits on what it can use: at most 2 pull requests per run, at most 2 attempts per pull request, 40 steps and 30 minutes per attempt, and the smaller Claude model. The numbers are at the top of the workflow file. It uses the repository secret `CLAUDE_CODE_OAUTH_TOKEN`, a subscription token made with `claude setup-token` that is valid for a year, so runs count against the owner's Claude plan. The Claude GitHub App must be installed on the repository. GitHub pauses scheduled workflows of a public repository after 60 days without activity; the Actions page shows a button to switch them on again.
+
 ## Settings (`.env`)
 
 | Variable | Meaning |
