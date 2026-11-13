@@ -21,7 +21,8 @@ export default tseslint.config(
     {
         files: ['**/*.spec.ts'],
         rules: {
-            'max-lines-per-function': 'off'
+            'max-lines-per-function': 'off',
+            '@typescript-eslint/explicit-function-return-type': 'off'
         }
     },
     {
