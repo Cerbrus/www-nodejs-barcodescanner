@@ -46,6 +46,7 @@ yarn lint:all
 yarn product-api:test                 # scan rules and session signing
 yarn product-api:test:integration     # services against a temporary SQLite file; login guard, data routes and the whole app over HTTP
 yarn product-front:test               # the web app's logic and components, without a browser
+yarn e2e                              # the built app in headless Chrome: scan, name, check off, offline, camera
 yarn hardware-agent:test              # the hardware agent with a fake scanner, buzzer and API
 ```
 

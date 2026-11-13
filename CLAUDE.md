@@ -32,6 +32,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 | Web app | `apps/product-front/` | Angular 22, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/` |
 | Hardware agent | `apps/hardware-agent/` | Python, evdev |
 | Deployment | `deployment/` | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh` |
+| End-to-end tests | `e2e/` | Playwright with the installed Chrome; starts the built app itself (`start-app.mjs`) and makes its own camera picture (`barcode-video.mjs`) |
 | Data | `data/` | `seed-items.json` and `icons/` are committed; everything else is ignored |
 
 Nx project names: `product-api`, `product-front`.
@@ -48,10 +49,11 @@ yarn lint:all
 yarn product-api:test                 # scan rules, session signing
 yarn product-api:test:integration     # services on a temporary SQLite file; login guard, data routes and the whole app over HTTP
 yarn product-front:test               # the web app's logic and components, in Vitest without a browser
+yarn e2e                              # builds both apps, starts them on port 3931 with an empty database and drives them in headless Chrome
 yarn hardware-agent:test              # the agent with a fake scanner, buzzer and API; needs Python 3 only
 ```
 
-Don't start the serve commands from a session; ask the user to run them. The build runs lint and all four test commands first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`.
+Don't start the serve commands from a session; ask the user to run them. The build runs lint, all four test commands and `yarn e2e` first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`.
 
 ## Code style
 
