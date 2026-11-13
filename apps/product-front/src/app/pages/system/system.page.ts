@@ -38,7 +38,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 
             <h2 class="section-title">{{ 'system.device' | translate }}</h2>
             <div class="card group">
-                <div class="row">
+                <div class="row choice">
                     <span class="label">{{ 'system.language' | translate }}</span>
                     <div class="segments">
                         @for (language of languages; track language) {
@@ -53,7 +53,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                         }
                     </div>
                 </div>
-                <div class="row">
+                <div class="row choice">
                     <span class="label">{{ 'system.theme' | translate }}</span>
                     <div class="segments">
                         @for (option of themeOptions; track option.theme) {
@@ -187,6 +187,10 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
         }
         .segment i { font-size: 18px; }
         .segment.chosen { background: var(--accent); color: var(--accent-text); }
+        @media (max-width: 480px) {
+            .choice { flex-flow: column nowrap; align-items: stretch; }
+            .choice .segment { flex: 1 1 0; justify-content: center; }
+        }
         .dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
         .dot.bad { background: var(--danger); }
         .version { margin-top: 12px; color: var(--text-muted); font-size: 0.8rem; text-align: center; }
