@@ -22,6 +22,9 @@ updates:
         groups:
             base-images:
                 patterns: [ '*' ]
+        ignore:
+            -   dependency-name: '*'
+                update-types: [ 'version-update:semver-major' ]
 
     -   package-ecosystem: github-actions
         directory: /

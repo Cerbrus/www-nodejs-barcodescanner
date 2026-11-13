@@ -1,9 +1,16 @@
-name: Dependabot helper
+name: Dependabot reviewer
 
 on:
     schedule:
         -   cron: '30 5 * * *'
     workflow_dispatch:
+        inputs:
+            minimum_age_hours:
+                description: Review pull requests that are at least this many hours old
+                default: '24'
+            pull_request:
+                description: Review only this pull request number, whatever its age (empty for all that are due)
+                default: ''
 
 permissions:
     contents: read
@@ -13,13 +20,14 @@ concurrency:
     cancel-in-progress: false
 
 env:
-    MINIMUM_AGE_HOURS: 24
-    PULL_REQUESTS_PER_RUN: 2
-    ATTEMPTS_PER_PULL_REQUEST: 2
+    MINIMUM_AGE_HOURS: ${{ inputs.minimum_age_hours || '24' }}
+    ONLY_PULL_REQUEST: ${{ inputs.pull_request }}
+    PULL_REQUESTS_PER_RUN: 3
+    REVIEWS_PER_PULL_REQUEST: 3
 
 jobs:
     find:
-        name: Find pull requests that need help
+        name: Find pull requests that are due for review
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -30,24 +38,23 @@ jobs:
             numbers: ${{ steps.find.outputs.numbers }}
             count: ${{ steps.find.outputs.count }}
         steps:
-            -   name: List Dependabot pull requests that are old enough and stuck
+            -   name: List Dependabot pull requests that are old enough and not reviewed yet
                 id: find
                 env:
                     GH_TOKEN: ${{ github.token }}
                     GH_REPO: ${{ github.repository }}
                 run: |
                     gh pr list --author 'app/dependabot' --state open --limit 30 \
-                        --json number,title,createdAt,mergeable,headRefOid,statusCheckRollup,comments > open.json
+                        --json number,title,createdAt,headRefOid,statusCheckRollup,comments > open.json
 
-                    jq -c --argjson age "$MINIMUM_AGE_HOURS" --argjson attempts "$ATTEMPTS_PER_PULL_REQUEST" --argjson limit "$PULL_REQUESTS_PER_RUN" '
+                    jq -c --argjson age "$MINIMUM_AGE_HOURS" --argjson reviews "$REVIEWS_PER_PULL_REQUEST" --argjson limit "$PULL_REQUESTS_PER_RUN" --arg only "$ONLY_PULL_REQUEST" '
                         def checks: [.statusCheckRollup[]? | (.conclusion // .state // "")];
-                        def helped: [.comments[]? | select(.body | contains("<!-- dependabot-helper"))];
+                        def reviewed: [.comments[]? | select(.body | contains("<!-- dependabot-helper"))];
                         [ .[]
-                          | select((.createdAt | fromdateiso8601) < (now - $age * 3600))
+                          | select(if $only != "" then (.number | tostring) == $only else (.createdAt | fromdateiso8601) < (now - $age * 3600) end)
                           | select(checks | all(. != "" and . != "PENDING" and . != "EXPECTED"))
-                          | select(.mergeable == "CONFLICTING" or (checks | any(. == "FAILURE" or . == "ERROR" or . == "TIMED_OUT")))
-                          | select((helped | length) < $attempts)
-                          | select(.headRefOid as $head | helped | all(.body | contains($head) | not))
+                          | select((reviewed | length) < $reviews)
+                          | select(.headRefOid as $head | reviewed | all(.body | contains($head) | not))
                           | .number
                         ] | .[:$limit]' open.json > numbers.json
 
@@ -56,11 +63,11 @@ jobs:
                     {
                         echo "Open Dependabot pull requests: $(jq length open.json)"
                         echo
-                        echo "Need help now: $(cat numbers.json)"
+                        echo "Due for review now: $(cat numbers.json)"
                     } >> "$GITHUB_STEP_SUMMARY"
 
-    help:
-        name: Help pull request ${{ matrix.number }}
+    review:
+        name: Review pull request ${{ matrix.number }}
         needs: find
         if: needs.find.outputs.count != '0'
         runs-on: ubuntu-latest
@@ -88,9 +95,9 @@ jobs:
                     claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
                     claude_args: |
                         --model claude-sonnet-5-5
-                        --max-turns 40
+                        --max-turns 60
                         --allowedTools "Bash(git:*),Bash(gh pr:*),Bash(yarn:*),Bash(node:*),Bash(python3:*),Read,Edit,Write,Glob,Grep"
                     prompt: |
-                        Tidy Dependabot pull request #${{ matrix.number }} of this repository so that its owner only has to press "merge".
+                        Review Dependabot pull request #${{ matrix.number }} of this repository: find out whether it would change or break what the product does, repair what is small and clear, and tell the owner whether to merge.
 
                         Read CLAUDE.md first and follow its code style. Then read `.github/dependabot-helper.md` and follow it exactly.
