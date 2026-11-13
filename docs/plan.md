@@ -78,7 +78,7 @@ Done when: naming a typical new barcode takes one or two taps.
 
 - Done 2026-11-12 19:09: log file that survives restarts, hourly database backup, reconnecting pages.
 - Open: use it for two weeks and fix what annoys.
-- Done 2026-11-13 02:05, on branch `feature/connector-failures`, not released: the naming prompt shows which lookup source gave no answer and can ask again. Not done: marking such scans on the history page.
+- Done 2026-11-13 01:52, on branch `feature/connector-failures`, not released: the naming prompt shows which lookup source gave no answer and can ask again. Not done: marking such scans on the history page.
 - Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
 
 - Done 2026-11-13 00:32: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. Open: log in inside the installed iPhone app, one handheld scan with login on, remove the proxy's access list.
@@ -92,11 +92,11 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-12 23:40: a buzzer on a GPIO pin (GPIO 18, an active type), driven by the hardware agent from the scan result. The sound per event is chosen on the System page from a library of sounds, with a button to hear each one (UC-16). Open: confirm the whole chain from button to buzzer after the first deploy.
 - Considered: a USB speaker of about 12 euro, or any powered speaker on the Pi's headphone jack.
 
-- Done 2026-11-13 02:20, on branch `feature/scanner-status`, not released: the System page shows whether the scanner service runs and sees the scanner, and the time of the last handheld scan. Untested with the real agent and scanner.
+- Done 2026-11-13 01:59, on branch `feature/scanner-status`, not released: the System page shows whether the scanner service runs and sees the scanner, and the time of the last handheld scan. Untested with the real agent and scanner.
 
 ### 8. Offline shopping: open
 
-- Done, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
+- Done 2026-11-13 02:08, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
 - Open: queued check-offs and adds, sync on reconnect; see [offline-plan.md](offline-plan.md).
 
 ## Open points
