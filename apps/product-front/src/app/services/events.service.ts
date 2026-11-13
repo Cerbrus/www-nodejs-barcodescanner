@@ -24,6 +24,7 @@ export class EventsService {
     private source?: EventSource;
     private retryTimer?: ReturnType<typeof setTimeout>;
     private started = false;
+    private stopped = false;
     private openedBefore = false;
     private lastActivity = 0;
 
@@ -42,6 +43,13 @@ export class EventsService {
         );
     }
 
+    public stop(): void {
+        this.stopped = true;
+        clearTimeout(this.retryTimer);
+        this.source?.close();
+        this.connected.set(false);
+    }
+
     private start(): void {
         if (this.started) {
             return;
@@ -55,6 +63,10 @@ export class EventsService {
 
     private connect(): void {
         clearTimeout(this.retryTimer);
+        if (this.stopped) {
+            return;
+        }
+
         const source = new EventSource(`${this.api.baseUrl}/events`);
         this.source = source;
 

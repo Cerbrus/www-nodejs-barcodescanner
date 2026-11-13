@@ -131,7 +131,8 @@ Angular with standalone components and signals; no state library. `apps/product-
 | `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode` |
 | `services/` | `auth.service` (login state, route guard), `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
 
-- `shopping.store` loads everything once and reloads on events from the server, so every open page follows scans made elsewhere.
+- `shopping.store` loads everything once and reloads on events from the server, so every open page follows scans made elsewhere. The shell shows a toast with undo for scans from the handheld scanner.
+- Failed changes are reported in one place: an HTTP interceptor shows an error toast for every request that changes something and fails. A request that handles its own failure, such as a scan, opts out.
 - Dialogs use the native `<dialog>` element, so they sit above the navigation.
 - Barcodes are drawn in the browser by `BarcodeComponent`: EAN-13, EAN-8, and 12-digit codes padded to 13.
 - New products get a guessed shop section from keywords in the connector suggestions and the name (`new-item-form`).

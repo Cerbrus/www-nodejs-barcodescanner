@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -17,7 +17,10 @@ import {
     ScanOutcome,
     Section
 } from '../models';
+import { QUIET_FAILURE } from './failed-change.interceptor';
 import { SettingsService } from './settings/settings.service';
+
+const QUIET = new HttpContext().set(QUIET_FAILURE, true);
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -97,7 +100,7 @@ export class ApiService {
     }
 
     public scan(code: string): Observable<ScanOutcome> {
-        return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code });
+        return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code }, { context: QUIET });
     }
 
     public undoScan(): Observable<{ undone?: Scan }> {
@@ -117,7 +120,7 @@ export class ApiService {
     }
 
     public savePushSubscription(subscription: PushSubscriptionInput): Observable<void> {
-        return this.http.post<void>(`${this.baseUrl}/push/subscriptions`, subscription);
+        return this.http.post<void>(`${this.baseUrl}/push/subscriptions`, subscription, { context: QUIET });
     }
 
     public deletePushSubscription(endpoint: string): Observable<void> {

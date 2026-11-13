@@ -4,6 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
 import { AuthState } from '../models';
+import { EventsService } from './events.service';
 import { SettingsService } from './settings/settings.service';
 
 const UNAUTHORIZED = 401;
@@ -15,6 +16,7 @@ export class AuthService {
 
     private readonly http = inject(HttpClient);
     private readonly settings = inject(SettingsService);
+    private readonly events = inject(EventsService);
 
     public get loginUrl(): string {
         return `${this.baseUrl}/auth/google`;
@@ -37,6 +39,7 @@ export class AuthService {
     }
 
     public markLoggedOut(): void {
+        this.events.stop();
         this.state.update((state) => (state?.enabled ? { ...state, authenticated: false, email: undefined } : state));
     }
 

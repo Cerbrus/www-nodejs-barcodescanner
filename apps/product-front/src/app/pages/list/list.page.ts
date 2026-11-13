@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { tap } from 'rxjs';
 
 import { ItemTileComponent } from '../../components/item-tile/item-tile.component';
 import { NewItemFormComponent } from '../../components/new-item-form/new-item-form.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { CatalogItem, ListEntry } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
+import { ToastService } from '../../services/toast.service';
 
 const MAX_SEARCH_RESULTS = 24;
 
@@ -21,6 +23,10 @@ const MAX_SEARCH_RESULTS = 24;
 export class ListPage {
     protected readonly store = inject(ShoppingStore);
     protected readonly search = signal('');
+
+    private readonly toasts = inject(ToastService);
+    private readonly translate = inject(TranslateService);
+
     protected readonly openItemId = signal<number | undefined>(undefined);
 
     protected readonly creatingName = signal<string | undefined>(undefined);
@@ -49,7 +55,19 @@ export class ListPage {
     });
 
     protected checkOff(entry: ListEntry): void {
-        this.store.changeEntry(entry.catalogItemId, { state: 'recent' }).subscribe();
+        this.store
+            .changeEntry(entry.catalogItemId, { state: 'recent' })
+            .pipe(
+                tap(() =>
+                    this.toasts.show({
+                        kind: 'ok',
+                        text: this.translate.instant('list.checkedOff', { name: entry.catalogItem.name }),
+                        actionLabel: this.translate.instant('history.undo'),
+                        action: () => this.putBack(entry)
+                    })
+                )
+            )
+            .subscribe();
     }
 
     protected add(item: CatalogItem): void {
@@ -84,5 +102,9 @@ export class ListPage {
         if (note !== entry.note) {
             this.store.changeEntry(entry.catalogItemId, { note }).subscribe();
         }
+    }
+
+    private putBack(entry: ListEntry): void {
+        this.store.changeEntry(entry.catalogItemId, { state: 'to_buy', quantity: entry.quantity, note: entry.note }).subscribe();
     }
 }

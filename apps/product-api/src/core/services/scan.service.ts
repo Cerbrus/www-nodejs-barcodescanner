@@ -53,7 +53,7 @@ export class ScanService {
         if (outcome.result === 'needs_name') {
             void this.followUpUnknown(code, source, suggestions);
         }
-        this.events.emit('scan', outcome);
+        this.events.emit('scan', { ...outcome, source });
 
         return outcome;
     }

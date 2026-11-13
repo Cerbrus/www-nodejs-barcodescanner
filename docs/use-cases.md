@@ -15,7 +15,7 @@ Terms:
 
 1. The user scans an empty package with the handheld scanner connected to the Pi.
 2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one.
-3. Any open web page shows a toast with the item name and an undo button.
+3. Any open web page shows a toast with the item name and an undo button. For an unknown barcode the toast offers to name it.
 
 A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16).
 
@@ -65,8 +65,8 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 ### UC-7 Shop from the list
 
 1. The list page shows *to buy* tiles in red, grouped by shop section, each with icon, name, quantity and note. *Recent* tiles follow in green.
-2. Tapping a red tile checks it off: it moves to *recent* and its quantity resets.
-3. Without a connection the page shows a banner and keeps trying; when the connection returns it reloads by itself. Shopping fully offline is a later milestone.
+2. Tapping a red tile checks it off: it moves to *recent* and its quantity resets. A toast offers to undo it, which puts the product back with its quantity and note.
+3. Without a connection the page shows a banner and keeps trying; when the connection returns it reloads by itself. A change that could not be saved is reported in a toast, never dropped silently. Shopping fully offline is a later milestone.
 
 ### UC-8 Add or edit by hand
 

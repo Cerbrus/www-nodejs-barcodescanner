@@ -33,7 +33,8 @@
         "more": "Eén meer",
         "toRecent": "Van de lijst, naar recent",
         "recentDetails": "Opties",
-        "addToList": "Op de lijst zetten"
+        "addToList": "Op de lijst zetten",
+        "checkedOff": "{name} afgevinkt"
     },
     "scan": {
         "camera": {
@@ -47,7 +48,9 @@
         "incremented": "{name}: nu {quantity}",
         "linked": "Gekoppeld aan {name}",
         "failed": "Scan niet verwerkt: geen verbinding",
-        "discarded": "Scan geannuleerd"
+        "discarded": "Scan geannuleerd",
+        "unknownHandheld": "Onbekend product gescand",
+        "nameIt": "Naam geven"
     },
     "naming": {
         "title": "Welk product is dit?",
@@ -196,5 +199,12 @@
             "failed": "Inloggen is niet gelukt. Probeer het opnieuw."
         },
         "logoutConfirm": "Uitloggen op dit apparaat? Je moet daarna opnieuw inloggen met Google."
+    },
+    "error": {
+        "noConnection": "Geen verbinding: de wijziging is niet opgeslagen",
+        "invalid": "De server accepteert deze invoer niet",
+        "notFound": "Dit bestaat niet meer; de pagina wordt bijgewerkt",
+        "conflict": "Er bestaat al een product met deze naam",
+        "generic": "Er ging iets mis; de wijziging is niet opgeslagen"
     }
 }

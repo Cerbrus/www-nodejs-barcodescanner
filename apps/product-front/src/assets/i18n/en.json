@@ -33,7 +33,8 @@
         "more": "One more",
         "toRecent": "Off the list, to recent",
         "recentDetails": "Options",
-        "addToList": "Put on the list"
+        "addToList": "Put on the list",
+        "checkedOff": "{name} checked off"
     },
     "scan": {
         "camera": {
@@ -47,7 +48,9 @@
         "incremented": "{name}: now {quantity}",
         "linked": "Linked to {name}",
         "failed": "Scan not processed: no connection",
-        "discarded": "Scan cancelled"
+        "discarded": "Scan cancelled",
+        "unknownHandheld": "Unknown product scanned",
+        "nameIt": "Name it"
     },
     "naming": {
         "title": "Which product is this?",
@@ -196,5 +199,12 @@
             "failed": "Logging in failed. Try again."
         },
         "logoutConfirm": "Log out on this device? You will have to log in with Google again."
+    },
+    "error": {
+        "noConnection": "No connection: the change was not saved",
+        "invalid": "The server does not accept this input",
+        "notFound": "This no longer exists; the page will update",
+        "conflict": "A product with this name already exists",
+        "generic": "Something went wrong; the change was not saved"
     }
 }
