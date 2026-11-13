@@ -130,6 +130,8 @@ Why not built tonight: with three scanned barcodes there is no data to build the
 
 Each with a recommendation. Nothing was done on these.
 
+Answers of 2026-11-13: 1 keep forever; 3 hold and deliver with its own sound; 5 yes, weekly and grouped; 6 no licence; 7 yes. Questions 2 and 4 are open.
+
 1. **Scan history: keep forever, or prune?** Recommendation: keep the last 12 months, pruned once a day; undo only ever needs the latest scan. Parked because it deletes data.
 2. **Content security policy.** A strict policy would stop any injected script, but it has to allow the product photos from the supermarket sites, the icon font and the inline start-up script, and a mistake shows as a blank page. Recommendation: build it in report-only mode first, read the reports for a week, then enforce.
 3. **Scans while the app is unreachable.** Options: keep today's behaviour (error beep, scan lost); or let the agent hold such scans and deliver them when the app is back. With the second, someone who hears the error beep and scans again gets the product counted twice. Recommendation: hold and deliver, with a different sound ("held, will be added") than the error sound.

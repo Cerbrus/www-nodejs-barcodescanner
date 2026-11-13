@@ -111,13 +111,27 @@ jobs:
             contents: write
         steps:
             -   uses: actions/checkout@v4
-            -   name: Tag the commit with its version
+                with:
+                    fetch-depth: 0
+            -   name: Tag the commit with its version and publish release notes
                 env:
                     TAG: v${{ needs.checks.outputs.version }}
+                    GH_TOKEN: ${{ github.token }}
                 run: |
                     if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
                         echo "$TAG exists already"
-                    else
-                        git tag "$TAG" "$GITHUB_SHA"
-                        git push origin "$TAG"
+                        exit 0
                     fi
+
+                    PREVIOUS=$(git describe --tags --abbrev=0 --match 'v*' "$GITHUB_SHA^" 2>/dev/null || true)
+                    {
+                        echo "Images: \`ghcr.io/cerbrus/barcodescanner-app:${TAG#v}\` and \`ghcr.io/cerbrus/barcodescanner-agent:${TAG#v}\`"
+                        echo
+                        echo "## Changes${PREVIOUS:+ since $PREVIOUS}"
+                        echo
+                        git log --no-merges --format='- %s (%h)' ${PREVIOUS:+"$PREVIOUS.."}"$GITHUB_SHA"
+                    } > notes.md
+
+                    git tag "$TAG" "$GITHUB_SHA"
+                    git push origin "$TAG"
+                    gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag

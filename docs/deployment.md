@@ -99,11 +99,15 @@ Every build of `master` gets a version `major.minor.patch`, for example `1.0.20`
 - `major.minor` comes from `version` in the root `package.json` and is raised by hand when a change deserves it.
 - `patch` is the number of commits since `major.minor` last changed, so it rises with every push without anyone doing anything, and the same commit always gets the same number. The commit that raises `major.minor` is patch 0: `1.0.56`, then `1.1.0`, `1.1.1`, and so on.
 - A new minor or major release is therefore one edit: change `version` in `package.json` to `1.1.0` or `2.0.0` and push. The third number in that file is not used.
-- After the images are published, the workflow puts the git tag `v<version>` on the commit, so a version on the System page leads back to its code.
+- After the images are published, the workflow puts the git tag `v<version>` on the commit, so a version on the System page leads back to its code, and creates a GitHub release for it. The release text lists the commit subjects since the previous version; the Releases page of the repository is the change log.
 
 Where to find the version of a build: on the System page, in the health endpoint, and in GitHub Actions. A run's title there is the commit message, which GitHub fixes before the version is known; the version is in the job names ("app image 1.0.15", "tag v1.0.15") and in the summary at the top of the run page. The tags page of the repository lists every version with its commit.
 
 A local run without the build arguments reports version `dev`.
+
+### Dependency updates
+
+Dependabot (`.github/dependabot.yml`) opens pull requests every Monday: one for minor and patch updates of the npm packages, one for the Docker base images, one for the GitHub Actions. Major versions are left out; they need a deliberate upgrade. A pull request runs the checks and builds both images without publishing. Nothing reaches the Pi until the pull request is merged into `master`.
 
 ## Settings (`.env`)
 

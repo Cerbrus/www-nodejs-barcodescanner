@@ -106,6 +106,15 @@ Decided 2026-11-13, with the layered layout:
 - Each scan action is one transaction, and they run one at a time.
 - Settings are read in one place.
 
+## Repository housekeeping
+
+Decided 2026-11-13:
+
+- Scan history is kept forever; nothing prunes it. The volume of a household is small, and undo, history and backup all stay simple.
+- No licence file. The code is public to read; reuse is not granted.
+- Dependency updates come as weekly pull requests from Dependabot, minor and patch versions grouped, majors left out.
+- Every version gets a GitHub release with the commit subjects since the previous version.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.
