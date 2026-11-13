@@ -68,7 +68,7 @@ Weight: **A** affects daily use or safety, **B** worth doing, **C** nice to have
 
 ## Built tonight
 
-Each on its own branch, stacked in this order on `feature/api-restructure`. Nothing is on `master`.
+Each on its own branch, stacked in this order on `feature/api-restructure`. Nothing is on `master`. What was verified and how is in [night-report-2026-11-13.md](night-report-2026-11-13.md).
 
 ### `feature/web-feedback`
 

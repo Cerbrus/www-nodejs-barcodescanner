@@ -12,6 +12,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 | [api-restructure-plan.md](api-restructure-plan.md) | Plan and outcome of the API restructure of 2026-11-13 |
 | [product-review-2026-11-13.md](product-review-2026-11-13.md) | Review of the whole product: findings, what was built for them, plans and open questions |
 | [offline-plan.md](offline-plan.md) | Plan for shopping without a connection (milestone 8) |
+| [night-report-2026-11-13.md](night-report-2026-11-13.md) | What was built unattended in the night of 2026-11-13, what was not, and the open questions |
 | [scanner-usb-capture.txt](scanner-usb-capture.txt) | USB capture of the scanner dongle, kept for the open question of driving its beeper |
 | [../data/seed-items.json](../data/seed-items.json) | Seed data: sections and products with icon and emoji, starting list |
 
