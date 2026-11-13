@@ -2,7 +2,7 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { BufferedLogger } from './log/log.service';
+import { BufferedLogger } from './core/services/log.service';
 
 const logger = new Logger('Main');
 const globalPrefix = 'api';

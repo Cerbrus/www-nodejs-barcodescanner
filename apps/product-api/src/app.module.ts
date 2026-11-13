@@ -3,28 +3,18 @@ import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AuthModule } from './auth/auth.module';
-import { CatalogModule } from './catalog/catalog.module';
-import { databaseOptions } from './data/database';
-import { SeedService } from './data/seed.service';
-import { EventsModule } from './events/events.module';
-import { FeedbackModule } from './feedback/feedback.module';
-import { HealthController } from './health/health.controller';
-import { ListModule } from './list/list.module';
-import { LogModule } from './log/log.module';
-import { PushModule } from './push/push.module';
-import { ScanModule } from './scan/scan.module';
+import { ApiModule } from './api/api.module';
+import { AppConfigModule } from './config/config.module';
+import { CoreModule } from './core/core.module';
+import { DataModule } from './data/data.module';
 
-const databasePath = process.env['DATABASE_PATH'] ?? join(process.cwd(), 'data', 'app.db');
 const frontendPath = process.env['FRONTEND_PATH'] ?? join(__dirname, 'public');
 const iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icons');
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
-        TypeOrmModule.forRoot(databaseOptions(databasePath)),
         ServeStaticModule.forRoot(
             {
                 rootPath: iconsPath,
@@ -36,17 +26,11 @@ const iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icon
                 exclude: ['/api/{*path}', '/icons/{*path}']
             }
         ),
-        AuthModule,
-        EventsModule,
-        LogModule,
-        ListModule,
-        ScanModule,
-        CatalogModule,
-        PushModule,
-        FeedbackModule
-    ],
-    controllers: [HealthController],
-    providers: [SeedService]
+        AppConfigModule,
+        DataModule,
+        CoreModule,
+        ApiModule
+    ]
 })
 export class AppModule {
 }
