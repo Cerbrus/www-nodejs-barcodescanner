@@ -46,7 +46,7 @@ Result: a push to `master` reaches the Pi by itself, typically within ten minute
 - Albert Heijn and Open Food Facts connectors behind one interface.
 - Server-sent events; the hardware agent posts scans and its log lines.
 
-Tests on 2026-11-13, after the restructure: 17 unit tests for the scan rules and session signing (`yarn product-api:test`), and 34 that run the real thing (`yarn product-api:test:integration`): the services against a temporary SQLite file, the login guard, the data routes and the whole app module over HTTP. Not covered by tests: the connectors' calls to the outside world, push sending, the web app. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
+Tests on 2026-11-13, after the restructure: 17 unit tests for the scan rules and session signing (`yarn product-api:test`), and 34 that run the real thing (`yarn product-api:test:integration`): the services against a temporary SQLite file, the login guard, the data routes and the whole app module over HTTP. The hardware agent has 20 tests of its own with a fake scanner, buzzer and API (`yarn hardware-agent:test`). Not covered by tests: the connectors' calls to the outside world, push sending, the web app. Verified by hand on the Pi: handheld scans reach the inbox, both connectors return suggestions, mapping a barcode applies its waiting scans, undo takes the last one back.
 
 ### 4. Frontend: done 2026-11-12 19:09
 

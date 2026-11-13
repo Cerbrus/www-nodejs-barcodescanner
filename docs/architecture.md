@@ -284,6 +284,7 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 - The pin is driven through the kernel's GPIO character device (`/dev/gpiochip0`) with `libgpiod`; the container gets that one device and stays unprivileged.
 - Sounds play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
 - `python3 agent.py --test-feedback` plays the sound of every event once.
+- `test_agent.py` tests the agent without hardware: key events become scans, sound steps drive a fake GPIO line, settings and scans go to a fake API.
 
 ## Backup
 

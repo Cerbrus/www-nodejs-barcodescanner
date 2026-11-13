@@ -36,3 +36,5 @@ dist/
 # USB captures hold traffic of every device on the PC
 *.pcap
 *.pcapng
+__pycache__/
+*.pyc

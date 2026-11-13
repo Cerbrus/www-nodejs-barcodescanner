@@ -45,6 +45,7 @@ yarn product-front:serve              # web app on port 4200, talks to the API o
 yarn lint:all
 yarn product-api:test                 # scan rules and session signing
 yarn product-api:test:integration     # services against a temporary SQLite file; login guard, data routes and the whole app over HTTP
+yarn hardware-agent:test              # the hardware agent with a fake scanner, buzzer and API
 ```
 
 The API keeps its data in a SQLite file, `data/app.db` by default (`DATABASE_PATH` overrides it). It is created and seeded from `data/seed-items.json` on first start and is not committed. `GET /api/v1/health` reports the status and the running version (`dev` locally; builds of `master` get a version such as `1.0.20`, see docs/deployment.md).
