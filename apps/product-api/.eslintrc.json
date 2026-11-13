@@ -51,6 +51,69 @@
         },
         {
             "files": [
+                "src/core/**/*.ts"
+            ],
+            "excludedFiles": [
+                "*.spec.ts"
+            ],
+            "rules": {
+                "no-restricted-imports": [
+                    "error",
+                    {
+                        "patterns": [
+                            {
+                                "group": ["**/api/**"],
+                                "message": "core must not import from api: dependencies point inward (api, then core, then data)."
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "files": [
+                "src/data/**/*.ts"
+            ],
+            "excludedFiles": [
+                "*.spec.ts"
+            ],
+            "rules": {
+                "no-restricted-imports": [
+                    "error",
+                    {
+                        "patterns": [
+                            {
+                                "group": ["**/api/**", "**/core/**"],
+                                "message": "data must not import from api or core: dependencies point inward (api, then core, then data)."
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "files": [
+                "src/config/**/*.ts"
+            ],
+            "excludedFiles": [
+                "*.spec.ts"
+            ],
+            "rules": {
+                "no-restricted-imports": [
+                    "error",
+                    {
+                        "patterns": [
+                            {
+                                "group": ["**/api/**", "**/core/**", "**/data/**"],
+                                "message": "config must not import from the layers that read it."
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "files": [
                 "*.spec.ts"
             ],
             "rules": {

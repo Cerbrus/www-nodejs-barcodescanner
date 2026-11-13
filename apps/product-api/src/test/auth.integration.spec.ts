@@ -9,10 +9,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 
-import { Controller, Get, INestApplication, Module, Post, VersioningType } from '@nestjs/common';
+import { Controller, Get, INestApplication, Module, Post } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { ApiModule } from '../api/api.module';
+import { configureApi } from '../api/configure-api';
 import { Agent } from '../api/guards/agent.decorator';
 import { CalledBy } from '../api/guards/caller.decorator';
 import { Public } from '../api/guards/public.decorator';
@@ -72,8 +73,7 @@ describe('login guard over HTTP', () => {
 
     before(async () => {
         app = await NestFactory.create(TestModule, { logger: false });
-        app.setGlobalPrefix('api');
-        app.enableVersioning({ type: VersioningType.URI });
+        configureApi(app);
         await app.listen(0, '127.0.0.1');
         base = `http://127.0.0.1:${(app.getHttpServer().address() as AddressInfo).port}/api/v1`;
         secret = app.get(SessionService).secret;

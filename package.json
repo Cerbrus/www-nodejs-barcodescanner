@@ -8,7 +8,7 @@
         "product-api:serve": "nx run product-api:serve",
         "product-api:lint": "nx run product-api:lint",
         "product-api:test": "node --import tsx --test apps/product-api/src/core/rules/scan-rules.spec.ts apps/product-api/src/core/rules/session.spec.ts",
-        "product-api:test:integration": "TS_NODE_PROJECT=apps/product-api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register --test apps/product-api/src/test/modules.integration.spec.ts apps/product-api/src/test/auth.integration.spec.ts",
+        "product-api:test:integration": "TS_NODE_PROJECT=apps/product-api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register --test apps/product-api/src/test/modules.integration.spec.ts apps/product-api/src/test/auth.integration.spec.ts apps/product-api/src/test/routes.integration.spec.ts",
         "product-front:build": "nx run product-front:build",
         "product-front:serve": "nx run product-front:serve",
         "product-front:lint": "nx run product-front:lint",
