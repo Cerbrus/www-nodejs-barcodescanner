@@ -2,6 +2,9 @@ import { Body, Controller, DefaultValuePipe, Get, HttpCode, ParseIntPipe, Post, 
 
 import { LogLine, LogService } from '../../core/services/log.service';
 import { LogLineDto } from '../dto/log-line.dto';
+import { Agent } from '../guards/agent.decorator';
+import { CalledBy } from '../guards/caller.decorator';
+import { Caller } from '../http';
 
 const MAX_LINES = 500;
 
@@ -15,9 +18,10 @@ export class LogController {
         return this.logs.latest(Math.min(Math.max(limit, 1), MAX_LINES));
     }
 
+    @Agent()
     @Post()
     @HttpCode(204)
-    public addAgentLine(@Body() line: LogLineDto): void {
-        this.logs.add('agent', line.level, line.message);
+    public addLine(@Body() line: LogLineDto, @CalledBy() caller: Caller): void {
+        this.logs.add(caller === 'agent' ? 'agent' : 'phone', line.level, line.message);
     }
 }

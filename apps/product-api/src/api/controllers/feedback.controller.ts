@@ -3,12 +3,14 @@ import { Body, Controller, Get, HttpCode, Param, ParseEnumPipe, Post, Put } from
 import { FEEDBACK_EVENTS, FeedbackEvent } from '../../core/rules/sounds';
 import { FeedbackService, FeedbackSettings } from '../../core/services/feedback.service';
 import { SoundChoiceDto } from '../dto/sound-choice.dto';
+import { Agent } from '../guards/agent.decorator';
 
 @Controller({ path: 'feedback', version: '1' })
 export class FeedbackController {
     constructor(private readonly feedback: FeedbackService) {
     }
 
+    @Agent()
     @Get('settings')
     public getSettings(): Promise<FeedbackSettings> {
         return this.feedback.getSettings();

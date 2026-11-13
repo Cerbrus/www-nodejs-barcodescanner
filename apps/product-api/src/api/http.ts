@@ -11,6 +11,10 @@ export interface HttpRequest {
     headers: Record<string, string | Array<string> | undefined>;
 }
 
+export type Caller = 'user' | 'agent';
+
+export type CallerRequest = HttpRequest & { caller?: Caller };
+
 export interface HttpResponse {
     cookie(name: string, value: string, options: CookieOptions): void;
     clearCookie(name: string, options: CookieOptions): void;

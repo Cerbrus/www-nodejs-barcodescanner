@@ -70,7 +70,7 @@ export interface ScanOutcome {
 export interface LogLine {
     id: number;
     time: string;
-    source: 'app' | 'agent';
+    source: 'app' | 'agent' | 'phone';
     level: LogLevel;
     message: string;
 }

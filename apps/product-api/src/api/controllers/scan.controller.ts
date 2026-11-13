@@ -3,6 +3,9 @@ import { Body, Controller, DefaultValuePipe, Get, ParseIntPipe, Post, Query } fr
 import { ScanOutcome, ScanService } from '../../core/services/scan.service';
 import { ScanEntity } from '../../data/entities';
 import { ScanDto } from '../dto/scan.dto';
+import { Agent } from '../guards/agent.decorator';
+import { CalledBy } from '../guards/caller.decorator';
+import { Caller } from '../http';
 
 const MAX_HISTORY = 500;
 
@@ -11,9 +14,10 @@ export class ScanController {
     constructor(private readonly scans: ScanService) {
     }
 
+    @Agent()
     @Post()
-    public register(@Body() scan: ScanDto): Promise<ScanOutcome> {
-        return this.scans.register(scan.code, scan.source);
+    public register(@Body() scan: ScanDto, @CalledBy() caller: Caller): Promise<ScanOutcome> {
+        return this.scans.register(scan.code, caller === 'agent' ? 'handheld' : 'phone');
     }
 
     @Post('undo')

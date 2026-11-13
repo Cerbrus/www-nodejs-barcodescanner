@@ -108,7 +108,7 @@ export class ScanPage {
 
     private register(code: string): void {
         this.api
-            .scan(code, 'phone')
+            .scan(code)
             .pipe(
                 tap((outcome) => this.showOutcome(outcome)),
                 switchMap(() => this.store.refreshListAndInbox()),

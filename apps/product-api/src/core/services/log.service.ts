@@ -6,7 +6,7 @@ import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { EventsService } from './events.service';
 
 export type LogLevel = 'debug' | 'info' | 'warning' | 'error';
-export type LogSource = 'app' | 'agent';
+export type LogSource = 'app' | 'agent' | 'phone';
 
 export interface LogLine {
     id: number;

@@ -15,7 +15,6 @@ import {
     PushSubscriptionInput,
     Scan,
     ScanOutcome,
-    ScanSource,
     Section
 } from '../models';
 import { SettingsService } from './settings/settings.service';
@@ -97,8 +96,8 @@ export class ApiService {
         return this.http.get<Array<string>>(`${this.baseUrl}/icons`);
     }
 
-    public scan(code: string, source: ScanSource): Observable<ScanOutcome> {
-        return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code, source });
+    public scan(code: string): Observable<ScanOutcome> {
+        return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code });
     }
 
     public undoScan(): Observable<{ undone?: Scan }> {

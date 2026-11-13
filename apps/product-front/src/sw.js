@@ -51,7 +51,7 @@ function report(message) {
         .fetch('/api/v1/logs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ level: 'info', message: `phone: ${message}` })
+            body: JSON.stringify({ level: 'info', message })
         })
         .catch(() => undefined);
 }

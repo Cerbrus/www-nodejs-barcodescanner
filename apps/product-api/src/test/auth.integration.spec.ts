@@ -13,7 +13,10 @@ import { Controller, Get, INestApplication, Module, Post, VersioningType } from 
 import { NestFactory } from '@nestjs/core';
 
 import { ApiModule } from '../api/api.module';
+import { Agent } from '../api/guards/agent.decorator';
+import { CalledBy } from '../api/guards/caller.decorator';
 import { Public } from '../api/guards/public.decorator';
+import { Caller } from '../api/http';
 import { AppConfigModule } from '../config/config.module';
 import { SESSION_COOKIE, newSession, signSession } from '../core/rules/session';
 import { SessionService } from '../core/services/session.service';
@@ -40,6 +43,12 @@ class ThingController {
     @Post()
     public write(): { ok: boolean } {
         return { ok: true };
+    }
+
+    @Agent()
+    @Post('for-agent')
+    public writeAsAgent(@CalledBy() caller: Caller): { caller: Caller } {
+        return { caller };
     }
 
     @Public()
@@ -98,9 +107,21 @@ describe('login guard over HTTP', () => {
         assert.equal(await status('/things', { headers: { cookie: forged } }), 401);
     });
 
-    it('accepts the hardware agent by its token and refuses a wrong one', async () => {
-        assert.equal(await status('/things', { method: 'POST', headers: { 'x-agent-token': AGENT_TOKEN } }), 201);
-        assert.equal(await status('/things', { method: 'POST', headers: { 'x-agent-token': 'wrong' } }), 401);
+    it('lets the hardware agent call the routes marked for it, and only those', async () => {
+        const asAgent = { 'x-agent-token': AGENT_TOKEN };
+        const marked = await fetch(`${base}/things/for-agent`, { method: 'POST', headers: asAgent });
+
+        assert.equal(marked.status, 201);
+        assert.deepEqual(await marked.json(), { caller: 'agent' });
+        assert.equal(await status('/things', { method: 'POST', headers: asAgent }), 403);
+        assert.equal(await status('/things', { headers: asAgent }), 403);
+        assert.equal(await status('/things/for-agent', { method: 'POST', headers: { 'x-agent-token': 'wrong' } }), 401);
+    });
+
+    it('tells a logged-in browser apart from the agent', async () => {
+        const answer = await fetch(`${base}/things/for-agent`, { method: 'POST', headers: { cookie: cookieFor(OWNER) } });
+
+        assert.deepEqual(await answer.json(), { caller: 'user' });
     });
 
     it('refuses a change that comes from another site', async () => {
