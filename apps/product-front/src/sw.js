@@ -8,6 +8,7 @@ const KEPT_CACHES = [STATE_CACHE, APP_CACHE];
 const CACHEABLE_FILE = /\.(?:js|css|png|svg|ico|woff2?|otf|json|webmanifest)$/;
 const VERSIONED_FILE = /-[A-Z0-9]{8}\.[a-z0-9]+$/;
 const FONT_HOST = 'fonts.gstatic.com';
+const FILE_LIST = '/app-files.json';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(Promise.all([self.clients.claim(), dropOtherCaches()])));
@@ -25,7 +26,7 @@ self.addEventListener('fetch', (event) => {
         }
         return;
     }
-    if (url.pathname.startsWith('/api/') || url.pathname === '/sw.js') {
+    if (url.pathname.startsWith('/api/') || url.pathname === '/sw.js' || url.pathname === FILE_LIST) {
         return;
     }
 
@@ -36,6 +37,18 @@ self.addEventListener('fetch', (event) => {
     } else if (CACHEABLE_FILE.test(url.pathname)) {
         event.respondWith(cacheThenRefresh(request));
     }
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data?.type !== 'keep-files' || !Array.isArray(event.data.urls)) {
+        return;
+    }
+
+    event.waitUntil(
+        listedFiles().then((listed) =>
+            keepAll([...event.data.urls, ...listed].map((address) => new URL(address, self.location.origin)).filter((url) => isKeptFile(url)))
+        )
+    );
 });
 
 self.addEventListener('push', (event) => {
@@ -152,4 +165,44 @@ function cacheThenRefresh(request) {
 
             return cached;
         });
+}
+
+function isKeptFile(url) {
+    if (url.hostname === FONT_HOST) {
+        return true;
+    }
+    if (url.origin !== self.location.origin || url.pathname.startsWith('/api/') || url.pathname === '/sw.js' || url.pathname === FILE_LIST) {
+        return false;
+    }
+
+    return url.pathname === PAGE_KEY || CACHEABLE_FILE.test(url.pathname);
+}
+
+function listedFiles() {
+    return self
+        .fetch(FILE_LIST, { cache: 'no-store' })
+        .then((response) => (response.ok ? response.json() : []))
+        .then((files) => (Array.isArray(files) ? files.map((file) => `/${file}`) : []))
+        .catch(() => []);
+}
+
+function keepAll(urls) {
+    return self.caches.open(APP_CACHE).then((cache) =>
+        Promise.all(
+            urls.map((url) => {
+                const key = url.pathname === PAGE_KEY ? PAGE_KEY : url.href;
+
+                return cache.match(key).then((cached) => {
+                    if (cached) {
+                        return undefined;
+                    }
+
+                    return self
+                        .fetch(url.href)
+                        .then((response) => keep(key, response))
+                        .catch(() => undefined);
+                });
+            })
+        )
+    );
 }

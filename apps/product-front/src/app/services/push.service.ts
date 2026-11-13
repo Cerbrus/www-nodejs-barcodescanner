@@ -23,7 +23,7 @@ export class PushService {
     private registration?: ServiceWorkerRegistration;
 
     public async start(): Promise<void> {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        if (!('serviceWorker' in navigator)) {
             return;
         }
 
@@ -47,6 +47,11 @@ export class PushService {
 
         try {
             this.registration = await navigator.serviceWorker.register(WORKER_URL);
+            void this.keepLoadedFiles();
+            if (!('PushManager' in window) || !('Notification' in window)) {
+                return;
+            }
+
             const subscription = await this.registration.pushManager.getSubscription();
             if (subscription) {
                 await this.save(subscription);
@@ -88,6 +93,12 @@ export class PushService {
             await subscription.unsubscribe();
         }
         this.status.set(this.statusFor(undefined));
+    }
+
+    private async keepLoadedFiles(): Promise<void> {
+        const worker = (await navigator.serviceWorker.ready).active;
+        const loaded = performance.getEntriesByType('resource').map((entry) => entry.name);
+        worker?.postMessage({ type: 'keep-files', urls: [`${window.location.origin}/`, ...loaded] });
     }
 
     private async followPendingNavigation(): Promise<void> {

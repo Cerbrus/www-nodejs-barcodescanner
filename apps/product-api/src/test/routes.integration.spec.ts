@@ -172,6 +172,16 @@ describe('data routes over HTTP', () => {
         assert.deepEqual([late.body.applied, late.body.skipped], [0, [butter]]);
         assert.deepEqual([(await entryOf(butter))?.state, (await entryOf(butter))?.quantity], ['to_buy', 2]);
 
+        await new Promise((resolve) => setTimeout(resolve, 1100));
+        const twice = await call<{ applied: number; skipped: Array<number> }>('POST', '/list/offline-changes', asUser, {
+            changes: [
+                { catalogItemId: butter, quantity: 3, changedAt: at(0.6) },
+                { catalogItemId: butter, quantity: 4, changedAt: at(0.3) }
+            ]
+        });
+        assert.deepEqual([twice.body.applied, twice.body.skipped], [2, []]);
+        assert.equal((await entryOf(butter))?.quantity, 4);
+
         assert.equal((await call('POST', '/list/offline-changes', asUser, { changes: [{ catalogItemId: butter, state: 'gone', changedAt: at(1) }] })).status, 400);
         assert.equal((await call('POST', '/list/offline-changes', asAgent, { changes: [] })).status, 403);
     });

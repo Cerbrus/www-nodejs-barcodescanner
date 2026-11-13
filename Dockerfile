@@ -8,6 +8,7 @@ RUN yarn install --immutable
 COPY . .
 RUN yarn product-api:build && yarn product-front:build
 RUN printf '{"api":{"core":"/api"}}' > dist/apps/product-front/browser/assets/appsettings.json
+RUN node -e "const fs = require('fs'); const folder = 'dist/apps/product-front/browser'; fs.writeFileSync(folder + '/app-files.json', JSON.stringify(fs.readdirSync(folder).filter((file) => /\\.(js|css)$/.test(file) && file !== 'sw.js')))"
 
 
 FROM node:24-slim

@@ -61,11 +61,15 @@ export class ListService {
 
     public async applyOffline(changes: Array<OfflineChange>): Promise<OfflineResult> {
         const skipped = new Set<number>();
+        const lastServerChange = new Map<number, number>();
         let applied = 0;
 
         for (const { catalogItemId, changedAt, ...change } of changes) {
-            const current = await this.entries.findOneBy({ catalogItemId });
-            const changedOnServerSince = current !== null && current.updatedAt.getTime() > changedAt.getTime();
+            if (!lastServerChange.has(catalogItemId)) {
+                const current = await this.entries.findOneBy({ catalogItemId });
+                lastServerChange.set(catalogItemId, current?.updatedAt.getTime() ?? 0);
+            }
+            const changedOnServerSince = (lastServerChange.get(catalogItemId) ?? 0) > changedAt.getTime();
             if (changedOnServerSince || !(await this.items.existsBy({ id: catalogItemId }))) {
                 skipped.add(catalogItemId);
                 continue;
