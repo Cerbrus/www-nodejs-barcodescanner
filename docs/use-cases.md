@@ -71,7 +71,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 ### UC-8 Add or edit by hand
 
 - Tap a *recent* tile to put it back on the list.
-- Search the catalog and add an item without scanning.
+- Search the catalog and add an item without scanning. A product that is already on the list shows in the results in the list colour with "+1"; tapping it raises its quantity by one.
 - When the search finds no exact match, create the product from there: name, section, icon, emoji. It goes on the list at once.
 - Open a tile's menu to change the quantity with plus and minus, edit the note, or jump to the product's management page.
 - At quantity 1 the minus button takes the product off the list and moves it to *recent*, the same as checking it off.

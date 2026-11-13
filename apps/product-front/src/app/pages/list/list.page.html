@@ -19,8 +19,12 @@
     @if (search().trim()) {
         <h2 class="section-title">{{ 'list.addFromCatalog' | translate }}</h2>
         <div class="tile-grid">
-            @for (item of searchResults(); track item.id) {
-                <app-item-tile [item]="item" (selected)="add(item)" />
+            @for (result of searchResults(); track result.item.id) {
+                @if (result.entry; as entry) {
+                    <app-item-tile tone="buy" badge="+1" [item]="result.item" [note]="entry.note" (selected)="addOneMore(entry)" />
+                } @else {
+                    <app-item-tile [item]="result.item" (selected)="add(result.item)" />
+                }
             } @empty {
                 <p class="empty col-span-full">{{ 'list.noSearchResults' | translate }}</p>
             }

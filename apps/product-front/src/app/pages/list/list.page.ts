@@ -47,11 +47,12 @@ export class ListPage {
             return [];
         }
 
-        const toBuyIds = new Set(this.store.toBuy().map((entry) => entry.catalogItemId));
+        const toBuy = new Map(this.store.toBuy().map((entry) => [entry.catalogItemId, entry]));
         return this.store
             .items()
-            .filter((item) => item.name.toLowerCase().includes(term) && !toBuyIds.has(item.id))
-            .slice(0, MAX_SEARCH_RESULTS);
+            .filter((item) => item.name.toLowerCase().includes(term))
+            .slice(0, MAX_SEARCH_RESULTS)
+            .map((item) => ({ item, entry: toBuy.get(item.id) }));
     });
 
     protected checkOff(entry: ListEntry): void {
@@ -73,6 +74,11 @@ export class ListPage {
     protected add(item: CatalogItem): void {
         this.search.set('');
         this.store.changeEntry(item.id, { state: 'to_buy', quantity: 1 }).subscribe();
+    }
+
+    protected addOneMore(entry: ListEntry): void {
+        this.search.set('');
+        this.changeQuantity(entry, 1);
     }
 
     protected closeEntry(): void {

@@ -10,8 +10,8 @@ import { ItemIconComponent } from '../item-icon/item-icon.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <button type="button" class="tile" [class]="tone()" (click)="selected.emit()">
-            @if (quantity() > 1) {
-                <span class="quantity">{{ quantity() }}</span>
+            @if (badge() || quantity() > 1) {
+                <span class="quantity">{{ badge() || quantity() }}</span>
             }
             <span class="icon"><app-item-icon [item]="item()" /></span>
             <span class="text">
@@ -61,6 +61,7 @@ import { ItemIconComponent } from '../item-icon/item-icon.component';
 export class ItemTileComponent {
     public readonly item = input.required<CatalogItem>();
     public readonly quantity = input(0);
+    public readonly badge = input('');
     public readonly note = input('');
     public readonly tone = input<'buy' | 'recent' | 'neutral'>('neutral');
     public readonly showDetails = input(false);
