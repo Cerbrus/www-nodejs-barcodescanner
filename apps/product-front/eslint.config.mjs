@@ -19,6 +19,12 @@ export default tseslint.config(
         extends: [...angular.configs.templateRecommended]
     },
     {
+        files: ['**/*.spec.ts'],
+        rules: {
+            'max-lines-per-function': 'off'
+        }
+    },
+    {
         ignores: ['**/*.config.js', 'src/sw.js']
     }
 );

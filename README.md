@@ -45,6 +45,7 @@ yarn product-front:serve              # web app on port 4200, talks to the API o
 yarn lint:all
 yarn product-api:test                 # scan rules and session signing
 yarn product-api:test:integration     # services against a temporary SQLite file; login guard, data routes and the whole app over HTTP
+yarn product-front:test               # the web app's logic and components, without a browser
 yarn hardware-agent:test              # the hardware agent with a fake scanner, buzzer and API
 ```
 

@@ -10,6 +10,7 @@
         "product-api:test": "node --import tsx --test apps/product-api/src/core/rules/scan-rules.spec.ts apps/product-api/src/core/rules/session.spec.ts apps/product-api/src/core/rules/content-policy.spec.ts",
         "product-api:test:integration": "TS_NODE_PROJECT=apps/product-api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register --test apps/product-api/src/test/modules.integration.spec.ts apps/product-api/src/test/auth.integration.spec.ts apps/product-api/src/test/routes.integration.spec.ts apps/product-api/src/test/app.integration.spec.ts",
         "product-front:build": "nx run product-front:build",
+        "product-front:test": "nx run product-front:test",
         "hardware-agent:test": "python -m unittest discover -s apps/hardware-agent -p \"test_*.py\"",
         "product-front:serve": "nx run product-front:serve",
         "product-front:lint": "nx run product-front:lint",
@@ -72,6 +73,7 @@
         "eslint-config-prettier": "^10.1.8",
         "eslint-import-resolver-typescript": "^3.10.1",
         "eslint-plugin-import": "^2.32.0",
+        "happy-dom": "^21.0.4",
         "jsonc-eslint-parser": "^2.4.2",
         "nx": "24.0.6",
         "postcss": "^8.5.32",
@@ -82,6 +84,7 @@
         "tsx": "^4.23.15",
         "typescript": "6.0.3",
         "typescript-eslint": "^8.58.0",
+        "vitest": "^5.1.0",
         "webpack": "5.112.2",
         "webpack-cli": "^7.0.0",
         "webpack-dev-server": "5.2.7"

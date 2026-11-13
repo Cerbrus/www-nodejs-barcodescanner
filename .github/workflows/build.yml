@@ -57,6 +57,7 @@ jobs:
             -   run: yarn lint:all
             -   run: yarn product-api:test
             -   run: yarn product-api:test:integration
+            -   run: yarn product-front:test
             -   name: Test the hardware agent
                 run: python3 -m unittest discover -s apps/hardware-agent -p "test_*.py"
             -   name: Check the shell scripts

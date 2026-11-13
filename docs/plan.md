@@ -16,7 +16,7 @@ In daily-use shape and running on the Pi:
 
 In this order, agreed with the owner on 2026-11-13:
 
-1. **Tests for the web app** (milestone 9). The biggest gap: on 2026-11-13 alone the reload after an update, the "+1" in the search, the new System page and the change of message formatter went out checked by hand only. The package work it waited for is done.
+1. **Tests for the web app** (milestone 9), started: runner and logic tests are built, component tests and the end-to-end run are open. Why first: on 2026-11-13 alone the reload after an update, the "+1" in the search, the new System page and the change of message formatter went out checked by hand only. The package work it waited for is done.
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
 3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two-factor login on the GitHub account; two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
@@ -121,16 +121,15 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 22:28, released in 1.1.32: `@messageformat/core` and its ngx-translate wrapper replaced by `intl-messageformat`.
 - Open, one family at a time: TypeScript 7 (needs the old module resolution and `ignoreDeprecations` out of the tsconfig files first), ESLint 10, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, better-sqlite3 13, web-push 4.
 
-### 9. Tests for the web app: open
+### 9. Tests for the web app: started
 
-The API and the hardware agent are tested; the web app is not. Every change to it is checked by hand, in a browser or on the phone. Wanted, in this order:
+- Done 2026-11-13 23:35, on branch `feature/web-app-tests`, not released: a test runner for the web app, Vitest through Angular's own `unit-test` builder with happy-dom, so no browser is needed. `yarn product-front:test`, part of the `checks` job. The web app's build and serve targets use the `@angular/build` builders by name, which the test builder asks for.
+- Done 2026-11-13 23:35, same branch: 49 tests where the logic is. The shopping store (split and grouping, snapshot, refresh on events, changes kept for later and sent in order, the retry), the event stream's reconnect rules, the update check, the message adapter, the failed-change interceptor, the autocomplete (ranking, limit, the create option) and the drawn barcodes.
+- Open: component tests for the pieces with behaviour of their own: naming prompt, new-product form, icon picker, list page with its sheets, System page for owner and other accounts.
+- Open: one end-to-end run in a headless browser against the built image, login off: scan by typing a code, name it, check it off, undo; and the same list without a connection.
+- Not covered by a test: the service worker, push, the camera page, the login guard and interceptor of the web app.
 
-1. A test runner for the web app that needs no browser window, added to the `checks` job.
-2. Tests where the logic is: the shopping store (grouping, refresh on events, the offline snapshot and outbox), the autocomplete (ranking, the create option), the event stream's reconnect rules, the drawn barcodes (check digits), the failed-change interceptor.
-3. Component tests for the pieces with behaviour of their own: naming prompt, new-product form, icon picker, list page with its sheets.
-4. One end-to-end run in a headless browser against the built image, login off: scan by typing a code, name it, check it off, undo; and the same list without a connection.
-
-Requested by the owner on 2026-11-13. The choice of runner is open; the Angular and Nx upgrade it waited for is released, so this is next. New since the request and also untested: the update check (`update.service.ts`) and the message adapter (`message.compiler.ts`).
+Requested by the owner on 2026-11-13.
 
 ### 10. Owner and other accounts: first part done
 

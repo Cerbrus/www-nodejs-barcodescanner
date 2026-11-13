@@ -90,7 +90,7 @@ Built by `.github/workflows/build.yml` on a GitHub-hosted ARM runner, so no emul
 - `ghcr.io/cerbrus/barcodescanner-app`: root `Dockerfile`. Builds API and frontend, then installs only the API's runtime packages. The version, commit hash and build time are baked in as `APP_VERSION`, `APP_COMMIT` and `APP_BUILT` and shown by the health endpoint and the System page.
 - `ghcr.io/cerbrus/barcodescanner-agent`: `apps/hardware-agent/Dockerfile`.
 
-A push that only changes documentation or the Dependabot set-up starts no build: nothing in the images would differ. A `checks` job runs first: lint for both apps, the API tests, the hardware agent's tests and `shellcheck` on the deployment scripts. Images are only built when it passes. Pushes to `master` publish `latest`, a version tag and a commit-hash tag. Pull requests only build.
+A push that only changes documentation or the Dependabot set-up starts no build: nothing in the images would differ. A `checks` job runs first: lint for both apps, the API tests, the web app's tests, the hardware agent's tests and `shellcheck` on the deployment scripts. Images are only built when it passes. Pushes to `master` publish `latest`, a version tag and a commit-hash tag. Pull requests only build.
 
 ### Version numbers
 

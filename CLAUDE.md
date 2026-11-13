@@ -47,10 +47,11 @@ yarn product-front:build
 yarn lint:all
 yarn product-api:test                 # scan rules, session signing
 yarn product-api:test:integration     # services on a temporary SQLite file; login guard, data routes and the whole app over HTTP
+yarn product-front:test               # the web app's logic and components, in Vitest without a browser
 yarn hardware-agent:test              # the agent with a fake scanner, buzzer and API; needs Python 3 only
 ```
 
-Don't start the serve commands from a session; ask the user to run them. The image build runs lint and both test commands first, so keep them green.
+Don't start the serve commands from a session; ask the user to run them. The build runs lint and all four test commands first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`.
 
 ## Code style
 
