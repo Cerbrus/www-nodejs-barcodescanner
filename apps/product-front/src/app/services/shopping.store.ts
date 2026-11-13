@@ -4,6 +4,7 @@ import { Observable, catchError, debounceTime, filter, forkJoin, interval, map, 
 import { Barcode, CatalogItem, CatalogItemInput, ListEntry, ListEntryChange, Section } from '../models';
 import { ApiService } from './api.service';
 import { EventsService } from './events.service';
+import { loadSnapshot, saveSnapshot } from './snapshot';
 
 export interface SectionGroup<T> {
     section: Section;
@@ -21,6 +22,8 @@ export class ShoppingStore {
     public readonly inbox = signal<Array<Barcode>>([]);
     public readonly loaded = signal(false);
     public readonly failed = signal(false);
+    public readonly settled = signal(false);
+    public readonly updatedAt = signal<string | undefined>(undefined);
 
     public readonly toBuy = computed(() => this.entries().filter((entry) => entry.state === 'to_buy'));
     public readonly recent = computed(() => this.entries().filter((entry) => entry.state === 'recent'));
@@ -32,6 +35,7 @@ export class ShoppingStore {
     private readonly events = inject(EventsService);
 
     constructor() {
+        this.restore();
         this.refreshAll().subscribe();
 
         this.events
@@ -72,7 +76,7 @@ export class ShoppingStore {
                 this.entries.set(entries);
                 this.inbox.set(inbox);
                 this.loaded.set(true);
-                this.failed.set(false);
+                this.remember();
             }),
             map(() => undefined),
             catchError(() => this.markFailed())
@@ -84,7 +88,7 @@ export class ShoppingStore {
             tap(([entries, inbox]) => {
                 this.entries.set(entries);
                 this.inbox.set(inbox);
-                this.failed.set(false);
+                this.remember();
             }),
             map(() => undefined),
             catchError(() => this.markFailed())
@@ -109,7 +113,30 @@ export class ShoppingStore {
             .pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
     }
 
+    private restore(): void {
+        const snapshot = loadSnapshot();
+        if (!snapshot) {
+            return;
+        }
+
+        this.sections.set(snapshot.sections);
+        this.items.set(snapshot.items);
+        this.entries.set(snapshot.entries);
+        this.inbox.set(snapshot.inbox);
+        this.updatedAt.set(snapshot.savedAt);
+        this.loaded.set(true);
+    }
+
+    private remember(): void {
+        const savedAt = new Date().toISOString();
+        this.failed.set(false);
+        this.settled.set(true);
+        this.updatedAt.set(savedAt);
+        saveSnapshot({ savedAt, sections: this.sections(), items: this.items(), entries: this.entries(), inbox: this.inbox() });
+    }
+
     private markFailed(): Observable<void> {
+        this.settled.set(true);
         this.failed.set(true);
         return of(undefined);
     }

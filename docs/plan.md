@@ -96,7 +96,8 @@ Done when: naming a typical new barcode takes one or two taps.
 
 ### 8. Offline shopping: open
 
-- Cached list, queued check-offs and adds, sync on reconnect. The service worker that exists today only handles notifications and caches nothing.
+- Done, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
+- Open: queued check-offs and adds, sync on reconnect; see [offline-plan.md](offline-plan.md).
 
 ## Open points
 

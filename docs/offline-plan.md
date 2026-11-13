@@ -1,6 +1,6 @@
 # Plan: shopping without a connection
 
-Status: proposal of 2026-11-13. Nothing is built. This is milestone 8 of [plan.md](plan.md).
+Status: steps 1 and 2 are built on branch `feature/offline-read`, checked in desktop Chrome, not released and not tried on a phone. The snapshot lives in the browser's local storage instead of IndexedDB: the data is small and it kept the code simple. Steps 3 to 5 are open. This is milestone 8 of [plan.md](plan.md).
 
 ## The problem
 

@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -21,7 +22,7 @@ interface NavLink {
 @Component({
     selector: 'app-shell',
     standalone: true,
-    imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule],
+    imports: [DatePipe, RouterOutlet, RouterLink, RouterLinkActive, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss'

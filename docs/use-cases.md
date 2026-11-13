@@ -66,7 +66,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 1. The list page shows *to buy* tiles in red, grouped by shop section, each with icon, name, quantity and note. *Recent* tiles follow in green.
 2. Tapping a red tile checks it off: it moves to *recent* and its quantity resets. A toast offers to undo it, which puts the product back with its quantity and note.
-3. Without a connection the page shows a banner and keeps trying; when the connection returns it reloads by itself. A change that could not be saved is reported in a toast, never dropped silently. Shopping fully offline is a later milestone.
+3. Without a connection the app still opens and shows the list as it was last loaded, with a banner saying from when it is; when the connection returns it reloads by itself. Checking off without a connection is not possible yet: the tap is reported as not saved, never dropped silently.
 
 ### UC-8 Add or edit by hand
 

@@ -64,7 +64,7 @@ Decided 2026-11-12: the Pi pushes an hourly SQL dump of the database to a privat
 
 ## Notifications
 
-Decided 2026-11-12: web push for unknown barcodes scanned with the handheld scanner, with the inbox count as app badge. No app store, no account: a service worker in the web app and the `web-push` package in the API. The service worker does not cache anything; offline use stays a separate milestone.
+Decided 2026-11-12: web push for unknown barcodes scanned with the handheld scanner, with the inbox count as app badge. No app store, no account: a service worker in the web app and the `web-push` package in the API. The service worker did not cache anything at first; since the offline work of 2026-11-13 it keeps the app's files, never API answers.
 
 ## Web app choices
 

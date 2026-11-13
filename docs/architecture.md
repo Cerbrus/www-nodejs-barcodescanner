@@ -142,7 +142,8 @@ Angular with standalone components and signals; no state library. `apps/product-
 - Addresses use the part after `#` (`/#/list`, `/#/inbox`). A notification's address then differs from the open page only after the `#`, which a browser treats as a jump inside the page instead of a new page load. An old address without `#` is rewritten at start.
 - `index.html` paints the page background in the right theme and the outline of the navigation bar before the scripts run, so a cold start or reload does not flash an empty screen.
 - Installable: `assets/manifest.webmanifest`, the home-screen icons and the titles in `index.html`.
-- `src/sw.js` is the service worker. It only handles notifications and caches nothing.
+- `src/sw.js` is the service worker. It handles notifications, and keeps the files of the web app so the app starts without a connection: the page itself comes from the network when there is one and from the cache otherwise; files with a version in their name come from the cache; other files come from the cache and are refreshed in the background. It never touches API calls.
+- **Without a connection** the list is shown from a snapshot of the last loaded data, kept in the browser's storage and removed at logout. The banner says from when the list is. Changes are not possible offline yet: a tap shows "no connection".
 
 ## Data model
 

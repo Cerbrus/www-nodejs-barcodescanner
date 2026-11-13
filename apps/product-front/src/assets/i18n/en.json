@@ -6,7 +6,8 @@
         "done": "Done",
         "save": "Save",
         "cancel": "Cancel",
-        "clear": "Clear"
+        "clear": "Clear",
+        "listFrom": "list as of {time}"
     },
     "nav": {
         "list": "List",

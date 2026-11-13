@@ -6,6 +6,7 @@ import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { AuthState } from '../models';
 import { EventsService } from './events.service';
 import { SettingsService } from './settings/settings.service';
+import { clearSnapshot } from './snapshot';
 
 const UNAUTHORIZED = 401;
 const LOGIN_ROUTE = '/login';
@@ -46,6 +47,7 @@ export class AuthService {
     public logout(): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/auth/logout`, {}).pipe(
             tap(() => {
+                clearSnapshot();
                 window.location.hash = `#${LOGIN_ROUTE}`;
                 window.location.reload();
             })

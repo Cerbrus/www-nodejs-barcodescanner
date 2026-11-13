@@ -1,7 +1,12 @@
-@if (store.loaded() && !store.online()) {
+@if (store.settled() && !store.online()) {
     <div class="offline" role="status">
         <i class="material-symbols-outlined">cloud_off</i>
-        {{ 'common.offline' | translate }}
+        <span>
+            {{ 'common.offline' | translate }}
+            @if (store.updatedAt(); as updatedAt) {
+                · {{ 'common.listFrom' | translate: { time: (updatedAt | date: 'd MMM HH:mm') } }}
+            }
+        </span>
     </div>
 }
 

@@ -2,9 +2,41 @@ const FALLBACK_TITLE = 'Boodschappen';
 const ICON = '/assets/icons/icon-192.png';
 const STATE_CACHE = 'notification-state';
 const PENDING_KEY = '/pending-navigation';
+const APP_CACHE = 'app-files-v1';
+const PAGE_KEY = '/';
+const KEPT_CACHES = [STATE_CACHE, APP_CACHE];
+const CACHEABLE_FILE = /\.(?:js|css|png|svg|ico|woff2?|otf|json|webmanifest)$/;
+const VERSIONED_FILE = /-[A-Z0-9]{8}\.[a-z0-9]+$/;
+const FONT_HOST = 'fonts.gstatic.com';
 
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener('activate', (event) => event.waitUntil(Promise.all([self.clients.claim(), dropOtherCaches()])));
+
+self.addEventListener('fetch', (event) => {
+    const request = event.request;
+    const url = new URL(request.url);
+    if (request.method !== 'GET') {
+        return;
+    }
+
+    if (url.origin !== self.location.origin) {
+        if (url.hostname === FONT_HOST) {
+            event.respondWith(cacheFirst(request));
+        }
+        return;
+    }
+    if (url.pathname.startsWith('/api/') || url.pathname === '/sw.js') {
+        return;
+    }
+
+    if (request.mode === 'navigate') {
+        event.respondWith(pageFromNetworkOrCache(request));
+    } else if (VERSIONED_FILE.test(url.pathname)) {
+        event.respondWith(cacheFirst(request));
+    } else if (CACHEABLE_FILE.test(url.pathname)) {
+        event.respondWith(cacheThenRefresh(request));
+    }
+});
 
 self.addEventListener('push', (event) => {
     const data = readMessage(event.data ? event.data.json() : {});
@@ -70,4 +102,54 @@ function readMessage(message) {
         url: target.pathname + target.search + target.hash,
         badge: Number(notification.app_badge)
     };
+}
+
+function dropOtherCaches() {
+    return self.caches
+        .keys()
+        .then((names) => Promise.all(names.filter((name) => !KEPT_CACHES.includes(name)).map((name) => self.caches.delete(name))));
+}
+
+function keep(key, response) {
+    if (response.ok || response.type === 'opaque') {
+        const copy = response.clone();
+        self.caches.open(APP_CACHE).then((cache) => cache.put(key, copy));
+    }
+
+    return response;
+}
+
+function pageFromNetworkOrCache(request) {
+    return self
+        .fetch(request)
+        .then((response) => keep(PAGE_KEY, response))
+        .catch(() =>
+            self.caches
+                .open(APP_CACHE)
+                .then((cache) => cache.match(PAGE_KEY))
+                .then((cached) => cached || Response.error())
+        );
+}
+
+function cacheFirst(request) {
+    return self.caches
+        .open(APP_CACHE)
+        .then((cache) => cache.match(request))
+        .then((cached) => cached || self.fetch(request).then((response) => keep(request, response)));
+}
+
+function cacheThenRefresh(request) {
+    return self.caches
+        .open(APP_CACHE)
+        .then((cache) => cache.match(request))
+        .then((cached) => {
+            const fresh = self.fetch(request).then((response) => keep(request, response));
+            if (!cached) {
+                return fresh;
+            }
+
+            fresh.catch(() => undefined);
+
+            return cached;
+        });
 }

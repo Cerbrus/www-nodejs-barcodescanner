@@ -6,7 +6,8 @@
         "done": "Klaar",
         "save": "Opslaan",
         "cancel": "Annuleren",
-        "clear": "Wissen"
+        "clear": "Wissen",
+        "listFrom": "lijst van {time}"
     },
     "nav": {
         "list": "Lijst",
