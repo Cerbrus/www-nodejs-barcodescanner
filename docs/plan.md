@@ -120,6 +120,7 @@ Requested by the owner on 2026-11-13. The choice of runner is open; it should fo
 
 - Built on branch `feature/owner-settings`, not released: one owner account; the system parts of the System page (history, log, scanner status, version, sounds, test notification) are shown to the owner only and refused by the API to other accounts. Everyone keeps language, appearance, notifications for the own device and the account with logout.
 - Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
+- Later, said by the owner on 2026-11-13: the `ALLOWED_EMAILS` setting is to become an invite system. Not planned in detail yet.
 
 ## Open points
 

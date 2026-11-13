@@ -115,6 +115,10 @@ Limits on what it can use: at most 3 pull requests per run, at most 3 reviews pe
 
 ## Settings (`.env`)
 
+`install.sh` copies `deployment/env.template` to `.env` once; updates never overwrite it. Both containers read the whole file.
+
+The least that must be set: `SCANNER_DEVICE`. For login also `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `PUBLIC_URL`, `ALLOWED_EMAILS` and `AGENT_TOKEN`; at start the server log names the ones that are empty. Everything else is optional or has a default.
+
 | Variable | Meaning |
 |---|---|
 | `IMAGE_TAG` | `latest` by default. Set a version number such as `1.0.20` to pin that version. |
@@ -133,7 +137,7 @@ Limits on what it can use: at most 3 pull requests per run, at most 3 reviews pe
 | `BUZZER_ACTIVE_LOW` | `true` for modules that sound when the pin is low, default `false` |
 | `PUSH_SUBJECT` | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses. |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional: `CONNECTORS` (default `ah,off`) picks the product lookup sources. 
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional and not in the template: `CONNECTORS` (default `ah,off`) picks the product lookup sources, `LOG_LEVEL` (default `INFO`) sets how much the hardware agent logs, and `GPIO_CHIP` (default `/dev/gpiochip0`) names the GPIO device of the buzzer. 
 
 ## Reverse proxy (Nginx Proxy Manager)
 
