@@ -125,6 +125,7 @@ Limits on what it can use: at most 3 pull requests per run, at most 3 reviews pe
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client for login. An empty id switches login off. |
 | `PUBLIC_URL` | Address the site is reached at, such as `https://shopping.example.com`, without a slash at the end |
 | `ALLOWED_EMAILS` | Google accounts that may log in, comma-separated |
+| `OWNER_EMAIL` | The account that also gets the system parts (log, history, scanner status, sounds, test notification). Empty: the first address of `ALLOWED_EMAILS` |
 | `AGENT_TOKEN` | Secret the hardware agent uses instead of a login; `install.sh` creates it |
 | `FEEDBACK_OUTPUT` | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below |
 | `BUZZER_PIN` | GPIO number of the buzzer pin, default `18` |

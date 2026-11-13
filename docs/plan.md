@@ -116,16 +116,10 @@ The API and the hardware agent are tested; the web app is not. Every change to i
 
 Requested by the owner on 2026-11-13. The choice of runner is open; it should follow the Angular and Nx versions after their upgrade, so this comes after the package work.
 
-### 10. Owner and other accounts: open
+### 10. Owner and other accounts: first part built
 
-Today every account on the allowlist sees and may do everything. Wanted: the System page is mostly for the owner.
-
-- Any logged-in account: language, light and dark appearance, its own account with logout, notifications for its own device.
-- Owner only: scan history, system log, scanner and connection status, version, sounds at the scanner, test notification, and whatever is added there later.
-- The API must enforce it, not only the page: owner-only routes answer 403 to other accounts.
-- Who the owner is comes from a setting on the Pi, next to the allowlist.
-
-Requested by the owner on 2026-11-13. Not designed yet. Open choices: whether other accounts may manage products and barcodes or only use the list, and whether they see the inbox.
+- Built on branch `feature/owner-settings`, not released: one owner account; the system parts of the System page (history, log, scanner status, version, sounds, test notification) are shown to the owner only and refused by the API to other accounts. Everyone keeps language, appearance, notifications for the own device and the account with logout.
+- Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
 
 ## Open points
 

@@ -32,18 +32,20 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
         <div class="page">
             <h1 class="page-title">{{ 'nav.system' | translate }}</h1>
 
-            <div class="flex flex-col gap-2">
-                <a class="card flex items-center gap-3" routerLink="/history">
-                    <i class="material-symbols-outlined">history</i>
-                    <span class="grow font-semibold">{{ 'history.title' | translate }}</span>
-                    <i class="material-symbols-outlined muted">chevron_right</i>
-                </a>
-                <a class="card flex items-center gap-3" routerLink="/log">
-                    <i class="material-symbols-outlined">terminal</i>
-                    <span class="grow font-semibold">{{ 'log.title' | translate }}</span>
-                    <i class="material-symbols-outlined muted">chevron_right</i>
-                </a>
-            </div>
+            @if (auth.owner()) {
+                <div class="flex flex-col gap-2">
+                    <a class="card flex items-center gap-3" routerLink="/history">
+                        <i class="material-symbols-outlined">history</i>
+                        <span class="grow font-semibold">{{ 'history.title' | translate }}</span>
+                        <i class="material-symbols-outlined muted">chevron_right</i>
+                    </a>
+                    <a class="card flex items-center gap-3" routerLink="/log">
+                        <i class="material-symbols-outlined">terminal</i>
+                        <span class="grow font-semibold">{{ 'log.title' | translate }}</span>
+                        <i class="material-symbols-outlined muted">chevron_right</i>
+                    </a>
+                </div>
+            }
 
             <h2 class="section-title">{{ 'system.language' | translate }}</h2>
             <div class="flex gap-2">
@@ -85,10 +87,12 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                     </button>
                 } @else if (push.status() === 'on') {
                     <div class="mt-3 flex gap-2">
-                        <button type="button" class="btn basis-0 grow" (click)="testPush()">
-                            <i class="material-symbols-outlined">send</i>
-                            {{ 'push.test' | translate }}
-                        </button>
+                        @if (auth.owner()) {
+                            <button type="button" class="btn basis-0 grow" (click)="testPush()">
+                                <i class="material-symbols-outlined">send</i>
+                                {{ 'push.test' | translate }}
+                            </button>
+                        }
                         <button type="button" class="btn basis-0 grow" (click)="push.disable()">
                             <i class="material-symbols-outlined">notifications_off</i>
                             {{ 'push.disable' | translate }}
@@ -97,8 +101,10 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                 }
             </div>
 
-            <h2 class="section-title">{{ 'sound.title' | translate }}</h2>
-            <app-sound-test />
+            @if (auth.owner()) {
+                <h2 class="section-title">{{ 'sound.title' | translate }}</h2>
+                <app-sound-test />
+            }
 
             @if (auth.state()?.enabled) {
                 <h2 class="section-title">{{ 'login.account' | translate }}</h2>
@@ -129,38 +135,40 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                 </div>
             }
 
-            <h2 class="section-title">{{ 'system.status' | translate }}</h2>
-            <div class="card text-sm">
-                <p>
-                    {{ 'system.connection' | translate }}:
-                    <strong>{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</strong>
-                </p>
-                <p>
-                    {{ 'system.scanner' | translate }}:
-                    <strong [style.color]="scannerState() === 'connected' ? null : 'var(--danger)'">
-                        {{ 'system.scannerState.' + scannerState() | translate }}
-                    </strong>
-                    @if (agent()?.device; as device) {
-                        <span class="muted">({{ device }})</span>
+            @if (auth.owner()) {
+                <h2 class="section-title">{{ 'system.status' | translate }}</h2>
+                <div class="card text-sm">
+                    <p>
+                        {{ 'system.connection' | translate }}:
+                        <strong>{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</strong>
+                    </p>
+                    <p>
+                        {{ 'system.scanner' | translate }}:
+                        <strong [style.color]="scannerState() === 'connected' ? null : 'var(--danger)'">
+                            {{ 'system.scannerState.' + scannerState() | translate }}
+                        </strong>
+                        @if (agent()?.device; as device) {
+                            <span class="muted">({{ device }})</span>
+                        }
+                    </p>
+                    @if (agent()?.lastHandheldScanAt; as lastScan) {
+                        <p>
+                            {{ 'system.lastHandheldScan' | translate }}:
+                            {{ lastScan | date: 'd MMM y HH:mm' }}
+                        </p>
                     }
-                </p>
-                @if (agent()?.lastHandheldScanAt; as lastScan) {
                     <p>
-                        {{ 'system.lastHandheldScan' | translate }}:
-                        {{ lastScan | date: 'd MMM y HH:mm' }}
+                        {{ 'system.version' | translate }}:
+                        <span class="font-mono">{{ version() }}</span>
                     </p>
-                }
-                <p>
-                    {{ 'system.version' | translate }}:
-                    <span class="font-mono">{{ version() }}</span>
-                </p>
-                @if (health()?.builtAt; as builtAt) {
-                    <p>
-                        {{ 'system.built' | translate }}:
-                        {{ builtAt | date: 'd MMM y HH:mm' }}
-                    </p>
-                }
-            </div>
+                    @if (health()?.builtAt; as builtAt) {
+                        <p>
+                            {{ 'system.built' | translate }}:
+                            {{ builtAt | date: 'd MMM y HH:mm' }}
+                        </p>
+                    }
+                </div>
+            }
         </div>
     `
 })
@@ -179,7 +187,7 @@ export class SystemPage {
     protected readonly agent = toSignal(
         merge(interval(AGENT_REFRESH_MILLISECONDS), this.events.on('agent', 'scan')).pipe(
             startWith(undefined),
-            switchMap(() => this.agentApi.getAgentStatus().pipe(catchError(() => of(undefined))))
+            switchMap(() => (this.auth.owner() ? this.agentApi.getAgentStatus().pipe(catchError(() => of(undefined))) : of(undefined)))
         )
     );
 

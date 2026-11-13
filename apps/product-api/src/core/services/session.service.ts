@@ -48,6 +48,10 @@ export class SessionService {
         return isAllowedEmail(email, this.config.allowedEmails);
     }
 
+    public isOwner(email: string): boolean {
+        return !this.config.loginEnabled || email.toLowerCase() === this.config.ownerEmail;
+    }
+
     public issue(email: string): string {
         return signSession(newSession(email, new Date()), this.secret);
     }

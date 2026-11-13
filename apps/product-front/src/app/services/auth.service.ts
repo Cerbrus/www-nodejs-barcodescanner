@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
@@ -20,6 +20,8 @@ export class AuthService {
     private readonly settings = inject(SettingsService);
     private readonly events = inject(EventsService);
 
+    public readonly owner = computed(() => this.state()?.owner ?? false);
+
     public get loginUrl(): string {
         return `${this.baseUrl}/auth/google`;
     }
@@ -35,7 +37,7 @@ export class AuthService {
         }
 
         return this.http.get<AuthState>(`${this.baseUrl}/auth/me`).pipe(
-            catchError(() => of<AuthState>({ enabled: false, authenticated: true })),
+            catchError(() => of<AuthState>({ enabled: false, authenticated: true, owner: false })),
             tap((state) => this.state.set(state))
         );
     }
@@ -63,6 +65,14 @@ export const requireLogin: CanActivateFn = () => {
     return inject(AuthService)
         .load()
         .pipe(map((state) => state.authenticated || router.parseUrl(LOGIN_ROUTE)));
+};
+
+export const requireOwner: CanActivateFn = () => {
+    const router = inject(Router);
+
+    return inject(AuthService)
+        .load()
+        .pipe(map((state) => state.owner || router.parseUrl('/system')));
 };
 
 export const redirectOnUnauthorized: HttpInterceptorFn = (request, next) => {

@@ -20,7 +20,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 - One `hardware-agent` container: Python `evdev`, reads the scanner, posts scans and its log lines to the API.
 - Product lookup through `ProductConnector` classes, all queried in parallel; results are suggestions, the user names each barcode once.
 - Web push for unknown handheld scans; the service worker (`src/sw.js`) caches nothing.
-- Login with Google for an allowlist of accounts: one global guard, signed session cookie, a token for the hardware agent. New routes are for logged-in users by default; mark one `@Public()` only when it must work without login, and `@Agent()` only when the hardware agent needs it.
+- Login with Google for an allowlist of accounts: one global guard, signed session cookie, a token for the hardware agent. New routes are for logged-in users by default; mark one `@Public()` only when it must work without login, `@Agent()` only when the hardware agent needs it, and `@OwnerOnly()` when it belongs to the system parts that only the owner account gets.
 - No Bring, no PostgreSQL, no CQRS, no user table.
 - Deployment: GitHub Actions builds images to `ghcr.io`; systemd timers on the Pi pull them and push an hourly database backup to a private repository.
 

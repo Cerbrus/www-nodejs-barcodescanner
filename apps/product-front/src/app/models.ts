@@ -116,6 +116,7 @@ export interface FeedbackSettings {
 export interface AuthState {
     enabled: boolean;
     authenticated: boolean;
+    owner: boolean;
     email?: string;
 }
 

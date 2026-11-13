@@ -4,6 +4,7 @@ import { AgentStatus, AgentStatusService } from '../../core/services/agent-statu
 import { ScanService } from '../../core/services/scan.service';
 import { AgentStatusDto } from '../dto/agent-status.dto';
 import { Agent } from '../guards/agent.decorator';
+import { OwnerOnly } from '../guards/owner.decorator';
 
 @Controller({ path: 'agent', version: '1' })
 export class AgentController {
@@ -13,6 +14,7 @@ export class AgentController {
     ) {
     }
 
+    @OwnerOnly()
     @Get('status')
     public async getStatus(): Promise<AgentStatus & { lastHandheldScanAt?: Date }> {
         return { ...this.agent.status, lastHandheldScanAt: await this.scans.lastScanAt('handheld') };

@@ -1,7 +1,7 @@
 import { Route } from '@angular/router';
 
 import { ShellComponent } from '../components/shell/shell.component';
-import { requireLogin } from '../services/auth.service';
+import { requireLogin, requireOwner } from '../services/auth.service';
 
 export const appRoutes: Array<Route> = [
     {
@@ -36,10 +36,12 @@ export const appRoutes: Array<Route> = [
             },
             {
                 path: 'history',
+                canActivate: [requireOwner],
                 loadComponent: () => import('../pages/history/history.page').then((m) => m.HistoryPage)
             },
             {
                 path: 'log',
+                canActivate: [requireOwner],
                 loadComponent: () => import('../pages/log/log.page').then((m) => m.LogPage)
             },
             {

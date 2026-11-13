@@ -5,6 +5,7 @@ import { ScanEntity } from '../../data/entities';
 import { ScanDto } from '../dto/scan.dto';
 import { Agent } from '../guards/agent.decorator';
 import { CalledBy } from '../guards/caller.decorator';
+import { OwnerOnly } from '../guards/owner.decorator';
 import { Caller } from '../http';
 
 const MAX_HISTORY = 500;
@@ -27,6 +28,7 @@ export class ScanController {
         return { undone: (await this.scans.undo()) ?? null };
     }
 
+    @OwnerOnly()
     @Get()
     public history(@Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number): Promise<Array<ScanEntity>> {
         return this.scans.history(Math.min(Math.max(limit, 1), MAX_HISTORY));

@@ -126,4 +126,6 @@ The user adds the site to the home screen from the browser's share menu. It then
 
 ### UC-15 Language and appearance
 
-On the System page the user picks Dutch or English, and automatic, light or dark appearance. Both are remembered per device. The page also shows whether the live connection is up, whether the handheld scanner is connected, when it last scanned, and which version runs.
+On the System page every account picks Dutch or English and automatic, light or dark appearance, both remembered per device, turns notifications for its device on or off, and sees its account with the logout button.
+
+The owner sees more there: scan history, system log, sounds at the scanner, the test notification, and the status with the live connection, the handheld scanner, its last scan and the running version. Other accounts do not see those parts, and the server refuses them the data behind them.

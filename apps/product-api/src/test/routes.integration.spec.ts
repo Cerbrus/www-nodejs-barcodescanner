@@ -18,13 +18,14 @@ import { SessionService } from '../core/services/session.service';
 
 const SITE = 'https://shopping.example.com';
 const OWNER = 'owner@example.com';
+const GUEST = 'guest@example.com';
 const AGENT_TOKEN = 'agent-token-for-tests';
 const UNKNOWN_CODE = '8710400335481';
 
 process.env['GOOGLE_CLIENT_ID'] = 'test-client';
 process.env['GOOGLE_CLIENT_SECRET'] = 'test-secret';
 process.env['PUBLIC_URL'] = SITE;
-process.env['ALLOWED_EMAILS'] = OWNER;
+process.env['ALLOWED_EMAILS'] = `${OWNER}, ${GUEST}`;
 process.env['AGENT_TOKEN'] = AGENT_TOKEN;
 
 interface Answer<T> {
@@ -40,6 +41,7 @@ describe('data routes over HTTP', () => {
     let app: INestApplication;
     let base: string;
     let asUser: Record<string, string>;
+    let asGuest: Record<string, string>;
     let milkId: number;
     const asAgent = { 'x-agent-token': AGENT_TOKEN };
 
@@ -60,6 +62,7 @@ describe('data routes over HTTP', () => {
         await app.listen(0, '127.0.0.1');
         base = `http://127.0.0.1:${(app.getHttpServer().address() as AddressInfo).port}/api/v1`;
         asUser = { cookie: `${SESSION_COOKIE}=${app.get(SessionService).issue(OWNER)}` };
+        asGuest = { cookie: `${SESSION_COOKIE}=${app.get(SessionService).issue(GUEST)}` };
 
         const catalog = await call<Array<{ id: number; name: string }>>('GET', '/catalog', asUser);
         milkId = catalog.body.find((item) => item.name === 'Melk')?.id as number;
@@ -234,6 +237,32 @@ describe('data routes over HTTP', () => {
         await call('POST', '/agent/status', asAgent, { scanner: 'waiting' });
         assert.equal((await call<{ scanner: string }>('GET', '/agent/status', asUser)).body.scanner, 'waiting');
         assert.equal((await call('GET', '/agent/status', asAgent)).status, 403);
+    });
+
+    it('keeps the system parts for the owner and the list for everyone on the allowlist', async () => {
+        const me = await call<{ owner: boolean; email: string }>('GET', '/auth/me', asGuest);
+        assert.deepEqual([me.body.owner, me.body.email], [false, GUEST]);
+        assert.equal((await call<{ owner: boolean }>('GET', '/auth/me', asUser)).body.owner, true);
+
+        for (const [method, path, body] of [
+            ['GET', '/logs', undefined],
+            ['GET', '/scans', undefined],
+            ['GET', '/agent/status', undefined],
+            ['GET', '/feedback/settings', undefined],
+            ['PUT', '/feedback/settings/added', { soundId: 'tick' }],
+            ['POST', '/feedback/test', { soundId: 'tick' }],
+            ['POST', '/push/test', undefined]
+        ] as Array<[string, string, unknown]>) {
+            assert.equal((await call(method, path, asGuest, body)).status, 403, `${method} ${path} as guest`);
+            assert.ok((await call(method, path, asUser, body)).status < 300, `${method} ${path} as owner`);
+        }
+
+        assert.equal((await call('GET', '/list', asGuest)).status, 200);
+        assert.equal((await call('GET', '/catalog', asGuest)).status, 200);
+        assert.equal((await call('POST', '/scans', asGuest, { code: '22223333' })).status, 201);
+        assert.equal((await call('POST', '/scans/undo', asGuest)).status, 201);
+        assert.equal((await call('GET', '/push/key', asGuest)).status, 200);
+        assert.equal((await call('GET', '/feedback/settings', asAgent)).status, 200);
     });
 
     it('labels log lines by who sent them', async () => {

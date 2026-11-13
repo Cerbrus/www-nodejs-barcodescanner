@@ -39,6 +39,7 @@ export class AppConfig {
     public readonly publicUrl = (setting('PUBLIC_URL') ?? '').replace(/\/+$/, '');
     public readonly agentToken = setting('AGENT_TOKEN') ?? '';
     public readonly allowedEmails = list(setting('ALLOWED_EMAILS') ?? '').map((email) => email.toLowerCase());
+    public readonly ownerEmail = (setting('OWNER_EMAIL') ?? this.allowedEmails[0] ?? '').toLowerCase();
     public readonly loginEnabled = this.googleClientId !== '';
 
     public get redirectUri(): string {

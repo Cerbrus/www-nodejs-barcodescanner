@@ -11,6 +11,7 @@ import { CookieOptions, HttpRequest, HttpResponse, cookieHeader } from '../http'
 interface AuthState {
     enabled: boolean;
     authenticated: boolean;
+    owner: boolean;
     email?: string;
 }
 
@@ -42,7 +43,7 @@ export class AuthController {
     @Get('me')
     public me(@Req() request: HttpRequest, @Res({ passthrough: true }) response: HttpResponse): AuthState {
         if (!this.config.loginEnabled) {
-            return { enabled: false, authenticated: true };
+            return { enabled: false, authenticated: true, owner: true };
         }
 
         const session = this.sessions.read(cookieHeader(request));
@@ -50,7 +51,12 @@ export class AuthController {
             this.setSession(response, session.email);
         }
 
-        return { enabled: true, authenticated: session !== undefined, email: session?.email };
+        return {
+            enabled: true,
+            authenticated: session !== undefined,
+            owner: session !== undefined && this.sessions.isOwner(session.email),
+            email: session?.email
+        };
     }
 
     @Get('google')

@@ -244,7 +244,8 @@ Optional, switched on by setting `GOOGLE_CLIENT_ID`. Without it the API is open 
 - **Other sites**: a request that changes something and names another site as its origin is refused.
 - **Event stream**: a browser's stream is checked once a minute and ends when its session has expired or its account left the allowlist.
 - **Web app**: a route guard asks `GET /api/v1/auth/me` once; without a session it shows the login page. Any "not logged in" answer later sends the user there too. The System page shows the account and a logout button.
-- No passwords, no user table, no roles: everyone on the allowlist shares the one list.
+- **Owner.** One account is the owner: `OWNER_EMAIL`, or else the first address on the allowlist. Routes marked `@OwnerOnly()` answer 403 to any other account: the system log, the scan history, the scanner status, the sound settings and test sounds, and the test notification. The login state tells the page whether the account is the owner, and the page shows the rest of the System page only then. With login off, everyone counts as the owner.
+- No passwords, no user table: everyone on the allowlist shares the one list, products and inbox.
 
 ## Staying connected
 

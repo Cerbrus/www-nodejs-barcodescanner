@@ -121,6 +121,10 @@ Decided 2026-11-13:
 
 Decided 2026-11-13 by the owner: the images and the build follow the newest Node release, 25 at the time, also when it is not a long-term one. The build's tests run on the same version as the image. Local development works on 24 or newer.
 
+## Owner and other accounts
+
+Decided 2026-11-13: one account is the owner and alone gets the system parts of the System page; other accounts on the allowlist keep language, appearance, notifications for their device and their account. The server enforces it. Everything else stays shared for now: list, products, inbox. Whether other accounts later get their own list is undecided.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

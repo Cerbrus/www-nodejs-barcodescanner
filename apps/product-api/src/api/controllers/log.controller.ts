@@ -4,6 +4,7 @@ import { LogLine, LogService } from '../../core/services/log.service';
 import { LogLineDto } from '../dto/log-line.dto';
 import { Agent } from '../guards/agent.decorator';
 import { CalledBy } from '../guards/caller.decorator';
+import { OwnerOnly } from '../guards/owner.decorator';
 import { Caller } from '../http';
 
 const MAX_LINES = 500;
@@ -13,6 +14,7 @@ export class LogController {
     constructor(private readonly logs: LogService) {
     }
 
+    @OwnerOnly()
     @Get()
     public latest(@Query('limit', new DefaultValuePipe(200), ParseIntPipe) limit: number): Array<LogLine> {
         return this.logs.latest(Math.min(Math.max(limit, 1), MAX_LINES));

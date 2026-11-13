@@ -4,18 +4,21 @@ import { FEEDBACK_EVENTS, FeedbackEvent } from '../../core/rules/sounds';
 import { FeedbackService, FeedbackSettings } from '../../core/services/feedback.service';
 import { SoundChoiceDto } from '../dto/sound-choice.dto';
 import { Agent } from '../guards/agent.decorator';
+import { OwnerOnly } from '../guards/owner.decorator';
 
 @Controller({ path: 'feedback', version: '1' })
 export class FeedbackController {
     constructor(private readonly feedback: FeedbackService) {
     }
 
+    @OwnerOnly()
     @Agent()
     @Get('settings')
     public getSettings(): Promise<FeedbackSettings> {
         return this.feedback.getSettings();
     }
 
+    @OwnerOnly()
     @Put('settings/:event')
     public setSound(
         @Param('event', new ParseEnumPipe(FEEDBACK_EVENTS)) event: FeedbackEvent,
@@ -24,6 +27,7 @@ export class FeedbackController {
         return this.feedback.setSound(event, choice.soundId);
     }
 
+    @OwnerOnly()
     @Post('test')
     @HttpCode(202)
     public test(@Body() choice: SoundChoiceDto): void {

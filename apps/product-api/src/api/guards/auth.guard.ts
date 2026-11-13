@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from '@nestjs/core';
 
 import { AGENT_ROUTE } from './agent.decorator';
+import { OWNER_ROUTE } from './owner.decorator';
 import { PUBLIC_ROUTE } from './public.decorator';
 import { AppConfig } from '../../config/app.config';
 import { safeEqual } from '../../core/rules/session';
@@ -41,8 +42,12 @@ export class AuthGuard implements CanActivate {
             return true;
         }
 
-        if (!this.sessions.read(cookieHeader(request))) {
+        const session = this.sessions.read(cookieHeader(request));
+        if (!session) {
             throw new UnauthorizedException('Log in first');
+        }
+        if (this.reflector.getAllAndOverride<boolean>(OWNER_ROUTE, targets) && !this.sessions.isOwner(session.email)) {
+            throw new ForbiddenException('Only for the owner');
         }
 
         const origin = request.headers['origin'];

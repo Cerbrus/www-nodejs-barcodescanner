@@ -135,7 +135,7 @@ describe('login guard over HTTP', () => {
         const anonymous = (await (await fetch(`${base}/auth/me`)).json()) as { enabled: boolean; authenticated: boolean };
         const owner = (await (await fetch(`${base}/auth/me`, { headers: { cookie: cookieFor(OWNER) } })).json()) as { email?: string };
 
-        assert.deepEqual(anonymous, { enabled: true, authenticated: false });
+        assert.deepEqual(anonymous, { enabled: true, authenticated: false, owner: false });
         assert.equal(owner.email, OWNER);
     });
 

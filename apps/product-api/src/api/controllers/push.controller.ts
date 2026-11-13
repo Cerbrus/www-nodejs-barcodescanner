@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Post } from '@nestjs/common';
 
 import { PushResult, PushService } from '../../core/services/push.service';
 import { PushEndpointDto, PushSubscriptionDto } from '../dto/push-subscription.dto';
+import { OwnerOnly } from '../guards/owner.decorator';
 
 @Controller({ path: 'push', version: '1' })
 export class PushController {
@@ -25,6 +26,7 @@ export class PushController {
         return this.push.unsubscribe(subscription.endpoint);
     }
 
+    @OwnerOnly()
     @Post('test')
     @HttpCode(200)
     public sendTest(): Promise<PushResult> {
