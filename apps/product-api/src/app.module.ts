@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { ApiModule } from './api/api.module';
+import { setSecurityHeaders } from './api/security-headers';
 import { AppConfig } from './config/app.config';
 import { AppConfigModule } from './config/config.module';
 import { CoreModule } from './core/core.module';
@@ -18,11 +19,12 @@ import { DataModule } from './data/data.module';
                 {
                     rootPath: config.iconsPath,
                     serveRoot: '/icons',
-                    serveStaticOptions: { fallthrough: false, maxAge: '7d' }
+                    serveStaticOptions: { fallthrough: false, maxAge: '7d', setHeaders: setSecurityHeaders }
                 },
                 {
                     rootPath: config.frontendPath,
-                    exclude: ['/api/{*path}', '/icons/{*path}']
+                    exclude: ['/api/{*path}', '/icons/{*path}'],
+                    serveStaticOptions: { setHeaders: setSecurityHeaders }
                 }
             ]
         }),

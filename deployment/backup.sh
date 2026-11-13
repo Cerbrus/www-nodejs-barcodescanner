@@ -10,7 +10,19 @@ DATABASE=$APP_DIR/data/app.db
 
 cd "$APP_DIR"
 
-BACKUP_REPO=$({ grep -E '^BACKUP_REPO=' .env || true; } | tail -1 | cut -d= -f2-)
+setting() {
+    { grep -E "^$1=" .env || true; } | tail -1 | cut -d= -f2-
+}
+
+report() {
+    local port
+    port=$(setting APP_PORT)
+    curl -fsS -m 5 -o /dev/null -X POST "http://127.0.0.1:${port:-3020}/api/v1/logs"         -H 'Content-Type: application/json' -H "X-Agent-Token: $(setting AGENT_TOKEN)"         -d "{\"level\":\"$1\",\"message\":\"backup: $2\"}" || true
+}
+
+trap 'report error "failed at line $LINENO of backup.sh, see journalctl -u barcodescanner-backup"' ERR
+
+BACKUP_REPO=$(setting BACKUP_REPO)
 if [ -z "$BACKUP_REPO" ]; then
     echo "BACKUP_REPO is not set in .env, nothing to do"
     exit 0
@@ -37,6 +49,7 @@ else
     if ! tail -1 app.sql.new | grep -q '^COMMIT;$'; then
         rm -f app.sql.new "$STAMP.new"
         echo "dump is incomplete, keeping the previous backup" >&2
+        report error "the dump was incomplete, the previous backup is kept"
         exit 1
     fi
     mv app.sql.new app.sql
@@ -55,4 +68,5 @@ fi
 if [ -n "$(git log --branches --not --remotes --oneline 2>/dev/null | head -1)" ]; then
     git push --quiet origin HEAD
     echo "pushed to $BACKUP_REPO"
+    report info "pushed $(git rev-parse --short HEAD)"
 fi

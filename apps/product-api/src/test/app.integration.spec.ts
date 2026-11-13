@@ -57,6 +57,17 @@ describe('the whole app module', () => {
         assert.equal((await fetch(`${site}/icons/no-such-icon.png`)).status, 404);
     });
 
+    it('forbids framing and type guessing on pages, icons and API answers', async () => {
+        for (const path of ['/', '/list', '/icons/milk.png', '/api/v1/health', '/api/v1/no-such-route']) {
+            const headers = (await fetch(`${site}${path}`)).headers;
+
+            assert.equal(headers.get('x-frame-options'), 'DENY', path);
+            assert.equal(headers.get('x-content-type-options'), 'nosniff', path);
+            assert.equal(headers.get('content-security-policy'), "frame-ancestors 'none'", path);
+            assert.equal(headers.get('referrer-policy'), 'same-origin', path);
+        }
+    });
+
     it('keeps API paths out of the web app fallback', async () => {
         assert.equal((await fetch(`${site}/api/v1/no-such-route`)).status, 404);
         assert.equal((await fetch(`${site}/api/v1/list`)).status, 200);

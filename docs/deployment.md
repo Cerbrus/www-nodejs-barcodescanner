@@ -176,7 +176,9 @@ One-time setup:
 3. Set `BACKUP_REPO=git@github.com:<account>/barcodescanner-backup.git` in `/opt/barcodescanner/.env`.
 4. Run it once: `sudo systemctl start barcodescanner-backup.service`, then `journalctl -u barcodescanner-backup -n 20`.
 
-Check: `systemctl list-timers barcodescanner-backup.timer` and the commit list of the backup repository.
+The script writes its result to the app's system log: "backup: pushed" with the commit after a push, and an error line when the dump or the push fails. A run that finds nothing changed stays silent.
+
+Check: the system log, `systemctl list-timers barcodescanner-backup.timer` and the commit list of the backup repository.
 
 Restore, on a new or repaired Pi after `install.sh`:
 

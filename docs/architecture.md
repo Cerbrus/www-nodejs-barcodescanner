@@ -119,7 +119,7 @@ What it deliberately does not have: a class per use case, domain models separate
 
 **Settings.** `AppConfig` reads every environment setting once and derives the data folder and all file paths from it. No other file may read `process.env`.
 
-The app also serves the icon files under `/icons` and the built web app for every other path.
+The app also serves the icon files under `/icons` and the built web app for every other path. Every answer, page, icon or API, carries headers that forbid showing the site in a frame, forbid guessing content types and keep the address out of referrers to other sites. A full content security policy is not set yet (see the product review).
 
 ## Web app
 
