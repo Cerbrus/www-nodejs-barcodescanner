@@ -3567,6 +3567,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/fast-memoize@npm:3.1.7":
+  version: 3.1.7
+  resolution: "@formatjs/fast-memoize@npm:3.1.7"
+  checksum: 10c0/dee801f82eda1f6fdc166b0c907e8750c15e409e20b2006c215d9247fe0db720d84d53fcb2fb7559cec21a24932b69dda326c81ee2885aad2cde31bc25449fd0
+  languageName: node
+  linkType: hard
+
+"@formatjs/icu-messageformat-parser@npm:3.5.23":
+  version: 3.5.23
+  resolution: "@formatjs/icu-messageformat-parser@npm:3.5.23"
+  dependencies:
+    "@formatjs/icu-skeleton-parser": "npm:2.1.13"
+  checksum: 10c0/133c2058bb7f59944ac97dce1ed358de988b31f97e1ec8e0c334d0b9548bfe80bde3ce47248cd72376d96aae8273ca6fd92ddded12abceecdc01b7abd88bb6c6
+  languageName: node
+  linkType: hard
+
+"@formatjs/icu-skeleton-parser@npm:2.1.13":
+  version: 2.1.13
+  resolution: "@formatjs/icu-skeleton-parser@npm:2.1.13"
+  checksum: 10c0/b8296e15516a136795bdfbcac3b6a8e42b7b6ebc692460f1e3b919379b5bbe5b87c3b81003a83c64b59d389fc11ae6206f49fb0b7232a63e7f65b7bd4a57b5ac
+  languageName: node
+  linkType: hard
+
 "@gar/promise-retry@npm:^1.0.0":
   version: 1.0.3
   resolution: "@gar/promise-retry@npm:1.0.3"
@@ -8334,6 +8357,7 @@ __metadata:
     eslint-config-prettier: "npm:^10.1.8"
     eslint-import-resolver-typescript: "npm:^3.10.1"
     eslint-plugin-import: "npm:^2.32.0"
+    intl-messageformat: "npm:^12.1.5"
     jsonc-eslint-parser: "npm:^2.4.2"
     nx: "npm:24.0.6"
     postcss: "npm:^8.5.32"
@@ -11627,6 +11651,16 @@ __metadata:
   version: 3.1.1
   resolution: "interpret@npm:3.1.1"
   checksum: 10c0/6f3c4d0aa6ec1b43a8862375588a249e3c917739895cbe67fe12f0a76260ea632af51e8e2431b50fbcd0145356dc28ca147be08dbe6a523739fd55c0f91dc2a5
+  languageName: node
+  linkType: hard
+
+"intl-messageformat@npm:^12.1.5":
+  version: 12.1.5
+  resolution: "intl-messageformat@npm:12.1.5"
+  dependencies:
+    "@formatjs/fast-memoize": "npm:3.1.7"
+    "@formatjs/icu-messageformat-parser": "npm:3.5.23"
+  checksum: 10c0/9c9e7c6612e2fa72a2947c357eeecff18fc6ca3d18020bd49b60381a0afc0359b6d98a9da92a418f88835f894f1edd4ed23c33b22ee3a97509e1c3389c4e45c6
   languageName: node
   linkType: hard
 

@@ -127,7 +127,7 @@ Decided 2026-11-13: one account is the owner and alone gets the system parts of 
 
 ## Content security policy
 
-Decided 2026-11-13: the policy starts in report-only mode and reports go to the existing system log, not to a file or table of their own. After a week of use without reports the owner sets `CSP_MODE=enforce` on the Pi; no release is needed for that step, and `report` is the way back. The policy does not allow `eval`, so the message format library was replaced by an own compiler for placeholders and plurals.
+Decided 2026-11-13: the policy starts in report-only mode and reports go to the existing system log, not to a file or table of their own. After a week of use without reports the owner sets `CSP_MODE=enforce` on the Pi; no release is needed for that step, and `report` is the way back. The policy does not allow `eval`, and the former message format library (`@messageformat/core`) needs it by design. It was replaced by FormatJS `intl-messageformat`, the replacement its own maintainers name; the translation files did not change. Angular's built-in translation was weighed and dropped: it builds one app per language and cannot switch language while running.
 
 ## Branch rules
 
