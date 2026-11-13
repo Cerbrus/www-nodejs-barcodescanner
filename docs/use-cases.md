@@ -88,6 +88,7 @@ A page lists recent scans: time, source (handheld or phone), barcode, result (ad
 1. A change is pushed to `master`.
 2. GitHub Actions checks it and builds new images.
 3. Within minutes the Pi pulls them and restarts the app, with no action from the user. Data survives the update, and open pages reconnect by themselves.
+4. An open app, also one that was waiting in the background on the phone, reloads itself when the update changed the web app. It stays on the same page. While the user is typing, has a panel open or is scanning with the camera, it waits until the next change of page or the next return to the app.
 
 ### UC-11 Scanner and system log
 

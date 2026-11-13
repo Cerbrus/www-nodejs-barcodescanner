@@ -8,6 +8,7 @@ import { ApiService } from './services/api.service';
 import { printConsoleBanner } from './services/console-banner';
 import { PushService } from './services/push.service';
 import { ThemeService } from './services/theme.service';
+import { UpdateService } from './services/update.service';
 
 const LANGUAGE_STORAGE_KEY = 'language';
 const SUPPORTED_LANGUAGES = ['nl', 'en'];
@@ -27,6 +28,7 @@ export class AppComponent {
         const api = inject(ApiService);
         inject(ThemeService);
         void inject(PushService).start();
+        inject(UpdateService).start();
         const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? '';
         const language = SUPPORTED_LANGUAGES.includes(stored) ? stored : DEFAULT_LANGUAGE;
         translate.use(language);
