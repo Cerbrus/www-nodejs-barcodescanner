@@ -6,6 +6,7 @@ import { AgentStatusService } from './services/agent-status.service';
 import { BarcodeService } from './services/barcode.service';
 import { CatalogService } from './services/catalog.service';
 import { ConnectorService } from './services/connector.service';
+import { ContentPolicyService } from './services/content-policy.service';
 import { EventsService } from './services/events.service';
 import { FeedbackService } from './services/feedback.service';
 import { ListService } from './services/list.service';
@@ -21,6 +22,7 @@ const services = [
     BarcodeService,
     CatalogService,
     ConnectorService,
+    ContentPolicyService,
     EventsService,
     FeedbackService,
     ListService,

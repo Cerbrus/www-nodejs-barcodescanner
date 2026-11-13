@@ -126,6 +126,8 @@ Requested by the owner on 2026-11-13. The choice of runner is open; it should fo
 
 | Point | Needed by |
 |---|---|
+| Content security policy: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi | Milestone 6 |
+| Two-factor login on the GitHub account, by the owner | Milestone 6 |
 | Tera's answer on the beeper commands | Milestone 7 |
 
 ## Never tested

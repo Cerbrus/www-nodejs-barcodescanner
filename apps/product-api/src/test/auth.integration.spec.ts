@@ -9,8 +9,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 
-import { Controller, Get, INestApplication, Module, Post } from '@nestjs/common';
+import { Controller, Get, Module, Post } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { ApiModule } from '../api/api.module';
 import { configureApi } from '../api/configure-api';
@@ -64,7 +65,7 @@ class TestModule {
 }
 
 describe('login guard over HTTP', () => {
-    let app: INestApplication;
+    let app: NestExpressApplication;
     let base: string;
     let secret: string;
 
@@ -72,7 +73,7 @@ describe('login guard over HTTP', () => {
     const status = async (path: string, init?: RequestInit): Promise<number> => (await fetch(`${base}${path}`, { redirect: 'manual', ...init })).status;
 
     before(async () => {
-        app = await NestFactory.create(TestModule, { logger: false });
+        app = await NestFactory.create<NestExpressApplication>(TestModule, { logger: false });
         configureApi(app);
         await app.listen(0, '127.0.0.1');
         base = `http://127.0.0.1:${(app.getHttpServer().address() as AddressInfo).port}/api/v1`;

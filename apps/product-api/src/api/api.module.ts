@@ -5,6 +5,7 @@ import { AgentController } from './controllers/agent.controller';
 import { AuthController } from './controllers/auth.controller';
 import { BarcodeController } from './controllers/barcode.controller';
 import { CatalogController } from './controllers/catalog.controller';
+import { ContentPolicyController } from './controllers/content-policy.controller';
 import { EventController } from './controllers/event.controller';
 import { FeedbackController } from './controllers/feedback.controller';
 import { HealthController } from './controllers/health.controller';
@@ -24,6 +25,7 @@ import { CoreModule } from '../core/core.module';
         AuthController,
         BarcodeController,
         CatalogController,
+        ContentPolicyController,
         EventController,
         FeedbackController,
         HealthController,

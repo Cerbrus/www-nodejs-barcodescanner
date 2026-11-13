@@ -6,8 +6,9 @@ import { rmSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
 
-import { INestApplication, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { testFolder } from './test-env';
 import { ApiModule } from '../api/api.module';
@@ -38,7 +39,7 @@ class TestModule {
 }
 
 describe('data routes over HTTP', () => {
-    let app: INestApplication;
+    let app: NestExpressApplication;
     let base: string;
     let asUser: Record<string, string>;
     let asGuest: Record<string, string>;
@@ -57,7 +58,7 @@ describe('data routes over HTTP', () => {
     }
 
     before(async () => {
-        app = await NestFactory.create(TestModule, { logger: false });
+        app = await NestFactory.create<NestExpressApplication>(TestModule, { logger: false });
         configureApi(app);
         await app.listen(0, '127.0.0.1');
         base = `http://127.0.0.1:${(app.getHttpServer().address() as AddressInfo).port}/api/v1`;

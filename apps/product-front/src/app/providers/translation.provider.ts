@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { EnvironmentProviders, Provider } from '@angular/core';
 import { TranslateCompiler, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateMessageFormatCompiler } from 'ngx-translate-messageformat-compiler';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
+import { MessageCompiler } from './message.compiler';
 
 // Using lazy loader instead of http loader to prevent accidental caching
 // https://github.com/ngx-translate/http-loader/issues/25#issuecomment-514056865
@@ -29,7 +30,7 @@ export function provideTranslation(): Array<Provider | EnvironmentProviders> {
         },
         compiler: {
             provide: TranslateCompiler,
-            useClass: TranslateMessageFormatCompiler
+            useClass: MessageCompiler
         }
     }).providers!;
 }

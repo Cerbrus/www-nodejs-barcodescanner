@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { API_PREFIX, configureApi } from './api/configure-api';
 import { AppModule } from './app.module';
@@ -11,7 +12,7 @@ const COMMIT_LENGTH = 7;
 
 async function bootstrap(): Promise<void> {
     const config = new AppConfig();
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         cors: config.development,
         logger: new BufferedLogger(config.logFile)
     });

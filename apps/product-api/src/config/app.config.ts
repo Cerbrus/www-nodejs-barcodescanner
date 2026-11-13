@@ -41,6 +41,7 @@ export class AppConfig {
     public readonly allowedEmails = list(setting('ALLOWED_EMAILS') ?? '').map((email) => email.toLowerCase());
     public readonly ownerEmail = (setting('OWNER_EMAIL') ?? this.allowedEmails[0] ?? '').toLowerCase();
     public readonly loginEnabled = this.googleClientId !== '';
+    public readonly contentPolicyMode = setting('CSP_MODE');
 
     public get redirectUri(): string {
         return `${this.publicUrl}/api/v1/auth/google/callback`;

@@ -125,6 +125,14 @@ Decided 2026-11-13 by the owner: the images and the build follow the newest Node
 
 Decided 2026-11-13: one account is the owner and alone gets the system parts of the System page; other accounts on the allowlist keep language, appearance, notifications for their device and their account. The server enforces it. Everything else stays shared for now: list, products, inbox. Whether other accounts later get their own list is undecided.
 
+## Content security policy
+
+Decided 2026-11-13: the policy starts in report-only mode and reports go to the existing system log, not to a file or table of their own. After a week of use without reports the owner sets `CSP_MODE=enforce` on the Pi; no release is needed for that step, and `report` is the way back. The policy does not allow `eval`, so the message format library was replaced by an own compiler for placeholders and plurals.
+
+## Branch rules
+
+Decided 2026-11-13: light protection for `master`, as a repository ruleset: no deletion, no force-push. No required pull request or checks, because there is no second person to review and releases are direct pushes.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

@@ -131,6 +131,7 @@ The least that must be set: `SCANNER_DEVICE`. For login also `GOOGLE_CLIENT_ID`,
 | `ALLOWED_EMAILS` | Google accounts that may log in, comma-separated |
 | `OWNER_EMAIL` | The account that also gets the system parts (log, history, scanner status, sounds, test notification). Empty: the first address of `ALLOWED_EMAILS` |
 | `AGENT_TOKEN` | Secret the hardware agent uses instead of a login; `install.sh` creates it |
+| `CSP_MODE` | Content security policy: `report` (default) writes to the system log what the policy would block, `enforce` blocks it, `off` sends no policy. Restart the app after changing it |
 | `FEEDBACK_OUTPUT` | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below |
 | `BUZZER_PIN` | GPIO number of the buzzer pin, default `18` |
 | `BUZZER_TYPE` | `active` (default) or `passive` |
@@ -168,6 +169,7 @@ When the site's public name points at the router, some routers pass requests fro
 - **Check**: the System page or `curl http://127.0.0.1:3020/api/v1/health` for the running version, `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
 - **Rollback**: set `IMAGE_TAG=<version>` in `.env`, for example `1.0.20`, and run the updater. Images built before version numbers existed are only tagged with their commit hash. Database migrations only go forward, so restore the database backup when rolling back past a migration.
 - **Backup**: see the next section. The log files are not backed up.
+- **Branch rules**: the repository has a ruleset `protect-master` on the default branch: no deleting it and no force-push. Only the owner's account can push at all. To rewrite history on `master`, switch the ruleset off first under Settings, Rules.
 - **Logs**: the System page shows the live log; the same lines are in `/opt/barcodescanner/data/logs/app.log` (JSON lines, rotated at 256 KB, three old files kept).
 
 ## Database backup

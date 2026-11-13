@@ -4451,52 +4451,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@messageformat/core@npm:^3.4.1":
-  version: 3.4.1
-  resolution: "@messageformat/core@npm:3.4.1"
-  dependencies:
-    "@messageformat/date-skeleton": "npm:2.0.0-0"
-    "@messageformat/number-skeleton": "npm:2.0.0-0"
-    "@messageformat/parser": "npm:^5.2.0"
-    "@messageformat/runtime": "npm:^3.0.3"
-    make-plural: "npm:^7.0.0"
-    safe-identifier: "npm:^0.4.1"
-  checksum: 10c0/76baeab0279e6166de2c754a3ce4e02200a568e682de8f0efc6fd0626dc58bae6c4971ed201a3940d0c39eec5a07cfdb7409d3d97b8d4d96be9ea77fa62c4632
-  languageName: node
-  linkType: hard
-
-"@messageformat/date-skeleton@npm:2.0.0-0":
-  version: 2.0.0-0
-  resolution: "@messageformat/date-skeleton@npm:2.0.0-0"
-  checksum: 10c0/37ab71ab645151a56f9200c20e81b5d9d52253486f26307db1c28118e2882a8849d5a04ea2416b223a7a392fb1aa67d95443facd7ba507c2f5875b37b5ac81dd
-  languageName: node
-  linkType: hard
-
-"@messageformat/number-skeleton@npm:2.0.0-0":
-  version: 2.0.0-0
-  resolution: "@messageformat/number-skeleton@npm:2.0.0-0"
-  checksum: 10c0/aaeac26d4675490d6d754ab85ef0a92d05aff05328577db211a18155b1aec4adf61efd060987c4858196be53aacad63cce1735ec202cf64554d858b9764c901a
-  languageName: node
-  linkType: hard
-
-"@messageformat/parser@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@messageformat/parser@npm:5.2.0"
-  dependencies:
-    moo: "npm:^0.5.1"
-  checksum: 10c0/e38c4f6a5ba3b32b7cb75db504b88293edb93ca1644de226bd0f817872f5fd1a12fb0732f595f8d58d8c75d5060639a8050c601dac4dee93edfb5d73da6a161c
-  languageName: node
-  linkType: hard
-
-"@messageformat/runtime@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "@messageformat/runtime@npm:3.0.3"
-  dependencies:
-    make-plural: "npm:^7.0.0"
-  checksum: 10c0/bca64d0a81158c93a7d3333b211a5d3466dad9d85c1319919445b9930a084c9a69645aa3ecb6da40de2ef4c28784e273ab29ecce749907e7465370f16d0d6c59
-  languageName: node
-  linkType: hard
-
 "@modelcontextprotocol/core@npm:2.3.1":
   version: 2.3.1
   resolution: "@modelcontextprotocol/core@npm:2.3.1"
@@ -6405,13 +6359,6 @@ __metadata:
   version: 1.1.1
   resolution: "@rolldown/pluginutils@npm:1.1.1"
   checksum: 10c0/ee35ab757a5b6cc296a13abfd3b1f998ef141a6bf302f2d25eee53ab9cb1aea265bea0d55495664f02e91c38c3995c79773ea8e14213089d9c31c1821997b606
-  languageName: node
-  linkType: hard
-
-"@rollup/rollup-linux-x64-gnu@npm:4.46.2":
-  version: 4.46.2
-  resolution: "@rollup/rollup-linux-x64-gnu@npm:4.46.2"
-  conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
@@ -8357,7 +8304,6 @@ __metadata:
     "@angular/platform-browser": "npm:~22.2.0"
     "@angular/router": "npm:~22.2.0"
     "@eslint/js": "npm:^9.39.5"
-    "@messageformat/core": "npm:^3.4.1"
     "@nestjs/common": "npm:^11.2.10"
     "@nestjs/config": "npm:^4.0.4"
     "@nestjs/core": "npm:^11.2.10"
@@ -8389,7 +8335,6 @@ __metadata:
     eslint-import-resolver-typescript: "npm:^3.10.1"
     eslint-plugin-import: "npm:^2.32.0"
     jsonc-eslint-parser: "npm:^2.4.2"
-    ngx-translate-messageformat-compiler: "npm:^7.3.0"
     nx: "npm:24.0.6"
     postcss: "npm:^8.5.32"
     prettier: "npm:^3.10.1"
@@ -12939,13 +12884,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"make-plural@npm:^7.0.0":
-  version: 7.5.0
-  resolution: "make-plural@npm:7.5.0"
-  checksum: 10c0/4cfecc77301cda7d01539027de3aedbacd91555767a4afb7ec18dbb8d9648293bf712a1d968e333c448f4e13e95cfef6457b338cf562620abcc4e7b313eeca29
-  languageName: node
-  linkType: hard
-
 "math-intrinsics@npm:^1.1.0":
   version: 1.1.0
   resolution: "math-intrinsics@npm:1.1.0"
@@ -13325,13 +13263,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moo@npm:^0.5.1":
-  version: 0.5.3
-  resolution: "moo@npm:0.5.3"
-  checksum: 10c0/5c5e00d7c57a69ce1cc2f21a90655ff10556481cc10fa70528c01e91f00deff8a65fa8da6dc7b27d136d66085055aab238fd1b19a75070263e0028e8f07c8213
-  languageName: node
-  linkType: hard
-
 "mrmime@npm:2.0.1":
   version: 2.0.1
   resolution: "mrmime@npm:2.0.1"
@@ -13528,23 +13459,6 @@ __metadata:
   version: 2.6.2
   resolution: "neo-async@npm:2.6.2"
   checksum: 10c0/c2f5a604a54a8ec5438a342e1f356dff4bc33ccccdb6dc668d94fe8e5eccfc9d2c2eea6064b0967a767ba63b33763f51ccf2cd2441b461a7322656c1f06b3f5d
-  languageName: node
-  linkType: hard
-
-"ngx-translate-messageformat-compiler@npm:^7.3.0":
-  version: 7.3.0
-  resolution: "ngx-translate-messageformat-compiler@npm:7.3.0"
-  dependencies:
-    "@rollup/rollup-linux-x64-gnu": "npm:4.46.2"
-    tslib: "npm:2.8.1"
-  peerDependencies:
-    "@angular/core": ">=13.0.0"
-    "@messageformat/core": ^3.2.0
-    "@ngx-translate/core": ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  dependenciesMeta:
-    "@rollup/rollup-linux-x64-gnu":
-      optional: true
-  checksum: 10c0/1a900d3d718cddfff71af6b2f5fc260aad9d657ac54edd3952ceb3b625efd3696154127e5afc8d169ad5c2e301905b2a622f8c612a4dd2244119a65cdd4dd8e3
   languageName: node
   linkType: hard
 
@@ -15801,13 +15715,6 @@ __metadata:
   version: 5.2.1
   resolution: "safe-buffer@npm:5.2.1"
   checksum: 10c0/6501914237c0a86e9675d4e51d89ca3c21ffd6a31642efeba25ad65720bce6921c9e7e974e5be91a786b25aa058b5303285d3c15dbabf983a919f5f630d349f3
-  languageName: node
-  linkType: hard
-
-"safe-identifier@npm:^0.4.1":
-  version: 0.4.2
-  resolution: "safe-identifier@npm:0.4.2"
-  checksum: 10c0/a6b0cdb5347e48c5ea4ddf4cdca5359b12529a11a7368225c39f882fcc0e679c81e82e3b13e36bd27ba7bdec9286f4cc062e3e527464d93ba61290b6e0bc6747
   languageName: node
   linkType: hard
 
