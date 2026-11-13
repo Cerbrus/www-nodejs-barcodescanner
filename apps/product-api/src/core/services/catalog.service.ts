@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs';
 import { readdir } from 'fs/promises';
-import { join } from 'path';
 
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +7,7 @@ import { IsNull, Like, Repository } from 'typeorm';
 
 import { EventsService } from './events.service';
 import { ScanService } from './scan.service';
+import { AppConfig } from '../../config/app.config';
 import { BarcodeEntity, CatalogItemEntity, SectionEntity } from '../../data/entities';
 
 export interface CatalogItemInput {
@@ -19,8 +19,6 @@ export interface CatalogItemInput {
 
 @Injectable()
 export class CatalogService {
-    private readonly iconsPath = process.env['ICONS_PATH'] ?? join(process.cwd(), 'data', 'icons');
-    private readonly seedPath = process.env['SEED_PATH'] ?? join(process.cwd(), 'data', 'seed-items.json');
     private seedIcons?: Map<string, string>;
 
     constructor(
@@ -28,7 +26,8 @@ export class CatalogService {
         @InjectRepository(CatalogItemEntity) private readonly items: Repository<CatalogItemEntity>,
         @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>,
         private readonly scans: ScanService,
-        private readonly events: EventsService
+        private readonly events: EventsService,
+        private readonly config: AppConfig
     ) {
     }
 
@@ -118,7 +117,7 @@ export class CatalogService {
 
     public async getIconNames(): Promise<Array<string>> {
         try {
-            const files = await readdir(this.iconsPath);
+            const files = await readdir(this.config.iconsPath);
             return files
                 .filter((file) => file.endsWith('.png'))
                 .map((file) => file.slice(0, -'.png'.length))
@@ -135,7 +134,7 @@ export class CatalogService {
 
     private readSeedIcons(): Map<string, string> {
         try {
-            const seed = JSON.parse(readFileSync(this.seedPath, 'utf-8')) as { items: Array<{ name: string; icon?: string }> };
+            const seed = JSON.parse(readFileSync(this.config.seedPath, 'utf-8')) as { items: Array<{ name: string; icon?: string }> };
             return new Map(seed.items.flatMap(({ name, icon }) => (icon ? [[name.toLowerCase(), icon] as const] : [])));
         } catch {
             return new Map();

@@ -11,6 +11,7 @@ import { LogService } from './services/log.service';
 import { PushService } from './services/push.service';
 import { ScanService } from './services/scan.service';
 import { SeedService } from './services/seed.service';
+import { SessionService } from './services/session.service';
 import { DataModule } from '../data/data.module';
 
 const services = [
@@ -22,7 +23,8 @@ const services = [
     LogService,
     PushService,
     ScanService,
-    SeedService
+    SeedService,
+    SessionService
 ];
 
 @Module({

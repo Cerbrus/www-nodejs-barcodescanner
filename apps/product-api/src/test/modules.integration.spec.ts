@@ -10,6 +10,7 @@ import { INestApplicationContext, Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { testFolder } from './test-env';
+import { AppConfigModule } from '../config/config.module';
 import { CoreModule } from '../core/core.module';
 import { DEBOUNCE_MILLISECONDS } from '../core/rules/scan-rules';
 import { CatalogService } from '../core/services/catalog.service';
@@ -20,7 +21,7 @@ import { ScanService } from '../core/services/scan.service';
 const folder = testFolder;
 const CODE = '8710400335481';
 
-@Module({ imports: [CoreModule] })
+@Module({ imports: [AppConfigModule, CoreModule] })
 class TestModule {
 }
 

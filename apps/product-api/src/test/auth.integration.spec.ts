@@ -14,9 +14,9 @@ import { NestFactory } from '@nestjs/core';
 
 import { ApiModule } from '../api/api.module';
 import { Public } from '../api/guards/public.decorator';
-import { AuthConfig } from '../config/auth.config';
 import { AppConfigModule } from '../config/config.module';
 import { SESSION_COOKIE, newSession, signSession } from '../core/rules/session';
+import { SessionService } from '../core/services/session.service';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-auth-'));
 const SITE = 'https://shopping.example.com';
@@ -67,7 +67,7 @@ describe('login guard over HTTP', () => {
         app.enableVersioning({ type: VersioningType.URI });
         await app.listen(0, '127.0.0.1');
         base = `http://127.0.0.1:${(app.getHttpServer().address() as AddressInfo).port}/api/v1`;
-        secret = app.get(AuthConfig).sessionSecret;
+        secret = app.get(SessionService).secret;
     });
 
     after(async () => {

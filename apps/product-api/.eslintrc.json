@@ -32,6 +32,25 @@
         },
         {
             "files": [
+                "*.ts"
+            ],
+            "excludedFiles": [
+                "src/config/app.config.ts",
+                "src/test/**",
+                "*.spec.ts"
+            ],
+            "rules": {
+                "no-restricted-syntax": [
+                    "error",
+                    {
+                        "selector": "MemberExpression[object.name='process'][property.name='env']",
+                        "message": "Read settings through AppConfig (src/config/app.config.ts), not from process.env."
+                    }
+                ]
+            }
+        },
+        {
+            "files": [
                 "*.spec.ts"
             ],
             "rules": {

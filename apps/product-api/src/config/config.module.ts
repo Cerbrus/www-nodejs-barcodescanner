@@ -1,11 +1,11 @@
 import { Global, Module } from '@nestjs/common';
 
-import { AuthConfig } from './auth.config';
+import { AppConfig } from './app.config';
 
 @Global()
 @Module({
-    providers: [AuthConfig],
-    exports: [AuthConfig]
+    providers: [AppConfig],
+    exports: [AppConfig]
 })
 export class AppConfigModule {
 }

@@ -2,20 +2,11 @@ import { randomBytes } from 'crypto';
 
 import { Controller, Get, HttpCode, Logger, Post, Query, Req, Res } from '@nestjs/common';
 
-import { AuthConfig } from '../../config/auth.config';
-import {
-    SESSION_COOKIE,
-    SESSION_LIFETIME_SECONDS,
-    SESSION_RENEW_AFTER_SECONDS,
-    isAllowedEmail,
-    newSession,
-    parseCookies,
-    safeEqual,
-    signSession
-} from '../../core/rules/session';
-import { AuthGuard, cookieHeader } from '../guards/auth.guard';
+import { AppConfig } from '../../config/app.config';
+import { SESSION_COOKIE, SESSION_LIFETIME_SECONDS, SESSION_RENEW_AFTER_SECONDS, parseCookies, safeEqual } from '../../core/rules/session';
+import { SessionService } from '../../core/services/session.service';
 import { Public } from '../guards/public.decorator';
-import { CookieOptions, HttpRequest, HttpResponse } from '../http';
+import { CookieOptions, HttpRequest, HttpResponse, cookieHeader } from '../http';
 
 interface AuthState {
     enabled: boolean;
@@ -43,18 +34,18 @@ export class AuthController {
     private readonly logger = new Logger('Auth');
 
     constructor(
-        private readonly config: AuthConfig,
-        private readonly guard: AuthGuard
+        private readonly config: AppConfig,
+        private readonly sessions: SessionService
     ) {
     }
 
     @Get('me')
     public me(@Req() request: HttpRequest, @Res({ passthrough: true }) response: HttpResponse): AuthState {
-        if (!this.config.enabled) {
+        if (!this.config.loginEnabled) {
             return { enabled: false, authenticated: true };
         }
 
-        const session = this.guard.readSession(request);
+        const session = this.sessions.read(cookieHeader(request));
         if (session && Date.now() / 1000 - session.issuedAt > SESSION_RENEW_AFTER_SECONDS) {
             this.setSession(response, session.email);
         }
@@ -64,7 +55,7 @@ export class AuthController {
 
     @Get('google')
     public start(@Res() response: HttpResponse): void {
-        if (!this.config.enabled) {
+        if (!this.config.loginEnabled) {
             response.redirect('/');
             return;
         }
@@ -72,7 +63,7 @@ export class AuthController {
         const state = randomBytes(24).toString('base64url');
         response.cookie(STATE_COOKIE, state, { ...this.cookieOptions(), maxAge: STATE_LIFETIME_MILLISECONDS });
         const query = new URLSearchParams({
-            client_id: this.config.clientId,
+            client_id: this.config.googleClientId,
             redirect_uri: this.config.redirectUri,
             response_type: 'code',
             scope: 'openid email',
@@ -98,12 +89,12 @@ export class AuthController {
 
         const identity = await this.exchange(code);
         const email = identity?.email?.toLowerCase();
-        const genuine = identity?.aud === this.config.clientId && GOOGLE_ISSUERS.includes(identity.iss ?? '') && identity.email_verified;
+        const genuine = identity?.aud === this.config.googleClientId && GOOGLE_ISSUERS.includes(identity.iss ?? '') && identity.email_verified;
         if (!email || !genuine) {
             response.redirect(`${LOGIN_PAGE}?error=failed`);
             return;
         }
-        if (!isAllowedEmail(email, this.config.allowedEmails)) {
+        if (!this.sessions.isAllowed(email)) {
             this.logger.warn(`login refused for ${email}: not in ALLOWED_EMAILS`);
             response.redirect(`${LOGIN_PAGE}?error=not_allowed`);
             return;
@@ -127,8 +118,8 @@ export class AuthController {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
                     code,
-                    client_id: this.config.clientId,
-                    client_secret: this.config.clientSecret,
+                    client_id: this.config.googleClientId,
+                    client_secret: this.config.googleClientSecret,
                     redirect_uri: this.config.redirectUri,
                     grant_type: 'authorization_code'
                 })
@@ -147,8 +138,7 @@ export class AuthController {
     }
 
     private setSession(response: HttpResponse, email: string): void {
-        const token = signSession(newSession(email, new Date()), this.config.sessionSecret);
-        response.cookie(SESSION_COOKIE, token, { ...this.cookieOptions(), maxAge: SESSION_LIFETIME_SECONDS * 1000 });
+        response.cookie(SESSION_COOKIE, this.sessions.issue(email), { ...this.cookieOptions(), maxAge: SESSION_LIFETIME_SECONDS * 1000 });
     }
 
     private cookieOptions(): CookieOptions {

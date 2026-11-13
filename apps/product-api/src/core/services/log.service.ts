@@ -1,5 +1,5 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync } from 'fs';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 
 import { ConsoleLogger, Injectable } from '@nestjs/common';
 
@@ -19,7 +19,6 @@ export interface LogLine {
 const MAX_LINES = 500;
 const MAX_FILE_BYTES = 256 * 1024;
 const MAX_OLD_FILES = 3;
-const LOG_FILE = process.env['LOG_PATH'] ?? join(dirname(process.env['DATABASE_PATH'] ?? join(process.cwd(), 'data', 'app.db')), 'logs', 'app.log');
 const STARTUP_NOISE = ['RouterExplorer', 'RoutesResolver', 'InstanceLoader'];
 
 class LogBuffer {
@@ -27,9 +26,12 @@ class LogBuffer {
     private nextId = 1;
     private listener?: (line: LogLine) => void;
     private fileBytes = 0;
-    private fileUsable = true;
+    private file = '';
+    private fileUsable = false;
 
-    constructor() {
+    public open(file: string): void {
+        this.file = file;
+        this.fileUsable = true;
         this.restore();
     }
 
@@ -53,8 +55,8 @@ class LogBuffer {
 
     private restore(): void {
         try {
-            mkdirSync(dirname(LOG_FILE), { recursive: true });
-            const text = [`${LOG_FILE}.1`, LOG_FILE]
+            mkdirSync(dirname(this.file), { recursive: true });
+            const text = [`${this.file}.1`, this.file]
                 .filter((file) => existsSync(file))
                 .map((file) => readFileSync(file, 'utf-8'))
                 .join('');
@@ -62,7 +64,7 @@ class LogBuffer {
                 const { time, source, level, message } = JSON.parse(row) as LogLine;
                 this.lines.push({ id: this.nextId++, time, source, level, message });
             }
-            this.fileBytes = existsSync(LOG_FILE) ? statSync(LOG_FILE).size : 0;
+            this.fileBytes = existsSync(this.file) ? statSync(this.file).size : 0;
         } catch {
             this.fileUsable = false;
         }
@@ -79,7 +81,7 @@ class LogBuffer {
             if (this.fileBytes + Buffer.byteLength(row) > MAX_FILE_BYTES) {
                 this.rotate();
             }
-            appendFileSync(LOG_FILE, row);
+            appendFileSync(this.file, row);
             this.fileBytes += Buffer.byteLength(row);
         } catch {
             this.fileUsable = false;
@@ -87,13 +89,13 @@ class LogBuffer {
     }
 
     private rotate(): void {
-        rmSync(`${LOG_FILE}.${MAX_OLD_FILES}`, { force: true });
+        rmSync(`${this.file}.${MAX_OLD_FILES}`, { force: true });
         for (let index = MAX_OLD_FILES - 1; index >= 1; index--) {
-            if (existsSync(`${LOG_FILE}.${index}`)) {
-                renameSync(`${LOG_FILE}.${index}`, `${LOG_FILE}.${index + 1}`);
+            if (existsSync(`${this.file}.${index}`)) {
+                renameSync(`${this.file}.${index}`, `${this.file}.${index + 1}`);
             }
         }
-        renameSync(LOG_FILE, `${LOG_FILE}.1`);
+        renameSync(this.file, `${this.file}.1`);
         this.fileBytes = 0;
     }
 }
@@ -101,6 +103,11 @@ class LogBuffer {
 export const logBuffer = new LogBuffer();
 
 export class BufferedLogger extends ConsoleLogger {
+    constructor(logFile: string) {
+        super();
+        logBuffer.open(logFile);
+    }
+
     public override log(message: unknown, ...rest: Array<unknown>): void {
         super.log(message, ...rest);
         if (!STARTUP_NOISE.includes(String(rest.at(-1)))) {

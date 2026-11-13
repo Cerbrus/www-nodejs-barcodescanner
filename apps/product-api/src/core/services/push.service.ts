@@ -1,11 +1,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import webpush, { WebPushError } from 'web-push';
 
+import { AppConfig } from '../../config/app.config';
 import { BarcodeEntity, PushSubscriptionEntity } from '../../data/entities';
 
 interface VapidKeys {
@@ -59,16 +60,12 @@ const TEXTS: Record<string, Texts> = {
 @Injectable()
 export class PushService {
     private readonly logger = new Logger(PushService.name);
-    private readonly keysPath =
-        process.env['PUSH_KEYS_PATH'] ?? join(dirname(process.env['DATABASE_PATH'] ?? join(process.cwd(), 'data', 'app.db')), 'push-keys.json');
-
-    private readonly subject = process.env['PUSH_SUBJECT'] || 'mailto:admin@example.com';
-
     private keys?: VapidKeys;
 
     constructor(
         @InjectRepository(PushSubscriptionEntity) private readonly subscriptions: Repository<PushSubscriptionEntity>,
-        @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>
+        @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>,
+        private readonly config: AppConfig
     ) {
     }
 
@@ -120,7 +117,7 @@ export class PushService {
                 try {
                     await webpush.sendNotification({ endpoint, keys: { p256dh, auth } }, payload, {
                         TTL: TIME_TO_LIVE_SECONDS,
-                        vapidDetails: { subject: this.subject, ...keys }
+                        vapidDetails: { subject: this.config.pushSubject, ...keys }
                     });
                     return true;
                 } catch (error) {
@@ -170,13 +167,13 @@ export class PushService {
             return this.keys;
         }
 
-        if (existsSync(this.keysPath)) {
-            this.keys = JSON.parse(readFileSync(this.keysPath, 'utf-8')) as VapidKeys;
+        if (existsSync(this.config.pushKeysPath)) {
+            this.keys = JSON.parse(readFileSync(this.config.pushKeysPath, 'utf-8')) as VapidKeys;
         } else {
             this.keys = webpush.generateVAPIDKeys();
-            mkdirSync(dirname(this.keysPath), { recursive: true });
-            writeFileSync(this.keysPath, JSON.stringify(this.keys), { mode: 0o600 });
-            this.logger.log(`push: new key pair written to ${this.keysPath}`);
+            mkdirSync(dirname(this.config.pushKeysPath), { recursive: true });
+            writeFileSync(this.config.pushKeysPath, JSON.stringify(this.keys), { mode: 0o600 });
+            this.logger.log(`push: new key pair written to ${this.config.pushKeysPath}`);
         }
 
         return this.keys;

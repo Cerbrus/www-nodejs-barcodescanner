@@ -16,3 +16,9 @@ export interface HttpResponse {
     clearCookie(name: string, options: CookieOptions): void;
     redirect(url: string): void;
 }
+
+export function cookieHeader(request: HttpRequest): string | undefined {
+    const header = request.headers['cookie'];
+
+    return typeof header === 'string' ? header : undefined;
+}

@@ -1,19 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { AppConfig } from '../../config/app.config';
 import { AHConnector } from '../connectors/ah.connector';
 import { ProductConnector, ProductSuggestion } from '../connectors/connector.model';
 import { OpenFoodFactsConnector } from '../connectors/off.connector';
-
-const DEFAULT_CONNECTORS = 'ah,off';
 
 @Injectable()
 export class ConnectorService {
     private readonly logger = new Logger(ConnectorService.name);
     private readonly connectors: Array<ProductConnector>;
 
-    constructor(ah: AHConnector, openFoodFacts: OpenFoodFactsConnector) {
-        const enabled = (process.env['CONNECTORS'] ?? DEFAULT_CONNECTORS).split(',').map((id) => id.trim());
-        this.connectors = [ah, openFoodFacts].filter((connector) => enabled.includes(connector.id));
+    constructor(config: AppConfig, ah: AHConnector, openFoodFacts: OpenFoodFactsConnector) {
+        this.connectors = [ah, openFoodFacts].filter((connector) => config.connectors.includes(connector.id));
     }
 
     public async lookupAll(code: string): Promise<Array<ProductSuggestion>> {

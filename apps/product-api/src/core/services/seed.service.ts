@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
 
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
+import { AppConfig } from '../../config/app.config';
 import { CatalogItemEntity, ListEntryEntity, ListState, SectionEntity } from '../../data/entities';
 
 interface SeedFile {
@@ -15,21 +15,23 @@ interface SeedFile {
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
     private readonly logger = new Logger(SeedService.name);
-    private readonly seedPath = process.env['SEED_PATH'] ?? join(process.cwd(), 'data', 'seed-items.json');
 
-    constructor(private readonly dataSource: DataSource) {
+    constructor(
+        private readonly dataSource: DataSource,
+        private readonly config: AppConfig
+    ) {
     }
 
     public async onApplicationBootstrap(): Promise<void> {
         if (await this.dataSource.getRepository(SectionEntity).count()) {
             return;
         }
-        if (!existsSync(this.seedPath)) {
-            this.logger.warn(`No seed file at ${this.seedPath}; the catalog starts empty`);
+        if (!existsSync(this.config.seedPath)) {
+            this.logger.warn(`No seed file at ${this.config.seedPath}; the catalog starts empty`);
             return;
         }
 
-        const seed = JSON.parse(readFileSync(this.seedPath, 'utf-8')) as SeedFile;
+        const seed = JSON.parse(readFileSync(this.config.seedPath, 'utf-8')) as SeedFile;
         await this.dataSource.transaction(async (manager) => {
             await manager.insert(
                 SectionEntity,

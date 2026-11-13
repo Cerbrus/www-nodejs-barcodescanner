@@ -2,9 +2,10 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from '@nestjs/core';
 
 import { PUBLIC_ROUTE } from './public.decorator';
-import { AuthConfig } from '../../config/auth.config';
-import { SESSION_COOKIE, Session, parseCookies, safeEqual, verifySession } from '../../core/rules/session';
-import { HttpRequest } from '../http';
+import { AppConfig } from '../../config/app.config';
+import { Session, safeEqual } from '../../core/rules/session';
+import { SessionService } from '../../core/services/session.service';
+import { HttpRequest, cookieHeader } from '../http';
 
 const AGENT_TOKEN_HEADER = 'x-agent-token';
 const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
@@ -14,13 +15,14 @@ export type AuthenticatedRequest = HttpRequest & { session?: Session };
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
-        private readonly config: AuthConfig,
+        private readonly config: AppConfig,
+        private readonly sessions: SessionService,
         private readonly reflector: Reflector
     ) {
     }
 
     public canActivate(context: ExecutionContext): boolean {
-        if (!this.config.enabled || this.reflector.getAllAndOverride<boolean>(PUBLIC_ROUTE, [context.getHandler(), context.getClass()])) {
+        if (!this.config.loginEnabled || this.reflector.getAllAndOverride<boolean>(PUBLIC_ROUTE, [context.getHandler(), context.getClass()])) {
             return true;
         }
 
@@ -30,7 +32,7 @@ export class AuthGuard implements CanActivate {
             return true;
         }
 
-        const session = this.readSession(request);
+        const session = this.sessions.read(cookieHeader(request));
         if (!session) {
             throw new UnauthorizedException('Log in first');
         }
@@ -44,16 +46,4 @@ export class AuthGuard implements CanActivate {
 
         return true;
     }
-
-    public readSession(request: HttpRequest): Session | undefined {
-        const session = verifySession(parseCookies(cookieHeader(request))[SESSION_COOKIE], this.config.sessionSecret, new Date());
-
-        return session && this.config.allowedEmails.includes(session.email) ? session : undefined;
-    }
-}
-
-export function cookieHeader(request: HttpRequest): string | undefined {
-    const header = request.headers['cookie'];
-
-    return typeof header === 'string' ? header : undefined;
 }

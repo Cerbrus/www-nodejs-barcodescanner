@@ -2,16 +2,18 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
+import { AppConfig } from './config/app.config';
 import { BufferedLogger } from './core/services/log.service';
 
 const logger = new Logger('Main');
 const globalPrefix = 'api';
-const defaultPort = 3020;
+const COMMIT_LENGTH = 7;
 
 async function bootstrap(): Promise<void> {
+    const config = new AppConfig();
     const app = await NestFactory.create(AppModule, {
-        cors: process.env['ENVIRONMENT'] === 'development',
-        logger: new BufferedLogger()
+        cors: config.development,
+        logger: new BufferedLogger(config.logFile)
     });
 
     app.setGlobalPrefix(globalPrefix);
@@ -19,9 +21,8 @@ async function bootstrap(): Promise<void> {
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.enableShutdownHooks();
 
-    const port = process.env['PORT'] ?? defaultPort;
-    await app.listen(port);
-    logger.log(`Listening on port ${port}, API under /${globalPrefix}, version ${process.env['APP_VERSION'] ?? 'dev'} (${process.env['APP_COMMIT']?.slice(0, 7) ?? 'local'})`);
+    await app.listen(config.port);
+    logger.log(`Listening on port ${config.port}, API under /${globalPrefix}, version ${config.version} (${config.commit?.slice(0, COMMIT_LENGTH) ?? 'local'})`);
 }
 
 bootstrap();
