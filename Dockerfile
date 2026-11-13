@@ -1,4 +1,4 @@
-FROM node:24-slim AS build
+FROM node:25-slim AS build
 WORKDIR /repo
 
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -10,7 +10,7 @@ RUN yarn product-api:build && yarn product-front:build
 RUN printf '{"api":{"core":"/api"}}' > dist/apps/product-front/browser/assets/appsettings.json
 
 
-FROM node:24-slim
+FROM node:25-slim
 WORKDIR /app
 
 ENV NODE_ENV=production \
