@@ -1,6 +1,6 @@
 # Plan: shopping without a connection
 
-Status: steps 1 and 2 are built on branch `feature/offline-read`, checked in desktop Chrome, not released and not tried on a phone. The snapshot lives in the browser's local storage instead of IndexedDB: the data is small and it kept the code simple. Steps 3 and 4 followed on 2026-11-13 after the owner chose to go on: an outbox for check-off, put back, quantity and note, a clock on tiles that wait, and a quiet toast when the server's state wins. Step 5, a real shop, is open. This is milestone 8 of [plan.md](plan.md).
+Status: steps 1 and 2 are built on branch `feature/offline-read`, checked in desktop Chrome, not released and not tried on a phone. The snapshot lives in the browser's local storage instead of IndexedDB: the data is small and it kept the code simple. Steps 3 and 4 followed on 2026-11-13 after the owner chose to go on: an outbox for check-off, put back, quantity and note, a clock on tiles that wait, and a quiet toast when the server's state wins. Released in 1.1.17; the owner confirmed on 2026-11-13 that it works on the iPhone. This is milestone 8 of [plan.md](plan.md).
 
 ## The problem
 

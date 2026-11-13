@@ -117,6 +117,10 @@ Decided 2026-11-13:
 - Every version gets a GitHub release with the commit subjects since the previous version.
 - A Claude agent reviews every Dependabot pull request once it is a day old: not only whether the checks pass, but whether the update changes or breaks what the product does. It repairs small things and leaves a verdict, so the owner only has to merge or not. It has no right to merge, a short list of tools, and treats changelogs as outside text.
 
+## Node version
+
+Decided 2026-11-13 by the owner: the images and the build follow the newest Node release, 25 at the time, also when it is not a long-term one. The build's tests run on the same version as the image. Local development works on 24 or newer.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

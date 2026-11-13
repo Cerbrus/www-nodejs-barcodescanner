@@ -94,10 +94,10 @@ Done when: naming a typical new barcode takes one or two taps.
 
 - Done 2026-11-13 01:59, on branch `feature/scanner-status`, not released: the System page shows whether the scanner service runs and sees the scanner, and the time of the last handheld scan. Untested with the real agent and scanner.
 
-### 8. Offline shopping: open
+### 8. Offline shopping: done 2026-11-13 20:10
 
 - Done 2026-11-13 02:08, on branch `feature/offline-read`, not released: the app starts without a connection and shows the list as last loaded, read-only. Not tried on a phone.
-- Built on the same branch, not released: changes to the list without a connection, queued and sent on reconnect; see [offline-plan.md](offline-plan.md). Open: trying it on the phone in a shop.
+- Done 2026-11-13 20:10: changes to the list without a connection, queued and sent on reconnect; see [offline-plan.md](offline-plan.md). Released in 1.1.17 and confirmed by the owner on the iPhone.
 
 ### 9. Tests for the web app: open
 
