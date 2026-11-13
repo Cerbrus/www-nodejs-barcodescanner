@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { AHConnector } from './connectors/ah.connector';
 import { OpenFoodFactsConnector } from './connectors/off.connector';
+import { BarcodeService } from './services/barcode.service';
 import { CatalogService } from './services/catalog.service';
 import { ConnectorService } from './services/connector.service';
 import { EventsService } from './services/events.service';
@@ -15,6 +16,7 @@ import { SessionService } from './services/session.service';
 import { DataModule } from '../data/data.module';
 
 const services = [
+    BarcodeService,
     CatalogService,
     ConnectorService,
     EventsService,

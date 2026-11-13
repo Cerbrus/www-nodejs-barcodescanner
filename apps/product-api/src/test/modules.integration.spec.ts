@@ -13,6 +13,7 @@ import { testFolder } from './test-env';
 import { AppConfigModule } from '../config/config.module';
 import { CoreModule } from '../core/core.module';
 import { DEBOUNCE_MILLISECONDS } from '../core/rules/scan-rules';
+import { BarcodeService } from '../core/services/barcode.service';
 import { CatalogService } from '../core/services/catalog.service';
 import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
@@ -56,6 +57,7 @@ describe('scan flow against a real database', () => {
     let app: INestApplicationContext;
     let scans: ScanService;
     let catalog: CatalogService;
+    let barcodes: BarcodeService;
     let list: ListService;
     let milkId: number;
 
@@ -64,6 +66,7 @@ describe('scan flow against a real database', () => {
         await app.init();
         scans = app.get(ScanService);
         catalog = app.get(CatalogService);
+        barcodes = app.get(BarcodeService);
         list = app.get(ListService);
     });
 
@@ -86,14 +89,14 @@ describe('scan flow against a real database', () => {
     it('puts an unknown barcode in the inbox and ignores a double read', async () => {
         assert.equal((await scans.register(CODE, 'handheld')).result, 'needs_name');
         assert.equal((await scans.register(CODE, 'handheld')).result, 'ignored');
-        assert.deepEqual((await catalog.getBarcodes(true)).map((barcode) => barcode.code), [CODE]);
-        assert.equal((await catalog.getBarcode(CODE)).scanCount, 1);
+        assert.deepEqual((await barcodes.getAll(true)).map((barcode) => barcode.code), [CODE]);
+        assert.equal((await barcodes.get(CODE)).scanCount, 1);
     });
 
     it('applies the waiting scan when the barcode gets its item', async () => {
-        await catalog.mapBarcode(CODE, milkId);
+        await scans.nameBarcode(CODE, milkId);
         assert.deepEqual(await list.getSnapshot(milkId), { state: 'to_buy', quantity: 2 });
-        assert.equal((await catalog.getBarcodes(true)).length, 0);
+        assert.equal((await barcodes.getAll(true)).length, 0);
         assert.equal((await catalog.getItem(milkId)).barcodes?.length, 1);
     });
 
@@ -117,8 +120,8 @@ describe('scan flow against a real database', () => {
     });
 
     it('returns a detached barcode to the inbox', async () => {
-        await catalog.unmapBarcode(CODE);
-        assert.deepEqual((await catalog.getBarcodes(true)).map((barcode) => barcode.code), [CODE]);
+        await barcodes.unlink(CODE);
+        assert.deepEqual((await barcodes.getAll(true)).map((barcode) => barcode.code), [CODE]);
         assert.deepEqual(
             (await scans.history(10)).map((scan) => scan.result),
             ['incremented', 'added', 'ignored', 'incremented']
@@ -128,4 +131,30 @@ describe('scan flow against a real database', () => {
     it('keeps a chosen sound per event and falls back to the default', () => checkFeedbackSettings(app.get(FeedbackService)));
 
     it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));
+
+    it('writes nothing when a scan fails halfway', async () => {
+        const before = { scans: (await scans.history(100)).length, entry: await list.getSnapshot(milkId), count: (await barcodes.get(CODE)).scanCount };
+        await scans.nameBarcode(CODE, milkId);
+        const mapped = { entry: await list.getSnapshot(milkId), count: (await barcodes.get(CODE)).scanCount };
+        const original = list.writeSnapshot.bind(list);
+        list.writeSnapshot = (): Promise<void> => Promise.reject(new Error('disk full'));
+
+        await wait(DEBOUNCE_MILLISECONDS + 100);
+        await assert.rejects(scans.register(CODE, 'phone'), /disk full/);
+        list.writeSnapshot = original;
+
+        assert.equal((await scans.history(100)).length, before.scans);
+        assert.deepEqual(await list.getSnapshot(milkId), mapped.entry);
+        assert.equal((await barcodes.get(CODE)).scanCount, mapped.count);
+    });
+
+    it('handles scans that arrive at the same moment one after the other', async () => {
+        await wait(DEBOUNCE_MILLISECONDS + 100);
+        const start = (await list.getSnapshot(milkId))?.quantity ?? 0;
+        const results = await Promise.all([scans.register(CODE, 'phone'), scans.register(CODE, 'handheld')]);
+
+        assert.equal(results.filter((outcome) => outcome.result === 'ignored').length, 1);
+        assert.equal(results.filter((outcome) => outcome.result !== 'ignored').length, 1);
+        assert.equal((await list.getSnapshot(milkId))?.quantity, start + 1);
+    });
 });

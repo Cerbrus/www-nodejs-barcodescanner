@@ -3,12 +3,11 @@ import { readdir } from 'fs/promises';
 
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 import { EventsService } from './events.service';
-import { ScanService } from './scan.service';
 import { AppConfig } from '../../config/app.config';
-import { BarcodeEntity, CatalogItemEntity, SectionEntity } from '../../data/entities';
+import { CatalogItemEntity, SectionEntity } from '../../data/entities';
 
 export interface CatalogItemInput {
     name?: string;
@@ -24,8 +23,6 @@ export class CatalogService {
     constructor(
         @InjectRepository(SectionEntity) private readonly sections: Repository<SectionEntity>,
         @InjectRepository(CatalogItemEntity) private readonly items: Repository<CatalogItemEntity>,
-        @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>,
-        private readonly scans: ScanService,
         private readonly events: EventsService,
         private readonly config: AppConfig
     ) {
@@ -72,47 +69,6 @@ export class CatalogService {
         await this.getItem(id);
         await this.items.delete(id);
         this.events.emit('catalog', { catalogItemId: id, deleted: true });
-    }
-
-    public getBarcodes(unmappedOnly: boolean): Promise<Array<BarcodeEntity>> {
-        return this.barcodes.find({
-            where: unmappedOnly ? { catalogItemId: IsNull() } : {},
-            relations: { catalogItem: true },
-            order: { lastScannedAt: 'DESC' }
-        });
-    }
-
-    public async getBarcode(code: string): Promise<BarcodeEntity> {
-        const barcode = await this.barcodes.findOne({ where: { code }, relations: { catalogItem: true } });
-        if (!barcode) {
-            throw new NotFoundException(`Barcode ${code} is unknown`);
-        }
-
-        return barcode;
-    }
-
-    public async mapBarcode(code: string, catalogItemId: number): Promise<BarcodeEntity> {
-        await this.getItem(catalogItemId);
-        await this.barcodes.upsert({ code, catalogItemId }, ['code']);
-        await this.scans.applyPending(code, catalogItemId);
-        this.events.emit('barcode', { code, catalogItemId });
-
-        return this.getBarcode(code);
-    }
-
-    public async unmapBarcode(code: string): Promise<void> {
-        await this.getBarcode(code);
-        await this.barcodes.update({ code }, { catalogItemId: null });
-        this.events.emit('barcode', { code, catalogItemId: null });
-    }
-
-    public async discardBarcode(code: string): Promise<void> {
-        const barcode = await this.getBarcode(code);
-        await this.scans.discardPending(code);
-        if (!barcode.catalogItemId) {
-            await this.barcodes.delete({ code });
-        }
-        this.events.emit('barcode', { code, discarded: true });
     }
 
     public async getIconNames(): Promise<Array<string>> {

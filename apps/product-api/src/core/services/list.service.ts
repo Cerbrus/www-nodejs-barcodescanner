@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { EventsService } from './events.service';
 import { CatalogItemEntity, ListEntryEntity, ListState } from '../../data/entities';
@@ -28,26 +28,25 @@ export class ListService {
         });
     }
 
-    public async getSnapshot(catalogItemId: number): Promise<EntrySnapshot | undefined> {
-        const entry = await this.entries.findOneBy({ catalogItemId });
+    public async getSnapshot(catalogItemId: number, manager?: EntityManager): Promise<EntrySnapshot | undefined> {
+        const entry = await this.in(manager).findOneBy({ catalogItemId });
         return entry ? { state: entry.state, quantity: entry.quantity } : undefined;
     }
 
-    public async setSnapshot(catalogItemId: number, snapshot?: EntrySnapshot | null): Promise<void> {
+    public async writeSnapshot(catalogItemId: number, snapshot: EntrySnapshot | undefined, manager?: EntityManager): Promise<void> {
         if (snapshot) {
-            await this.entries.upsert(
+            await this.in(manager).upsert(
                 { catalogItemId, state: snapshot.state, quantity: snapshot.quantity, updatedAt: new Date() },
                 ['catalogItemId']
             );
         } else {
-            await this.entries.delete({ catalogItemId });
+            await this.in(manager).delete({ catalogItemId });
         }
-
-        this.events.emit('list', { catalogItemId });
     }
 
     public async remove(catalogItemId: number): Promise<void> {
-        await this.setSnapshot(catalogItemId, undefined);
+        await this.writeSnapshot(catalogItemId, undefined);
+        this.events.emit('list', { catalogItemId });
     }
 
     public async change(catalogItemId: number, change: ListEntryChange): Promise<ListEntryEntity> {
@@ -72,5 +71,9 @@ export class ListService {
             where: { catalogItemId },
             relations: { catalogItem: { section: true } }
         });
+    }
+
+    private in(manager?: EntityManager): Repository<ListEntryEntity> {
+        return manager ? manager.getRepository(ListEntryEntity) : this.entries;
     }
 }

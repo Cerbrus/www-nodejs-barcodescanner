@@ -3,11 +3,12 @@ import { dirname } from 'path';
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import webpush, { WebPushError } from 'web-push';
 
+import { BarcodeService } from './barcode.service';
 import { AppConfig } from '../../config/app.config';
-import { BarcodeEntity, PushSubscriptionEntity } from '../../data/entities';
+import { PushSubscriptionEntity } from '../../data/entities';
 
 interface VapidKeys {
     publicKey: string;
@@ -64,7 +65,7 @@ export class PushService {
 
     constructor(
         @InjectRepository(PushSubscriptionEntity) private readonly subscriptions: Repository<PushSubscriptionEntity>,
-        @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>,
+        private readonly barcodes: BarcodeService,
         private readonly config: AppConfig
     ) {
     }
@@ -110,7 +111,7 @@ export class PushService {
         }
 
         const keys = this.vapidKeys();
-        const badge = await this.barcodes.countBy({ catalogItemId: IsNull() });
+        const badge = await this.barcodes.inboxCount();
         const outcomes = await Promise.all(
             subscriptions.map(async ({ endpoint, p256dh, auth, language, origin }) => {
                 const payload = JSON.stringify(this.payload(compose(TEXTS[language] ?? TEXTS[DEFAULT_LANGUAGE]), badge, language, origin));
