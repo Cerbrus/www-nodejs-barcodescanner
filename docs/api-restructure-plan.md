@@ -1,6 +1,6 @@
 # Plan: restructure and harden the API
 
-Status: done 2026-11-13 02:35 on branch `feature/api-restructure`, not yet released. Outcome and deviations are in the last section.
+Status: done 2026-11-13 01:27 on branch `feature/api-restructure`, not yet released. Outcome and deviations are in the last section.
 
 Goal: give the API the layered layout with separate `controllers` and `services` folders, and fix the weak points found in the architecture review of 2026-11-13, without changing what the product does.
 
@@ -231,4 +231,4 @@ Deviations from the plan as written:
 - The hardware agent still sends the `source` field. The API ignores it. It stays until the release has been out for a while, so an old API and a new agent can never disagree during an update.
 - When login is off there is no token to recognise the agent by; a request that carries the agent header, even empty, then counts as the agent.
 
-Verified locally on 2026-11-13 02:50 by building the app image and running it in a throwaway container: the server starts, seeds, writes its log file, serves the web app and icons, and records a scan with the agent header as handheld and one without as phone. Not verified, because nothing was released: the arm64 image build in GitHub Actions and the hardware agent against the new guard on the Pi. Check after release: scanner connects, a scan arrives and beeps, sound settings load, the log shows agent lines.
+Verified locally on 2026-11-13 01:36 by building the app image and running it in a throwaway container: the server starts, seeds, writes its log file, serves the web app and icons, and records a scan with the agent header as handheld and one without as phone. Not verified, because nothing was released: the arm64 image build in GitHub Actions and the hardware agent against the new guard on the Pi. Check after release: scanner connects, a scan arrives and beeps, sound settings load, the log shows agent lines.

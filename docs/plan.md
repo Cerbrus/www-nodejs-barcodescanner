@@ -81,15 +81,15 @@ Done when: naming a typical new barcode takes one or two taps.
 - Open: connector failures visible on the history page; today they are only in the system log.
 - Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
 
-- Done 2026-11-13 00:55: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. Open: log in inside the installed iPhone app, one handheld scan with login on, remove the proxy's access list.
+- Done 2026-11-13 00:32: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. Open: log in inside the installed iPhone app, one handheld scan with login on, remove the proxy's access list.
 
-- Done 2026-11-13 02:35, on branch `feature/api-restructure`, not yet released: the API restructured into layers and hardened, see [api-restructure-plan.md](api-restructure-plan.md). Releases as version 1.1.0.
+- Done 2026-11-13 01:27, on branch `feature/api-restructure`, not yet released: the API restructured into layers and hardened, see [api-restructure-plan.md](api-restructure-plan.md). Releases as version 1.1.0.
 
 ### 7. Feedback at the scanner: mostly done
 
 - Done 2026-11-12 20:05: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
 - Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
-- Done 2026-11-12 21:25: a buzzer on a GPIO pin (GPIO 18, an active type), driven by the hardware agent from the scan result. The sound per event is chosen on the System page from a library of sounds, with a button to hear each one (UC-16). Open: confirm the whole chain from button to buzzer after the first deploy.
+- Done 2026-11-12 23:40: a buzzer on a GPIO pin (GPIO 18, an active type), driven by the hardware agent from the scan result. The sound per event is chosen on the System page from a library of sounds, with a button to hear each one (UC-16). Open: confirm the whole chain from button to buzzer after the first deploy.
 - Considered: a USB speaker of about 12 euro, or any powered speaker on the Pi's headphone jack.
 
 ### 8. Offline shopping: open
