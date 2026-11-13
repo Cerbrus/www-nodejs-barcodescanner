@@ -110,6 +110,7 @@ Decided 2026-11-13, with the layered layout:
 
 Decided 2026-11-13:
 
+- A handheld scan made while the app is unreachable is held by the agent and delivered later, with its own sound; it is not lost and should not be scanned again.
 - Scan history is kept forever; nothing prunes it. The volume of a household is small, and undo, history and backup all stay simple.
 - No licence file. The code is public to read; reuse is not granted.
 - Dependency updates come as weekly pull requests from Dependabot, minor and patch versions grouped, majors left out.

@@ -17,7 +17,7 @@ Terms:
 2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one.
 3. Any open web page shows a toast with the item name and an undo button. For an unknown barcode the toast offers to name it.
 
-A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16).
+A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16). When the app is not reachable, for instance during an update, the scan is kept and added a moment later; the buzzer plays its own "kept" sound, so there is no need to scan again.
 
 ### UC-2 Scan a new product with the handheld scanner
 

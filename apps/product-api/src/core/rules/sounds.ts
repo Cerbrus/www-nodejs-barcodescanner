@@ -10,7 +10,7 @@ export interface Sound {
     steps: Array<SoundStep>;
 }
 
-export const FEEDBACK_EVENTS = ['added', 'incremented', 'needs_name', 'ignored', 'error'] as const;
+export const FEEDBACK_EVENTS = ['added', 'incremented', 'needs_name', 'ignored', 'held', 'error'] as const;
 export type FeedbackEvent = (typeof FEEDBACK_EVENTS)[number];
 
 export const NO_SOUND = 'none';
@@ -52,5 +52,6 @@ export const DEFAULT_SOUND_IDS: Record<FeedbackEvent, string> = {
     incremented: 'double',
     needs_name: 'long',
     ignored: NO_SOUND,
+    held: 'longShort',
     error: 'triple'
 };

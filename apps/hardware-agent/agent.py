@@ -8,6 +8,8 @@ import threading
 import time
 import urllib.error
 import urllib.request
+from collections import deque
+from datetime import datetime, timezone
 
 from evdev import InputDevice, ecodes
 
@@ -40,6 +42,9 @@ PASSIVE_TONE_HZ = 2400
 SLEEP_ABOVE_SECONDS = 0.005
 EVENT_STREAM_TIMEOUT_SECONDS = 60
 STATUS_REPEAT_SECONDS = 60
+HELD_SCANS_LIMIT = 50
+HELD_SCAN_MAX_SECONDS = 30 * 60
+SERVER_ERROR = 500
 BLIP, GAP = 0.06, 0.07
 
 
@@ -56,6 +61,7 @@ DEFAULT_SIGNALS = {
     'incremented': [on(BLIP), off(GAP), on(BLIP)],
     'needs_name': [on(0.45)],
     'ignored': [],
+    'held': [on(0.3), off(BLIP), on(BLIP)],
     'error': [on(0.08), off(GAP), on(0.08), off(GAP), on(0.08)],
 }
 
@@ -298,30 +304,89 @@ class StatusReporter:
             self.send()
 
 
-def post_scan(code):
-    with post_json('/scans', {'code': code, 'source': 'handheld'}) as response:
+def post_scan(code, scanned_at=None):
+    payload = {'code': code, 'source': 'handheld'}
+    if scanned_at:
+        payload['scannedAt'] = datetime.fromtimestamp(scanned_at, timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+    with post_json('/scans', payload) as response:
         return json.load(response)
 
 
-def handle_scan(code, feedback):
-    try:
-        outcome = post_scan(code)
-    except urllib.error.HTTPError as error:
-        log.warning('scan %s rejected by the API: %s %s', code, error.code, error.read().decode(errors='replace'))
-        feedback.signal('error')
-        return
-    except (urllib.error.URLError, OSError, ValueError) as error:
-        log.warning('scan %s not delivered: %s', code, error)
-        feedback.signal('error')
-        return
+class ScanSender:
+    def __init__(self, feedback):
+        self.feedback = feedback
+        self.held = deque()
+        self.lock = threading.Lock()
+        threading.Thread(target=self.deliver_held, daemon=True).start()
 
-    feedback.signal(outcome.get('result'))
-    log.info('scan %s: %s %s', code, outcome.get('result'), outcome.get('itemName') or '')
+    def handle(self, code):
+        scanned_at = time.time()
+        with self.lock:
+            waiting = len(self.held)
+        if waiting:
+            self.hold(code, scanned_at, 'earlier scans are still waiting')
+            return
+
+        outcome = self.send(code)
+        if outcome is None:
+            self.hold(code, scanned_at, 'the app is not reachable')
+        elif outcome:
+            self.feedback.signal(outcome.get('result'))
+            log.info('scan %s: %s %s', code, outcome.get('result'), outcome.get('itemName') or '')
+
+    def send(self, code, scanned_at=None):
+        try:
+            return post_scan(code, scanned_at)
+        except urllib.error.HTTPError as error:
+            if error.code >= SERVER_ERROR:
+                return None
+            log.warning('scan %s rejected by the API: %s %s', code, error.code, error.read().decode(errors='replace'))
+            self.feedback.signal('error')
+            return {}
+        except (urllib.error.URLError, OSError, ValueError):
+            return None
+
+    def hold(self, code, scanned_at, reason):
+        with self.lock:
+            if len(self.held) >= HELD_SCANS_LIMIT:
+                log.warning('scan %s dropped: %d scans are already waiting', code, len(self.held))
+                self.feedback.signal('error')
+                return
+            self.held.append((code, scanned_at))
+        log.warning('scan %s held, %s', code, reason)
+        self.feedback.signal('held')
+
+    def deliver_held(self):
+        while True:
+            time.sleep(RETRY_SECONDS)
+            self.deliver_once()
+
+    def deliver_once(self):
+        while True:
+            with self.lock:
+                if not self.held:
+                    return
+                code, scanned_at = self.held[0]
+
+            age = time.time() - scanned_at
+            if age > HELD_SCAN_MAX_SECONDS:
+                log.warning('held scan %s dropped after %d minutes without the app', code, age // 60)
+                outcome = {}
+            else:
+                outcome = self.send(code, scanned_at)
+            if outcome is None:
+                return
+
+            with self.lock:
+                self.held.popleft()
+            if outcome:
+                log.info('held scan %s delivered after %d s: %s %s', code, age, outcome.get('result'), outcome.get('itemName') or '')
 
 
 def run():
     feedback = Feedback()
     status = StatusReporter()
+    sender = ScanSender(feedback)
     waiting_logged = False
     while True:
         try:
@@ -340,7 +405,7 @@ def run():
         status.report('connected', device.name)
         try:
             for code in read_scans(device):
-                handle_scan(code, feedback)
+                sender.handle(code)
         except OSError as error:
             log.warning('scanner disconnected (%s)', error)
             status.report('waiting')

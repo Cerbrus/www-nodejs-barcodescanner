@@ -171,7 +171,8 @@
             "incremented": "Quantity +1",
             "needs_name": "Unknown product",
             "ignored": "Repeated scan ignored",
-            "error": "Scan not delivered"
+            "error": "Scan not delivered",
+            "held": "Scan held (app not reachable)"
         },
         "name": {
             "tick": "Tick (0.02 s)",

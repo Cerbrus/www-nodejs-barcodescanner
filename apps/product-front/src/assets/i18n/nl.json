@@ -171,7 +171,8 @@
             "incremented": "Aantal +1",
             "needs_name": "Onbekend product",
             "ignored": "Herhaalde scan genegeerd",
-            "error": "Scan niet aangekomen"
+            "error": "Scan niet aangekomen",
+            "held": "Scan bewaard (app niet bereikbaar)"
         },
         "name": {
             "tick": "Tikje (0,02 s)",

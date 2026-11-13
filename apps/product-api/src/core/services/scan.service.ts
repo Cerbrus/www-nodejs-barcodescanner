@@ -21,6 +21,8 @@ export interface ScanOutcome {
     quantity?: number;
 }
 
+const MAX_HELD_MILLISECONDS = 60 * 60 * 1000;
+
 interface RegisteredScan {
     outcome: ScanOutcome;
     suggestions?: Array<ProductSuggestion>;
@@ -42,8 +44,9 @@ export class ScanService {
     ) {
     }
 
-    public async register(code: string, source: ScanSource): Promise<ScanOutcome> {
-        const { outcome, suggestions } = await this.transactions.run((manager) => this.write(code, source, manager));
+    public async register(code: string, source: ScanSource, scannedAt?: Date): Promise<ScanOutcome> {
+        const at = this.acceptedTime(scannedAt);
+        const { outcome, suggestions } = await this.transactions.run((manager) => this.write(code, source, at, manager));
 
         this.logger.log(`scan ${code} from ${source}: ${outcome.result}${outcome.itemName ? ` (${outcome.itemName})` : ''}`);
         if (outcome.result === 'ignored') {
@@ -129,9 +132,8 @@ export class ScanService {
         return this.scans.find({ order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
     }
 
-    private async write(code: string, source: ScanSource, manager: EntityManager): Promise<RegisteredScan> {
+    private async write(code: string, source: ScanSource, now: Date, manager: EntityManager): Promise<RegisteredScan> {
         const scans = manager.getRepository(ScanEntity);
-        const now = new Date();
         const previous = await scans.findOne({
             where: { code, result: Not('ignored') },
             order: { createdAt: 'DESC', id: 'DESC' }
@@ -168,6 +170,13 @@ export class ScanService {
             },
             suggestions: barcode.suggestions
         };
+    }
+
+    private acceptedTime(scannedAt?: Date): Date {
+        const now = new Date();
+        const age = scannedAt ? now.getTime() - scannedAt.getTime() : 0;
+
+        return scannedAt && age >= 0 && age <= MAX_HELD_MILLISECONDS ? scannedAt : now;
     }
 
     private async applyPending(code: string, catalogItemId: number, manager: EntityManager): Promise<number> {

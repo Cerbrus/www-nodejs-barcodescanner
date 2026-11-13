@@ -276,7 +276,8 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 | `added` | short beep |
 | `incremented` | two blips |
 | `needs_name` | long beep |
-| `error`: scan not delivered or rejected | three beeps |
+| `held`: the app is not reachable; the scan is kept and delivered later | long, short |
+| `error`: scan rejected, or too many scans waiting | three beeps |
 | `ignored`: repeat within the debounce | none |
 
 - **Sounds** are lists of steps: `on` and `off` with a length, and `gate`, which switches the buzzer on and off many times a second. An active buzzer has one fixed pitch, so gating is what gives it other sounds: a trill at 5 to 30 times a second, a rough buzz at a few hundred, a softer tone with a short on-time. The library of sounds is `apps/product-api/src/feedback/sounds.ts`; a new sound is one line there plus its name in both language files.
@@ -285,6 +286,7 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 - **Test**: `POST /api/v1/feedback/test` sends a sound as a `feedback` event, which the agent plays at once.
 - `FEEDBACK_OUTPUT` picks the output: `none` (default) or `buzzer`. Another output, such as a speaker, would be another class next to `Buzzer`. A passive buzzer gets a square wave made in software.
 - The pin is driven through the kernel's GPIO character device (`/dev/gpiochip0`) with `libgpiod`; the container gets that one device and stays unprivileged.
+- **Held scans.** When the app cannot be reached, which happens for some seconds at every update, the agent keeps the scan with the moment it was made, plays the "held" sound and tries again every two seconds. Scans are delivered in the order they were made, each with its own time, so two cartons of the same product scanned ten seconds apart still count as two. The API takes that time from the agent only, and not when it is older than an hour. Held scans live in memory: at most 50, for at most 30 minutes, and a restart of the agent loses them.
 - Sounds play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
 - `python3 agent.py --test-feedback` plays the sound of every event once.
 - `test_agent.py` tests the agent without hardware: key events become scans, sound steps drive a fake GPIO line, settings and scans go to a fake API.

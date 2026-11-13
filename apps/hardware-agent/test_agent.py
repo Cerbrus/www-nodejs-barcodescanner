@@ -248,32 +248,100 @@ class FeedbackSettings(unittest.TestCase):
         self.assertEqual(feedback.signals.qsize(), agent.FEEDBACK_QUEUE_SIZE)
 
 
-class HandleScan(unittest.TestCase):
+class SendScans(unittest.TestCase):
     def setUp(self):
         self.api = FakeApi()
         self.addCleanup(self.api.close)
         self.addCleanup(setattr, agent, 'API_BASE', agent.API_BASE)
+        self.addCleanup(setattr, agent, 'RETRY_SECONDS', agent.RETRY_SECONDS)
         agent.API_BASE = self.api.base
+        agent.RETRY_SECONDS = 3600
         self.feedback = RecordingFeedback()
+        self.sender = agent.ScanSender(self.feedback)
+
+    def unreachable(self):
+        agent.API_BASE = 'http://127.0.0.1:9/api/v1'
+
+    def reachable(self, result='added'):
+        agent.API_BASE = self.api.base
+        self.api.answers['/api/v1/scans'] = (201, {'result': result, 'itemName': 'Melk'})
+
+    def posted(self):
+        return [request[3] for request in self.api.requests if request[1] == '/api/v1/scans']
 
     def test_a_scan_is_posted_with_the_agent_token_and_its_result_becomes_the_signal(self):
-        self.api.answers['/api/v1/scans'] = (201, {'result': 'incremented', 'itemName': 'Melk'})
-        agent.handle_scan('8710400335481', self.feedback)
+        self.reachable('incremented')
+        self.sender.handle('8710400335481')
 
         method, path, token, body = self.api.requests[-1]
         self.assertEqual((method, path, token), ('POST', '/api/v1/scans', 'secret-for-tests'))
         self.assertEqual(body['code'], '8710400335481')
+        self.assertNotIn('scannedAt', body)
         self.assertEqual(self.feedback.signals, ['incremented'])
 
-    def test_a_refused_scan_gives_the_error_signal(self):
+    def test_a_refused_scan_gives_the_error_signal_and_is_not_kept(self):
         self.api.answers['/api/v1/scans'] = (400, {'message': 'code must match'})
-        agent.handle_scan('12', self.feedback)
+        self.sender.handle('12')
         self.assertEqual(self.feedback.signals, ['error'])
+        self.assertEqual(len(self.sender.held), 0)
 
-    def test_an_unreachable_api_gives_the_error_signal(self):
-        agent.API_BASE = 'http://127.0.0.1:9/api/v1'
-        agent.handle_scan('8710400335481', self.feedback)
-        self.assertEqual(self.feedback.signals, ['error'])
+    def test_a_scan_is_held_when_the_app_is_unreachable_and_delivered_with_its_time(self):
+        self.unreachable()
+        before = time.time()
+        self.sender.handle('8710400335481')
+        self.assertEqual(self.feedback.signals, ['held'])
+        self.assertEqual(len(self.sender.held), 1)
+
+        self.reachable()
+        self.sender.deliver_once()
+        self.assertEqual(len(self.sender.held), 0)
+        self.assertEqual(self.feedback.signals, ['held'])
+        sent = self.posted()[-1]
+        self.assertEqual(sent['code'], '8710400335481')
+        scanned = agent.datetime.fromisoformat(sent['scannedAt'].replace('Z', '+00:00')).timestamp()
+        self.assertAlmostEqual(scanned, before, delta=2)
+
+    def test_a_server_error_holds_the_scan_too(self):
+        self.api.answers['/api/v1/scans'] = (502, {'message': 'bad gateway'})
+        self.sender.handle('8710400335481')
+        self.assertEqual(self.feedback.signals, ['held'])
+
+    def test_held_scans_are_delivered_in_the_order_they_were_made(self):
+        self.unreachable()
+        self.sender.handle('11111111')
+        self.reachable()
+        self.sender.handle('22222222')
+        self.assertEqual(self.posted(), [])
+        self.assertEqual(self.feedback.signals, ['held', 'held'])
+
+        self.sender.deliver_once()
+        self.assertEqual([scan['code'] for scan in self.posted()], ['11111111', '22222222'])
+
+    def test_delivery_stops_at_the_first_scan_that_still_fails(self):
+        self.unreachable()
+        self.sender.handle('11111111')
+        self.sender.handle('22222222')
+        self.sender.deliver_once()
+        self.assertEqual(len(self.sender.held), 2)
+
+    def test_a_held_scan_that_waited_too_long_is_dropped(self):
+        self.unreachable()
+        self.sender.handle('11111111')
+        code, scanned_at = self.sender.held[0]
+        self.sender.held[0] = (code, scanned_at - agent.HELD_SCAN_MAX_SECONDS - 5)
+        self.reachable()
+        self.sender.deliver_once()
+        self.assertEqual(len(self.sender.held), 0)
+        self.assertEqual(self.posted(), [])
+
+    def test_more_scans_than_the_limit_are_refused_with_the_error_signal(self):
+        self.unreachable()
+        self.addCleanup(setattr, agent, 'HELD_SCANS_LIMIT', agent.HELD_SCANS_LIMIT)
+        agent.HELD_SCANS_LIMIT = 2
+        for code in ('11111111', '22222222', '33333333'):
+            self.sender.handle(code)
+        self.assertEqual(self.feedback.signals, ['held', 'held', 'error'])
+        self.assertEqual(len(self.sender.held), 2)
 
 
 class ScannerStatus(unittest.TestCase):

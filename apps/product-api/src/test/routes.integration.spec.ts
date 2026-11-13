@@ -93,6 +93,38 @@ describe('data routes over HTTP', () => {
         assert.deepEqual([history.body[0].code, history.body[0].source], ['87654321', 'handheld']);
     });
 
+    it('takes the time of a held scan from the agent, and from nobody else', async () => {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const longAgo = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+        const timeOf = async (code: string): Promise<string> => {
+            const history = await call<Array<{ code: string; createdAt: string }>>('GET', '/scans?limit=50', asUser);
+
+            return history.body.find((scan) => scan.code === code)?.createdAt ?? '';
+        };
+        const isRecent = (time: string): boolean => Date.now() - new Date(time).getTime() < 5000;
+
+        await call('POST', '/scans', asAgent, { code: '11112222', scannedAt: fiveMinutesAgo });
+        assert.equal(await timeOf('11112222'), fiveMinutesAgo);
+
+        await call('POST', '/scans', asAgent, { code: '11113333', scannedAt: longAgo });
+        assert.ok(isRecent(await timeOf('11113333')));
+
+        await call('POST', '/scans', asUser, { code: '11114444', scannedAt: fiveMinutesAgo });
+        assert.ok(isRecent(await timeOf('11114444')));
+
+        assert.equal((await call('POST', '/scans', asAgent, { code: '11115555', scannedAt: 'yesterday' })).status, 400);
+    });
+
+    it('counts two held scans of one product that are delivered together', async () => {
+        const at = (secondsAgo: number): string => new Date(Date.now() - secondsAgo * 1000).toISOString();
+        const first = await call<{ result: string }>('POST', '/scans', asAgent, { code: '11116666', scannedAt: at(40) });
+        const second = await call<{ result: string }>('POST', '/scans', asAgent, { code: '11116666', scannedAt: at(30) });
+
+        assert.deepEqual([first.body.result, second.body.result], ['needs_name', 'needs_name']);
+        const barcode = await call<{ scanCount: number }>('GET', '/barcodes/11116666', asUser);
+        assert.equal(barcode.body.scanCount, 2);
+    });
+
     it('names a barcode, which puts the waiting scan on the list, and undoes it', async () => {
         const inbox = await call<Array<{ code: string }>>('GET', '/barcodes?unmapped=true', asUser);
         assert.ok(inbox.body.some((barcode) => barcode.code === UNKNOWN_CODE));
