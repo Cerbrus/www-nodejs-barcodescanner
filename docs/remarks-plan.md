@@ -28,8 +28,6 @@ Added by the app, so the user does not have to describe where he was:
 - the account, the time
 - state at that moment: connected or not, number of waiting changes, the last few messages shown on screen
 
-And a picture of the page, see "Screenshots".
-
 ## Ways to open it
 
 Decided 2026-11-15: no touch and hold. It collides with scrolling, with the iPhone's own long-touch menu and text selection, and with the tap that checks a product off.
@@ -39,7 +37,7 @@ What stays:
 1. **Under settings.** A row on the System page, for every account: "Remark". Opens the sheet without an element. Always works.
 2. **Right click** on desktop: the app's own small menu with one entry, "Remark about this".
 
-For the phone, in place of touch and hold, three candidates. Question A at the end asks which.
+For the phone, in place of touch and hold, three candidates were weighed.
 
 | | How | For | Against |
 |---|---|---|---|
@@ -47,7 +45,7 @@ For the phone, in place of touch and hold, three candidates. Question A at the e
 | b | **Two-finger tap** anywhere: opens the sheet for what lies under the fingers. | One gesture, on the spot. The app has no other two-finger gesture; zooming is already off. | Nothing shows that it exists. Needs trying on the iPhone |
 | c | **A small button on every page**, in the corner or next to the page title, that starts pointing mode. | Always in sight, one tap to start | Takes room on a small screen, on every page, for something used rarely |
 
-Recommendation: **a and b together**. Pointing mode is the way everyone can find; the two-finger tap is the shortcut for the owner, and it simply starts the same sheet. If the two-finger tap misbehaves on the iPhone it is dropped and nothing else changes.
+Decided 2026-11-15: **a and b together**. Pointing mode is the way everyone can find; the two-finger tap is the shortcut for the owner, and it simply starts the same sheet. If the two-finger tap misbehaves on the iPhone it is dropped and nothing else changes.
 
 ## Where remarks go
 
@@ -65,28 +63,15 @@ The repository gets issue forms under `.github/ISSUE_TEMPLATE/`: a bug report an
 
 ### The token
 
-The server needs a GitHub token to make issues: a fine-grained personal access token of the owner, limited to this one repository, with read and write on issues only. It goes in the Pi's `.env` as a new setting and is read through `AppConfig`. Without it the "send to GitHub" button is not shown. The owner makes the token; it is never in the repository, the docs or an image.
+The server needs a GitHub token to make issues: a fine-grained personal access token of the owner, limited to this one repository, with read and write on issues only. It goes in the Pi's `.env` as `GITHUB_ISSUES_TOKEN` and is read through `AppConfig`. Without it the "send to GitHub" button is not shown. The owner makes the token; it is never in the repository, the docs or an image.
 
 ## Screenshots
 
-Decided 2026-11-15: wanted. Two ways to get one; question B asks which.
-
-| | How | For | Against |
-|---|---|---|---|
-| 1 | **The app draws the page into a picture itself**, with a small library that copies the page's elements into an image | No extra step for the user | Not a real photo: fonts, product photos from other sites and some layout can come out wrong or missing, more so on the iPhone. Adds a library to the web app |
-| 2 | **The user attaches a picture**: a button in the remark sheet opens the photo picker; on the iPhone that offers the screenshot just taken with the side buttons | A real picture of what the user saw, also of the iPhone's own dialogs | Two extra steps, and only when the user thinks of it |
-
-Recommendation: **both**: the app tries to draw the page when the sheet opens and shows the result small in the sheet; the user can remove it or replace it with a picture of his own. If the drawing fails the sheet just has no picture.
-
-Where pictures live:
-
-- Shrunk in the browser before sending (longest side about 1600 pixels, JPEG, a size cap), then stored as files in the Pi's data folder, not in the database. The database dump that goes to the private backup repository every hour would otherwise grow with every picture.
-- So pictures are **not in the backup**. Losing the Pi loses the pictures of old remarks, not the remarks.
-- GitHub has no way for a program to attach a picture to an issue other than putting the file in a repository, and this repository is public. So a picture is **not sent to GitHub**; the issue says that a picture exists on the Pi. The owner can drag it into the issue by hand.
+Decided 2026-11-15: **no screenshots.** Too fragile: a page cannot take a real picture of itself, and a redrawn one is unreliable on the iPhone. What was pointed at goes into the remark as data instead (component, visible text, path, product or barcode), which is also what can be sent to GitHub. A remark without a pointed-at element carries the page it was written on.
 
 ## Without a connection
 
-Decided 2026-11-15: wanted. A remark written without a connection is kept in the browser, with its picture, and sent when the connection is back, like changes to the list. The sheet says "kept, will be sent later". Pictures are too big for the storage the list queue uses, so the remark queue gets its own store in the browser's database.
+Decided 2026-11-15: wanted. A remark written without a connection is kept in the browser and sent when the connection is back, like changes to the list. The sheet says "kept, will be sent later".
 
 ## An agent that looks at what is sent to GitHub
 
@@ -115,18 +100,17 @@ Question C asks how far the agent may go by itself.
 
 In this order, each step usable by itself:
 
-1. **Remarks on the Pi.** The `remark` table (kind, text, state, page, target, context, account, created, closed, picture file, issue address) with a migration; `RemarkService` and `RemarkController`: `POST /remarks` for every account, `GET /remarks` gives the owner all and others their own, `PATCH /remarks/:id` owner only. Limits on text length, context size, picture size and remarks per account per hour. The remark sheet, the settings row, right click, and the Remarks page. Thank-you message. Push notification and on-screen message to the owner.
+1. **Remarks on the Pi.** The `remark` table (kind, text, state, page, target, context, account, created, closed, issue address) with a migration; `RemarkService` and `RemarkController`: `POST /remarks` for every account, `GET /remarks` gives the owner all and others their own, `PATCH /remarks/:id` owner only. Limits on text length, context size and remarks per account per hour. The remark sheet, the settings row, right click, and the Remarks page. Thank-you message. Push notification and on-screen message to the owner.
 2. **Pointing on the phone**: pointing mode, and the two-finger tap if chosen.
-3. **Screenshots**: the picture in the sheet, shrinking, storing as files, showing on the Remarks page.
-4. **Without a connection**: the remark queue in the browser.
-5. **GitHub**: issue forms in the repository, the token setting, the preview and "send to GitHub" for the owner.
-6. **The agent**: the workflow and its instructions file, tried first on one hand-made issue.
+3. **Without a connection**: the remark queue in the browser.
+4. **GitHub**: issue forms in the repository, the token setting, the preview and "send to GitHub" for the owner.
+5. **The agent**: the workflow and its instructions file, tried first on one hand-made issue.
 
 Tests, as the project requires: unit tests for the rules (what is kept of an element, what goes to GitHub, the limits), route tests with owner and other account, component tests for the sheet, the pointing and the Remarks page, an end-to-end test (right click a tile, write a remark, find it on the Remarks page; write one without a connection and see it arrive), and the GitHub call tested against a stand-in server, never the real one.
 
 Docs: use cases, the architecture section, the new settings, decision entries.
 
-Size: steps 1 and 2 are about the size of the owner-and-accounts work plus the System page rework together. Steps 3 to 6 are each smaller, about the size of the reload-after-update work, except the agent, which is mostly instructions and guards and needs a careful first run.
+Size: steps 1 and 2 are about the size of the owner-and-accounts work plus the System page rework together. Steps 3 to 5 are each smaller, about the size of the reload-after-update work, except the agent, which is mostly instructions and guards and needs a careful first run.
 
 ## Answered by the owner on 2026-11-15
 
@@ -134,7 +118,7 @@ Size: steps 1 and 2 are about the size of the owner-and-accounts work plus the S
 2. Touch and hold: dropped as impractical. Other ways asked for: see "Ways to open it".
 3. Everyone may write remarks; only the owner can send to GitHub.
 4. The owner is told: yes, with a message on screen.
-5. Screenshots: wanted.
+5. Screenshots: first wanted, then dropped as too fragile; the pointed-at element is reported as data.
 6. Without a connection: wanted.
 7. Kinds: bug, wish and note.
 8. Afterwards: no promise of when, just a thank-you.
@@ -142,10 +126,10 @@ Size: steps 1 and 2 are about the size of the owner-and-accounts work plus the S
 
 ## Still open
 
-A. **Pointing on the phone**: pointing mode from the settings row plus a two-finger tap as shortcut (recommended), pointing mode only, or a small button on every page?
+A. Answered 2026-11-15: pointing mode plus the two-finger tap.
 
-B. **Screenshots**: the app's own drawing plus the option to attach a real picture (recommended), only attach, or only the app's drawing? And is it acceptable that pictures stay on the Pi: not in the backup, not sent to GitHub?
+B. Answered 2026-11-15: no screenshots.
 
 C. **The agent**: may it open a draft pull request by itself for small things (as asked), or should it always stop after the comment until the owner says "go" on the issue? And should it run for every remark sent to GitHub, or only when ticked while sending (recommended)?
 
-Needed from the owner before step 5: the GitHub token described under "The token".
+Needed from the owner before step 4: the GitHub token described under "The token".

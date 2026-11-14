@@ -20,7 +20,7 @@ In this order, agreed with the owner on 2026-11-13:
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
 3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
-5. **Remarks from inside the app** (milestone 11): planned in [remarks-plan.md](remarks-plan.md); three choices are open.
+5. **Remarks from inside the app** (milestone 11): planned in [remarks-plan.md](remarks-plan.md); ready to build, the agent's limits are the one open choice.
 6. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
@@ -143,8 +143,8 @@ Requested by the owner on 2026-11-13.
 ### 11. Remarks from inside the app: planned
 
 - Asked by the owner on 2026-11-14: give feedback from inside the app, as a bug report or a wish, from an element or from the settings page.
-- Worked out in [remarks-plan.md](remarks-plan.md). Decided on 2026-11-15: stored on the Pi with "send to GitHub" for the owner only, for every account, kinds bug, wish and note, no touch and hold, screenshots, also without a connection, a thank-you and no promise, the owner is told, issue templates on GitHub, and an agent that investigates what is sent to GitHub.
-- Still open, three choices: how to point at an element on the phone, how screenshots are made, and how far the agent may go by itself. Nothing is built until those are answered.
+- Worked out in [remarks-plan.md](remarks-plan.md). Decided on 2026-11-15: stored on the Pi with "send to GitHub" for the owner only, for every account, kinds bug, wish and note, pointing mode and a two-finger tap on the phone in place of touch and hold, no screenshots, also without a connection, a thank-you and no promise, the owner is told, issue templates on GitHub, and an agent that investigates what is sent to GitHub.
+- Still open: how far the agent may go by itself, which only matters for the last step. Needed from the owner before the GitHub step: a token for issues.
 
 ### Smaller changes outside the milestones
 
