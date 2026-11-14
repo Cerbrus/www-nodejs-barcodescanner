@@ -9,6 +9,7 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
 import { PushService } from '../../services/push.service';
+import { RemarkService } from '../../services/remark.service';
 import { Theme, ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -99,6 +100,30 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                         {{ (push.status() === 'off' ? 'push.intro' : 'push.' + push.status()) | translate }}
                     </p>
                 }
+                <div class="row">
+                    <span class="label">
+                        {{ 'remark.title' | translate }}
+                        @if (remarks.waiting(); as count) {
+                            <span class="hint">{{ 'remark.waiting' | translate: { count } }}</span>
+                        }
+                    </span>
+                    <div class="flex gap-2">
+                        <button type="button" class="btn" (click)="remarks.startPointing()">
+                            <i class="material-symbols-outlined">ads_click</i>
+                            {{ 'remark.point' | translate }}
+                        </button>
+                        <button type="button" class="btn primary" (click)="remarks.write()">
+                            <i class="material-symbols-outlined">add_comment</i>
+                            {{ 'remark.write' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <p class="note">{{ 'remark.hint' | translate }}</p>
+                <a class="row link" routerLink="/remarks">
+                    <i class="material-symbols-outlined">forum</i>
+                    <span class="label">{{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}</span>
+                    <i class="material-symbols-outlined muted">chevron_right</i>
+                </a>
             </div>
 
             @if (auth.state()?.enabled) {
@@ -174,19 +199,12 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
             display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
             min-height: 52px; padding: 8px 12px;
         }
-        .row + .row, .note + .row { border-top: 1px solid var(--line); }
+        .row + .row, .note + .row, .row + .note + .link { border-top: 1px solid var(--line); }
         .label { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; font-weight: 600; }
         .hint { color: var(--text-muted); font-size: 0.8rem; font-weight: 400; }
         .value { color: var(--text-muted); font-size: 0.9rem; text-align: right; }
         .note { padding: 0 12px 10px; color: var(--text-muted); font-size: 0.85rem; }
         .link:hover, .link:focus-visible { background: var(--page); }
-        .segments { display: flex; padding: 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--page); }
-        .segment {
-            display: flex; align-items: center; gap: 4px; padding: 6px 10px;
-            border-radius: 8px; font-size: 0.85rem; font-weight: 600;
-        }
-        .segment i { font-size: 18px; }
-        .segment.chosen { background: var(--accent); color: var(--accent-text); }
         @media (max-width: 480px) {
             .choice { flex-flow: column nowrap; align-items: stretch; }
             .choice .segment { flex: 1 1 0; justify-content: center; }
@@ -201,6 +219,7 @@ export class SystemPage {
     protected readonly theme = inject(ThemeService);
     protected readonly push = inject(PushService);
     protected readonly auth = inject(AuthService);
+    protected readonly remarks = inject(RemarkService);
     protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;

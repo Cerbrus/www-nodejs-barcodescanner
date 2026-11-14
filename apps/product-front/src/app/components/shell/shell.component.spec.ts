@@ -1,12 +1,15 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { ShellComponent } from './shell.component';
-import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, texts } from '../../../testing/fakes';
+import { FakeEvents, FakeRemarks, FakeStore, click, fakeEvents, fakeRemarks, fakeStore, texts } from '../../../testing/fakes';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
+import { RemarkService } from '../../services/remark.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
@@ -15,6 +18,8 @@ describe('ShellComponent', () => {
     let page: HTMLElement;
     let store: FakeStore;
     let events: FakeEvents;
+    let remarks: FakeRemarks;
+    const owner = signal(true);
     const api = { undoScan: vi.fn(() => of({})) };
     const setAppBadge = vi.fn(() => Promise.resolve());
     const clearAppBadge = vi.fn(() => Promise.resolve());
@@ -30,11 +35,13 @@ describe('ShellComponent', () => {
         vi.clearAllMocks();
         store = fakeStore();
         events = fakeEvents();
+        remarks = fakeRemarks();
+        owner.set(true);
         Object.defineProperty(navigator, 'setAppBadge', { configurable: true, value: setAppBadge });
         Object.defineProperty(navigator, 'clearAppBadge', { configurable: true, value: clearAppBadge });
         TestBed.configureTestingModule({
             imports: [ShellComponent, TranslateModule.forRoot()],
-            providers: [provideRouter([]), { provide: ShoppingStore, useValue: store }, { provide: EventsService, useValue: events }, { provide: ApiService, useValue: api }]
+            providers: [provideRouter([]), { provide: ShoppingStore, useValue: store }, { provide: EventsService, useValue: events }, { provide: ApiService, useValue: api }, { provide: RemarkService, useValue: remarks }, { provide: AuthService, useValue: { owner } }]
         });
     });
 
@@ -117,6 +124,59 @@ describe('ShellComponent', () => {
         click(page, '.toast-action');
 
         expect(navigate).toHaveBeenCalledWith('/inbox');
+    });
+
+    it('starts the remark service, and tells the owner about a remark from someone else with a way to it', () => {
+        open();
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+        events.emit('remark', { id: 1, kind: 'bug', fromOwner: true });
+        fixture.detectChanges();
+        expect(page.querySelector('.toast')).toBeNull();
+
+        events.emit('remark', { id: 2, kind: 'bug', fromOwner: false });
+        fixture.detectChanges();
+        click(page, '.toast-action');
+
+        expect(remarks.start).toHaveBeenCalledTimes(1);
+        expect(texts(page, '.toast.attention .grow')).toEqual(['remark.newFromOther']);
+        expect(navigate).toHaveBeenCalledWith('/remarks');
+    });
+
+    it('does not tell another account about remarks', () => {
+        owner.set(false);
+        open();
+        events.emit('remark', { id: 2, kind: 'bug', fromOwner: false });
+        fixture.detectChanges();
+
+        expect(page.querySelector('.toast')).toBeNull();
+    });
+
+    it('shows a bar while pointing, which can be cancelled, and opens the remark sheet for the tapped part', async () => {
+        open();
+        expect(page.querySelector('.pointing')).toBeNull();
+
+        remarks.startPointing();
+        fixture.detectChanges();
+        expect(texts(page, '.pointing .grow')).toEqual(['remark.pointing']);
+
+        click(page, '.pointing-cancel');
+        fixture.detectChanges();
+        expect(page.querySelector('.pointing')).toBeNull();
+
+        remarks.startPointing();
+        fixture.detectChanges();
+        (page.querySelector('main') as HTMLElement).insertAdjacentHTML('beforeend', '<button id="probe" class="btn">Probe</button>');
+        const probed = vi.fn();
+        (page.querySelector('#probe') as HTMLElement).addEventListener('click', probed);
+        click(page, '#probe');
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(probed).not.toHaveBeenCalled();
+        expect(remarks.pointing()).toBe(false);
+        expect(remarks.draft()?.target?.text).toBe('Probe');
+        expect(page.querySelector('app-remark-sheet dialog')).not.toBeNull();
     });
 
     it('shows at most three messages and lets each go after five seconds', () => {

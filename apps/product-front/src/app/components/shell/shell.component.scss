@@ -22,6 +22,32 @@
     }
 }
 
+.pointing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    i {
+        font-size: 20px;
+    }
+}
+
+.pointing-cancel {
+    padding: 4px 10px;
+    border: 1px solid currentcolor;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.pointing-at {
+    cursor: crosshair;
+}
+
 .content {
     flex: 1 1 auto;
     min-height: 0;

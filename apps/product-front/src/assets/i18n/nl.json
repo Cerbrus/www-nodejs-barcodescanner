@@ -226,5 +226,47 @@
     "offline": {
         "waiting": "{count, plural, one {# wijziging wacht} other {# wijzigingen wachten}}",
         "serverWon": "Lijst bijgewerkt vanaf de server"
+    },
+    "remark": {
+        "title": "Feedback",
+        "listTitle": "Feedback",
+        "mine": "Mijn feedback",
+        "write": "Schrijven",
+        "point": "Aanwijzen",
+        "hint": "Aanwijzen: tik daarna op het onderdeel dat je bedoelt. Sneller: tik met twee vingers op een onderdeel, of klik met de rechtermuisknop.",
+        "pointing": "Tik op wat je bedoelt",
+        "about": "Over",
+        "kind": {
+            "bug": "Fout",
+            "wish": "Wens",
+            "note": "Notitie"
+        },
+        "text": {
+            "bug": "Wat ging er mis?",
+            "wish": "Wat zou je willen?",
+            "note": "Notitie"
+        },
+        "send": "Versturen",
+        "thanks": "Bedankt voor je feedback!",
+        "kept": "Bedankt! Bewaard; wordt verstuurd zodra er verbinding is.",
+        "sentLater": "Bewaarde feedback is verstuurd",
+        "waiting": "{count, plural, one {# wacht op verbinding} other {# wachten op verbinding}}",
+        "empty": "Nog geen feedback",
+        "closed": "afgehandeld",
+        "close": "Afhandelen",
+        "reopen": "Heropenen",
+        "toGitHub": "Naar GitHub",
+        "sendToGitHub": "Versturen naar GitHub",
+        "sentToGitHub": "Verstuurd naar GitHub als issue {number}",
+        "onGitHub": "Issue {number} op GitHub",
+        "publicWarning": "De repository is openbaar: wat hieronder staat kan iedereen lezen.",
+        "preview": "Dit wordt verstuurd",
+        "option": {
+            "includeDevice": "Gegevens over het apparaat meesturen",
+            "includeAccount": "Het account van de schrijver meesturen",
+            "investigate": "Laat de agent ernaar kijken"
+        },
+        "newFromOther": "Er is nieuwe feedback",
+        "open": "Bekijken"
     }
 }

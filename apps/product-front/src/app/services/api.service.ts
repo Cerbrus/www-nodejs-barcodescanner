@@ -9,11 +9,16 @@ import {
     CatalogItemInput,
     FeedbackSettings,
     Health,
+    IssueDraft,
+    IssueOptions,
     ListEntry,
     ListEntryChange,
     LogLine,
     PushResult,
     PushSubscriptionInput,
+    Remark,
+    RemarkInput,
+    RemarkList,
     Scan,
     ScanOutcome,
     Section
@@ -156,5 +161,25 @@ export class ApiService {
 
     public testSound(soundId: string): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/feedback/test`, { soundId });
+    }
+
+    public sendRemark(remark: RemarkInput): Observable<{ id: number }> {
+        return this.http.post<{ id: number }>(`${this.baseUrl}/remarks`, remark, { context: QUEUED_WITHOUT_CONNECTION });
+    }
+
+    public getRemarks(): Observable<RemarkList> {
+        return this.http.get<RemarkList>(`${this.baseUrl}/remarks`);
+    }
+
+    public setRemarkState(id: number, state: Remark['state']): Observable<Remark> {
+        return this.http.patch<Remark>(`${this.baseUrl}/remarks/${id}`, { state });
+    }
+
+    public getIssueDraft(id: number, options: IssueOptions): Observable<IssueDraft> {
+        return this.http.post<IssueDraft>(`${this.baseUrl}/remarks/${id}/issue-draft`, options);
+    }
+
+    public sendRemarkToGitHub(id: number, options: IssueOptions): Observable<Remark> {
+        return this.http.post<Remark>(`${this.baseUrl}/remarks/${id}/issue`, options);
     }
 }

@@ -244,6 +244,38 @@ body {
     color: var(--text);
 }
 
+.segments {
+    display: flex;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--page);
+
+    &.wide .segment {
+        flex: 1 1 0;
+        justify-content: center;
+    }
+}
+
+.segment {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    i {
+        font-size: 18px;
+    }
+
+    &.chosen {
+        background: var(--accent);
+        color: var(--accent-text);
+    }
+}
+
 .clearable {
     position: relative;
 

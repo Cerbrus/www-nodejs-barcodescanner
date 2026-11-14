@@ -140,3 +140,67 @@ export interface ListEntryChange {
     quantity?: number;
     note?: string;
 }
+
+export const REMARK_KINDS = ['bug', 'wish', 'note'] as const;
+export type RemarkKind = (typeof REMARK_KINDS)[number];
+
+export interface RemarkTarget {
+    component?: string;
+    label?: string;
+    text?: string;
+    path?: string;
+}
+
+export interface RemarkContext {
+    version?: string;
+    commit?: string;
+    userAgent?: string;
+    viewport?: string;
+    language?: string;
+    theme?: string;
+    installed?: boolean;
+    online?: boolean;
+    waitingChanges?: number;
+    recentMessages?: Array<string>;
+}
+
+export interface RemarkInput {
+    kind: RemarkKind;
+    text: string;
+    page: string;
+    target?: RemarkTarget;
+    context?: RemarkContext;
+    writtenAt?: string;
+}
+
+export interface Remark {
+    id: number;
+    kind: RemarkKind;
+    text: string;
+    state: 'open' | 'closed';
+    page: string;
+    target?: RemarkTarget | null;
+    context?: RemarkContext | null;
+    account: string;
+    createdAt: string;
+    closedAt?: string | null;
+    issueNumber?: number | null;
+    issueUrl?: string | null;
+}
+
+export interface RemarkList {
+    remarks: Array<Remark>;
+    canSendToGitHub: boolean;
+}
+
+export interface IssueOptions {
+    includeDevice: boolean;
+    includeAccount: boolean;
+    investigate: boolean;
+}
+
+export interface IssueDraft {
+    title: string;
+    body: string;
+    labels: Array<string>;
+}

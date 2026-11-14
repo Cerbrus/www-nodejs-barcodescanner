@@ -13,9 +13,19 @@
     </div>
 }
 
-<main class="content">
+@if (remarks.pointing()) {
+    <div class="pointing" role="status">
+        <i class="material-symbols-outlined">ads_click</i>
+        <span class="grow">{{ 'remark.pointing' | translate }}</span>
+        <button type="button" class="pointing-cancel" (click)="remarks.cancel()">{{ 'common.cancel' | translate }}</button>
+    </div>
+}
+
+<main class="content" appRemarkPointer [class.pointing-at]="remarks.pointing()">
     <router-outlet />
 </main>
+
+<app-remark-sheet />
 
 <div class="toasts" aria-live="polite">
     @for (toast of toasts.toasts(); track toast.id) {

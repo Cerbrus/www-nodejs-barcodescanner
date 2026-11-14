@@ -29,6 +29,7 @@ describe('ApiService', () => {
     });
 
     it('calls the right route, with the right method and body, for every action', () => {
+        const options = { includeDevice: true, includeAccount: false, investigate: true };
         const calls: Array<[() => Observable<unknown>, string, string, unknown?]> = [
             [() => api.getHealth(), 'GET', '/health'],
             [() => api.getAgentStatus(), 'GET', '/agent/status'],
@@ -58,7 +59,12 @@ describe('ApiService', () => {
             [() => api.sendTestPush(), 'POST', '/push/test', {}],
             [() => api.getFeedbackSettings(), 'GET', '/feedback/settings'],
             [() => api.setFeedbackSound('added', 'blip'), 'PUT', '/feedback/settings/added', { soundId: 'blip' }],
-            [() => api.testSound('blip'), 'POST', '/feedback/test', { soundId: 'blip' }]
+            [() => api.testSound('blip'), 'POST', '/feedback/test', { soundId: 'blip' }],
+            [() => api.sendRemark({ kind: 'bug', text: 'x', page: '#/list' }), 'POST', '/remarks', { kind: 'bug', text: 'x', page: '#/list' }],
+            [() => api.getRemarks(), 'GET', '/remarks'],
+            [() => api.setRemarkState(4, 'closed'), 'PATCH', '/remarks/4', { state: 'closed' }],
+            [() => api.getIssueDraft(4, options), 'POST', '/remarks/4/issue-draft', options],
+            [() => api.sendRemarkToGitHub(4, options), 'POST', '/remarks/4/issue', options]
         ];
 
         for (const [call, method, path, body] of calls) {

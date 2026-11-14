@@ -7,9 +7,13 @@ import { filter, switchMap, tap } from 'rxjs';
 
 import { ScanOutcome, ScanSource } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
+import { RemarkService } from '../../services/remark.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
+import { RemarkPointerDirective } from '../remark-sheet/remark-pointer.directive';
+import { RemarkSheetComponent } from '../remark-sheet/remark-sheet.component';
 
 type ScanEvent = ScanOutcome & { source?: ScanSource; undone?: boolean };
 
@@ -22,7 +26,7 @@ interface NavLink {
 @Component({
     selector: 'app-shell',
     standalone: true,
-    imports: [DatePipe, RouterOutlet, RouterLink, RouterLinkActive, TranslateModule],
+    imports: [DatePipe, RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, RemarkPointerDirective, RemarkSheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss'
@@ -30,9 +34,11 @@ interface NavLink {
 export class ShellComponent {
     protected readonly store = inject(ShoppingStore);
     protected readonly toasts = inject(ToastService);
+    protected readonly remarks = inject(RemarkService);
     protected readonly inboxCount = computed(() => this.store.inbox().length);
 
     private readonly api = inject(ApiService);
+    private readonly auth = inject(AuthService);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
 
@@ -52,7 +58,26 @@ export class ShellComponent {
             }
         });
 
-        inject(EventsService)
+        const events = inject(EventsService);
+        this.remarks.start();
+
+        events
+            .on<{ fromOwner: boolean }>('remark')
+            .pipe(
+                filter((remark) => !remark.fromOwner && this.auth.owner()),
+                tap(() =>
+                    this.toasts.show({
+                        kind: 'attention',
+                        text: this.translate.instant('remark.newFromOther'),
+                        actionLabel: this.translate.instant('remark.open'),
+                        action: () => void this.router.navigateByUrl('/remarks')
+                    })
+                ),
+                takeUntilDestroyed()
+            )
+            .subscribe();
+
+        events
             .on<ScanEvent>('scan')
             .pipe(
                 filter((scan) => scan.source === 'handheld' && !scan.undone),

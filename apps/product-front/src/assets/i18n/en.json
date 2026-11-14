@@ -226,5 +226,47 @@
     "offline": {
         "waiting": "{count, plural, one {# change waiting} other {# changes waiting}}",
         "serverWon": "List updated from the server"
+    },
+    "remark": {
+        "title": "Feedback",
+        "listTitle": "Feedback",
+        "mine": "My feedback",
+        "write": "Write",
+        "point": "Point",
+        "hint": "Point: then tap the part you mean. Quicker: tap a part with two fingers, or right-click it.",
+        "pointing": "Tap what you mean",
+        "about": "About",
+        "kind": {
+            "bug": "Bug",
+            "wish": "Wish",
+            "note": "Note"
+        },
+        "text": {
+            "bug": "What went wrong?",
+            "wish": "What would you like?",
+            "note": "Note"
+        },
+        "send": "Send",
+        "thanks": "Thank you for your feedback!",
+        "kept": "Thank you! Kept; it is sent as soon as there is a connection.",
+        "sentLater": "Kept feedback has been sent",
+        "waiting": "{count, plural, one {# waits for a connection} other {# wait for a connection}}",
+        "empty": "No feedback yet",
+        "closed": "handled",
+        "close": "Mark as handled",
+        "reopen": "Reopen",
+        "toGitHub": "To GitHub",
+        "sendToGitHub": "Send to GitHub",
+        "sentToGitHub": "Sent to GitHub as issue {number}",
+        "onGitHub": "Issue {number} on GitHub",
+        "publicWarning": "The repository is public: anyone can read what is below.",
+        "preview": "This will be sent",
+        "option": {
+            "includeDevice": "Include details about the device",
+            "includeAccount": "Include the writer's account",
+            "investigate": "Let the agent look at it"
+        },
+        "newFromOther": "There is new feedback",
+        "open": "Open"
     }
 }

@@ -50,6 +50,10 @@ export const appRoutes: Array<Route> = [
                 loadComponent: () => import('../pages/sounds/sounds.page').then((m) => m.SoundsPage)
             },
             {
+                path: 'remarks',
+                loadComponent: () => import('../pages/remarks/remarks.page').then((m) => m.RemarksPage)
+            },
+            {
                 path: 'system',
                 loadComponent: () => import('../pages/system/system.page').then((m) => m.SystemPage)
             }

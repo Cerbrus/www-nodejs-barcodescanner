@@ -1,7 +1,7 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 
-import { Barcode, CatalogItem, ListEntry, Section } from '../app/models';
+import { Barcode, CatalogItem, ListEntry, RemarkTarget, Section } from '../app/models';
 
 export const SECTIONS: Array<Section> = [
     { id: 'brood-gebak', name: 'Brood', sortOrder: 1, emoji: '🍞' },
@@ -122,4 +122,40 @@ export function type(root: Element, selector: string, text: string): void {
     const field = root.querySelector(selector) as HTMLInputElement;
     field.value = text;
     field.dispatchEvent(new Event('input'));
+}
+
+export interface FakeRemarks {
+    draft: WritableSignal<{ target?: RemarkTarget } | undefined>;
+    pointing: WritableSignal<boolean>;
+    waiting: WritableSignal<number>;
+    start: ReturnType<typeof vi.fn>;
+    write: (target?: RemarkTarget) => void;
+    startPointing: () => void;
+    cancel: () => void;
+    send: ReturnType<typeof vi.fn>;
+}
+
+export function fakeRemarks(): FakeRemarks {
+    const draft = signal<{ target?: RemarkTarget } | undefined>(undefined);
+    const pointing = signal(false);
+
+    return {
+        draft,
+        pointing,
+        waiting: signal(0),
+        start: vi.fn(),
+        write: (target?: RemarkTarget): void => {
+            pointing.set(false);
+            draft.set({ target });
+        },
+        startPointing: (): void => {
+            draft.set(undefined);
+            pointing.set(true);
+        },
+        cancel: (): void => {
+            pointing.set(false);
+            draft.set(undefined);
+        },
+        send: vi.fn(() => of('sent'))
+    };
 }

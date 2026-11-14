@@ -5,12 +5,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { SystemPage } from './system.page';
-import { FakeEvents, click, fakeEvents, texts } from '../../../testing/fakes';
+import { FakeEvents, FakeRemarks, click, fakeEvents, fakeRemarks, texts } from '../../../testing/fakes';
 import { AgentStatus, AuthState } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
 import { PushService, PushStatus } from '../../services/push.service';
+import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 
 const OWNER: AuthState = { enabled: true, authenticated: true, owner: true, email: 'owner@example.com' };
@@ -21,6 +22,7 @@ describe('SystemPage', () => {
     let fixture: ComponentFixture<SystemPage>;
     let page: HTMLElement;
     let events: FakeEvents;
+    let remarks: FakeRemarks;
     const state = signal<AuthState | undefined>(OWNER);
     const auth = { state, owner: computed(() => state()?.owner ?? false), logout: vi.fn(() => of(undefined)) };
     const push = { status: signal<PushStatus>('off'), busy: signal(false), enable: vi.fn(() => Promise.resolve()), disable: vi.fn(() => Promise.resolve()) };
@@ -49,6 +51,7 @@ describe('SystemPage', () => {
         localStorage.clear();
         delete document.documentElement.dataset['theme'];
         events = fakeEvents();
+        remarks = fakeRemarks();
         push.status.set('off');
         push.busy.set(false);
         api.getHealth.mockReturnValue(of({ status: 'ok', version: '1.1.32', commit: 'c96a5b5d1a16', builtAt: '2026-11-13T21:29:08Z' }));
@@ -61,7 +64,8 @@ describe('SystemPage', () => {
                 { provide: AuthService, useValue: auth },
                 { provide: PushService, useValue: push },
                 { provide: ApiService, useValue: api },
-                { provide: EventsService, useValue: events }
+                { provide: EventsService, useValue: events },
+                { provide: RemarkService, useValue: remarks }
             ]
         });
     });
@@ -70,7 +74,7 @@ describe('SystemPage', () => {
         await open(OWNER);
 
         expect(groups()).toEqual(['system.device', 'login.account', 'system.management']);
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/sounds', '/history', '/log']);
+        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks', '/sounds', '/history', '/log']);
         expect(texts(page, '.version')[0]).toContain('1.1.32 (c96a5b5)');
     });
 
@@ -79,7 +83,7 @@ describe('SystemPage', () => {
 
         expect(groups()).toEqual(['system.device', 'login.account']);
         expect(page.querySelector('.version')).toBeNull();
-        expect(page.querySelector('a.row.link')).toBeNull();
+        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks']);
         expect(api.getAgentStatus).not.toHaveBeenCalled();
         expect(texts(page, '.row .truncate')).toEqual(['guest@example.com']);
     });
@@ -118,7 +122,7 @@ describe('SystemPage', () => {
     it('offers to turn notifications on with an explanation, and says so when that fails', async () => {
         await open(GUEST);
         expect(texts(row('push.title'), '.hint')).toEqual(['push.state.off']);
-        expect(texts(page, '.note')).toEqual(['push.intro']);
+        expect(texts(page, '.note')).toEqual(['push.intro', 'remark.hint']);
 
         push.enable.mockReturnValueOnce(Promise.reject(new Error('refused')));
         click(row('push.title'), 'button.primary');
@@ -132,20 +136,20 @@ describe('SystemPage', () => {
         push.status.set('denied');
         await open(GUEST);
 
-        expect(texts(page, '.note')).toEqual(['push.denied']);
+        expect(texts(page, '.note')).toEqual(['push.denied', 'remark.hint']);
         expect(row('push.title').querySelector('button')).toBeNull();
 
         push.status.set('unsupported');
         await settle();
 
-        expect(texts(page, '.note')).toEqual(['push.unsupported']);
+        expect(texts(page, '.note')).toEqual(['push.unsupported', 'remark.hint']);
     });
 
     it('lets everyone turn notifications off, and only the owner send a test notification', async () => {
         push.status.set('on');
         await open(GUEST);
         expect(texts(row('push.title'), 'button')).toEqual(['notifications_off push.disable']);
-        expect(page.querySelector('.note')).toBeNull();
+        expect(texts(page, '.note')).toEqual(['remark.hint']);
 
         click(row('push.title'), 'button');
         expect(push.disable).toHaveBeenCalledTimes(1);
@@ -155,6 +159,27 @@ describe('SystemPage', () => {
 
         expect(api.sendTestPush).toHaveBeenCalledTimes(1);
         expect(TestBed.inject(ToastService).toasts().at(-1)?.text).toBe('push.testResult');
+    });
+
+    it('lets every account write a remark, point at a part, and open its remarks', async () => {
+        await open(GUEST);
+        expect(texts(row('remark.title'), 'button')).toEqual(['ads_click remark.point', 'add_comment remark.write']);
+        expect(texts(page, 'a.row.link .label')).toEqual(['remark.mine']);
+
+        click(row('remark.title'), 'button', 1);
+        expect(remarks.draft()).toEqual({ target: undefined });
+
+        click(row('remark.title'), 'button', 0);
+        expect(remarks.pointing()).toBe(true);
+        expect(remarks.draft()).toBeUndefined();
+    });
+
+    it('shows how many remarks wait for a connection, and names the list "Feedback" for the owner', async () => {
+        remarks.waiting.set(2);
+        await open(OWNER);
+
+        expect(texts(row('remark.title'), '.hint')).toEqual(['remark.waiting']);
+        expect(texts(page, 'a.row.link .label')[0]).toBe('remark.listTitle');
     });
 
     it('logs out only after a confirmation', async () => {
