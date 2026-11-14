@@ -9,9 +9,11 @@ import { ConnectorService } from './services/connector.service';
 import { ContentPolicyService } from './services/content-policy.service';
 import { EventsService } from './services/events.service';
 import { FeedbackService } from './services/feedback.service';
+import { GitHubService } from './services/github.service';
 import { ListService } from './services/list.service';
 import { LogService } from './services/log.service';
 import { PushService } from './services/push.service';
+import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
 import { SeedService } from './services/seed.service';
 import { SessionService } from './services/session.service';
@@ -25,9 +27,11 @@ const services = [
     ContentPolicyService,
     EventsService,
     FeedbackService,
+    GitHubService,
     ListService,
     LogService,
     PushService,
+    RemarkService,
     ScanService,
     SeedService,
     SessionService

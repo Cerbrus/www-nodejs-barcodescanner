@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, HttpCode, Post } from '@nestjs/common';
 
 import { PushResult, PushService } from '../../core/services/push.service';
 import { PushEndpointDto, PushSubscriptionDto } from '../dto/push-subscription.dto';
+import { CurrentAccount } from '../guards/account.decorator';
 import { OwnerOnly } from '../guards/owner.decorator';
+import { Account } from '../http';
 
 @Controller({ path: 'push', version: '1' })
 export class PushController {
@@ -16,8 +18,8 @@ export class PushController {
 
     @Post('subscriptions')
     @HttpCode(204)
-    public subscribe(@Body() subscription: PushSubscriptionDto): Promise<void> {
-        return this.push.subscribe(subscription);
+    public subscribe(@Body() subscription: PushSubscriptionDto, @CurrentAccount() account: Account): Promise<void> {
+        return this.push.subscribe(subscription, account.email);
     }
 
     @Delete('subscriptions')

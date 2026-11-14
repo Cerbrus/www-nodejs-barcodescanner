@@ -13,7 +13,12 @@ export interface HttpRequest {
 
 export type Caller = 'user' | 'agent';
 
-export type CallerRequest = HttpRequest & { caller?: Caller };
+export interface Account {
+    email: string;
+    owner: boolean;
+}
+
+export type CallerRequest = HttpRequest & { caller?: Caller; account?: Account };
 
 export interface HttpResponse {
     cookie(name: string, value: string, options: CookieOptions): void;

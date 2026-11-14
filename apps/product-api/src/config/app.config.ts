@@ -5,6 +5,8 @@ import { Injectable } from '@nestjs/common';
 const DEFAULT_PORT = 3020;
 const DEFAULT_CONNECTORS = 'ah,off';
 const DEFAULT_PUSH_SUBJECT = 'mailto:admin@example.com';
+const DEFAULT_GITHUB_API = 'https://api.github.com';
+const DEFAULT_GITHUB_REPOSITORY = 'Cerbrus/www-nodejs-barcodescanner';
 
 const setting = (name: string): string | undefined => process.env[name] || undefined;
 const list = (value: string): Array<string> =>
@@ -42,6 +44,10 @@ export class AppConfig {
     public readonly ownerEmail = (setting('OWNER_EMAIL') ?? this.allowedEmails[0] ?? '').toLowerCase();
     public readonly loginEnabled = this.googleClientId !== '';
     public readonly contentPolicyMode = setting('CSP_MODE');
+
+    public readonly githubIssuesToken = setting('GITHUB_ISSUES_TOKEN') ?? '';
+    public readonly githubRepository = setting('GITHUB_REPOSITORY') ?? DEFAULT_GITHUB_REPOSITORY;
+    public readonly githubApiUrl = (setting('GITHUB_API_URL') ?? DEFAULT_GITHUB_API).replace(/\/+$/, '');
 
     public get redirectUri(): string {
         return `${this.publicUrl}/api/v1/auth/google/callback`;

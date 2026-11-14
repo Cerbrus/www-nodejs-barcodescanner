@@ -3,6 +3,7 @@ import { CatalogItemEntity } from './catalog-item.entity';
 import { FeedbackSettingEntity } from './feedback-setting.entity';
 import { ListEntryEntity } from './list-entry.entity';
 import { PushSubscriptionEntity } from './push-subscription.entity';
+import { RemarkEntity } from './remark.entity';
 import { ScanEntity } from './scan.entity';
 import { SectionEntity } from './section.entity';
 
@@ -13,6 +14,7 @@ export * from './list-entry.entity';
 export * from './scan.entity';
 export * from './push-subscription.entity';
 export * from './feedback-setting.entity';
+export * from './remark.entity';
 export * from './product-suggestion';
 export * from './types';
 
@@ -23,5 +25,6 @@ export const Entities = [
     ListEntryEntity,
     ScanEntity,
     PushSubscriptionEntity,
-    FeedbackSettingEntity
+    FeedbackSettingEntity,
+    RemarkEntity
 ];

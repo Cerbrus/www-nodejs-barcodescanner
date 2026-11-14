@@ -35,26 +35,34 @@ export interface PushResult {
     failed: number;
 }
 
-type Texts = Record<'unknownTitle' | 'unknownNamed' | 'unknownBare' | 'testTitle' | 'testBody', string>;
+type Texts = Record<'unknownTitle' | 'unknownNamed' | 'unknownBare' | 'testTitle' | 'testBody' | 'remarkBug' | 'remarkWish' | 'remarkNote', string>;
+type Audience = 'everyone' | 'owner';
 
 const TIME_TO_LIVE_SECONDS = 24 * 60 * 60;
 const DECLARATIVE_PUSH_MARKER = 8030;
 const GONE_STATUS_CODES = [404, 410];
 const DEFAULT_LANGUAGE = 'nl';
+const REMARK_PREVIEW_LENGTH = 120;
 const TEXTS: Record<string, Texts> = {
     nl: {
         unknownTitle: 'Onbekend product gescand',
         unknownNamed: '{title} ({code}) heeft nog geen naam op de lijst.',
         unknownBare: 'Barcode {code} heeft nog geen naam.',
         testTitle: 'Boodschappen',
-        testBody: 'Meldingen werken.'
+        testBody: 'Meldingen werken.',
+        remarkBug: 'Nieuwe foutmelding',
+        remarkWish: 'Nieuwe wens',
+        remarkNote: 'Nieuwe notitie'
     },
     en: {
         unknownTitle: 'Unknown product scanned',
         unknownNamed: '{title} ({code}) has no name on the list yet.',
         unknownBare: 'Barcode {code} has no name yet.',
         testTitle: 'Shopping list',
-        testBody: 'Notifications work.'
+        testBody: 'Notifications work.',
+        remarkBug: 'New bug report',
+        remarkWish: 'New wish',
+        remarkNote: 'New note'
     }
 };
 
@@ -74,8 +82,8 @@ export class PushService {
         return this.vapidKeys().publicKey;
     }
 
-    public async subscribe(input: PushSubscriptionInput): Promise<void> {
-        await this.subscriptions.save({ ...input, language: input.language ?? DEFAULT_LANGUAGE, createdAt: new Date() });
+    public async subscribe(input: PushSubscriptionInput, account?: string): Promise<void> {
+        await this.subscriptions.save({ ...input, language: input.language ?? DEFAULT_LANGUAGE, account: account ?? null, createdAt: new Date() });
         this.logger.log(`push: device subscribed (${await this.subscriptions.count()} in total)`);
     }
 
@@ -100,12 +108,27 @@ export class PushService {
         }
     }
 
+    public async notifyOwnerOfRemark(id: number, kind: 'bug' | 'wish' | 'note', text: string): Promise<void> {
+        const title: Record<typeof kind, keyof Texts> = { bug: 'remarkBug', wish: 'remarkWish', note: 'remarkNote' };
+        try {
+            const result = await this.send(
+                (texts) => ({ title: texts[title[kind]], body: text.slice(0, REMARK_PREVIEW_LENGTH), url: '/#/remarks', tag: `remark-${id}` }),
+                'owner'
+            );
+            if (result.sent || result.failed) {
+                this.logger.log(`push for remark ${id}: ${result.sent} sent, ${result.failed} failed`);
+            }
+        } catch (error) {
+            this.logger.warn(`push for remark ${id} failed: ${error}`);
+        }
+    }
+
     public sendTest(): Promise<PushResult> {
         return this.send((texts) => ({ title: texts.testTitle, body: texts.testBody, url: '/#/system', tag: 'test' }));
     }
 
-    private async send(compose: (texts: Texts) => PushMessage): Promise<PushResult> {
-        const subscriptions = await this.subscriptions.find();
+    private async send(compose: (texts: Texts) => PushMessage, audience: Audience = 'everyone'): Promise<PushResult> {
+        const subscriptions = (await this.subscriptions.find()).filter((subscription) => audience === 'everyone' || this.belongsToOwner(subscription.account));
         if (!subscriptions.length) {
             return { sent: 0, failed: 0 };
         }
@@ -130,6 +153,10 @@ export class PushService {
         const sent = outcomes.filter((ok) => ok).length;
 
         return { sent, failed: outcomes.length - sent };
+    }
+
+    private belongsToOwner(account?: string | null): boolean {
+        return !this.config.loginEnabled || !account || account.toLowerCase() === this.config.ownerEmail;
     }
 
     private payload(message: PushMessage, badge: number, language: string, origin?: string): object {

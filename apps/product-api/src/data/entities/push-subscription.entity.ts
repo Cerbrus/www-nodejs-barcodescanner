@@ -17,6 +17,9 @@ export class PushSubscriptionEntity {
     @Column({ type: 'varchar', nullable: true })
     public origin?: string;
 
+    @Column({ type: 'varchar', nullable: true })
+    public account?: string | null;
+
     @Column({ type: 'datetime' })
     public createdAt: Date;
 }

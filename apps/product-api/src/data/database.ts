@@ -8,6 +8,7 @@ import { PushSubscription1762990000000 } from './migrations/1762990000000-push-s
 import { PushOrigin1763000000000 } from './migrations/1763000000000-push-origin';
 import { FeedbackSetting1763010000000 } from './migrations/1763010000000-feedback-setting';
 import { BarcodeLookupFailed1763020000000 } from './migrations/1763020000000-barcode-lookup-failed';
+import { Remark1763200000000 } from './migrations/1763200000000-remark';
 
 export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
     return {
@@ -20,7 +21,8 @@ export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
             PushSubscription1762990000000,
             PushOrigin1763000000000,
             FeedbackSetting1763010000000,
-            BarcodeLookupFailed1763020000000
+            BarcodeLookupFailed1763020000000,
+            Remark1763200000000
         ],
         migrationsRun: true,
         synchronize: false,

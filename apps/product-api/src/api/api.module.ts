@@ -13,6 +13,7 @@ import { IconController } from './controllers/icon.controller';
 import { ListController } from './controllers/list.controller';
 import { LogController } from './controllers/log.controller';
 import { PushController } from './controllers/push.controller';
+import { RemarkController } from './controllers/remark.controller';
 import { ScanController } from './controllers/scan.controller';
 import { SectionController } from './controllers/section.controller';
 import { AuthGuard } from './guards/auth.guard';
@@ -33,6 +34,7 @@ import { CoreModule } from '../core/core.module';
         ListController,
         LogController,
         PushController,
+        RemarkController,
         ScanController,
         SectionController
     ],

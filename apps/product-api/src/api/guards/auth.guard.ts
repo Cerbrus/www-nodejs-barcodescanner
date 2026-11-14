@@ -46,7 +46,8 @@ export class AuthGuard implements CanActivate {
         if (!session) {
             throw new UnauthorizedException('Log in first');
         }
-        if (this.reflector.getAllAndOverride<boolean>(OWNER_ROUTE, targets) && !this.sessions.isOwner(session.email)) {
+        const owner = this.sessions.isOwner(session.email);
+        if (this.reflector.getAllAndOverride<boolean>(OWNER_ROUTE, targets) && !owner) {
             throw new ForbiddenException('Only for the owner');
         }
 
@@ -55,6 +56,7 @@ export class AuthGuard implements CanActivate {
             throw new ForbiddenException('Request from another site');
         }
         request.caller = 'user';
+        request.account = { email: session.email.toLowerCase(), owner };
 
         return true;
     }
