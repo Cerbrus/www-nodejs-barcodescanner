@@ -1,6 +1,6 @@
 # Plan: remarks from inside the app (milestone 11)
 
-Status: idea registered on 2026-11-14; the owner answered the first round of questions on 2026-11-15. Not started. Three choices are still open, listed at the end.
+Status: idea registered on 2026-11-14; the owner answered the first round of questions on 2026-11-15. Not started. All choices are made; the build can start.
 
 ## The idea
 
@@ -94,8 +94,6 @@ Guards, because the repository is public and anyone can open an issue there:
 
 What it costs: each run counts against the owner's Claude plan, like the Dependabot reviews.
 
-Question C asks how far the agent may go by itself.
-
 ## Sketch of the build
 
 In this order, each step usable by itself:
@@ -130,6 +128,6 @@ A. Answered 2026-11-15: pointing mode plus the two-finger tap.
 
 B. Answered 2026-11-15: no screenshots.
 
-C. **The agent**: may it open a draft pull request by itself for small things (as asked), or should it always stop after the comment until the owner says "go" on the issue? And should it run for every remark sent to GitHub, or only when ticked while sending (recommended)?
+C. Answered 2026-11-15: the agent may open draft pull requests by itself for small things. It runs only for remarks the owner ticks while sending, or issues the owner labels by hand; the owner did not answer that part, so the recommended choice stands until he says otherwise.
 
-Needed from the owner before step 4: the GitHub token described under "The token".
+The token for issues is on the Pi since 2026-11-15, as `GITHUB_ISSUES_TOKEN`; a read of the issues with it answered 200 and a write to the code was refused, as intended.

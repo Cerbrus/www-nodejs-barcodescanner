@@ -9,9 +9,11 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-# Environment
+# Environment and secrets
 .env
 .env.*
+*.key
+*token*.txt
 
 # Build output
 dist/
