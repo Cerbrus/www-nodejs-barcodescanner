@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { TYPED_CODE, listOf, nameInPrompt, productOffTheList, tile } from './helpers';
+import { TYPED_CODE, listOf, nameInPrompt, pastTheRepeatPause, productOffTheList, tile } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -37,6 +37,7 @@ test('scan the same code again and get one more', async ({ page, request }) => {
         }
     });
 
+    await pastTheRepeatPause(request);
     await page.goto('/#/scan');
     await page.locator('form.manual input').fill(TYPED_CODE);
     await page.locator('form.manual button[type=submit]').click();

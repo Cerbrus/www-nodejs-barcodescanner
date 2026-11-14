@@ -30,3 +30,15 @@ export const nameInPrompt = async (page: Page, name: string): Promise<void> => {
     await prompt.locator('app-item-autocomplete .option').first().click();
     await expect(prompt).toHaveCount(0);
 };
+
+const REPEAT_PAUSE_MILLISECONDS = 1000;
+
+export const pastTheRepeatPause = async (request: APIRequestContext): Promise<void> => {
+    await expect
+        .poll(async () => {
+            const [latest] = (await (await request.get('/api/v1/scans?limit=1')).json()) as Array<{ createdAt: string }>;
+
+            return latest ? Date.now() - Date.parse(latest.createdAt) : REPEAT_PAUSE_MILLISECONDS * 2;
+        })
+        .toBeGreaterThan(REPEAT_PAUSE_MILLISECONDS + 100);
+};
