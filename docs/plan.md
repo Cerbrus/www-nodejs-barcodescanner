@@ -16,11 +16,12 @@ In daily-use shape and running on the Pi:
 
 In this order, agreed with the owner on 2026-11-13:
 
-1. **Tests for the web app** (milestone 9): built, 195 tests and an end-to-end run; waits for the owner's release.
+1. **Tests for the web app** (milestone 9): done and released in 1.1.40.
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
 3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
-5. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
+5. **Remarks from inside the app** (milestone 11): waits for the owner's answers to the questions in [remarks-plan.md](remarks-plan.md).
+6. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
 
@@ -123,7 +124,7 @@ Done when: naming a typical new barcode takes one or two taps.
 
 ### 9. Tests for the web app: done 2026-11-14 00:26
 
-On branch `feature/web-app-tests`, not released yet: the owner releases it when satisfied with the coverage.
+Released in 1.1.40 on 2026-11-14 10:42, after the owner approved the coverage. The first release run failed in the end-to-end step and deployed nothing: the build runner is fast enough to scan the same code twice within the server's one-second repeat rule. The test now waits that second out.
 
 - Done 2026-11-13 23:10: a test runner for the web app, Vitest through Angular's own `unit-test` builder with happy-dom, so no browser is needed. `yarn product-front:test`, part of the `checks` job. The web app's build and serve targets use the `@angular/build` builders by name, which the test builder asks for.
 - Done 2026-11-14 00:26: 195 tests in 22 files, reaching 95% of the statements and 96% of the lines of the web app (`yarn product-front:test:coverage`). Services: the shopping store, the event stream, the update check, login guards and logout, push, every API call with its route and body, settings, saved data, appearance, the message adapter, the failed-change interceptor. The service worker, in a stand-in worker scope. Every page and component: list with its sheets, scan with a stand-in barcode reader, inbox, products, product page, history, log, login, sounds, System page for the owner, another account and login off, the shell with its banner and messages, naming prompt, new-product form, icon picker, autocomplete, tile and icon, the drawn barcodes, the app's start and its routes.
@@ -138,6 +139,11 @@ Requested by the owner on 2026-11-13.
 - Done 2026-11-13 21:19, released in 1.1.28: the System page in three groups (this device, account, management) and the sounds on a page of their own; 1.1.30 stacks the language and appearance rows on a phone.
 - Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
 - Later, said by the owner on 2026-11-13: the `ALLOWED_EMAILS` setting is to become an invite system. Not planned in detail yet.
+
+### 11. Remarks from inside the app: idea registered
+
+- Asked by the owner on 2026-11-14: give feedback from inside the app, as a bug report or a wish, by touching and holding an element, by right click, or from the settings page.
+- Worked out in [remarks-plan.md](remarks-plan.md): what a remark holds, the ways to open it, where remarks go, a sketch of the build, and eight questions for the owner. Nothing is built until those are answered.
 
 ### Smaller changes outside the milestones
 
