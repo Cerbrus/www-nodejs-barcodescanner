@@ -60,6 +60,9 @@ jobs:
             -   run: yarn product-front:test
             -   name: Run the built app in a browser
                 run: yarn e2e
+            -   name: Show the page of a failed browser test
+                if: failure()
+                run: cat /tmp/barcodescanner-e2e-results/*/error-context.md | head -200
             -   name: Test the hardware agent
                 run: python3 -m unittest discover -s apps/hardware-agent -p "test_*.py"
             -   name: Check the shell scripts
