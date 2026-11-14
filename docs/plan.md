@@ -20,7 +20,7 @@ In this order, agreed with the owner on 2026-11-13:
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
 3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
-5. **Remarks from inside the app** (milestone 11): waits for the owner's answers to the questions in [remarks-plan.md](remarks-plan.md).
+5. **Remarks from inside the app** (milestone 11): planned in [remarks-plan.md](remarks-plan.md); three choices are open.
 6. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
@@ -140,10 +140,11 @@ Requested by the owner on 2026-11-13.
 - Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
 - Later, said by the owner on 2026-11-13: the `ALLOWED_EMAILS` setting is to become an invite system. Not planned in detail yet.
 
-### 11. Remarks from inside the app: idea registered
+### 11. Remarks from inside the app: planned
 
-- Asked by the owner on 2026-11-14: give feedback from inside the app, as a bug report or a wish, by touching and holding an element, by right click, or from the settings page.
-- Worked out in [remarks-plan.md](remarks-plan.md): what a remark holds, the ways to open it, where remarks go, a sketch of the build, and eight questions for the owner. Nothing is built until those are answered.
+- Asked by the owner on 2026-11-14: give feedback from inside the app, as a bug report or a wish, from an element or from the settings page.
+- Worked out in [remarks-plan.md](remarks-plan.md). Decided on 2026-11-15: stored on the Pi with "send to GitHub" for the owner only, for every account, kinds bug, wish and note, no touch and hold, screenshots, also without a connection, a thank-you and no promise, the owner is told, issue templates on GitHub, and an agent that investigates what is sent to GitHub.
+- Still open, three choices: how to point at an element on the phone, how screenshots are made, and how far the agent may go by itself. Nothing is built until those are answered.
 
 ### Smaller changes outside the milestones
 
