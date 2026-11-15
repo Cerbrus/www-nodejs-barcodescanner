@@ -140,7 +140,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 - Barcodes are drawn in the browser by `BarcodeComponent`: EAN-13, EAN-8, and 12-digit codes padded to 13.
 - New products get their shop section from the first suggestion that carries a `sectionId` (see Connectors); without one, from keywords in the suggestions and the name (`new-item-form`).
 - Texts: `@ngx-translate`, Dutch by default and English, in `assets/i18n/`. Language and theme are stored in the browser.
-- Theme: every colour is a CSS variable in `styles.scss`. Dark follows the device unless the user picks light or dark, which sets `data-theme` on the page.
+- Theme: every colour is a CSS variable in `styles.css`. Dark follows the device unless the user picks light or dark, which sets `data-theme` on the page.
 - Addresses use the part after `#` (`/#/list`, `/#/inbox`). A notification's address then differs from the open page only after the `#`, which a browser treats as a jump inside the page instead of a new page load. An old address without `#` is rewritten at start.
 - `index.html` paints the page background in the right theme and the outline of the navigation bar before the scripts run, so a cold start or reload does not flash an empty screen.
 - Installable: `assets/manifest.webmanifest`, the home-screen icons and the titles in `index.html`.

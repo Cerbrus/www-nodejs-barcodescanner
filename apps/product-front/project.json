@@ -26,7 +26,7 @@
                     },
                     "apps/product-front/src/assets"
                 ],
-                "styles": ["apps/product-front/src/styles.scss"],
+                "styles": ["apps/product-front/src/styles.css"],
                 "scripts": []
             },
             "configurations": {

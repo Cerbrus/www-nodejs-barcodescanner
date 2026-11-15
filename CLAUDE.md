@@ -62,7 +62,7 @@ Don't start the serve commands from a session; ask the user to run them. The bui
 - Prettier: single quotes, 120 characters, 4-space indent, LF, no trailing commas, Angular parser for HTML. `yarn format` fixes it; `yarn lint:all` checks it.
 - ESLint: strict TypeScript (`no-any`, `explicit-member-accessibility`), ordered imports, blank lines between multi-line class members, max 75 lines per function.
 - Angular: prefix `app`, standalone components, signals over observables in components, `@ngx-translate` with EN and NL. Every visible text goes in both language files.
-- Styling: colours come from the CSS variables in `styles.scss`, which carry the light and dark theme. No hard-coded colours in components.
+- Styling: colours come from the CSS variables in `styles.css`, which carry the light and dark theme. No hard-coded colours in components.
 - NestJS: controller calls service, service uses TypeORM directly. No use-case classes, mappers or repository interfaces. Schema changes need a new migration; `synchronize` is off.
 - API layers: one controller, request type, entity or service per file. Imports point inward only (`api` to `core` to `data`); lint enforces it. Module files only wire things together.
 - Settings: read them through `AppConfig`; `process.env` is forbidden elsewhere.

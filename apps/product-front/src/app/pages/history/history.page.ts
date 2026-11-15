@@ -35,7 +35,7 @@ const REFRESH_DELAY_MILLISECONDS = 200;
 
             <div class="flex flex-col gap-1">
                 @for (scan of scans(); track scan.id) {
-                    <div class="card flex items-center gap-3 !py-2" [class.opacity-50]="scan.undoneAt">
+                    <div class="card flex items-center gap-3 py-2!" [class.opacity-50]="scan.undoneAt">
                         <i class="material-symbols-outlined muted">
                             {{ scan.source === 'phone' ? 'smartphone' : 'barcode_reader' }}
                         </i>

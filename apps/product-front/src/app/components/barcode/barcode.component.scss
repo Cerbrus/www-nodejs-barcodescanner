@@ -1,7 +1,7 @@
 @use 'sass:math';
 
 :host {
-    @apply inline-block;
+    display: inline-block;
 }
 
 $bars: 95;
@@ -14,31 +14,41 @@ $sidePaddingPercentage: math.div($sideMarginBars, $bars) * 100%;
 $separatorPercentage: math.div($separatorBars, $bars) * 100%;
 
 .barcode {
-    @apply relative w-full;
+    position: relative;
+    width: 100%;
 
     &-container {
-        @apply relative flex;
+        position: relative;
+        display: flex;
     }
 
     &-bars {
-        @apply flex h-full;
-        @apply pointer-events-none select-none;
+        display: flex;
+        height: 100%;
+        pointer-events: none;
+        user-select: none;
     }
 
     &-bar {
-        @apply flex grow;
+        display: flex;
+        flex-grow: 1;
     }
 
     .numeric {
         padding: 0 $sidePaddingPercentage;
         gap: $separatorPercentage;
-        @apply absolute bottom-0 w-full justify-around;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        justify-content: space-around;
     }
 }
 
 .numeric {
     font-family: OCR-B, sans-serif;
-    @apply flex flex-row items-end;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
 
     &.encoding {
         margin-right: $encodingMarginPercentage;
