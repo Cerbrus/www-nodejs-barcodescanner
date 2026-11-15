@@ -171,7 +171,7 @@ When the site's public name points at the router, some routers pass requests fro
 
 ## Updates, rollback, backup
 
-- **Update**: push to `master`; the Pi follows within about 5 minutes plus build time.
+- **Update**: push to `master`; the Pi follows within about 5 minutes plus build time. The barcode scanner and the card scanner share the Pi and each have an updater every 5 minutes; both take the lock `/run/lock/docker-update.lock` around pulling, restarting and pruning, so one never prunes while the other pulls. Without it, Docker's image store broke the other's pull with "lease does not exist" (seen 2026-11-15). An updater that waits more than ten minutes for the lock skips that round.
 - **Check**: the System page or `curl http://127.0.0.1:3020/api/v1/health` for the running version, `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
 - **Rollback**: set `IMAGE_TAG=<version>` in `.env`, for example `1.0.20`, and run the updater. Images built before version numbers existed are only tagged with their commit hash. Database migrations only go forward, so restore the database backup when rolling back past a migration.
 - **Backup**: see the next section. The log files are not backed up.
