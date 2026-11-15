@@ -217,6 +217,7 @@ export class RemarksPage {
         return this.api.getRemarks().pipe(
             tap((answer) => {
                 this.answer.set(answer);
+                this.remarks.count(answer.remarks);
                 this.loaded.set(true);
             }),
             catchError(() => of(undefined))

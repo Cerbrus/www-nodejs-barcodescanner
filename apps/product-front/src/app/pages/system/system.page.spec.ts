@@ -174,6 +174,16 @@ describe('SystemPage', () => {
         expect(remarks.draft()).toBeUndefined();
     });
 
+    it('shows how many open remarks there are on the Feedback row, and nothing when there are none', async () => {
+        await open(OWNER);
+        expect(page.querySelector('a.row.link .count')).toBeNull();
+
+        remarks.ready.set(3);
+        await settle();
+
+        expect(texts(page, 'a.row.link .count')).toEqual(['3']);
+    });
+
     it('shows how many remarks wait for a connection, and names the list "Feedback" for the owner', async () => {
         remarks.waiting.set(2);
         await open(OWNER);

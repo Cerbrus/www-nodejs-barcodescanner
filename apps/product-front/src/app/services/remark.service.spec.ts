@@ -18,7 +18,7 @@ const noConnection = (): HttpErrorResponse => new HttpErrorResponse({ status: 0 
 describe('RemarkService', () => {
     let events: FakeEvents;
     let online: boolean;
-    const api = { getHealth: vi.fn(), sendRemark: vi.fn() };
+    const api = { getHealth: vi.fn(), sendRemark: vi.fn(), getRemarks: vi.fn() };
 
     const create = (): RemarkService => {
         TestBed.configureTestingModule({
@@ -51,6 +51,7 @@ describe('RemarkService', () => {
         vi.spyOn(navigator, 'onLine', 'get').mockImplementation(() => online);
         api.getHealth.mockReturnValue(of({ status: 'ok', version: '1.1.40', commit: '5ed181e' }));
         api.sendRemark.mockReturnValue(of({ id: 1 }));
+        api.getRemarks.mockReturnValue(of({ remarks: [], canSendToGitHub: false }));
         window.location.hash = '#/list';
     });
 
@@ -169,6 +170,33 @@ describe('RemarkService', () => {
         });
 
         expect(send(service)).toBe('kept');
+    });
+
+    it('counts the open remarks that are not on GitHub yet, and keeps them up to date', () => {
+        const remark = (state: string, issueUrl?: string): object => ({ state, issueUrl });
+        api.getRemarks.mockReturnValue(of({ remarks: [remark('open'), remark('open'), remark('closed'), remark('open', 'https://example.test/1')] }));
+        const service = create();
+        expect(service.ready()).toBe(2);
+
+        api.getRemarks.mockReturnValue(of({ remarks: [remark('open')] }));
+        events.emit('remark', { id: 5, fromOwner: false });
+        expect(service.ready()).toBe(1);
+
+        api.getRemarks.mockReturnValue(of({ remarks: [] }));
+        events.resumed.next();
+        expect(service.ready()).toBe(0);
+
+        service.count([remark('open'), remark('closed')] as never);
+        expect(service.ready()).toBe(1);
+    });
+
+    it('keeps the last count when the list cannot be loaded', () => {
+        api.getRemarks.mockReturnValue(of({ remarks: [{ state: 'open' }] }));
+        const service = create();
+        api.getRemarks.mockReturnValue(throwError(noConnection));
+        events.emit('remark', { id: 6 });
+
+        expect(service.ready()).toBe(1);
     });
 
     it('still sends without a version when the server did not say which one runs', () => {

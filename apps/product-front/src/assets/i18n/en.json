@@ -231,6 +231,7 @@
         "title": "Feedback",
         "listTitle": "Feedback",
         "mine": "My feedback",
+        "ready": "{count, plural, one {# open remark} other {# open remarks}}",
         "write": "Write",
         "point": "Point",
         "hint": "Point: then tap the part you mean. Quicker: tap a part with two fingers, or right-click it.",

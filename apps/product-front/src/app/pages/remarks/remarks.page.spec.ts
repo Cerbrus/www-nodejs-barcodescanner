@@ -93,6 +93,7 @@ describe('RemarksPage', () => {
         answer.next({ remarks: [], canSendToGitHub: false });
         await settle();
         expect(texts(page, '.empty')).toEqual(['remark.empty']);
+        expect(remarks.count).toHaveBeenCalledWith([]);
     });
 
     it('shows another account its remarks without any owner buttons or account names', async () => {

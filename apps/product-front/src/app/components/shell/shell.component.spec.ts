@@ -60,6 +60,13 @@ describe('ShellComponent', () => {
         expect(setAppBadge).toHaveBeenCalledWith(2);
     });
 
+    it('shows the number of open remarks on the system tab', () => {
+        remarks.ready.set(4);
+        open();
+
+        expect(Array.from(page.querySelectorAll('a.tab'), (tab) => texts(tab, '.tab-badge'))).toEqual([[], [], [], [], ['4']]);
+    });
+
     it('clears the number on the app icon when the inbox is empty, and leaves it alone before the data is loaded', () => {
         store.loaded.set(false);
         open();

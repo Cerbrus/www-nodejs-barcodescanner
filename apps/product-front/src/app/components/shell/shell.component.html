@@ -48,6 +48,9 @@
                 @if (link.route === '/inbox' && inboxCount()) {
                     <span class="tab-badge">{{ inboxCount() }}</span>
                 }
+                @if (link.route === '/system' && remarks.ready()) {
+                    <span class="tab-badge">{{ remarks.ready() }}</span>
+                }
             </span>
             <span>{{ link.label | translate }}</span>
         </a>
