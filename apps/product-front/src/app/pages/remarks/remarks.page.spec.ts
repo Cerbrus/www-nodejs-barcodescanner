@@ -184,49 +184,51 @@ describe('RemarksPage', () => {
         expect(buttons(0)).toEqual(['check remark.close', 'block remark.reject']);
     });
 
-    it('shows exactly what would be sent, warns that it is public, and sends nothing extra unless ticked', async () => {
+    it('shows exactly what would be sent, warns that it is public, and asks the agent to look at it unless unticked', async () => {
         await open(OWNER, [remark(1)]);
         await press('remark.toGitHub');
 
-        expect(api.getIssueDraft).toHaveBeenCalledWith(1, { includeDevice: false, includeAccount: false, investigate: false });
+        expect(api.getIssueDraft).toHaveBeenCalledWith(1, { includeDevice: false, includeAccount: false, investigate: true });
         expect(texts(page, 'app-sheet .muted.text-sm')).toEqual(['remark.publicWarning']);
         expect(texts(page, '.preview .font-semibold')).toEqual(['Remark 1']);
         expect(texts(page, '.preview pre')[0]).toContain('### What happened');
-        expect(texts(page, 'label.option span')).toEqual(['remark.option.includeDevice', 'remark.option.includeAccount', 'remark.option.investigate']);
+        expect(texts(page, 'label.option span')).toEqual(['remark.option.investigate', 'remark.option.includeDevice', 'remark.option.includeAccount']);
+        const boxes = Array.from(page.querySelectorAll('label.option input')) as Array<HTMLInputElement>;
+        expect(boxes.map((box) => box.checked)).toEqual([true, false, false]);
     });
 
     it('shows the preview again after a tick, and sends with what was ticked', async () => {
         await open(OWNER, [remark(1)]);
         await press('remark.toGitHub');
-        const tick = async (index: number): Promise<void> => {
+        const tick = async (index: number, checked = true): Promise<void> => {
             const box = page.querySelectorAll('label.option input')[index] as HTMLInputElement;
-            box.checked = true;
+            box.checked = checked;
             box.dispatchEvent(new Event('change'));
             await settle();
         };
 
-        await tick(0);
-        await tick(2);
-        expect(api.getIssueDraft).toHaveBeenLastCalledWith(1, { includeDevice: true, includeAccount: false, investigate: true });
+        await tick(1);
+        await tick(0, false);
+        expect(api.getIssueDraft).toHaveBeenLastCalledWith(1, { includeDevice: true, includeAccount: false, investigate: false });
 
         await press('remark.sendToGitHub');
 
-        expect(api.sendRemarkToGitHub).toHaveBeenCalledWith(1, { includeDevice: true, includeAccount: false, investigate: true });
+        expect(api.sendRemarkToGitHub).toHaveBeenCalledWith(1, { includeDevice: true, includeAccount: false, investigate: false });
         expect(page.querySelector('app-sheet')).toBeNull();
         expect(TestBed.inject(ToastService).toasts().map((toast) => toast.text)).toEqual(['remark.sentToGitHub']);
     });
 
-    it('starts each "to GitHub" with nothing ticked', async () => {
+    it('starts each "to GitHub" with only the agent ticked', async () => {
         await open(OWNER, [remark(1), remark(2)]);
         await press('remark.toGitHub');
-        const box = page.querySelector('label.option input') as HTMLInputElement;
+        const box = page.querySelectorAll('label.option input')[1] as HTMLInputElement;
         box.checked = true;
         box.dispatchEvent(new Event('change'));
         await settle();
         await press('common.cancel');
         await press('remark.toGitHub', page.querySelectorAll('article')[1]);
 
-        expect(api.getIssueDraft).toHaveBeenLastCalledWith(2, { includeDevice: false, includeAccount: false, investigate: false });
+        expect(api.getIssueDraft).toHaveBeenLastCalledWith(2, { includeDevice: false, includeAccount: false, investigate: true });
     });
 
     it('keeps the sheet open when GitHub refuses, so the owner can try again', async () => {

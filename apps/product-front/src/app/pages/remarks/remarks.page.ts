@@ -15,7 +15,7 @@ import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 
 const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
-const NOTHING_EXTRA: IssueOptions = { includeDevice: false, includeAccount: false, investigate: false };
+const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: false, investigate: true };
 
 @Component({
     selector: 'app-remarks-page',
@@ -176,10 +176,10 @@ export class RemarksPage {
     protected readonly remarks = inject(RemarkService);
     protected readonly auth = inject(AuthService);
     protected readonly icons = KIND_ICONS;
-    protected readonly optionNames: Array<keyof IssueOptions> = ['includeDevice', 'includeAccount', 'investigate'];
+    protected readonly optionNames: Array<keyof IssueOptions> = ['investigate', 'includeDevice', 'includeAccount'];
     protected readonly loaded = signal(false);
     protected readonly sending = signal<Remark | undefined>(undefined);
-    protected readonly options = signal<IssueOptions>(NOTHING_EXTRA);
+    protected readonly options = signal<IssueOptions>(DEFAULT_OPTIONS);
     protected readonly draft = signal<IssueDraft | undefined>(undefined);
     protected readonly busy = signal(false);
     protected readonly rejecting = signal<number | undefined>(undefined);
@@ -231,7 +231,7 @@ export class RemarksPage {
     }
 
     protected prepare(remark: Remark): void {
-        this.options.set(NOTHING_EXTRA);
+        this.options.set(DEFAULT_OPTIONS);
         this.sending.set(remark);
         this.loadDraft(remark);
     }
