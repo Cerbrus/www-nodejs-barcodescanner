@@ -224,6 +224,7 @@
         "needsSound": "Voeg minstens één blok toe dat geluid maakt.",
         "save": "Opslaan",
         "saveAsNew": "Als nieuw opslaan",
+        "copySuffix": "(kopie)",
         "delete": "Verwijderen",
         "inUse": "In gebruik",
         "moveUp": "Omhoog",

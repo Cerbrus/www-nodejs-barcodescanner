@@ -1,14 +1,19 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    Injector,
+    afterNextRender,
     computed,
+    effect,
     inject,
     input,
     linkedSignal,
     output,
-    signal
+    signal,
+    viewChild
 } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, finalize, tap } from 'rxjs';
 
 import { BLOCK_KINDS, FeedbackSettings, MAX_SOUND_MILLISECONDS, SOUND_RATES, Sound, SoundBlock } from '../../models';
@@ -21,6 +26,8 @@ export interface SoundSaved {
     soundId?: string;
     copy?: boolean;
 }
+
+const MAX_NAME_LENGTH = 40;
 
 const DURATIONS = [
     10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900,
@@ -81,6 +88,7 @@ export class SoundEditorComponent {
     public readonly sound = input<Sound>();
     public readonly shownName = input('');
     public readonly inUse = input(false);
+    public readonly selectName = input(false);
     public readonly saved = output<SoundSaved>();
     public readonly closed = output<void>();
 
@@ -88,6 +96,7 @@ export class SoundEditorComponent {
     protected readonly rates = SOUND_RATES;
     protected readonly maxMilliseconds = MAX_SOUND_MILLISECONDS;
     protected readonly durations = DURATIONS;
+    protected readonly maxNameLength = MAX_NAME_LENGTH;
     protected readonly name = linkedSignal(() => this.shownName());
     protected readonly blocks = linkedSignal<Array<SoundBlock>>(() => this.sound()?.blocks ?? [NEW_BLOCK.beep]);
     protected readonly busy = signal(false);
@@ -103,6 +112,24 @@ export class SoundEditorComponent {
     protected readonly canSave = computed(() => !this.problem() && (this.name().trim() || this.sound()));
 
     private readonly api = inject(ApiService);
+    private readonly translate = inject(TranslateService);
+    private readonly injector = inject(Injector);
+    private readonly nameField = viewChild.required<ElementRef<HTMLInputElement>>('nameField');
+
+    constructor() {
+        effect(() => {
+            if (this.selectName() && this.sound()) {
+                afterNextRender(
+                    () => {
+                        const field = this.nameField().nativeElement;
+                        field.focus();
+                        field.select();
+                    },
+                    { injector: this.injector }
+                );
+            }
+        });
+    }
 
     protected durationStep(ms: number): number {
         const closest = DURATIONS.reduce((best, duration) =>
@@ -150,7 +177,9 @@ export class SoundEditorComponent {
         if (!sound) {
             this.finish(this.api.createSound(name, this.blocks()), true);
         } else if (asNew) {
-            this.finish(this.api.createSound(name, this.blocks()), true, true);
+            const suffix = this.translate.instant('sound.copySuffix') as string;
+            const copyName = `${name.slice(0, MAX_NAME_LENGTH - suffix.length - 1)} ${suffix}`;
+            this.finish(this.api.createSound(copyName, this.blocks()), true, true);
         } else {
             const keepName = !sound.name && name === this.shownName();
             this.finish(this.api.changeSound(sound.id, keepName ? undefined : name, this.blocks()), false);

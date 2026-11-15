@@ -7,7 +7,7 @@
         id="sound-name"
         class="field"
         type="text"
-        maxlength="40"
+        [attr.maxlength]="maxNameLength"
         [value]="name()"
         (input)="name.set(nameField.value)"
     />

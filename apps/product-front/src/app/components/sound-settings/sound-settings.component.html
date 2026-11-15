@@ -124,6 +124,7 @@
         [sound]="edit.sound"
         [shownName]="edit.sound ? (edit.sound.name ?? ('sound.name.' + edit.sound.id | translate)) : ''"
         [inUse]="edit.sound ? inUse(edit.sound.id) : false"
+        [selectName]="edit.copy ?? false"
         (saved)="saved($event)"
         (closed)="editing.set(undefined)"
     />

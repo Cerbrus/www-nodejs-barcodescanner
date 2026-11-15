@@ -134,8 +134,32 @@ describe('SoundEditorComponent', () => {
         click(page, 'button.save-new');
         await settle();
 
-        expect(api.createSound).toHaveBeenCalledWith('Twee tikken', DOUBLE.blocks);
+        expect(api.createSound).toHaveBeenCalledWith('Twee tikken sound.copySuffix', DOUBLE.blocks);
         expect([saved[0].soundId, saved[0].copy]).toEqual(['made1234', true]);
+    });
+
+    it('keeps a copy name within 40 characters', async () => {
+        await open(DOUBLE, 'x'.repeat(40));
+        click(page, 'button.save-new');
+        await settle();
+
+        expect(api.createSound).toHaveBeenCalledWith(`${'x'.repeat(23)} sound.copySuffix`, DOUBLE.blocks);
+    });
+
+    it('puts the cursor in the name, with the whole name selected, when asked to', async () => {
+        fixture = TestBed.createComponent(SoundEditorComponent);
+        fixture.componentRef.setInput('sound', DOUBLE);
+        fixture.componentRef.setInput('shownName', 'Twee tikken (kopie)');
+        fixture.componentRef.setInput('selectName', true);
+        page = fixture.nativeElement as HTMLElement;
+        document.body.appendChild(page);
+        await settle();
+        await settle();
+
+        const name = page.querySelector('#sound-name') as HTMLInputElement;
+        expect(document.activeElement).toBe(name);
+        expect([name.selectionStart, name.selectionEnd]).toEqual([0, 'Twee tikken (kopie)'.length]);
+        page.remove();
     });
 
     it('needs a name for a new sound, and has no copy or delete', async () => {

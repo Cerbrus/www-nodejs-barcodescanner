@@ -13,6 +13,7 @@ const NO_SOUND = 'none';
 interface Editing {
     sound?: Sound;
     forEvent?: string;
+    copy?: boolean;
 }
 
 @Component({
@@ -110,7 +111,7 @@ export class SoundSettingsComponent {
     protected saved({ settings, soundId, copy }: SoundSaved): void {
         const event = this.editing()?.forEvent;
         const copied = copy ? settings.sounds.find((sound) => sound.id === soundId) : undefined;
-        this.editing.set(copied ? { sound: copied } : undefined);
+        this.editing.set(copied ? { sound: copied, copy: true } : undefined);
         this.settings.set(settings);
         if (event && soundId) {
             this.choose(event, soundId);

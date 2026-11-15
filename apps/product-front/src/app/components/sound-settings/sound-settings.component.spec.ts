@@ -163,6 +163,9 @@ describe('SoundSettingsComponent', () => {
 
         expect(page.querySelector('app-sound-editor')).not.toBeNull();
         expect((page.querySelector('#sound-name') as HTMLInputElement).value).toBe('Fanfare 2');
+        expect(api.createSound).toHaveBeenCalledWith('Fanfare sound.copySuffix', [
+            { kind: 'trill', ms: 500, rate: 12 }
+        ]);
         expect(texts(page, '.row.preset .font-semibold')).toEqual(['sound.name.beep', 'Fanfare', 'Fanfare 2']);
     });
 });

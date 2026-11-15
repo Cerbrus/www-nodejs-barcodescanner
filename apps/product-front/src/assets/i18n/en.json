@@ -224,6 +224,7 @@
         "needsSound": "Add at least one block that makes sound.",
         "save": "Save",
         "saveAsNew": "Save as new",
+        "copySuffix": "(copy)",
         "delete": "Delete",
         "inUse": "In use",
         "moveUp": "Up",
