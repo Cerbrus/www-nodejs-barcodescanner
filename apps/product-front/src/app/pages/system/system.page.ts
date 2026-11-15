@@ -127,6 +127,11 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                     }
                     <i class="material-symbols-outlined muted">chevron_right</i>
                 </a>
+                <a class="row link" routerLink="/changelog">
+                    <i class="material-symbols-outlined">new_releases</i>
+                    <span class="label">{{ 'changelog.title' | translate }}</span>
+                    <i class="material-symbols-outlined muted">chevron_right</i>
+                </a>
             </div>
 
             @if (auth.state()?.enabled) {

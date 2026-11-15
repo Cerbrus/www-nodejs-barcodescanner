@@ -54,6 +54,10 @@ export const appRoutes: Array<Route> = [
                 loadComponent: () => import('../pages/remarks/remarks.page').then((m) => m.RemarksPage)
             },
             {
+                path: 'changelog',
+                loadComponent: () => import('../pages/changelog/changelog.page').then((m) => m.ChangelogPage)
+            },
+            {
                 path: 'system',
                 loadComponent: () => import('../pages/system/system.page').then((m) => m.SystemPage)
             }

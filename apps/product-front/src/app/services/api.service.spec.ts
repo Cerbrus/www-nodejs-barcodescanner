@@ -23,6 +23,14 @@ describe('ApiService', () => {
 
     afterEach(() => server.verify());
 
+    it('reads the changelog from the web app\'s own files', () => {
+        api.getChangelog().subscribe();
+
+        const request = server.expectOne('assets/changelog.json');
+        expect(request.request.method).toBe('GET');
+        request.flush([]);
+    });
+
     it('builds its addresses from the settings', () => {
         expect(api.baseUrl).toBe('https://shop.example/api/v1');
         expect(api.iconsUrl).toBe('https://shop.example/icons');
