@@ -53,6 +53,11 @@ describe('RemarksPage', () => {
         await settle();
     };
 
+    const toggle = async (index: number): Promise<void> => {
+        (page.querySelectorAll('article')[index].querySelector('button.toggle') as HTMLElement).click();
+        await settle();
+    };
+
     beforeEach(() => {
         vi.clearAllMocks();
         events = fakeEvents();
@@ -81,6 +86,24 @@ describe('RemarksPage', () => {
         expect(texts(page, 'article .where')[0]).toBe('#/list · Melk · guest@example.com');
         expect(texts(page, 'article .state')).toEqual(['remark.closed']);
         expect(page.querySelectorAll('article.opacity-60').length).toBe(1);
+    });
+
+    it('collapses a handled remark to its message, and opens it again on request', async () => {
+        await open(OWNER, [remark(1), remark(2, { state: 'closed', issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
+
+        expect(texts(page, 'article .text')).toEqual(['Remark 1', 'Remark 2']);
+        expect(texts(page, 'article .where')).toEqual(['#/list · guest@example.com']);
+        expect(buttons(1)).toEqual(['expand_more']);
+        expect(page.querySelectorAll('article')[1].querySelector('a.issue')).toBeNull();
+        expect(page.querySelectorAll('button.toggle').length).toBe(1);
+
+        await toggle(1);
+        expect(texts(page, 'article .where').length).toBe(2);
+        expect(buttons(1)).toEqual(['expand_less', 'undo remark.reopen']);
+        expect(page.querySelectorAll('article')[1].querySelector('button.toggle')?.getAttribute('aria-expanded')).toBe('true');
+
+        await toggle(1);
+        expect(texts(page, 'article .where').length).toBe(1);
     });
 
     it('says loading, then that there is no feedback yet', async () => {
@@ -117,6 +140,7 @@ describe('RemarksPage', () => {
     it('lets the owner mark a remark as handled and reopen it', async () => {
         await open(OWNER, [remark(1), remark(2, { state: 'closed' })]);
         await press('remark.close');
+        await toggle(1);
         await press('remark.reopen');
 
         expect(api.setRemarkState.mock.calls).toEqual([

@@ -256,6 +256,8 @@
         "empty": "Nog geen feedback",
         "closed": "afgehandeld",
         "close": "Afhandelen",
+        "expand": "Details tonen",
+        "collapse": "Details verbergen",
         "reopen": "Heropenen",
         "reject": "Afwijzen",
         "rejectConfirm": "Deze feedback afwijzen? Hij verdwijnt uit de lijst.",

@@ -9,7 +9,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 - **Shopping list**: tiles grouped by shop section, with icon, quantity and note. Tap to check off, tap a recent item to put it back, search to add by hand, remove what should not come back.
 - **Phone**: camera scanning, installable on the home screen, light and dark theme, Dutch and English, push notification when the handheld scanner reads something unknown.
 - **Sound**: a buzzer at the scanner beeps the result of each scan; which sound for which result is chosen in the app.
-- **Feedback**: report a bug, a wish or a note from inside the app, about the part you point at, also the bottom menu (right click, or tap the active tab while pointing); the owner can send one on to GitHub as an issue, where an agent can investigate it. A number on the System tab shows the owner how many remarks are still open. A remark can be rejected, which hides it.
+- **Feedback**: report a bug, a wish or a note from inside the app, about the part you point at, also the bottom menu (right click, or tap the active tab while pointing); the owner can send one on to GitHub as an issue, where an agent can investigate it. A number on the System tab shows the owner how many remarks are still open. A handled remark collapses to its message. A remark can be rejected, which hides it.
 - **Oversight**: scan history with undo, a live system log, and a page per product with its barcodes.
 - **Runs itself**: the Pi pulls new versions by itself and pushes an hourly database backup to a private repository.
 
