@@ -256,6 +256,8 @@
         "empty": "No feedback yet",
         "closed": "handled",
         "close": "Mark as handled",
+        "expand": "Show details",
+        "collapse": "Hide details",
         "reopen": "Reopen",
         "reject": "Reject",
         "rejectConfirm": "Reject this feedback? It disappears from the list.",
