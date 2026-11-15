@@ -4,6 +4,7 @@ import { AppConfig } from '../../config/app.config';
 import { AHConnector } from '../connectors/ah.connector';
 import { ProductConnector, ProductSuggestion } from '../connectors/connector.model';
 import { OpenFoodFactsConnector } from '../connectors/off.connector';
+import { sectionForCategory } from '../rules/shop-sections';
 
 export interface LookupResult {
     suggestions: Array<ProductSuggestion>;
@@ -36,7 +37,10 @@ export class ConnectorService {
 
     private async lookup(connector: ProductConnector, code: string): Promise<ConnectorAnswer> {
         try {
-            return { connectorId: connector.id, suggestion: await connector.lookup(code) };
+            const suggestion = await connector.lookup(code);
+            const sectionId = sectionForCategory(suggestion?.category);
+
+            return { connectorId: connector.id, suggestion: suggestion && sectionId ? { ...suggestion, sectionId } : suggestion };
         } catch (error) {
             this.logger.warn(`Connector ${connector.id} failed for ${code}: ${error}`);
 

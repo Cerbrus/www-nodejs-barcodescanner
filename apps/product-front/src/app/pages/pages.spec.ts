@@ -180,6 +180,25 @@ describe('the smaller pages', () => {
             expect(page.querySelectorAll('.card.opacity-50').length).toBe(1);
         });
 
+        it('marks a scan whose barcode is unnamed and whose lookup failed, and opens the naming prompt for it', async () => {
+            store.inbox.set([
+                { code: '8710400000002', scanCount: 1, lookupFailed: ['ah', 'off'] },
+                { code: '8710400000003', scanCount: 1, lookupFailed: [] }
+            ]);
+            api.getScans.mockReturnValue(of([scan(1, 'added', { catalogItemId: 1 }), scan(2, 'needs_name'), scan(3, 'needs_name')]));
+            const fixture = await open(HistoryPage);
+
+            const marked = page.querySelectorAll('button.lookup-failed');
+            expect(marked.length).toBe(1);
+            expect(marked[0].getAttribute('aria-label')).toBe('history.lookupFailed');
+            expect(page.querySelector('app-naming-prompt')).toBeNull();
+
+            click(page, 'button.lookup-failed');
+            await settle(fixture);
+            expect(api.getBarcode).toHaveBeenCalledWith('8710400000002');
+            expect(page.querySelector('app-naming-prompt')).not.toBeNull();
+        });
+
         it('says loading, then that there are no scans, and offers no undo then', async () => {
             const fixture = TestBed.createComponent(HistoryPage);
             page = fixture.nativeElement as HTMLElement;

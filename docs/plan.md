@@ -81,8 +81,7 @@ Open question: the page once froze on the iPhone after an unknown camera scan. T
 ### 5. Catalog and icons: mostly done
 
 - Done 2026-11-12 18:49: seed of 13 sections and 358 items with icon and emoji and a starting list; icon rendering with fallback to emoji and letter tile; icon picker; section guess for new products from keywords in the connector suggestions and the name.
-- Open: 8 items have no fitting emoji (Vijgen, Kaneel, Tofu, Aluminium Folie, Vershoudfolie, Condooms, Wattenschijfjes, Wattenstaafjes) and rely on their icon file.
-- Open: the section guess is a short keyword list in the web app. A proper mapping from connector categories to sections would guess better.
+- Done 2026-11-15 14:35 (milestone 12, step 1): the 8 items without an emoji got the approved ones, and the shop's category picks the section of a new product before the keyword list does.
 
 Done when: naming a typical new barcode takes one or two taps.
 
@@ -90,7 +89,7 @@ Done when: naming a typical new barcode takes one or two taps.
 
 - Done 2026-11-12 19:09: log file that survives restarts, hourly database backup, reconnecting pages.
 - Open: use it for two weeks and fix what annoys. Since 2026-11-15 most of this arrives through the feedback button (milestone 11).
-- Done 2026-11-13 01:52, released in 1.1.11: the naming prompt shows which lookup source gave no answer and can ask again. Not done: marking such scans on the history page (in "What comes next").
+- Done 2026-11-13 01:52, released in 1.1.11: the naming prompt shows which lookup source gave no answer and can ask again. Marking such scans on the history page followed in milestone 12, step 1.
 - Open: a test run of the restore procedure on another machine. A run of `install.sh` on a fresh Pi is not planned: there is no spare Pi.
 
 - Done 2026-11-13 00:32: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. The owner confirmed on 2026-11-13 the login inside the installed iPhone app and a handheld scan with login on, and removed the proxy's access list.
@@ -169,9 +168,11 @@ What the agent built from the owner's feedback, each reviewed, finished and land
 | 1.1.65 | #26 | "Let the agent look at it" first and ticked | Nx cache bug of the changelog fixed |
 | 1.1.67 | #25 | actions under a menu, Ctrl+Enter sends, a question when closing with text | one action shows as a button; Handle in the menu; plainer close question |
 
-### 12. Names, sections and variants: planned
+### 12. Names, sections and variants: started
 
 Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. Four steps: small leftovers and the section from the shop's category; variants on the list; naming rules; an AI suggestion behind the rules.
+
+- Done 2026-11-15 14:35, on branch `feature/naming-step-1`, not released: step 1. The server maps the shop's category to a section (`core/rules/shop-sections.ts`) and adds it to each suggestion as `sectionId`; the new-product form takes it before the keyword guess. The history page marks scans of unnamed barcodes whose lookup failed and opens the naming prompt for them. The eight products without an emoji get the approved ones (migration, only where none was chosen, and the seed file). The hardware agent no longer sends `source`. Suggestions stored before this keep using the keyword guess.
 
 ### Smaller changes outside the milestones
 

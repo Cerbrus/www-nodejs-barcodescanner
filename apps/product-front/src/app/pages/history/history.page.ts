@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, debounceTime, startWith, switchMap, tap } from 'rxjs';
 
+import { CONNECTORS, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
 import { Scan } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
@@ -15,7 +16,7 @@ const REFRESH_DELAY_MILLISECONDS = 200;
 @Component({
     selector: 'app-history-page',
     standalone: true,
-    imports: [DatePipe, RouterLink, TranslateModule],
+    imports: [DatePipe, NamingPromptComponent, RouterLink, TranslateModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -46,6 +47,17 @@ const REFRESH_DELAY_MILLISECONDS = 200;
                                 · {{ scan.createdAt | date: 'd MMM HH:mm:ss' }}
                             </span>
                         </span>
+                        @if (failedSources(scan); as sources) {
+                            <button
+                                type="button"
+                                class="btn lookup-failed"
+                                [title]="'history.lookupFailed' | translate: { sources }"
+                                [attr.aria-label]="'history.lookupFailed' | translate: { sources }"
+                                (click)="namingCode.set(scan.code)"
+                            >
+                                <i class="material-symbols-outlined">cloud_off</i>
+                            </button>
+                        }
                         <span class="result" [class]="scan.result">
                             {{ 'history.result.' + (scan.undoneAt ? 'undone' : scan.result) | translate }}
                         </span>
@@ -55,16 +67,22 @@ const REFRESH_DELAY_MILLISECONDS = 200;
                 }
             </div>
         </div>
+
+        @if (namingCode(); as code) {
+            <app-naming-prompt [code]="code" (closed)="namingCode.set(undefined)" />
+        }
     `,
     styles: `
         .result { padding: 2px 8px; border-radius: 8px; background: var(--line); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
         .result.added, .result.incremented { background: color-mix(in srgb, var(--accent) 22%, transparent); }
         .result.needs_name { background: var(--warning); color: var(--warning-text); }
+        .lookup-failed { padding: 6px; border-color: var(--warning); background: var(--warning); color: var(--warning-text); }
     `
 })
 export class HistoryPage {
     protected readonly scans = signal<Array<Scan>>([]);
     protected readonly loaded = signal(false);
+    protected readonly namingCode = signal<string | undefined>(undefined);
     protected readonly canUndo = computed(() => this.scans().some((scan) => !scan.undoneAt && scan.result !== 'ignored'));
 
     private readonly api = inject(ApiService);
@@ -80,6 +98,12 @@ export class HistoryPage {
                 takeUntilDestroyed()
             )
             .subscribe();
+    }
+
+    protected failedSources(scan: Scan): string | undefined {
+        const barcode = this.store.inbox().find((unnamed) => unnamed.code === scan.code);
+
+        return barcode?.lookupFailed?.map((connectorId) => CONNECTORS[connectorId]?.name ?? connectorId).join(', ') || undefined;
     }
 
     protected itemName(scan: Scan): string | undefined {

@@ -44,7 +44,7 @@ A second read of the same barcode within 1 second is ignored. A buzzer at the sc
 
 1. The prompt shows the barcode and every connector suggestion (title, brand, category, photo, and the logo of the source it came from). When a source gave no answer, the prompt says which one and offers to try again. Tapping a suggestion copies its title into the search field and marks that suggestion with a coloured border and a check mark.
 2. The user picks an existing catalog item from the search field, which lists matches while typing.
-3. If no item fits, the user chooses "new product" in the same list and fills in the form: name, shop section, icon from a visual picker, emoji. The section is guessed from the suggestions and the name.
+3. If no item fits, the user chooses "new product" in the same list and fills in the form: name, shop section, icon from a visual picker, emoji. The section comes from the shop's category when a suggestion has one the app knows, and is otherwise guessed from the suggestions and the name.
 4. "Later" leaves the barcode in the inbox. "Cancel scan" discards the waiting scans and removes the barcode from the inbox.
 5. The mapping is saved. Every later scan of this barcode is automatic.
 
@@ -81,7 +81,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 ### UC-9 Scan history
 
-A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). It also undoes the last scan, and it is the debugging view.
+A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). It also undoes the last scan, and it is the debugging view. A scan of a barcode that is still unnamed and whose lookup failed at a source carries a warning icon; tapping it opens the naming prompt, which can ask that source again.
 
 ### UC-10 Hands-off updates
 

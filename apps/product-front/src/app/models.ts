@@ -27,6 +27,7 @@ export interface ProductSuggestion {
     title: string;
     brand?: string;
     category?: string;
+    sectionId?: string;
     imageUrl?: string;
 }
 

@@ -305,7 +305,7 @@ class StatusReporter:
 
 
 def post_scan(code, scanned_at=None):
-    payload = {'code': code, 'source': 'handheld'}
+    payload = {'code': code}
     if scanned_at:
         payload['scannedAt'] = datetime.fromtimestamp(scanned_at, timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
     with post_json('/scans', payload) as response:

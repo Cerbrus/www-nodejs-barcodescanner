@@ -57,6 +57,7 @@
                 submitIcon="add_link"
                 [initialName]="name"
                 [hint]="suggestionText()"
+                [shopSectionId]="shopSectionId()"
                 [submitLabel]="'naming.createAndLink' | translate"
                 (created)="choose($event)"
                 (cancelled)="newName.set(undefined)"

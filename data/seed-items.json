@@ -555,7 +555,8 @@
             "name": "Vijgen",
             "sectionId": "fruit-groenten",
             "icon": "figs",
-            "custom": false
+            "custom": false,
+            "emoji": "🍇"
         },
         {
             "name": "Watermeloen",
@@ -1226,7 +1227,8 @@
             "name": "Kaneel",
             "sectionId": "ingredienten-kruiden",
             "icon": "cinnamon",
-            "custom": false
+            "custom": false,
+            "emoji": "🪵"
         },
         {
             "name": "Ketchup",
@@ -1659,7 +1661,8 @@
             "name": "Tofu",
             "sectionId": "graanproducten",
             "icon": "tofu",
-            "custom": false
+            "custom": false,
+            "emoji": "🧈"
         },
         {
             "name": "Chips",
@@ -2092,7 +2095,8 @@
             "name": "Aluminium Folie",
             "sectionId": "huishouden",
             "icon": "aluminum_foil",
-            "custom": false
+            "custom": false,
+            "emoji": "🥡"
         },
         {
             "name": "Baby voeding",
@@ -2245,7 +2249,8 @@
             "name": "Vershoudfolie",
             "sectionId": "huishouden",
             "icon": "plastic_wrap",
-            "custom": false
+            "custom": false,
+            "emoji": "🫙"
         },
         {
             "name": "Vuilniszakken",
@@ -2293,7 +2298,8 @@
             "name": "Condooms",
             "sectionId": "verzorging-gezondheid",
             "icon": "condoms",
-            "custom": false
+            "custom": false,
+            "emoji": "🎈"
         },
         {
             "name": "Deodorant",
@@ -2502,13 +2508,15 @@
             "name": "Wattenschijfjes",
             "sectionId": "verzorging-gezondheid",
             "icon": "cotton_pads",
-            "custom": false
+            "custom": false,
+            "emoji": "⚪"
         },
         {
             "name": "Wattenstaafjes",
             "sectionId": "verzorging-gezondheid",
             "icon": "cotton_swabs",
-            "custom": false
+            "custom": false,
+            "emoji": "🦴"
         },
         {
             "name": "Zakdoeken",

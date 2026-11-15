@@ -125,6 +125,15 @@ describe('NamingPromptComponent', () => {
         expect(outcomes[0].kind).toBe('linked');
     });
 
+    it('takes the section the server derived from the shop category', async () => {
+        await open(known({ suggestions: [OFF, { connectorId: 'ah', title: 'AH Karnemelk', category: 'Zuivel, eieren', sectionId: 'zuivel' }] }));
+        await typeName('Cola');
+        click(page, 'app-item-autocomplete .option.create');
+        await settle();
+
+        expect((page.querySelector('select') as HTMLSelectElement).value).toBe('zuivel');
+    });
+
     it('goes back to the search when creating is cancelled', async () => {
         await open(known());
         await typeName('Nieuw ding');

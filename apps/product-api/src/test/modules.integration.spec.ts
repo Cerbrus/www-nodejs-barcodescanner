@@ -82,6 +82,7 @@ describe('scan flow against a real database', () => {
         const milk = items.find((item) => item.name === 'Melk');
         assert.equal((await catalog.getSections()).length, 13);
         assert.equal(items.length, 358);
+        assert.equal(items.find((item) => item.name === 'Wattenstaafjes')?.emoji, '🦴');
         assert.equal((await list.getEntries()).length, 16);
         assert.ok(milk);
         milkId = milk.id;
@@ -138,7 +139,7 @@ describe('scan flow against a real database', () => {
         const connectors = app.get(ConnectorService) as unknown as { connectors: Array<ProductConnector> };
         let supermarketDown = true;
         const askSupermarket = (): Promise<ProductSuggestion> =>
-            supermarketDown ? Promise.reject(new Error('timeout')) : Promise.resolve({ connectorId: 'ah', title: 'AH Pindakaas' });
+            supermarketDown ? Promise.reject(new Error('timeout')) : Promise.resolve({ connectorId: 'ah', title: 'AH Pindakaas', category: 'Ontbijtgranen, beleg' });
         const askOpenData = (): Promise<ProductSuggestion> => Promise.resolve({ connectorId: 'off', title: 'Peanut butter' });
         connectors.connectors = [
             { id: 'ah', lookup: askSupermarket },
@@ -155,6 +156,7 @@ describe('scan flow against a real database', () => {
         const second = await scans.repeatLookup('8712345678906');
         assert.deepEqual(second.lookupFailed, []);
         assert.deepEqual(second.suggestions?.map((suggestion) => suggestion.connectorId).sort(), ['ah', 'off']);
+        assert.equal(second.suggestions?.find((suggestion) => suggestion.connectorId === 'ah')?.sectionId, 'graanproducten');
 
         connectors.connectors = [];
         await scans.discardBarcode('8712345678906');

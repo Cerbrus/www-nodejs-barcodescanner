@@ -79,6 +79,7 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
 export class NewItemFormComponent {
     public readonly initialName = input.required<string>();
     public readonly hint = input('');
+    public readonly shopSectionId = input<string>();
     public readonly submitLabel = input.required<string>();
     public readonly submitIcon = input('add');
 
@@ -100,6 +101,11 @@ export class NewItemFormComponent {
     }));
 
     private readonly guessedSectionId = computed(() => {
+        const shopSectionId = this.shopSectionId();
+        if (shopSectionId && this.store.sections().some((section) => section.id === shopSectionId)) {
+            return shopSectionId;
+        }
+
         const text = `${this.hint()} ${this.initialName()}`.toLowerCase();
         return Object.entries(SECTION_KEYWORDS).find(([, keywords]) => keywords.some((word) => text.includes(word)))?.[0];
     });

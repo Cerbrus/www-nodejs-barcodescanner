@@ -100,6 +100,7 @@
         "title": "Scan history",
         "undo": "Undo",
         "undoLast": "Undo last",
+        "lookupFailed": "Lookup failed at {sources}. Name it or try again",
         "empty": "No scans yet",
         "result": {
             "added": "added",

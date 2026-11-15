@@ -138,7 +138,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 - Failed changes are reported in one place: an HTTP interceptor shows an error toast for every request that changes something and fails. A request that handles its own failure, such as a scan, opts out.
 - Dialogs use the native `<dialog>` element, so they sit above the navigation.
 - Barcodes are drawn in the browser by `BarcodeComponent`: EAN-13, EAN-8, and 12-digit codes padded to 13.
-- New products get a guessed shop section from keywords in the connector suggestions and the name (`new-item-form`).
+- New products get their shop section from the first suggestion that carries a `sectionId` (see Connectors); without one, from keywords in the suggestions and the name (`new-item-form`).
 - Texts: `@ngx-translate`, Dutch by default and English, in `assets/i18n/`. Language and theme are stored in the browser.
 - Theme: every colour is a CSS variable in `styles.scss`. Dark follows the device unless the user picks light or dark, which sets `data-theme` on the page.
 - Addresses use the part after `#` (`/#/list`, `/#/inbox`). A notification's address then differs from the open page only after the `#`, which a browser treats as a jump inside the page instead of a new page load. An old address without `#` is rewritten at start.
@@ -197,7 +197,7 @@ interface ProductSuggestion {
 - All enabled connectors run in parallel with a timeout of a few seconds. A failure or timeout yields no suggestion, is logged, and is remembered on the barcode, so the naming prompt can say which source gave no answer and offer to ask again. "No result" and "no answer" are different things.
 - The lookup runs in the background after the scan is answered, so a slow connector never delays the scanner. Results are stored on the barcode row, so a barcode is looked up once, and a `barcode` event tells open pages they arrived.
 - `CONNECTORS` in `.env` picks the enabled ones (default `ah,off`).
-- `category` and `title` feed the section guess in the naming prompt.
+- The server maps a suggestion's `category` to one of the seeded sections (`core/rules/shop-sections.ts`, Albert Heijn's main categories plus common English Open Food Facts words) and stores it on the suggestion as `sectionId`. The web app uses it only when that section exists; `category` and `title` still feed the keyword guess as fallback.
 - Built: Albert Heijn (unofficial API, anonymous token) and Open Food Facts (official open API, with a generic User-Agent). Adding a source is one new class, plus its logo in `apps/product-front/src/assets/connectors/` and a line in the naming prompt's connector table; without a logo the prompt shows the connector's id as text.
 
 ## API

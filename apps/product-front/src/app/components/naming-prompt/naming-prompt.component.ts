@@ -11,7 +11,7 @@ import { ItemAutocompleteComponent } from '../item-autocomplete/item-autocomplet
 import { NewItemFormComponent } from '../new-item-form/new-item-form.component';
 import { SheetComponent } from '../sheet/sheet.component';
 
-const CONNECTORS: Record<string, { name: string; logo: string }> = {
+export const CONNECTORS: Record<string, { name: string; logo: string }> = {
     ah: { name: 'Albert Heijn', logo: 'assets/connectors/ah.svg' },
     off: { name: 'Open Food Facts', logo: 'assets/connectors/off.svg' }
 };
@@ -48,6 +48,8 @@ export class NamingPromptComponent {
             .map((suggestion) => `${suggestion.category ?? ''} ${suggestion.title}`)
             .join(' ')
     );
+
+    protected readonly shopSectionId = computed(() => this.suggestions().find((suggestion) => suggestion.sectionId)?.sectionId);
 
     private readonly api = inject(ApiService);
     private readonly events = inject(EventsService);

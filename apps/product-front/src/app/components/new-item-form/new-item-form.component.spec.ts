@@ -15,10 +15,11 @@ describe('NewItemFormComponent', () => {
     const created: Array<string> = [];
     let cancelled = 0;
 
-    const open = async (name: string, hint = ''): Promise<void> => {
+    const open = async (name: string, hint = '', shopSectionId?: string): Promise<void> => {
         fixture = TestBed.createComponent(NewItemFormComponent);
         fixture.componentRef.setInput('initialName', name);
         fixture.componentRef.setInput('hint', hint);
+        fixture.componentRef.setInput('shopSectionId', shopSectionId);
         fixture.componentRef.setInput('submitLabel', 'Aanmaken');
         fixture.componentInstance.created.subscribe((made) => created.push(made.name));
         fixture.componentInstance.cancelled.subscribe(() => cancelled++);
@@ -55,6 +56,18 @@ describe('NewItemFormComponent', () => {
         await open('Zero', 'Frisdrank Cola');
 
         expect(section()).toBe('dranken');
+    });
+
+    it('prefers the section that came from the shop category over the guess', async () => {
+        await open('Volle melk', 'Frisdrank', 'dranken');
+
+        expect(section()).toBe('dranken');
+    });
+
+    it('guesses when the shop section does not exist here', async () => {
+        await open('Volle melk', '', 'verdwenen');
+
+        expect(section()).toBe('zuivel');
     });
 
     it('takes the first section when nothing matches', async () => {
