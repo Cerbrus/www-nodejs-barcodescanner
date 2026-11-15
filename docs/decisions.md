@@ -140,8 +140,9 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 - Remarks are stored in the app's own database. Every account may write them and sees its own; the owner sees all.
 - Only the owner sends a remark to GitHub, after seeing what goes out; the repository is public, so this step is the privacy gate. The account and the device details stay out unless ticked.
 - Kinds: bug, wish and note. The writer gets a thank-you, no promise and no state.
-- No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode and a two-finger tap on the phone, right click on a computer.
+- No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode on the phone, right click on a computer.
 - No screenshots: a page cannot take a real picture of itself. The part pointed at is recorded as data.
+- Changed 2026-11-15, on the owner's issue #10: no two-finger tap. It did not work for the owner, so pointing mode is the only way on the phone.
 - An agent on GitHub handles an issue the owner labels. Changed 2026-11-15, after the first four issues all ended in questions: an issue from the owner is his decision and carries his authority, so the agent implements it in a draft pull request unless a real question is open, also when it overrules an earlier decision, and labels the issue with its verdict. It never merges.
 
 ## Functional reference

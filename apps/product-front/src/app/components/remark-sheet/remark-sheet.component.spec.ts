@@ -160,16 +160,7 @@ describe('RemarkSheetComponent', () => {
 describe('RemarkPointerDirective', () => {
     let page: HTMLElement;
     let remarks: FakeRemarks;
-    let now: number;
 
-    const touches = (points: Array<[number, number]>): Array<{ clientX: number; clientY: number }> => points.map(([clientX, clientY]) => ({ clientX, clientY }));
-    const touch = (type: string, points: Array<[number, number]>): Event => {
-        const event = new Event(type, { bubbles: true, cancelable: true });
-        Object.defineProperty(event, 'touches', { value: touches(points) });
-        page.querySelector('#name')?.dispatchEvent(event);
-
-        return event;
-    };
     const rightClick = (selector: string): Event => {
         const event = new Event('contextmenu', { bubbles: true, cancelable: true });
         page.querySelector(selector)?.dispatchEvent(event);
@@ -179,13 +170,10 @@ describe('RemarkPointerDirective', () => {
 
     beforeEach(() => {
         remarks = fakeRemarks();
-        now = 1000;
-        vi.spyOn(Date, 'now').mockImplementation(() => now);
         TestBed.configureTestingModule({ imports: [PointerHostComponent], providers: [{ provide: RemarkService, useValue: remarks }] });
         const fixture = TestBed.createComponent(PointerHostComponent);
         fixture.detectChanges();
         page = fixture.nativeElement as HTMLElement;
-        document.elementFromPoint = (): Element | null => page.querySelector('#name');
     });
 
     afterEach(() => vi.restoreAllMocks());
@@ -231,43 +219,6 @@ describe('RemarkPointerDirective', () => {
         const event = rightClick('#field');
 
         expect(event.defaultPrevented).toBe(false);
-        expect(remarks.draft()).toBeUndefined();
-    });
-
-    it('starts a remark on a short tap with two fingers', () => {
-        touch('touchstart', [[100, 100], [140, 100]]);
-        now += 150;
-        const end = touch('touchend', []);
-
-        expect(end.defaultPrevented).toBe(true);
-        expect(remarks.draft()?.target?.text).toBe('Melk');
-    });
-
-    it('ignores one finger, a slow touch, a pinch or scroll, and fingers lifted one by one', () => {
-        touch('touchstart', [[100, 100]]);
-        touch('touchend', []);
-        expect(remarks.draft()).toBeUndefined();
-
-        touch('touchstart', [[100, 100], [140, 100]]);
-        now += 800;
-        touch('touchend', []);
-        expect(remarks.draft()).toBeUndefined();
-
-        touch('touchstart', [[100, 100], [140, 100]]);
-        touch('touchmove', [[100, 180], [140, 180]]);
-        touch('touchend', []);
-        expect(remarks.draft()).toBeUndefined();
-
-        touch('touchstart', [[100, 100], [140, 100]]);
-        touch('touchend', [[100, 100]]);
-        expect(remarks.draft()).toBeUndefined();
-    });
-
-    it('forgets a touch the system took over', () => {
-        touch('touchstart', [[100, 100], [140, 100]]);
-        touch('touchcancel', []);
-        touch('touchend', []);
-
         expect(remarks.draft()).toBeUndefined();
     });
 });
