@@ -153,6 +153,10 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 - Changed 2026-11-15, on the owner's issue #10: no two-finger tap. It did not work for the owner, so pointing mode is the only way on the phone.
 - An agent on GitHub handles an issue the owner labels. Changed 2026-11-15, after the first four issues all ended in questions: an issue from the owner is his decision and carries his authority, so the agent implements it in a pull request unless a real question is open, also when it overrules an earlier decision, and labels the issue with its verdict. It never merges. Changed again 2026-11-15, after its first pull request: the pull request is opened ready for review, not as a draft, and the owner is code owner of the whole repository.
 
+## Names, sections and variants of scanned products
+
+Decided 2026-11-15, see [naming-plan.md](naming-plan.md): naming an unknown barcode offers the most specific existing product found in the shop title, else a more generic one with the rest as note, else a new name without brand and amount; a small Claude model makes that suggestion when an API key is set, the rules otherwise. A product can be on the list several times, told apart by its note, which is the variant; a barcode can carry that variant. The section of a new product comes from the shop's category first.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

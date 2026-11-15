@@ -18,7 +18,7 @@ In daily-use shape and running on the Pi:
 
 Agreed with the owner on 2026-11-15:
 
-1. **Small leftovers**, discussed with the owner one by one: mark scans whose lookup failed on the history page; guess a new product's section from the shop's category; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
+1. **Names, sections and variants** (milestone 12), discussed with the owner on 2026-11-15: see [naming-plan.md](naming-plan.md). Includes the small leftovers: failed lookups on the history page, the eight emojis, the unused `source` field of the hardware agent.
 2. **Rollback test** with `IMAGE_TAG`: two minutes on the Pi, and it proves the way back.
 3. **The remaining package families** (see "Package upgrades"), one at a time, smallest first. Dependabot proposes the small ones weekly; #7 is open.
 4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy, and Tera's answer on the beeper (milestone 7).
@@ -168,6 +168,10 @@ What the agent built from the owner's feedback, each reviewed, finished and land
 | 1.1.63 | #21, #23 | handled remarks fold away; a "What's new" page | the changelog is written by the build, so a release lists itself |
 | 1.1.65 | #26 | "Let the agent look at it" first and ticked | Nx cache bug of the changelog fixed |
 | 1.1.67 | #25 | actions under a menu, Ctrl+Enter sends, a question when closing with text | one action shows as a button; Handle in the menu; plainer close question |
+
+### 12. Names, sections and variants: planned
+
+Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. Four steps: small leftovers and the section from the shop's category; variants on the list; naming rules; an AI suggestion behind the rules.
 
 ### Smaller changes outside the milestones
 
