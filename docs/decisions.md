@@ -161,7 +161,7 @@ Built 2026-11-15 (step 2): a list entry has its own id, a UUID the web app makes
 
 ## Scanner sounds from building blocks
 
-Decided 2026-11-15, see [sounds-plan.md](sounds-plan.md): sounds are built from beep, pause, trill and buzz blocks for the active buzzer (no pitch), at most 12 blocks and 1 second (halved from 2 by the owner on 2026-11-15), kept as named presets in the database. The fixed list of sounds goes, the soft sounds included; a preset in use cannot be deleted. A speaker or passive buzzer for real tones is shelved.
+Decided 2026-11-15, see [sounds-plan.md](sounds-plan.md): sounds are built from beep, pause, trill and buzz blocks for the active buzzer (no pitch), at most 1 second (halved from 2 by the owner on 2026-11-15) with as many blocks as fit in it (the cap of 12 dropped by the owner on 2026-11-15), kept as named presets in the database. The fixed list of sounds goes, the soft sounds included; a preset in use cannot be deleted. A speaker or passive buzzer for real tones is shelved.
 
 ## Functional reference
 

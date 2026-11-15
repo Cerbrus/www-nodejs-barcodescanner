@@ -109,7 +109,7 @@ What it deliberately does not have: a class per use case, domain models separate
 | `list` | List entries: to buy, recent, quantity, note |
 | `connector` | Runs the product connectors in parallel |
 | `events` | Server-sent events to open pages and the hardware agent |
-| `feedback` | Buzzer sounds as presets made of blocks (`sound` table, rules in `core/rules/sounds.ts`: beep, pause, trill, buzz, at most 12 blocks and 1 second), the sound chosen per scan result and for a new version, test sounds. The server turns blocks into the on, off and gate steps the hardware agent plays. At start the app compares its version with `/data/announced-version`; when it differs, the hardware agent's event stream starts with that sound and the file gets the new version |
+| `feedback` | Buzzer sounds as presets made of blocks (`sound` table, rules in `core/rules/sounds.ts`: beep, pause, trill, buzz, at most 1 second in total, so at most 100 blocks of the shortest 10 ms), the sound chosen per scan result and for a new version, test sounds. The server turns blocks into the on, off and gate steps the hardware agent plays. At start the app compares its version with `/data/announced-version`; when it differs, the hardware agent's event stream starts with that sound and the file gets the new version |
 | `push` | Web push: subscriptions and the notification for an unknown handheld scan. Creates its key pair in `/data/push-keys.json` |
 | `log` | The last 500 log lines in memory and in `/data/logs/app.log` (rotates at 256 KB, three old files), from the app, the agent and the phone |
 | `agent-status` | Remembers, in memory, when the hardware agent last reported and whether it sees the scanner |

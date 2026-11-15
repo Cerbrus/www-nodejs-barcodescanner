@@ -11,15 +11,7 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, finalize, tap } from 'rxjs';
 
-import {
-    BLOCK_KINDS,
-    FeedbackSettings,
-    MAX_SOUND_BLOCKS,
-    MAX_SOUND_MILLISECONDS,
-    SOUND_RATES,
-    Sound,
-    SoundBlock
-} from '../../models';
+import { BLOCK_KINDS, FeedbackSettings, MAX_SOUND_MILLISECONDS, SOUND_RATES, Sound, SoundBlock } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { SheetComponent } from '../sheet/sheet.component';
 import { SoundTimelineComponent } from '../sound-timeline/sound-timeline.component';
@@ -101,7 +93,7 @@ export class SoundEditorComponent {
     protected readonly busy = signal(false);
     protected readonly total = computed(() => this.blocks().reduce((sum, block) => sum + block.ms, 0));
     protected readonly problem = computed(() => {
-        if (this.total() > MAX_SOUND_MILLISECONDS || this.blocks().length > MAX_SOUND_BLOCKS) {
+        if (this.total() > MAX_SOUND_MILLISECONDS) {
             return 'sound.tooLong';
         }
 

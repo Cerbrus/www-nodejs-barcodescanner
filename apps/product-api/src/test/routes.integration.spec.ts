@@ -281,7 +281,7 @@ describe('data routes over HTTP', () => {
             call('POST', '/feedback/sounds', asUser, { name, blocks });
         assert.equal((await sound([{ kind: 'kazoo', ms: 100 }])).status, 400);
         assert.equal((await sound([{ kind: 'beep', ms: 'long' }])).status, 400);
-        assert.equal((await sound(Array.from({ length: 13 }, () => ({ kind: 'beep', ms: 10 })))).status, 400);
+        assert.equal((await sound(Array.from({ length: 101 }, () => ({ kind: 'beep', ms: 10 })))).status, 400);
         assert.equal((await sound([{ kind: 'beep', ms: 100 }], 'x'.repeat(41))).status, 400);
 
         const made = await call<{ sounds: Array<{ id: string; name?: string }> }>('POST', '/feedback/sounds', asUser, {

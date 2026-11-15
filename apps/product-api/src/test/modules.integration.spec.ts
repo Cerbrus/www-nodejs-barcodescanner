@@ -97,6 +97,13 @@ async function checkSoundPresets(feedback: FeedbackService, events: EventsServic
     await assert.rejects(feedback.deleteSound(created?.id as string), /used for needs_name/);
     await assert.rejects(feedback.deleteSound('double'), /used for incremented/);
     await assert.rejects(feedback.createSound('Te lang', [{ kind: 'beep', ms: 1010 }]), /at most 1000 ms/);
+    const many = Array.from({ length: 50 }, (_, index) => ({
+        kind: index % 2 ? ('pause' as const) : ('beep' as const),
+        ms: 20
+    }));
+    const manyMade = (await feedback.createSound('Mitrailleur', many)).sounds.at(-1);
+    assert.equal(manyMade?.blocks.length, 50);
+    await feedback.deleteSound(manyMade?.id as string);
     await assert.rejects(feedback.createSound('Stil', [{ kind: 'pause', ms: 100 }]), /makes sound/);
     await assert.rejects(feedback.createSound('Te snel', [{ kind: 'trill', ms: 100, rate: 41 }]), /rate from 4 to 40/);
     await assert.rejects(feedback.createSound('Krom', [{ kind: 'beep', ms: 15 }]), /10 ms steps/);

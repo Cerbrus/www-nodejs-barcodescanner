@@ -220,7 +220,7 @@
         "duration": "{ms} ms",
         "rate": "{rate} per seconde",
         "total": "{ms} van {max} ms",
-        "tooLong": "Te lang: een geluid duurt hooguit 1 seconde en heeft hooguit 12 blokken.",
+        "tooLong": "Te lang: een geluid duurt hooguit 1 seconde.",
         "needsSound": "Voeg minstens één blok toe dat geluid maakt.",
         "save": "Opslaan",
         "saveAsNew": "Als nieuw opslaan",
