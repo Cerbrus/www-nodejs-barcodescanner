@@ -128,7 +128,9 @@ export interface FakeRemarks {
     draft: WritableSignal<{ target?: RemarkTarget } | undefined>;
     pointing: WritableSignal<boolean>;
     waiting: WritableSignal<number>;
+    ready: WritableSignal<number>;
     start: ReturnType<typeof vi.fn>;
+    count: ReturnType<typeof vi.fn>;
     write: (target?: RemarkTarget) => void;
     startPointing: () => void;
     cancel: () => void;
@@ -143,7 +145,9 @@ export function fakeRemarks(): FakeRemarks {
         draft,
         pointing,
         waiting: signal(0),
+        ready: signal(0),
         start: vi.fn(),
+        count: vi.fn(),
         write: (target?: RemarkTarget): void => {
             pointing.set(false);
             draft.set({ target });

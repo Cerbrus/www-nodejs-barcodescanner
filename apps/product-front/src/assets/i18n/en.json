@@ -231,6 +231,7 @@
         "title": "Feedback",
         "listTitle": "Feedback",
         "mine": "My feedback",
+        "ready": "{count} open feedback",
         "write": "Write",
         "point": "Point",
         "hint": "Point: then tap the part you mean. Quicker on a computer: right-click the part.",

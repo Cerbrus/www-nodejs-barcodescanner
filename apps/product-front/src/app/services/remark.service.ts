@@ -1,10 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, catchError, concatMap, from, fromEvent, map, merge, of, tap, throwError, toArray } from 'rxjs';
+import { EMPTY, Observable, catchError, concatMap, filter, from, fromEvent, map, merge, of, switchMap, tap, throwError, toArray } from 'rxjs';
 
-import { RemarkContext, RemarkInput, RemarkKind, RemarkTarget } from '../models';
+import { Remark, RemarkContext, RemarkInput, RemarkKind, RemarkTarget } from '../models';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 import { EventsService } from './events.service';
 import { ShoppingStore } from './shopping.store';
 import { ThemeService } from './theme.service';
@@ -24,8 +25,10 @@ export class RemarkService {
     public readonly draft = signal<RemarkDraft | undefined>(undefined);
     public readonly pointing = signal(false);
     public readonly waiting = signal(this.queued().length);
+    public readonly ready = signal(0);
 
     private readonly api = inject(ApiService);
+    private readonly auth = inject(AuthService);
     private readonly events = inject(EventsService);
     private readonly store = inject(ShoppingStore);
     private readonly theme = inject(ThemeService);
@@ -51,6 +54,18 @@ export class RemarkService {
         merge(of(undefined), this.events.resumed, fromEvent(window, 'online'))
             .pipe(concatMap(() => this.sendQueued()))
             .subscribe();
+
+        merge(of(undefined), this.events.resumed, this.events.on('remark'))
+            .pipe(
+                filter(() => this.auth.owner()),
+                switchMap(() => this.api.getRemarks().pipe(catchError(() => EMPTY))),
+                tap((answer) => this.count(answer.remarks))
+            )
+            .subscribe();
+    }
+
+    public count(remarks: Array<Remark>): void {
+        this.ready.set(this.auth.owner() ? remarks.filter((remark) => remark.state === 'open' && !remark.issueUrl).length : 0);
     }
 
     public write(target?: RemarkTarget): void {

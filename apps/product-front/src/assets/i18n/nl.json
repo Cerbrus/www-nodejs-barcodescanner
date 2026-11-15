@@ -231,6 +231,7 @@
         "title": "Feedback",
         "listTitle": "Feedback",
         "mine": "Mijn feedback",
+        "ready": "{count} keer open feedback",
         "write": "Schrijven",
         "point": "Aanwijzen",
         "hint": "Aanwijzen: tik daarna op het onderdeel dat je bedoelt. Sneller op een computer: klik met de rechtermuisknop op het onderdeel.",

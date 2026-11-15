@@ -122,6 +122,9 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                 <a class="row link" routerLink="/remarks">
                     <i class="material-symbols-outlined">forum</i>
                     <span class="label">{{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}</span>
+                    @if (remarks.ready(); as count) {
+                        <span class="count" [attr.aria-label]="'remark.ready' | translate: { count }">{{ count }}</span>
+                    }
                     <i class="material-symbols-outlined muted">chevron_right</i>
                 </a>
             </div>
@@ -204,6 +207,10 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
         .hint { color: var(--text-muted); font-size: 0.8rem; font-weight: 400; }
         .value { color: var(--text-muted); font-size: 0.9rem; text-align: right; }
         .note { padding: 0 12px 10px; color: var(--text-muted); font-size: 0.85rem; }
+        .count {
+            min-width: 22px; padding: 0 7px; border-radius: 11px; background: var(--danger);
+            color: #fff; font-size: 0.75rem; font-weight: 700; line-height: 22px; text-align: center;
+        }
         .link:hover, .link:focus-visible { background: var(--page); }
         @media (max-width: 480px) {
             .choice { flex-flow: column nowrap; align-items: stretch; }
