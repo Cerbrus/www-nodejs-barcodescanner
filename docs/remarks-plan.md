@@ -130,6 +130,6 @@ A. Answered 2026-11-15: pointing mode plus the two-finger tap.
 
 B. Answered 2026-11-15: no screenshots.
 
-C. Answered 2026-11-15: the agent may open draft pull requests by itself for small things. It runs only for remarks the owner ticks while sending, or issues the owner labels by hand; the owner did not answer that part, so the recommended choice stands until he says otherwise.
+C. Answered 2026-11-15: the agent may open draft pull requests by itself for small things. It runs only for remarks the owner ticks while sending, or issues the owner labels by hand. Changed 2026-11-15 (issue #26): the tick is on by default.
 
 The token for issues is on the Pi since 2026-11-15, as `GITHUB_ISSUES_TOKEN`; a read of the issues with it answered 200 and a write to the code was refused, as intended.

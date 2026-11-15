@@ -1,8 +1,14 @@
 import { execFileSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const OUTPUT = 'apps/product-front/src/assets/changelog.json';
 const USER_FACING = ['apps', 'data', 'deployment', 'Dockerfile', ':(exclude,glob)**/*.spec.ts', ':(exclude,glob)**/test/**', ':(exclude,glob)**/testing/**'];
+
+if (process.argv.includes('--hash')) {
+    process.stdout.write(existsSync(OUTPUT) ? createHash('sha256').update(readFileSync(OUTPUT)).digest('hex') : 'none');
+    process.exit(0);
+}
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 const lines = (text) => text.split('\n').filter(Boolean);
