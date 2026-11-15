@@ -69,16 +69,36 @@ const NOTHING_EXTRA: IssueOptions = { includeDevice: false, includeAccount: fals
                             </a>
                         }
 
-                        @if (auth.owner()) {
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                <button type="button" class="btn" (click)="setState(remark, remark.state === 'open' ? 'closed' : 'open')">
-                                    <i class="material-symbols-outlined">{{ remark.state === 'open' ? 'check' : 'undo' }}</i>
-                                    {{ (remark.state === 'open' ? 'remark.close' : 'remark.reopen') | translate }}
+                        @if (rejecting() === remark.id) {
+                            <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
+                            <div class="mt-2 flex gap-2">
+                                <button type="button" class="btn danger" (click)="reject(remark)">
+                                    <i class="material-symbols-outlined">block</i>
+                                    {{ 'remark.reject' | translate }}
                                 </button>
-                                @if (canSendToGitHub() && !remark.issueUrl) {
-                                    <button type="button" class="btn" (click)="prepare(remark)">
-                                        <i class="material-symbols-outlined">outbox</i>
-                                        {{ 'remark.toGitHub' | translate }}
+                                <button type="button" class="btn" (click)="rejecting.set(undefined)">
+                                    <i class="material-symbols-outlined">close</i>
+                                    {{ 'common.cancel' | translate }}
+                                </button>
+                            </div>
+                        } @else if (auth.owner() || !remark.issueUrl) {
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                @if (auth.owner()) {
+                                    <button type="button" class="btn" (click)="setState(remark, remark.state === 'open' ? 'closed' : 'open')">
+                                        <i class="material-symbols-outlined">{{ remark.state === 'open' ? 'check' : 'undo' }}</i>
+                                        {{ (remark.state === 'open' ? 'remark.close' : 'remark.reopen') | translate }}
+                                    </button>
+                                    @if (canSendToGitHub() && !remark.issueUrl) {
+                                        <button type="button" class="btn" (click)="prepare(remark)">
+                                            <i class="material-symbols-outlined">outbox</i>
+                                            {{ 'remark.toGitHub' | translate }}
+                                        </button>
+                                    }
+                                }
+                                @if (!remark.issueUrl) {
+                                    <button type="button" class="btn" (click)="rejecting.set(remark.id)">
+                                        <i class="material-symbols-outlined">block</i>
+                                        {{ 'remark.reject' | translate }}
                                     </button>
                                 }
                             </div>
@@ -151,6 +171,7 @@ export class RemarksPage {
     protected readonly options = signal<IssueOptions>(NOTHING_EXTRA);
     protected readonly draft = signal<IssueDraft | undefined>(undefined);
     protected readonly busy = signal(false);
+    protected readonly rejecting = signal<number | undefined>(undefined);
 
     private readonly answer = signal<RemarkList>({ remarks: [], canSendToGitHub: false });
     private readonly api = inject(ApiService);
@@ -174,6 +195,14 @@ export class RemarksPage {
     protected setState(remark: Remark, state: Remark['state']): void {
         this.api
             .setRemarkState(remark.id, state)
+            .pipe(switchMap(() => this.load()))
+            .subscribe();
+    }
+
+    protected reject(remark: Remark): void {
+        this.rejecting.set(undefined);
+        this.api
+            .rejectRemark(remark.id)
             .pipe(switchMap(() => this.load()))
             .subscribe();
     }

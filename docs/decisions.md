@@ -139,6 +139,7 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 
 - Remarks are stored in the app's own database. Every account may write them and sees its own; the owner sees all.
 - Only the owner sends a remark to GitHub, after seeing what goes out; the repository is public, so this step is the privacy gate. The account and the device details stay out unless ticked.
+- Rejecting a remark is a soft delete, decided 2026-11-15 on the owner's answer: state `rejected`, hidden from every list, the row kept. The owner rejects any remark, a writer only their own; a remark already on GitHub cannot be rejected.
 - Kinds: bug, wish and note. The writer gets a thank-you, no promise and no state.
 - No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode on the phone, right click on a computer.
 - The bottom menu can be pointed at too (owner, 2026-11-15, issue #11): right click on a tab, and in pointing mode a tap on the active tab picks it, while a tap on another tab navigates.

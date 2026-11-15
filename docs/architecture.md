@@ -228,6 +228,7 @@ interface ProductSuggestion {
 | `POST /api/v1/feedback/test` | Play one sound from the library at the scanner |
 | `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent and the phone post their own |
 | `POST /api/v1/remarks`, `GET` | Write a remark; read the own ones, or all for the owner, with whether sending to GitHub is set up |
+| `DELETE /api/v1/remarks/:id` | Reject a remark: the owner any, others their own; it gets state `rejected` and leaves the lists, the row stays. 409 when it is already on GitHub |
 | `PATCH /api/v1/remarks/:id`, `POST .../issue-draft`, `POST .../issue` | Owner only: mark as handled or reopen, see the issue that would be made, make it on GitHub |
 | `POST /api/v1/csp-reports` | Public. What a browser blocked, or would block, under the content security policy; written to the log |
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |

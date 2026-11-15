@@ -221,6 +221,32 @@ describe('remarks over HTTP', () => {
         githubStatus = 201;
     });
 
+    it('lets the owner reject any remark and a writer only their own, hides it, and keeps the row', async () => {
+        const mine = await write(asGuest, { kind: 'note', text: 'reject me' });
+        const theirs = await write(asGuest, { kind: 'note', text: 'reject me too' });
+        const others = await write(asOwner, { kind: 'note', text: 'not yours' });
+
+        assert.equal((await call('DELETE', `/remarks/${others}`, asGuest)).status, 404);
+        assert.equal((await call('DELETE', `/remarks/${mine}`, {})).status, 401);
+        assert.equal((await call('DELETE', `/remarks/${mine}`, asGuest)).status, 204);
+        assert.equal((await call('DELETE', `/remarks/${theirs}`, asOwner)).status, 204);
+
+        assert.equal((await listed(asGuest)).some((remark) => remark.id === mine), false);
+        assert.equal((await listed(asOwner)).some((remark) => [mine, theirs].includes(remark.id)), false);
+        assert.equal((await call('DELETE', `/remarks/${mine}`, asOwner)).status, 404);
+        assert.equal((await call('PATCH', `/remarks/${mine}`, asOwner, { state: 'closed' })).status, 404);
+        assert.equal((await call('DELETE', '/remarks/99999', asOwner)).status, 404);
+        assert.equal((await app.get(DataSource).getRepository(RemarkEntity).findOneBy({ id: mine }))?.state, 'rejected');
+    });
+
+    it('does not reject a remark that is already on GitHub', async () => {
+        const id = (await listed(asGuest)).find((remark) => remark.issueUrl)?.id;
+
+        assert.equal((await call('DELETE', `/remarks/${id}`, asGuest)).status, 409);
+        assert.equal((await call('DELETE', `/remarks/${id}`, asOwner)).status, 409);
+        assert.ok((await listed(asGuest)).some((remark) => remark.id === id));
+    });
+
     it('stops an account after thirty remarks in an hour, without stopping the others', async () => {
         const answers: Array<number> = [];
         for (let count = 0; count < 31; count++) {

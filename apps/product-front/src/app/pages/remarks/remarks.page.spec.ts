@@ -33,7 +33,7 @@ describe('RemarksPage', () => {
     let events: FakeEvents;
     let remarks: FakeRemarks;
     const state = signal<AuthState | undefined>(OWNER);
-    const api = { getRemarks: vi.fn(), setRemarkState: vi.fn(), getIssueDraft: vi.fn(), sendRemarkToGitHub: vi.fn() };
+    const api = { getRemarks: vi.fn(), setRemarkState: vi.fn(), rejectRemark: vi.fn(), getIssueDraft: vi.fn(), sendRemarkToGitHub: vi.fn() };
 
     const settle = async (): Promise<void> => {
         fixture.detectChanges();
@@ -58,6 +58,7 @@ describe('RemarksPage', () => {
         events = fakeEvents();
         remarks = fakeRemarks();
         api.setRemarkState.mockReturnValue(of(remark(1, { state: 'closed' })));
+        api.rejectRemark.mockReturnValue(of(undefined));
         api.getIssueDraft.mockReturnValue(of(DRAFT));
         api.sendRemarkToGitHub.mockReturnValue(of(remark(1, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })));
         TestBed.configureTestingModule({
@@ -99,7 +100,7 @@ describe('RemarksPage', () => {
     it('shows another account its remarks without any owner buttons or account names', async () => {
         await open(GUEST, [remark(1)], false);
 
-        expect(buttons()).toEqual([]);
+        expect(buttons()).toEqual(['block remark.reject']);
         expect(texts(page, 'article .where')).toEqual(['#/list']);
     });
 
@@ -125,14 +126,38 @@ describe('RemarksPage', () => {
         expect(api.getRemarks).toHaveBeenCalledTimes(3);
     });
 
+    it('rejects a remark only after a confirmation, and reloads the list', async () => {
+        await open(OWNER, [remark(1)]);
+        await press('remark.reject');
+        expect(api.rejectRemark).not.toHaveBeenCalled();
+
+        await press('common.cancel');
+        await press('remark.reject');
+        await press('remark.reject', page.querySelector('article') as Element);
+
+        expect(api.rejectRemark).toHaveBeenCalledWith(1);
+        expect(api.getRemarks).toHaveBeenCalledTimes(2);
+        expect(texts(page, 'article p.text-sm')).toEqual([]);
+    });
+
+    it('lets a writer reject their own remark, but not one that is already on GitHub', async () => {
+        await open(GUEST, [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })], false);
+
+        expect(buttons(0)).toEqual(['block remark.reject']);
+        expect(buttons(1)).toEqual([]);
+
+        await open(OWNER, [remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
+        expect(buttons(0)).toEqual(['check remark.close']);
+    });
+
     it('offers "to GitHub" only when a token is set and the remark is not there yet, and links to the issue once it is', async () => {
         await open(OWNER, [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
-        expect(buttons(0)).toEqual(['check remark.close', 'outbox remark.toGitHub']);
+        expect(buttons(0)).toEqual(['check remark.close', 'outbox remark.toGitHub', 'block remark.reject']);
         expect(buttons(1)).toEqual(['check remark.close']);
         expect(page.querySelector('a.issue')?.getAttribute('href')).toBe('https://github.example/issues/12');
 
         await open(OWNER, [remark(1)], false);
-        expect(buttons(0)).toEqual(['check remark.close']);
+        expect(buttons(0)).toEqual(['check remark.close', 'block remark.reject']);
     });
 
     it('shows exactly what would be sent, warns that it is public, and sends nothing extra unless ticked', async () => {

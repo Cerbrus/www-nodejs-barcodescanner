@@ -175,6 +175,10 @@ export class ApiService {
         return this.http.patch<Remark>(`${this.baseUrl}/remarks/${id}`, { state });
     }
 
+    public rejectRemark(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/remarks/${id}`);
+    }
+
     public getIssueDraft(id: number, options: IssueOptions): Observable<IssueDraft> {
         return this.http.post<IssueDraft>(`${this.baseUrl}/remarks/${id}/issue-draft`, options);
     }

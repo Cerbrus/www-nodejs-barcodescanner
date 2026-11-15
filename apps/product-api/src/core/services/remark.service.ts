@@ -1,12 +1,12 @@
 import { ConflictException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { MoreThan, Not, Repository } from 'typeorm';
 
 import { EventsService } from './events.service';
 import { GitHubService } from './github.service';
 import { PushService } from './push.service';
 import { RemarkEntity } from '../../data/entities';
-import { IssueDraft, IssueOptions, RemarkKind, RemarkState, cleanContext, cleanTarget, issueFromRemark, tooManyRemarks } from '../rules/remarks';
+import { IssueDraft, IssueOptions, REJECTED_STATE, RemarkKind, RemarkState, cleanContext, cleanTarget, issueFromRemark, tooManyRemarks } from '../rules/remarks';
 
 export interface RemarkInput {
     kind: RemarkKind;
@@ -68,13 +68,26 @@ export class RemarkService {
     }
 
     public list(reader: RemarkWriter): Promise<Array<RemarkEntity>> {
-        return this.remarks.find({ where: reader.owner ? {} : { account: reader.email }, order: { createdAt: 'DESC', id: 'DESC' } });
+        return this.remarks.find({ where: { state: Not(REJECTED_STATE), ...(reader.owner ? {} : { account: reader.email }) }, order: { createdAt: 'DESC', id: 'DESC' } });
     }
 
     public async setState(id: number, state: RemarkState): Promise<RemarkEntity> {
         const remark = await this.get(id);
 
         return this.remarks.save({ ...remark, state, closedAt: state === 'closed' ? new Date() : null });
+    }
+
+    public async reject(writer: RemarkWriter, id: number): Promise<void> {
+        const remark = await this.get(id);
+        if (!writer.owner && remark.account !== writer.email) {
+            throw new NotFoundException(`Remark ${id} not found`);
+        }
+        if (remark.issueUrl) {
+            throw new ConflictException('This remark is already on GitHub');
+        }
+
+        await this.remarks.save({ ...remark, state: REJECTED_STATE, closedAt: new Date() });
+        this.logger.log(`remark ${id} rejected`);
     }
 
     public async issueDraft(id: number, options: IssueOptions): Promise<IssueDraft> {
@@ -93,7 +106,7 @@ export class RemarkService {
     }
 
     private async get(id: number): Promise<RemarkEntity> {
-        const remark = await this.remarks.findOne({ where: { id } });
+        const remark = await this.remarks.findOne({ where: { id, state: Not(REJECTED_STATE) } });
         if (!remark) {
             throw new NotFoundException(`Remark ${id} not found`);
         }

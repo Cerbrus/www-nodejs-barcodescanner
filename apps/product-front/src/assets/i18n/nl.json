@@ -234,7 +234,7 @@
         "ready": "{count} keer open feedback",
         "write": "Schrijven",
         "point": "Aanwijzen",
-        "hint": "Aanwijzen: tik daarna op het onderdeel dat je bedoelt. Sneller op een computer: klik met de rechtermuisknop op het onderdeel.",
+        "hint": "Aanwijzen: tik daarna op het onderdeel dat je bedoelt. Sneller op een computer: klik met de rechtermuisknop op het onderdeel. Het menu onderaan: tik op het tabblad dat al open is.",
         "pointing": "Tik op wat je bedoelt",
         "about": "Over",
         "kind": {
@@ -256,6 +256,8 @@
         "closed": "afgehandeld",
         "close": "Afhandelen",
         "reopen": "Heropenen",
+        "reject": "Afwijzen",
+        "rejectConfirm": "Deze feedback afwijzen? Hij verdwijnt uit de lijst.",
         "toGitHub": "Naar GitHub",
         "sendToGitHub": "Versturen naar GitHub",
         "sentToGitHub": "Verstuurd naar GitHub als issue {number}",

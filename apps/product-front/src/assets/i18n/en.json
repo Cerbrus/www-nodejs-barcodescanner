@@ -234,7 +234,7 @@
         "ready": "{count} open feedback",
         "write": "Write",
         "point": "Point",
-        "hint": "Point: then tap the part you mean. Quicker on a computer: right-click the part.",
+        "hint": "Point: then tap the part you mean. Quicker on a computer: right-click the part. The bottom menu: tap the tab that is already open.",
         "pointing": "Tap what you mean",
         "about": "About",
         "kind": {
@@ -256,6 +256,8 @@
         "closed": "handled",
         "close": "Mark as handled",
         "reopen": "Reopen",
+        "reject": "Reject",
+        "rejectConfirm": "Reject this feedback? It disappears from the list.",
         "toGitHub": "To GitHub",
         "sendToGitHub": "Send to GitHub",
         "sentToGitHub": "Sent to GitHub as issue {number}",
