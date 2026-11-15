@@ -1,7 +1,11 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { dirname } from 'path';
+
+import { BadRequestException, Injectable, Logger, MessageEvent, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { AppConfig } from '../../config/app.config';
 import { FeedbackSettingEntity } from '../../data/entities';
 import { DEFAULT_SOUND_IDS, FEEDBACK_EVENTS, FeedbackEvent, NO_SOUND, SOUNDS, Sound, SoundStep } from '../rules/sounds';
 import { EventsService } from './events.service';
@@ -12,13 +16,39 @@ export interface FeedbackSettings {
 }
 
 @Injectable()
-export class FeedbackService {
+export class FeedbackService implements OnApplicationBootstrap {
     private readonly logger = new Logger('Feedback');
+    private versionToAnnounce?: string;
 
     constructor(
         @InjectRepository(FeedbackSettingEntity) private readonly settings: Repository<FeedbackSettingEntity>,
-        private readonly events: EventsService
+        private readonly events: EventsService,
+        private readonly config: AppConfig
     ) {}
+
+    public onApplicationBootstrap(): void {
+        const { version, announcedVersionPath } = this.config;
+        const announced = existsSync(announcedVersionPath) ? readFileSync(announcedVersionPath, 'utf8').trim() : '';
+        if (version !== 'dev' && version !== announced) {
+            this.versionToAnnounce = version;
+            this.logger.log(`version ${version} is new; the scanner announces it when it connects`);
+        }
+    }
+
+    public async takeUpdateAnnouncement(): Promise<MessageEvent | undefined> {
+        const version = this.versionToAnnounce;
+        if (!version) {
+            return undefined;
+        }
+
+        this.versionToAnnounce = undefined;
+        mkdirSync(dirname(this.config.announcedVersionPath), { recursive: true });
+        writeFileSync(this.config.announcedVersionPath, version);
+        const steps = (await this.getSettings()).events.find(({ event }) => event === 'updated')?.steps ?? [];
+        this.logger.log(`version ${version} announced at the scanner`);
+
+        return steps.length ? { type: 'feedback', data: { name: 'updated', steps } } : undefined;
+    }
 
     public async getSettings(): Promise<FeedbackSettings> {
         const stored = new Map((await this.settings.find()).map((setting) => [setting.event, setting.soundId]));

@@ -190,7 +190,8 @@
             "needs_name": "Onbekend product",
             "ignored": "Herhaalde scan genegeerd",
             "error": "Scan niet aangekomen",
-            "held": "Scan bewaard (app niet bereikbaar)"
+            "held": "Scan bewaard (app niet bereikbaar)",
+            "updated": "Nieuwe versie live"
         },
         "name": {
             "tick": "Tikje (0,02 s)",

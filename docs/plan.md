@@ -110,6 +110,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
 - Done 2026-11-12 23:40: a buzzer on a GPIO pin (GPIO 18, an active type), driven by the hardware agent from the scan result. The sound per event is chosen on the System page from a library of sounds, with a button to hear each one (UC-16). Open: confirm the whole chain from button to buzzer after the first deploy.
 - Considered: a USB speaker of about 12 euro, or any powered speaker on the Pi's headphone jack.
+- Done 2026-11-15 17:27: the buzzer announces a new version once it is live, with a sound chosen on the sounds page like the scan sounds (owner's wish, 2026-11-15).
 
 - Done 2026-11-13 01:59, released in 1.1.11: the System page shows whether the scanner service runs and sees the scanner, and the time of the last handheld scan.
 

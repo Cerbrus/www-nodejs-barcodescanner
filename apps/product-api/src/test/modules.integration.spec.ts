@@ -2,13 +2,16 @@ import 'reflect-metadata';
 
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
 
 import { INestApplicationContext, Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
+import { AppConfig } from '../config/app.config';
 import { AppConfigModule } from '../config/config.module';
 import { ProductConnector, ProductSuggestion } from '../core/connectors/connector.model';
 import { CoreModule } from '../core/core.module';
@@ -16,10 +19,12 @@ import { DEBOUNCE_MILLISECONDS } from '../core/rules/scan-rules';
 import { BarcodeService } from '../core/services/barcode.service';
 import { CatalogService } from '../core/services/catalog.service';
 import { ConnectorService } from '../core/services/connector.service';
+import { EventsService } from '../core/services/events.service';
 import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
 import { ScanService } from '../core/services/scan.service';
+import { FeedbackSettingEntity } from '../data/entities';
 import { testFolder } from './test-env';
 
 const folder = testFolder;
@@ -150,6 +155,37 @@ describe('scan flow against a real database', () => {
 
     it('keeps a chosen sound per event and falls back to the default', () =>
         checkFeedbackSettings(app.get(FeedbackService)));
+
+    it('announces a new version once at the scanner, with the chosen sound, not after a restart', async () => {
+        const path = join(folder, 'announced-version');
+        const feedback = app.get(FeedbackService);
+        const service = (version: string): FeedbackService => {
+            const started = new FeedbackService(
+                app.get(getRepositoryToken(FeedbackSettingEntity)),
+                app.get(EventsService),
+                { version, announcedVersionPath: path } as AppConfig
+            );
+            started.onApplicationBootstrap();
+
+            return started;
+        };
+
+        await feedback.setSound('updated', 'trill15');
+        const first = service('1.2.3');
+        const announcement = await first.takeUpdateAnnouncement();
+        assert.equal(announcement?.type, 'feedback');
+        assert.equal((announcement?.data as { name: string }).name, 'updated');
+        assert.equal((announcement?.data as { steps: Array<{ kind: string }> }).steps[0].kind, 'gate');
+        assert.equal(readFileSync(path, 'utf8'), '1.2.3');
+        assert.equal(await first.takeUpdateAnnouncement(), undefined);
+
+        assert.equal(await service('1.2.3').takeUpdateAnnouncement(), undefined);
+        assert.equal(await service('dev').takeUpdateAnnouncement(), undefined);
+
+        await feedback.setSound('updated', 'none');
+        assert.equal(await service('1.2.4').takeUpdateAnnouncement(), undefined);
+        assert.equal(readFileSync(path, 'utf8'), '1.2.4');
+    });
 
     it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));
 

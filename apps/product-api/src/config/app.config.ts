@@ -28,6 +28,9 @@ export class AppConfig {
     public readonly dataFolder = dirname(this.databasePath);
     public readonly logFile = setting('LOG_PATH') ?? join(this.dataFolder, 'logs', 'app.log');
     public readonly pushKeysPath = setting('PUSH_KEYS_PATH') ?? join(this.dataFolder, 'push-keys.json');
+    public readonly announcedVersionPath =
+        setting('ANNOUNCED_VERSION_PATH') ?? join(this.dataFolder, 'announced-version');
+
     public readonly sessionSecretPath = setting('SESSION_SECRET_PATH') ?? join(this.dataFolder, 'session-secret');
     public readonly seedPath = setting('SEED_PATH') ?? join(process.cwd(), 'data', 'seed-items.json');
     public readonly iconsPath = setting('ICONS_PATH') ?? join(process.cwd(), 'data', 'icons');

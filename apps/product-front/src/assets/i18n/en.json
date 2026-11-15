@@ -190,7 +190,8 @@
             "needs_name": "Unknown product",
             "ignored": "Repeated scan ignored",
             "error": "Scan not delivered",
-            "held": "Scan held (app not reachable)"
+            "held": "Scan held (app not reachable)",
+            "updated": "New version live"
         },
         "name": {
             "tick": "Tick (0.02 s)",

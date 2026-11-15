@@ -112,6 +112,7 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 1. A buzzer at the scanner beeps after every handheld scan: by default a short beep for a product added, two blips for counted up, a long beep for an unknown barcode, three beeps when the scan did not arrive.
 2. On the sounds page, reached from the System page, the user picks, per event, a sound from a list or "no sound". The choice is saved and played at once on the buzzer.
 3. A button per sound plays it, to compare them and to check the buzzer works.
+4. When a new version goes live, the buzzer plays the sound chosen for "New version live" (by default short, short, long) once, as soon as the scanner service is connected to it. A restart of the same version, for instance after a reboot, stays silent; "no sound" turns the announcement off.
 
 ### UC-18 Say what is wrong or missing
 

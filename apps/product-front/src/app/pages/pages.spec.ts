@@ -27,7 +27,8 @@ const scan = (id: number, result: Scan['result'], extra: Partial<Scan> = {}): Sc
 const SOUNDS = {
     events: [
         { event: 'added', soundId: 'blip', steps: [] },
-        { event: 'ignored', soundId: 'none', steps: [] }
+        { event: 'ignored', soundId: 'none', steps: [] },
+        { event: 'updated', soundId: 'long', steps: [] }
     ],
     sounds: [
         { id: 'blip', steps: [] },
@@ -317,10 +318,14 @@ describe('the smaller pages', () => {
         it('shows the sound per event and plays one on request, but not "no sound"', async () => {
             await open(SoundsPage);
 
-            expect(texts(page, 'label.field-label')).toEqual(['sound.event.added', 'sound.event.ignored']);
+            expect(texts(page, 'label.field-label')).toEqual([
+                'sound.event.added',
+                'sound.event.ignored',
+                'sound.event.updated'
+            ]);
             expect(
                 Array.from(page.querySelectorAll('button.play'), (button) => (button as HTMLButtonElement).disabled)
-            ).toEqual([false, true]);
+            ).toEqual([false, true, false]);
 
             click(page, 'button.play');
 
@@ -338,12 +343,14 @@ describe('the smaller pages', () => {
 
             await choose(1, 'long');
             await choose(0, 'none');
+            await choose(2, 'blip');
 
             expect(api.setFeedbackSound.mock.calls).toEqual([
                 ['ignored', 'long'],
-                ['added', 'none']
+                ['added', 'none'],
+                ['updated', 'blip']
             ]);
-            expect(api.testSound.mock.calls).toEqual([['long']]);
+            expect(api.testSound.mock.calls).toEqual([['long'], ['blip']]);
         });
 
         it('opens the list of all sounds to listen to, and closes it again', async () => {

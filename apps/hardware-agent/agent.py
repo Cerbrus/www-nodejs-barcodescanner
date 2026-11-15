@@ -257,7 +257,7 @@ class Feedback:
                             event = line[len('event:'):].strip()
                         elif line.startswith('data:') and event == 'feedback':
                             test = json.loads(line[len('data:'):])
-                            log.info('test sound "%s" played', test.get('name'))
+                            log.info('sound "%s" played on request of the app', test.get('name'))
                             self.enqueue(test.get('name'), test.get('steps') or [])
                         elif line.startswith('data:') and event == 'feedback_settings':
                             self.load_settings()
