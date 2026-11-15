@@ -17,12 +17,13 @@ const bread: Section = { id: 'bread', name: 'Brood', sortOrder: 1 };
 const empty: Section = { id: 'empty', name: 'Leeg', sortOrder: 3 };
 const milk: CatalogItem = { id: 1, name: 'Melk', sectionId: 'dairy', custom: false };
 const loaf: CatalogItem = { id: 2, name: 'Brood', sectionId: 'bread', custom: false };
-const entry = (catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1): ListEntry => ({
+const entry = (catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1, note = ''): ListEntry => ({
+    id: `e${catalogItem.id}${note}`,
     catalogItemId: catalogItem.id,
     catalogItem,
     state,
     quantity,
-    note: '',
+    note,
     updatedAt: '2026-11-13T10:00:00.000Z'
 });
 const noConnection = (): HttpErrorResponse => new HttpErrorResponse({ status: 0 });
@@ -128,9 +129,9 @@ describe('ShoppingStore', () => {
         const store = create();
         api.getList.mockClear();
 
-        store.changeEntry(1, { state: 'recent' }).subscribe();
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
 
-        expect(api.changeListEntry).toHaveBeenCalledWith(1, { state: 'recent' });
+        expect(api.changeListEntry).toHaveBeenCalledWith('e1', { state: 'recent' });
         expect(api.getList).toHaveBeenCalledTimes(1);
         expect(store.pending()).toEqual([]);
     });
@@ -139,22 +140,22 @@ describe('ShoppingStore', () => {
         const store = create();
         api.changeListEntry.mockReturnValue(throwError(noConnection));
 
-        store.changeEntry(1, { state: 'recent' }).subscribe();
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
 
-        expect(store.pending().map((change) => [change.catalogItemId, change.state])).toEqual([[1, 'recent']]);
+        expect(store.pending().map((change) => [change.id, change.state])).toEqual([['e1', 'recent']]);
         expect(loadOutbox().length).toBe(1);
         expect(store.recent().map((row) => row.catalogItem.name)).toContain('Melk');
-        expect(store.pendingIds().has(1)).toBe(true);
+        expect(store.pendingIds().has('e1')).toBe(true);
         expect(store.online()).toBe(false);
     });
 
     it('queues behind waiting changes instead of overtaking them', () => {
         const store = create();
         api.changeListEntry.mockReturnValue(throwError(noConnection));
-        store.changeEntry(1, { state: 'recent' }).subscribe();
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
         api.changeListEntry.mockClear();
 
-        store.changeEntry(2, { state: 'to_buy', quantity: 3 }).subscribe();
+        store.changeEntry('e2', { state: 'to_buy', quantity: 3 }).subscribe();
 
         expect(api.changeListEntry).not.toHaveBeenCalled();
         expect(store.pending().length).toBe(2);
@@ -164,7 +165,7 @@ describe('ShoppingStore', () => {
     it('sends the waiting changes first when the connection is back, then reloads', () => {
         const store = create();
         api.changeListEntry.mockReturnValue(throwError(noConnection));
-        store.changeEntry(1, { state: 'recent' }).subscribe();
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
         const order: Array<string> = [];
         api.sendOfflineChanges.mockImplementation(() => {
             order.push('send');
@@ -186,8 +187,8 @@ describe('ShoppingStore', () => {
     it('tells the user when the server kept its own state over a waiting change', () => {
         const store = create();
         api.changeListEntry.mockReturnValue(throwError(noConnection));
-        store.changeEntry(1, { state: 'recent' }).subscribe();
-        api.sendOfflineChanges.mockReturnValue(of({ applied: 0, skipped: [1] }));
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
+        api.sendOfflineChanges.mockReturnValue(of({ applied: 0, skipped: ['e1'] }));
 
         resumed$.next();
 
@@ -214,5 +215,59 @@ describe('ShoppingStore', () => {
         api.getSections.mockReturnValue(throwError(noConnection));
 
         expect(create().loaded()).toBe(false);
+    });
+
+    it('ignores a snapshot from before list entries had their own id', () => {
+        const old = { ...entry(milk, 'to_buy'), id: undefined } as unknown as ListEntry;
+        saveSnapshot({
+            savedAt: '2026-11-15T10:00:00.000Z',
+            sections: [dairy],
+            items: [milk],
+            entries: [old],
+            inbox: []
+        });
+        api.getSections.mockReturnValue(throwError(noConnection));
+
+        expect(create().loaded()).toBe(false);
+    });
+
+    it('adds one to the plain entry of a product that is to buy, and starts a new plain entry otherwise', () => {
+        const store = create();
+
+        store.addItem(milk).subscribe();
+        expect(api.changeListEntry).toHaveBeenLastCalledWith('e1', { quantity: 3 });
+
+        store.addItem(loaf).subscribe();
+        expect(api.changeListEntry).toHaveBeenLastCalledWith('e2', {
+            catalogItemId: 2,
+            note: '',
+            state: 'to_buy',
+            quantity: 1
+        });
+
+        store.addItem(milk, ' lactosevrij ').subscribe();
+        const [id, change] = api.changeListEntry.mock.lastCall as [string, object];
+        expect(id).toMatch(/^[0-9a-f-]{36}$/);
+        expect(change).toEqual({ catalogItemId: 1, note: 'lactosevrij', state: 'to_buy', quantity: 1 });
+    });
+
+    it('shows a new variant at once while offline, and merges a note that another entry already has', () => {
+        api.getList.mockReturnValue(of([entry(milk, 'to_buy', 2), entry(milk, 'to_buy', 1, 'vol')]));
+        const store = create();
+        api.changeListEntry.mockReturnValue(throwError(noConnection));
+
+        store.changeEntry('new', { catalogItemId: 1, note: 'halfvol', state: 'to_buy', quantity: 1 }).subscribe();
+        expect(store.toBuy().map((row) => [row.note, row.quantity])).toEqual([
+            ['halfvol', 1],
+            ['', 2],
+            ['vol', 1]
+        ]);
+
+        store.changeEntry('e1', { note: ' vol ' }).subscribe();
+        expect(store.toBuy().map((row) => [row.id, row.note, row.quantity])).toEqual([
+            ['e1vol', 'vol', 3],
+            ['new', 'halfvol', 1]
+        ]);
+        expect(store.pending().map((change) => change.id)).toEqual(['new', 'e1']);
     });
 });

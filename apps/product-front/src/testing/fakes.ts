@@ -15,6 +15,7 @@ export function item(id: number, name: string, sectionId = 'zuivel'): CatalogIte
 
 export function entry(catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1, note = ''): ListEntry {
     return {
+        id: note ? `entry-${catalogItem.id}-${note}` : `entry-${catalogItem.id}`,
         catalogItemId: catalogItem.id,
         catalogItem,
         state,
@@ -34,14 +35,15 @@ export interface FakeStore {
     settled: WritableSignal<boolean>;
     online: WritableSignal<boolean>;
     updatedAt: WritableSignal<string | undefined>;
-    pending: WritableSignal<Array<{ catalogItemId: number }>>;
-    pendingIds: Signal<Set<number>>;
+    pending: WritableSignal<Array<{ id?: string }>>;
+    pendingIds: Signal<Set<string | undefined>>;
     toBuy: Signal<Array<ListEntry>>;
     recent: Signal<Array<ListEntry>>;
     toBuyGroups: Signal<Array<{ section: Section; rows: Array<ListEntry> }>>;
     itemGroups: Signal<Array<{ section: Section; rows: Array<CatalogItem> }>>;
     itemById: (id: number) => CatalogItem | undefined;
     changeEntry: ReturnType<typeof vi.fn>;
+    addItem: ReturnType<typeof vi.fn>;
     removeEntry: ReturnType<typeof vi.fn>;
     mapBarcode: ReturnType<typeof vi.fn>;
     createItem: ReturnType<typeof vi.fn>;
@@ -54,7 +56,7 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
     const sections = signal(SECTIONS);
     const catalog = signal(items);
     const list = signal(entries);
-    const pending = signal<Array<{ catalogItemId: number }>>([]);
+    const pending = signal<Array<{ id?: string }>>([]);
     const toBuy = computed(() => list().filter((row) => row.state === 'to_buy'));
     const group = <T>(rows: Array<T>, sectionOf: (row: T) => string): Array<{ section: Section; rows: Array<T> }> =>
         sections()
@@ -72,13 +74,14 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         online: signal(true),
         updatedAt: signal<string | undefined>(undefined),
         pending,
-        pendingIds: computed(() => new Set(pending().map((change) => change.catalogItemId))),
+        pendingIds: computed(() => new Set(pending().map((change) => change.id))),
         toBuy,
         recent: computed(() => list().filter((row) => row.state === 'recent')),
         toBuyGroups: computed(() => group(toBuy(), (row) => row.catalogItem.sectionId)),
         itemGroups: computed(() => group(catalog(), (row) => row.sectionId)),
         itemById: (id: number) => catalog().find((row) => row.id === id),
         changeEntry: vi.fn(() => of(undefined)),
+        addItem: vi.fn(() => of(undefined)),
         removeEntry: vi.fn(() => of(undefined)),
         mapBarcode: vi.fn(() => of(undefined)),
         createItem: vi.fn(),

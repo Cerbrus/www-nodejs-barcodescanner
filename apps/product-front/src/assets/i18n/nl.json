@@ -26,6 +26,7 @@
         "details": "Aantal en notitie",
         "quantity": "Aantal",
         "note": "Notitie",
+        "variantHint": "Elke notitie is een eigen regel. Zoek het product opnieuw om er nog een met een andere notitie toe te voegen; dezelfde notitie voegt ze samen.",
         "editItem": "Product bewerken",
         "createAndAdd": "Aanmaken en op de lijst zetten",
         "remove": "Uit recent verwijderen",
@@ -65,7 +66,9 @@
         "later": "Later",
         "discard": "Scan annuleren",
         "noAnswer": "Geen antwoord van {sources}",
-        "tryAgain": "Opnieuw"
+        "tryAgain": "Opnieuw",
+        "variantLabel": "Variant (niet verplicht)",
+        "variantPlaceholder": "Bijvoorbeeld jong of lactosevrij"
     },
     "inbox": {
         "title": "Inbox",
@@ -84,6 +87,7 @@
         "section": "Afdeling",
         "icon": "Icoon",
         "emoji": "Emoji",
+        "variant": "Variant: {note}",
         "iconHint": "Zonder icoon wordt de emoji getoond, anders de eerste letter.",
         "saved": "Opgeslagen",
         "barcodes": "Barcodes",

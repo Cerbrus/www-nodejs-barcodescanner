@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { rmSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
@@ -42,18 +43,26 @@ async function checkFeedbackSettings(feedback: FeedbackService): Promise<void> {
     await assert.rejects(feedback.setSound('added', 'does-not-exist'));
 }
 
-async function checkRemoveFromList(list: ListService, catalogItemId: number): Promise<void> {
-    await list.change(catalogItemId, { state: 'to_buy', quantity: 2 });
-    assert.equal((await list.getSnapshot(catalogItemId))?.quantity, 2);
+async function entryIdOf(list: ListService, catalogItemId: number, note = ''): Promise<string> {
+    const entry = (await list.getEntries()).find((row) => row.catalogItemId === catalogItemId && row.note === note);
+    assert.ok(entry);
 
-    await list.remove(catalogItemId);
-    assert.equal(await list.getSnapshot(catalogItemId), undefined);
+    return entry.id;
+}
+
+async function checkRemoveFromList(list: ListService, catalogItemId: number): Promise<void> {
+    const id = randomUUID();
+    await list.change(id, { catalogItemId, note: 'om te wissen', state: 'to_buy', quantity: 2 });
+    assert.equal((await list.getSnapshot(catalogItemId, 'om te wissen'))?.quantity, 2);
+
+    await list.remove(id);
+    assert.equal(await list.getSnapshot(catalogItemId, 'om te wissen'), undefined);
     assert.equal(
-        (await list.getEntries()).some((entry) => entry.catalogItemId === catalogItemId),
+        (await list.getEntries()).some((entry) => entry.id === id),
         false
     );
 
-    await list.remove(catalogItemId);
+    await list.remove(id);
 }
 
 describe('scan flow against a real database', () => {
@@ -87,7 +96,7 @@ describe('scan flow against a real database', () => {
         assert.equal((await list.getEntries()).length, 16);
         assert.ok(milk);
         milkId = milk.id;
-        assert.deepEqual(await list.getSnapshot(milkId), { state: 'to_buy', quantity: 1 });
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 1 });
     });
 
     it('puts an unknown barcode in the inbox and ignores a double read', async () => {
@@ -102,7 +111,7 @@ describe('scan flow against a real database', () => {
 
     it('applies the waiting scan when the barcode gets its item', async () => {
         await scans.nameBarcode(CODE, milkId);
-        assert.deepEqual(await list.getSnapshot(milkId), { state: 'to_buy', quantity: 2 });
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 2 });
         assert.equal((await barcodes.getAll(true)).length, 0);
         assert.equal((await catalog.getItem(milkId)).barcodes?.length, 1);
     });
@@ -110,12 +119,12 @@ describe('scan flow against a real database', () => {
     it('undoes the latest scan', async () => {
         const undone = await scans.undo();
         assert.equal(undone?.code, CODE);
-        assert.deepEqual(await list.getSnapshot(milkId), { state: 'to_buy', quantity: 1 });
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 1 });
     });
 
     it('re-adds a checked-off item on the next scan and counts up after that', async () => {
-        await list.change(milkId, { state: 'recent' });
-        assert.deepEqual(await list.getSnapshot(milkId), { state: 'recent', quantity: 0 });
+        await list.change(await entryIdOf(list, milkId), { state: 'recent' });
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'recent', quantity: 0 });
 
         await wait(DEBOUNCE_MILLISECONDS + 100);
         const added = await scans.register(CODE, 'phone');
@@ -179,14 +188,32 @@ describe('scan flow against a real database', () => {
         await scans.discardBarcode('8712345678906');
     });
 
+    it('scans a barcode that carries a variant onto the entry with that note, and undoes it there', async () => {
+        const code = '8712345678913';
+        assert.equal((await scans.register(code, 'phone')).result, 'needs_name');
+        await scans.nameBarcode(code, milkId, ' Lactosevrij ');
+        assert.equal((await barcodes.get(code)).note, 'Lactosevrij');
+        assert.deepEqual(await list.getSnapshot(milkId, 'Lactosevrij'), { state: 'to_buy', quantity: 1 });
+
+        await wait(DEBOUNCE_MILLISECONDS + 100);
+        const again = await scans.register(code, 'phone');
+        assert.deepEqual([again.result, again.note, again.quantity], ['incremented', 'Lactosevrij', 2]);
+
+        await scans.undo();
+        assert.deepEqual(await list.getSnapshot(milkId, 'Lactosevrij'), { state: 'to_buy', quantity: 1 });
+        await scans.undo();
+        assert.equal(await list.getSnapshot(milkId, 'Lactosevrij'), undefined);
+        assert.equal((await list.getSnapshot(milkId, ''))?.state, 'to_buy');
+    });
+
     it('writes nothing when a scan fails halfway', async () => {
         const before = {
             scans: (await scans.history(100)).length,
-            entry: await list.getSnapshot(milkId),
+            entry: await list.getSnapshot(milkId, ''),
             count: (await barcodes.get(CODE)).scanCount
         };
         await scans.nameBarcode(CODE, milkId);
-        const mapped = { entry: await list.getSnapshot(milkId), count: (await barcodes.get(CODE)).scanCount };
+        const mapped = { entry: await list.getSnapshot(milkId, ''), count: (await barcodes.get(CODE)).scanCount };
         const original = list.writeSnapshot.bind(list);
         list.writeSnapshot = (): Promise<void> => Promise.reject(new Error('disk full'));
 
@@ -195,17 +222,17 @@ describe('scan flow against a real database', () => {
         list.writeSnapshot = original;
 
         assert.equal((await scans.history(100)).length, before.scans);
-        assert.deepEqual(await list.getSnapshot(milkId), mapped.entry);
+        assert.deepEqual(await list.getSnapshot(milkId, ''), mapped.entry);
         assert.equal((await barcodes.get(CODE)).scanCount, mapped.count);
     });
 
     it('handles scans that arrive at the same moment one after the other', async () => {
         await wait(DEBOUNCE_MILLISECONDS + 100);
-        const start = (await list.getSnapshot(milkId))?.quantity ?? 0;
+        const start = (await list.getSnapshot(milkId, ''))?.quantity ?? 0;
         const results = await Promise.all([scans.register(CODE, 'phone'), scans.register(CODE, 'handheld')]);
 
         assert.equal(results.filter((outcome) => outcome.result === 'ignored').length, 1);
         assert.equal(results.filter((outcome) => outcome.result !== 'ignored').length, 1);
-        assert.equal((await list.getSnapshot(milkId))?.quantity, start + 1);
+        assert.equal((await list.getSnapshot(milkId, ''))?.quantity, start + 1);
     });
 });

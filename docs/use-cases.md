@@ -14,7 +14,7 @@ Terms:
 ### UC-1 Scan a known product with the handheld scanner
 
 1. The user scans an empty package with the handheld scanner connected to the Pi.
-2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one.
+2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one. A barcode named with a variant (UC-5) goes to the line of that product with that note.
 3. Any open web page shows a toast with the item name and an undo button. For an unknown barcode the toast offers to name it.
 
 A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16). When the app is not reachable, for instance during an update, the scan is kept and added a moment later; the buzzer plays its own "kept" sound, so there is no need to scan again.
@@ -43,7 +43,7 @@ A second read of the same barcode within 1 second is ignored. A buzzer at the sc
 ### UC-5 Name a barcode (once per barcode)
 
 1. The prompt shows the barcode and every connector suggestion (title, brand, category, photo, and the logo of the source it came from). When a source gave no answer, the prompt says which one and offers to try again. Tapping a suggestion copies its title into the search field and marks that suggestion with a coloured border and a check mark.
-2. The user picks an existing catalog item from the search field, which lists matches while typing.
+2. The user picks an existing catalog item from the search field, which lists matches while typing. A variant typed above the search, such as "lactosevrij", is kept with the barcode: its scans go to the line of the product with that note.
 3. If no item fits, the user chooses "new product" in the same list and fills in the form: name, shop section, icon from a visual picker, emoji. The section comes from the shop's category when a suggestion has one the app knows, and is otherwise guessed from the suggestions and the name.
 4. "Later" leaves the barcode in the inbox. "Cancel scan" discards the waiting scans and removes the barcode from the inbox.
 5. The mapping is saved. Every later scan of this barcode is automatic.
@@ -71,7 +71,8 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 ### UC-8 Add or edit by hand
 
 - Tap a *recent* tile to put it back on the list.
-- Search the catalog and add an item without scanning. A product that is already on the list shows in the results in the list colour with "+1"; tapping it raises its quantity by one.
+- Search the catalog and add an item without scanning. Every line of a found product that is already on the list shows in the results in the list colour, with its note and "+1"; tapping one raises that line's quantity by one. A plain tile next to them starts a new line without a note, unless there already is one.
+- A product can be on the list more than once, each line with its own note (Kaas: jong, belegen, cheddar). Give the line a note, then add the product again from the search for the next one. Giving a line the note of another line of the same product merges them, quantities added.
 - When the search finds no exact match, create the product from there: name, section, icon, emoji. It goes on the list at once.
 - Open a tile's menu to change the quantity with plus and minus, edit the note, or jump to the product's management page.
 - At quantity 1 the minus button takes the product off the list and moves it to *recent*, the same as checking it off.

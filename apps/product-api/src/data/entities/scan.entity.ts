@@ -25,6 +25,9 @@ export class ScanEntity {
     @Column({ type: 'integer', nullable: true })
     public catalogItemId?: number | null;
 
+    @Column({ type: 'text', nullable: true })
+    public note?: string | null;
+
     @Column({ type: 'varchar', nullable: true })
     public previousState?: ListState | null;
 

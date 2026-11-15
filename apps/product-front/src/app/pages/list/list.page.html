@@ -24,7 +24,7 @@
     @if (search().trim()) {
         <h2 class="section-title">{{ 'list.addFromCatalog' | translate }}</h2>
         <div class="tile-grid">
-            @for (result of searchResults(); track result.item.id) {
+            @for (result of searchResults(); track result.key) {
                 @if (result.entry; as entry) {
                     <app-item-tile
                         tone="buy"
@@ -51,7 +51,7 @@
     } @else {
         <div class="flow mt-2">
             @for (group of store.toBuyGroups(); track group.section.id) {
-                @for (entry of group.rows; track entry.catalogItemId; let first = $first) {
+                @for (entry of group.rows; track entry.id; let first = $first) {
                     <div class="flow-cell">
                         @if (first) {
                             <span class="flow-label" [style.--span]="group.rows.length" [title]="group.section.name">
@@ -60,14 +60,14 @@
                         }
                         <app-item-tile
                             tone="buy"
-                            [pending]="store.pendingIds().has(entry.catalogItemId)"
+                            [pending]="store.pendingIds().has(entry.id)"
                             [item]="entry.catalogItem"
                             [quantity]="entry.quantity"
                             [note]="entry.note"
                             [showDetails]="true"
                             [detailsLabel]="'list.details' | translate"
                             (selected)="checkOff(entry)"
-                            (details)="confirmingRemove.set(false); openItemId.set(entry.catalogItemId)"
+                            (details)="confirmingRemove.set(false); openEntryId.set(entry.id)"
                         />
                     </div>
                 }
@@ -78,16 +78,16 @@
 
         <h2 class="section-title">{{ 'list.recent' | translate }}</h2>
         <div class="tile-grid">
-            @for (entry of store.recent(); track entry.catalogItemId) {
+            @for (entry of store.recent(); track entry.id) {
                 <app-item-tile
                     tone="recent"
-                    [pending]="store.pendingIds().has(entry.catalogItemId)"
+                    [pending]="store.pendingIds().has(entry.id)"
                     [item]="entry.catalogItem"
                     [note]="entry.note"
                     [showDetails]="true"
                     [detailsLabel]="'list.recentDetails' | translate"
-                    (selected)="add(entry.catalogItem)"
-                    (details)="confirmingRemove.set(false); openItemId.set(entry.catalogItemId)"
+                    (selected)="addAgain(entry)"
+                    (details)="confirmingRemove.set(false); openEntryId.set(entry.id)"
                 />
             } @empty {
                 <p class="empty col-span-full">{{ 'list.noRecent' | translate }}</p>
@@ -99,6 +99,9 @@
 @if (openEntry(); as entry) {
     <app-sheet (closed)="closeEntry()">
         <h2 class="page-title">{{ entry.catalogItem.name }}</h2>
+        @if (entry.state === 'to_buy') {
+            <p class="muted -mt-2 mb-2 text-sm">{{ 'list.variantHint' | translate }}</p>
+        }
 
         @if (entry.state === 'to_buy') {
             <span class="field-label">{{ 'list.quantity' | translate }}</span>
@@ -147,7 +150,7 @@
                 </button>
             </div>
         } @else if (confirmingRemove()) {
-            <p>{{ 'list.removeConfirm' | translate: { name: entry.catalogItem.name } }}</p>
+            <p>{{ 'list.removeConfirm' | translate: { name: nameOf(entry) } }}</p>
             <div class="mt-4 flex gap-2">
                 <button type="button" class="btn danger basis-0 grow" (click)="remove(entry)">
                     <i class="material-symbols-outlined">delete</i>
@@ -160,7 +163,7 @@
             </div>
         } @else {
             <div class="flex flex-col gap-2">
-                <button type="button" class="btn primary" (click)="add(entry.catalogItem); closeEntry()">
+                <button type="button" class="btn primary" (click)="addAgain(entry); closeEntry()">
                     <i class="material-symbols-outlined">add_shopping_cart</i>
                     {{ 'list.addToList' | translate }}
                 </button>

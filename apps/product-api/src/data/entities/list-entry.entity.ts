@@ -1,14 +1,18 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 
 import { CatalogItemEntity } from './catalog-item.entity';
 import { ListState } from './types';
 
 @Entity('list_entry')
+@Unique('uq_list_entry_variant', ['catalogItemId', 'note'])
 export class ListEntryEntity {
-    @PrimaryColumn({ type: 'integer' })
+    @PrimaryColumn({ type: 'varchar' })
+    public id: string;
+
+    @Column({ type: 'integer' })
     public catalogItemId: number;
 
-    @OneToOne(() => CatalogItemEntity, { onDelete: 'CASCADE' })
+    @ManyToOne(() => CatalogItemEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'catalog_item_id' })
     public catalogItem?: CatalogItemEntity;
 

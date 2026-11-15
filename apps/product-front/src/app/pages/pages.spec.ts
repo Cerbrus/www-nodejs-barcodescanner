@@ -178,14 +178,14 @@ describe('the smaller pages', () => {
         it('lists the scans with product name, source and result, and greys out an undone one', async () => {
             api.getScans.mockReturnValue(
                 of([
-                    scan(1, 'added', { catalogItemId: 1, source: 'phone' }),
+                    scan(1, 'added', { catalogItemId: 1, source: 'phone', note: 'vol' }),
                     scan(2, 'needs_name'),
                     scan(3, 'incremented', { catalogItemId: 1, undoneAt: '2026-11-13T10:01:00.000Z' })
                 ])
             );
             await open(HistoryPage);
 
-            expect(texts(page, '.card .font-semibold')).toEqual(['Melk', 'inbox.unknownProduct', 'Melk']);
+            expect(texts(page, '.card .font-semibold')).toEqual(['Melk (vol)', 'inbox.unknownProduct', 'Melk']);
             expect(texts(page, '.card > i')).toEqual(['smartphone', 'barcode_reader', 'barcode_reader']);
             expect(texts(page, '.result')).toEqual([
                 'history.result.added',

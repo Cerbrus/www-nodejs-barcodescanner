@@ -1,9 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
 
 import { ListService, OfflineResult } from '../../core/services/list.service';
 import { ListEntryEntity } from '../../data/entities';
 import { ListEntryChangeDto } from '../dto/list-entry-change.dto';
-import { OfflineChangesDto } from '../dto/offline-changes.dto';
+import { ENTRY_ID, OfflineChangesDto } from '../dto/offline-changes.dto';
+
+function entryId(id: string): string {
+    if (!ENTRY_ID.test(id)) {
+        throw new BadRequestException('Not a list entry id');
+    }
+
+    return id;
+}
 
 @Controller({ path: 'list', version: '1' })
 export class ListController {
@@ -22,17 +30,14 @@ export class ListController {
         );
     }
 
-    @Patch(':catalogItemId')
-    public change(
-        @Param('catalogItemId', ParseIntPipe) catalogItemId: number,
-        @Body() change: ListEntryChangeDto
-    ): Promise<ListEntryEntity> {
-        return this.list.change(catalogItemId, change);
+    @Patch(':id')
+    public change(@Param('id') id: string, @Body() change: ListEntryChangeDto): Promise<ListEntryEntity> {
+        return this.list.change(entryId(id), change);
     }
 
-    @Delete(':catalogItemId')
+    @Delete(':id')
     @HttpCode(204)
-    public remove(@Param('catalogItemId', ParseIntPipe) catalogItemId: number): Promise<void> {
-        return this.list.remove(catalogItemId);
+    public remove(@Param('id') id: string): Promise<void> {
+        return this.list.remove(entryId(id));
     }
 }

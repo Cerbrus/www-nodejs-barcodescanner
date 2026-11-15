@@ -44,7 +44,7 @@ export class ShoppingStore {
     public readonly settled = signal(false);
     public readonly updatedAt = signal<string | undefined>(undefined);
     public readonly pending = signal<Array<PendingChange>>(loadOutbox());
-    public readonly pendingIds = computed(() => new Set(this.pending().map((change) => change.catalogItemId)));
+    public readonly pendingIds = computed(() => new Set(this.pending().map((change) => change.id)));
 
     public readonly toBuy = computed(() => this.entries().filter((entry) => entry.state === 'to_buy'));
     public readonly recent = computed(() => this.entries().filter((entry) => entry.state === 'recent'));
@@ -128,17 +128,31 @@ export class ShoppingStore {
         );
     }
 
-    public changeEntry(catalogItemId: number, change: ListEntryChange): Observable<void> {
+    public changeEntry(id: string, change: ListEntryChange): Observable<void> {
         if (this.pending().length || !navigator.onLine) {
-            return this.keepForLater(catalogItemId, change);
+            return this.keepForLater(id, change);
         }
 
-        return this.api.changeListEntry(catalogItemId, change).pipe(
+        return this.api.changeListEntry(id, change).pipe(
             switchMap(() => this.refreshListAndInbox()),
             catchError((error: HttpErrorResponse) =>
-                error.status === NO_CONNECTION ? this.keepForLater(catalogItemId, change) : throwError(() => error)
+                error.status === NO_CONNECTION ? this.keepForLater(id, change) : throwError(() => error)
             )
         );
+    }
+
+    public addItem(item: CatalogItem, note = ''): Observable<void> {
+        const entry = this.entries().find((row) => row.catalogItemId === item.id && row.note === note.trim());
+        if (entry?.state === 'to_buy') {
+            return this.changeEntry(entry.id, { quantity: entry.quantity + 1 });
+        }
+
+        return this.changeEntry(entry?.id ?? crypto.randomUUID(), {
+            catalogItemId: item.id,
+            note: note.trim(),
+            state: 'to_buy',
+            quantity: 1
+        });
     }
 
     public forgetLocalData(): void {
@@ -146,25 +160,22 @@ export class ShoppingStore {
         saveOutbox([]);
     }
 
-    public removeEntry(catalogItemId: number): Observable<void> {
-        return this.api.removeListEntry(catalogItemId).pipe(switchMap(() => this.refreshListAndInbox()));
+    public removeEntry(id: string): Observable<void> {
+        return this.api.removeListEntry(id).pipe(switchMap(() => this.refreshListAndInbox()));
     }
 
-    public mapBarcode(code: string, catalogItemId: number): Observable<void> {
-        return this.api.mapBarcode(code, catalogItemId).pipe(switchMap(() => this.refreshListAndInbox()));
+    public mapBarcode(code: string, catalogItemId: number, note = ''): Observable<void> {
+        return this.api.mapBarcode(code, catalogItemId, note).pipe(switchMap(() => this.refreshListAndInbox()));
     }
 
     public createItem(input: CatalogItemInput): Observable<CatalogItem> {
         return this.api.createCatalogItem(input).pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
     }
 
-    private keepForLater(catalogItemId: number, change: ListEntryChange): Observable<void> {
-        this.pending.update((pending) => [
-            ...pending,
-            { ...change, catalogItemId, changedAt: new Date().toISOString() }
-        ]);
+    private keepForLater(id: string, change: ListEntryChange): Observable<void> {
+        this.pending.update((pending) => [...pending, { ...change, id, changedAt: new Date().toISOString() }]);
         saveOutbox(this.pending());
-        this.entries.update((entries) => this.withLocalChange(entries, catalogItemId, change));
+        this.entries.update((entries) => this.withLocalChange(entries, id, change));
         this.saveSnapshotNow(this.updatedAt() ?? new Date().toISOString());
         this.failed.set(true);
         this.settled.set(true);
@@ -172,28 +183,31 @@ export class ShoppingStore {
         return of(undefined);
     }
 
-    private withLocalChange(
-        entries: Array<ListEntry>,
-        catalogItemId: number,
-        change: ListEntryChange
-    ): Array<ListEntry> {
-        const current = entries.find((entry) => entry.catalogItemId === catalogItemId);
-        const catalogItem = current?.catalogItem ?? this.itemById(catalogItemId);
+    private withLocalChange(entries: Array<ListEntry>, id: string, change: ListEntryChange): Array<ListEntry> {
+        const current = entries.find((entry) => entry.id === id);
+        const catalogItem = current?.catalogItem ?? this.itemById(change.catalogItemId ?? -1);
         if (!catalogItem) {
             return entries;
         }
 
+        const note = (change.note ?? current?.note ?? '').trim();
+        const variant = entries.find(
+            (entry) => entry.id !== id && entry.catalogItemId === catalogItem.id && entry.note === note
+        );
         const state = change.state ?? current?.state ?? 'to_buy';
+        const quantity = state === 'recent' ? 0 : Math.max(1, change.quantity ?? current?.quantity ?? 1);
+        const together = variant?.state === 'to_buy' && state === 'to_buy' ? variant.quantity + quantity : quantity;
         const changed: ListEntry = {
-            catalogItemId,
+            id: variant?.id ?? id,
+            catalogItemId: catalogItem.id,
             catalogItem,
-            state,
-            quantity: state === 'recent' ? 0 : Math.max(1, change.quantity ?? current?.quantity ?? 1),
-            note: change.note ?? current?.note ?? '',
+            state: variant && state === 'recent' ? variant.state : state,
+            quantity: variant && state === 'recent' ? variant.quantity : together,
+            note,
             updatedAt: new Date().toISOString()
         };
 
-        return [changed, ...entries.filter((entry) => entry.catalogItemId !== catalogItemId)];
+        return [changed, ...entries.filter((entry) => entry.id !== id && entry.id !== changed.id)];
     }
 
     private sendPending(): Observable<void> {

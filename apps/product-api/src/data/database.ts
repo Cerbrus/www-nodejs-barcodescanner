@@ -10,6 +10,7 @@ import { FeedbackSetting1763010000000 } from './migrations/1763010000000-feedbac
 import { BarcodeLookupFailed1763020000000 } from './migrations/1763020000000-barcode-lookup-failed';
 import { Remark1763200000000 } from './migrations/1763200000000-remark';
 import { MissingEmojis1763300000000 } from './migrations/1763300000000-missing-emojis';
+import { ListVariants1763400000000 } from './migrations/1763400000000-list-variants';
 
 export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
     return {
@@ -24,7 +25,8 @@ export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
             FeedbackSetting1763010000000,
             BarcodeLookupFailed1763020000000,
             Remark1763200000000,
-            MissingEmojis1763300000000
+            MissingEmojis1763300000000,
+            ListVariants1763400000000
         ],
         migrationsRun: true,
         synchronize: false,

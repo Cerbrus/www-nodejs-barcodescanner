@@ -58,11 +58,12 @@ describe('ApiService', () => {
             ],
             [() => api.deleteCatalogItem(7), 'DELETE', '/catalog/7'],
             [() => api.getList(), 'GET', '/list'],
-            [() => api.changeListEntry(7, { state: 'recent' }), 'PATCH', '/list/7', { state: 'recent' }],
-            [() => api.removeListEntry(7), 'DELETE', '/list/7'],
+            [() => api.changeListEntry('e7', { state: 'recent' }), 'PATCH', '/list/e7', { state: 'recent' }],
+            [() => api.removeListEntry('e7'), 'DELETE', '/list/e7'],
             [() => api.getInbox(), 'GET', '/barcodes?unmapped=true'],
             [() => api.getBarcode('871'), 'GET', '/barcodes/871'],
-            [() => api.mapBarcode('871', 7), 'PUT', '/barcodes/871', { catalogItemId: 7 }],
+            [() => api.mapBarcode('871', 7), 'PUT', '/barcodes/871', { catalogItemId: 7, note: '' }],
+            [() => api.mapBarcode('871', 7, 'jong'), 'PUT', '/barcodes/871', { catalogItemId: 7, note: 'jong' }],
             [() => api.repeatLookup('871'), 'POST', '/barcodes/871/lookup', {}],
             [() => api.unmapBarcode('871'), 'DELETE', '/barcodes/871'],
             [() => api.discardBarcode('871'), 'POST', '/barcodes/871/discard', {}],
@@ -114,14 +115,14 @@ describe('ApiService', () => {
     it('marks the calls whose failure the caller handles itself, so no second message appears', () => {
         api.scan('871').subscribe();
         api.savePushSubscription({ endpoint: 'e' }).subscribe();
-        api.changeListEntry(7, { state: 'recent' }).subscribe();
-        api.removeListEntry(7).subscribe();
+        api.changeListEntry('e7', { state: 'recent' }).subscribe();
+        api.removeListEntry('e7').subscribe();
 
         expect(server.expectOne('https://shop.example/api/v1/scans').request.context.get(QUIET_FAILURE)).toBe(true);
         expect(
             server.expectOne('https://shop.example/api/v1/push/subscriptions').request.context.get(QUIET_FAILURE)
         ).toBe(true);
-        const [change, removal] = server.match('https://shop.example/api/v1/list/7').map((call) => call.request);
+        const [change, removal] = server.match('https://shop.example/api/v1/list/e7').map((call) => call.request);
 
         expect(change.context.get(QUIET_WITHOUT_CONNECTION)).toBe(true);
         expect(removal.context.get(QUIET_WITHOUT_CONNECTION)).toBe(false);

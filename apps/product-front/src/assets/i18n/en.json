@@ -26,6 +26,7 @@
         "details": "Quantity and note",
         "quantity": "Quantity",
         "note": "Note",
+        "variantHint": "Each note is its own line. Search the product again to add another with a different note; the same note merges them.",
         "editItem": "Edit product",
         "createAndAdd": "Create and add to the list",
         "remove": "Remove from recent",
@@ -65,7 +66,9 @@
         "later": "Later",
         "discard": "Cancel scan",
         "noAnswer": "No answer from {sources}",
-        "tryAgain": "Try again"
+        "tryAgain": "Try again",
+        "variantLabel": "Variant (optional)",
+        "variantPlaceholder": "For example mild or lactose free"
     },
     "inbox": {
         "title": "Inbox",
@@ -84,6 +87,7 @@
         "section": "Section",
         "icon": "Icon",
         "emoji": "Emoji",
+        "variant": "Variant: {note}",
         "iconHint": "Without an icon the emoji is shown, otherwise the first letter.",
         "saved": "Saved",
         "barcodes": "Barcodes",

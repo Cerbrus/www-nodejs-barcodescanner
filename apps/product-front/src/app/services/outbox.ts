@@ -1,7 +1,7 @@
 import { ListEntryChange } from '../models';
 
 export interface PendingChange extends ListEntryChange {
-    catalogItemId: number;
+    id?: string;
     changedAt: string;
 }
 

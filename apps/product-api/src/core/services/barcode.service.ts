@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, IsNull, Repository } from 'typeorm';
 
 import { EventsService } from './events.service';
+import { cleanNote } from './list.service';
 import { BarcodeEntity, ProductSuggestion } from '../../data/entities';
 
 @Injectable()
@@ -50,13 +51,13 @@ export class BarcodeService {
         }
     }
 
-    public async link(code: string, catalogItemId: number, manager?: EntityManager): Promise<void> {
-        await this.in(manager).upsert({ code, catalogItemId }, ['code']);
+    public async link(code: string, catalogItemId: number, note: string, manager?: EntityManager): Promise<void> {
+        await this.in(manager).upsert({ code, catalogItemId, note: cleanNote(note) }, ['code']);
     }
 
     public async unlink(code: string): Promise<void> {
         await this.get(code);
-        await this.barcodes.update({ code }, { catalogItemId: null });
+        await this.barcodes.update({ code }, { catalogItemId: null, note: '' });
         this.events.emit('barcode', { code, catalogItemId: null });
     }
 

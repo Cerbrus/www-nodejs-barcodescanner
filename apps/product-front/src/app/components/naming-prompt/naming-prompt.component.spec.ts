@@ -117,8 +117,17 @@ describe('NamingPromptComponent', () => {
         await typeName('karne');
         click(page, 'app-item-autocomplete .option');
 
-        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2);
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2, '');
         expect(outcomes).toEqual([{ kind: 'linked', item: item(2, 'Karnemelk') }]);
+    });
+
+    it('links the barcode with the variant typed above the search', async () => {
+        await open(known());
+        type(page, '#naming-variant', ' Lactosevrij ');
+        await typeName('karne');
+        click(page, 'app-item-autocomplete .option');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2, 'Lactosevrij');
     });
 
     it('creates a new product from the typed name and links it, with the section guessed from the suggestions', async () => {
@@ -132,7 +141,7 @@ describe('NamingPromptComponent', () => {
 
         click(page, 'app-new-item-form button.primary');
 
-        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 50);
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 50, '');
         expect(outcomes[0].kind).toBe('linked');
     });
 

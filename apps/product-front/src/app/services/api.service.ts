@@ -84,22 +84,22 @@ export class ApiService {
         return this.http.get<Array<ListEntry>>(`${this.baseUrl}/list`);
     }
 
-    public changeListEntry(catalogItemId: number, change: ListEntryChange): Observable<ListEntry> {
-        return this.http.patch<ListEntry>(`${this.baseUrl}/list/${catalogItemId}`, change, {
+    public changeListEntry(id: string, change: ListEntryChange): Observable<ListEntry> {
+        return this.http.patch<ListEntry>(`${this.baseUrl}/list/${id}`, change, {
             context: QUEUED_WITHOUT_CONNECTION
         });
     }
 
-    public sendOfflineChanges(changes: Array<PendingChange>): Observable<{ applied: number; skipped: Array<number> }> {
-        return this.http.post<{ applied: number; skipped: Array<number> }>(
+    public sendOfflineChanges(changes: Array<PendingChange>): Observable<{ applied: number; skipped: Array<string> }> {
+        return this.http.post<{ applied: number; skipped: Array<string> }>(
             `${this.baseUrl}/list/offline-changes`,
             { changes },
             { context: QUIET }
         );
     }
 
-    public removeListEntry(catalogItemId: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/list/${catalogItemId}`);
+    public removeListEntry(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/list/${id}`);
     }
 
     public getInbox(): Observable<Array<Barcode>> {
@@ -110,8 +110,8 @@ export class ApiService {
         return this.http.get<Barcode>(`${this.baseUrl}/barcodes/${code}`);
     }
 
-    public mapBarcode(code: string, catalogItemId: number): Observable<Barcode> {
-        return this.http.put<Barcode>(`${this.baseUrl}/barcodes/${code}`, { catalogItemId });
+    public mapBarcode(code: string, catalogItemId: number, note = ''): Observable<Barcode> {
+        return this.http.put<Barcode>(`${this.baseUrl}/barcodes/${code}`, { catalogItemId, note });
     }
 
     public repeatLookup(code: string): Observable<Barcode> {

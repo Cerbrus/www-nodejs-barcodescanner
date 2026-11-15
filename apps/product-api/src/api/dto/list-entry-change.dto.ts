@@ -4,6 +4,10 @@ import { ListState } from '../../data/entities';
 
 export class ListEntryChangeDto {
     @IsOptional()
+    @IsInt()
+    public catalogItemId?: number;
+
+    @IsOptional()
     @IsIn(['to_buy', 'recent'])
     public state?: ListState;
 

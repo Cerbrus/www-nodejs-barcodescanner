@@ -155,7 +155,9 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 
 ## Names, sections and variants of scanned products
 
-Decided 2026-11-15, see [naming-plan.md](naming-plan.md): naming an unknown barcode offers the most specific existing product found in the shop title, else a more generic one with the rest as note, else a new name without brand and amount; a small Claude model makes that suggestion when an API key is set, the rules otherwise. A product can be on the list several times, told apart by its note, which is the variant; a barcode can carry that variant. The section of a new product comes from the shop's category first.
+Decided 2026-11-15, see [naming-plan.md](naming-plan.md): naming an unknown barcode offers the most specific existing product found in the shop title, else a more generic one with the rest as note, else a new name without brand and amount; a language model would make that suggestion, the rules otherwise; that AI step is deferred (owner, 2026-11-15) until the rules prove too weak, and only a free service counts, see the options in naming-plan.md. A product can be on the list several times, told apart by its note, which is the variant; a barcode can carry that variant. The section of a new product comes from the shop's category first.
+
+Built 2026-11-15 (step 2): a list entry has its own id, a UUID the web app makes, so an entry added without a connection needs no answer from the server. Product plus note is unique; when a change gives an entry the note of another entry of the same product, the server merges them, quantities added when both are to buy. The search on the list page shows every line of a found product that is to buy, with its note and "+1", and a plain tile that starts a new line when the product has no line without a note (owner, 2026-11-15). A scan of a barcode with a variant adds to the entry of that product with that note.
 
 ## Functional reference
 

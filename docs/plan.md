@@ -170,9 +170,10 @@ What the agent built from the owner's feedback, each reviewed, finished and land
 
 ### 12. Names, sections and variants: started
 
-Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. Four steps: small leftovers and the section from the shop's category; variants on the list; naming rules; an AI suggestion behind the rules.
+Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. Four steps: small leftovers and the section from the shop's category; variants on the list; naming rules; an AI suggestion behind the rules. The AI step is deferred (owner, 2026-11-15): no paid API, and the free options are listed in naming-plan.md.
 
 - Done 2026-11-15 14:35, released in 1.1.70: step 1. The server maps the shop's category to a section (`core/rules/shop-sections.ts`) and adds it to each suggestion as `sectionId`; the new-product form takes it before the keyword guess. The history page marks scans of unnamed barcodes whose lookup failed and opens the naming prompt for them. The eight products without an emoji get the approved ones (migration, only where none was chosen, and the seed file). The hardware agent no longer sends `source`. Suggestions stored before this keep using the keyword guess.
+- Done 2026-11-15 15:12, on branch `feature/naming-step-2`, not released: step 2. List entries have their own id; a product can be on the list once per note, and a note that another line of the product has merges them. The search shows each line of a product with "+1" and a plain tile for a new line. A barcode can carry a variant, set in the naming prompt and shown on the product page; its scans and their undo go to that line. Offline adds and changes queue by entry id. Migration keeps every entry and trims its note.
 
 ### Smaller changes outside the milestones
 

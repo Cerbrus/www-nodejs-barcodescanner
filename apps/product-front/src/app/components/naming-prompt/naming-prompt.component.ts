@@ -34,6 +34,7 @@ export class NamingPromptComponent {
     protected readonly barcode = signal<Barcode | undefined>(undefined);
     protected readonly search = signal('');
     protected readonly newName = signal<string | undefined>(undefined);
+    protected readonly variant = signal('');
     protected readonly busy = signal(false);
 
     protected readonly suggestions = computed(() => this.barcode()?.suggestions ?? []);
@@ -96,7 +97,7 @@ export class NamingPromptComponent {
     protected choose(item: CatalogItem): void {
         this.busy.set(true);
         this.store
-            .mapBarcode(this.code(), item.id)
+            .mapBarcode(this.code(), item.id, this.variant().trim())
             .pipe(tap(() => this.closed.emit({ kind: 'linked', item })))
             .subscribe();
     }

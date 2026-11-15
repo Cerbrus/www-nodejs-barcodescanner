@@ -81,6 +81,9 @@
                     <p class="mt-2 font-semibold">
                         {{ barcode.suggestions?.[0]?.title ?? ('inbox.unknownProduct' | translate) }}
                     </p>
+                    @if (barcode.note) {
+                        <p class="barcode-variant text-sm">{{ 'item.variant' | translate: { note: barcode.note } }}</p>
+                    }
                     <p class="muted text-sm">
                         <span class="font-mono">{{ barcode.code }}</span>
                         · {{ 'inbox.scans' | translate: { count: barcode.scanCount } }}

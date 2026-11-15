@@ -26,7 +26,7 @@ export class BarcodeController {
 
     @Put(':code')
     public mapBarcode(@Param('code') code: string, @Body() mapping: BarcodeMappingDto): Promise<BarcodeEntity> {
-        return this.scans.nameBarcode(code, mapping.catalogItemId);
+        return this.scans.nameBarcode(code, mapping.catalogItemId, mapping.note);
     }
 
     @Delete(':code')

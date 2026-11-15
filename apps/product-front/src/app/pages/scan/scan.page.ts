@@ -15,6 +15,7 @@ import { BarcodeFormat, DecodeHintType } from '@zxing/library';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { NamingOutcome, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
+import { withNote } from '../../display-name';
 import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -149,7 +150,7 @@ export class ScanPage {
         this.toasts.show({
             kind: 'ok',
             text: this.translate.instant(`scan.${outcome.result}`, {
-                name: outcome.itemName,
+                name: withNote(outcome.itemName, outcome.note),
                 quantity: outcome.quantity
             }),
             actionLabel: this.translate.instant('history.undo'),

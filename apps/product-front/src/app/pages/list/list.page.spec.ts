@@ -85,39 +85,61 @@ describe('ListPage', () => {
         await open();
         await tap('buy', 'Melk');
 
-        expect(store.changeEntry).toHaveBeenCalledWith(1, { state: 'recent' });
+        expect(store.changeEntry).toHaveBeenCalledWith('entry-1-halfvol', { state: 'recent' });
         expect(toasts()).toEqual(['list.checkedOff']);
 
         TestBed.inject(ToastService).toasts()[0].action?.();
 
-        expect(store.changeEntry).toHaveBeenLastCalledWith(1, { state: 'to_buy', quantity: 2, note: 'halfvol' });
+        expect(store.changeEntry).toHaveBeenLastCalledWith('entry-1-halfvol', {
+            state: 'to_buy',
+            quantity: 2,
+            note: 'halfvol'
+        });
     });
 
     it('puts a recent product back on the list with a tap', async () => {
         await open();
         await tap('recent', 'Cola');
 
-        expect(store.changeEntry).toHaveBeenCalledWith(3, { state: 'to_buy', quantity: 1 });
+        expect(store.changeEntry).toHaveBeenCalledWith('entry-3', { state: 'to_buy', quantity: 1 });
     });
 
     it('marks a product whose change still waits for a connection', async () => {
-        store.pending.set([{ catalogItemId: 2 }]);
+        store.pending.set([{ id: 'entry-2' }]);
         await open();
 
         expect(page.querySelectorAll('.waiting').length).toBe(1);
     });
 
-    it('searches the products; one already on the list shows as +1 and gets one more', async () => {
+    it('searches the products; one already on the list without a note shows as +1 and gets one more', async () => {
+        await open();
+        await search('brood');
+
+        expect(texts(page, '.tile-grid .quantity')).toEqual(['+1']);
+
+        await tap('buy', 'Brood');
+
+        expect(store.changeEntry).toHaveBeenCalledWith('entry-2', { quantity: 2 });
+        expect((page.querySelector('input[type=search]') as HTMLInputElement).value).toBe('');
+    });
+
+    it('shows each line of a product with its note as +1, and a plain tile for a new line', async () => {
+        store.entries.update((entries) => [...entries, entry(milk, 'to_buy', 1, 'biologisch')]);
         await open();
         await search('melk');
 
-        expect(texts(page, '.tile-grid .name')).toEqual(['Melk', 'Karnemelk']);
-        expect(texts(page, '.tile-grid .quantity')).toEqual(['+1']);
+        expect(texts(page, '.tile-grid .name')).toEqual(['Melk', 'Melk', 'Melk', 'Karnemelk']);
+        expect(texts(page, '.tile-grid .note')).toEqual(['biologisch', 'halfvol']);
+        expect(texts(page, '.tile-grid .quantity')).toEqual(['+1', '+1']);
 
-        await tap('buy', 'Melk');
+        const halfvol = Array.from(page.querySelectorAll('.tile-grid app-item-tile'))[1] as HTMLElement;
+        click(halfvol, 'button.tile');
+        await settle();
+        expect(store.changeEntry).toHaveBeenCalledWith('entry-1-halfvol', { quantity: 3 });
 
-        expect(store.changeEntry).toHaveBeenCalledWith(1, { quantity: 3 });
-        expect((page.querySelector('input[type=search]') as HTMLInputElement).value).toBe('');
+        await search('melk');
+        await tap('neutral', 'Melk');
+        expect(store.addItem).toHaveBeenCalledWith(milk);
     });
 
     it('adds a found product that is not on the list, and clears the search', async () => {
@@ -125,7 +147,7 @@ describe('ListPage', () => {
         await search('karne');
         await tap('neutral', 'Karnemelk');
 
-        expect(store.changeEntry).toHaveBeenCalledWith(4, { state: 'to_buy', quantity: 1 });
+        expect(store.addItem).toHaveBeenCalledWith(buttermilk);
         expect(page.querySelector('.flow')).not.toBeNull();
     });
 
@@ -142,7 +164,7 @@ describe('ListPage', () => {
         await settle();
 
         expect(store.createItem).toHaveBeenCalledWith(expect.objectContaining({ name: 'Kwark' }));
-        expect(store.changeEntry).toHaveBeenCalledWith(60, { state: 'to_buy', quantity: 1 });
+        expect(store.addItem).toHaveBeenCalledWith(item(60, 'Kwark'));
         expect(page.querySelector('app-new-item-form')).toBeNull();
     });
 
@@ -154,16 +176,16 @@ describe('ListPage', () => {
         click(page, 'app-sheet button[aria-label="list.more"]');
         click(page, 'app-sheet button[aria-label="list.less"]');
         expect(store.changeEntry.mock.calls).toEqual([
-            [1, { quantity: 3 }],
-            [1, { quantity: 1 }]
+            ['entry-1-halfvol', { quantity: 3 }],
+            ['entry-1-halfvol', { quantity: 1 }]
         ]);
 
-        store.entries.set([entry(milk, 'to_buy', 1)]);
+        store.entries.set([entry(milk, 'to_buy', 1, 'halfvol')]);
         await settle();
         click(page, 'app-sheet button[aria-label="list.toRecent"]');
         await settle();
 
-        expect(store.changeEntry).toHaveBeenLastCalledWith(1, { state: 'recent' });
+        expect(store.changeEntry).toHaveBeenLastCalledWith('entry-1-halfvol', { state: 'recent' });
         expect(page.querySelector('app-sheet')).toBeNull();
     });
 
@@ -182,8 +204,8 @@ describe('ListPage', () => {
         await settle();
 
         expect(store.changeEntry.mock.calls).toEqual([
-            [1, { note: 'vol' }],
-            [1, { note: 'mager' }]
+            ['entry-1-halfvol', { note: 'vol' }],
+            ['entry-1-halfvol', { note: 'mager' }]
         ]);
         expect(page.querySelector('app-sheet')).toBeNull();
     });
@@ -205,7 +227,7 @@ describe('ListPage', () => {
         click(page, 'app-sheet button.danger');
         await settle();
 
-        expect(store.removeEntry).toHaveBeenCalledWith(3);
+        expect(store.removeEntry).toHaveBeenCalledWith('entry-3');
         expect(page.querySelector('app-sheet')).toBeNull();
     });
 
@@ -215,7 +237,7 @@ describe('ListPage', () => {
         click(page, 'app-sheet button.primary');
         await settle();
 
-        expect(store.changeEntry).toHaveBeenCalledWith(3, { state: 'to_buy', quantity: 1 });
+        expect(store.changeEntry).toHaveBeenCalledWith('entry-3', { state: 'to_buy', quantity: 1 });
         expect(page.querySelector('app-sheet')).toBeNull();
     });
 });

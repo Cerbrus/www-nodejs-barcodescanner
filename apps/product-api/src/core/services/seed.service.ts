@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
@@ -47,10 +48,11 @@ export class SeedService implements OnApplicationBootstrap {
                 seed.list
                     .filter((entry) => idByName.has(entry.name))
                     .map((entry) => ({
+                        id: randomUUID(),
                         catalogItemId: idByName.get(entry.name) as number,
                         state: entry.state,
                         quantity: entry.state === 'to_buy' ? 1 : 0,
-                        note: entry.note,
+                        note: entry.note.trim(),
                         updatedAt: now
                     }))
             );

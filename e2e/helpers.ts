@@ -6,7 +6,10 @@ export interface CatalogItem {
 }
 
 export interface ListEntry {
+    id: string;
     catalogItemId: number;
+    note: string;
+    quantity: number;
     catalogItem: CatalogItem;
     state: 'to_buy' | 'recent';
 }

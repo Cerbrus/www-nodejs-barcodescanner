@@ -10,6 +10,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 
 import { databaseOptions } from '../data/database';
 import { MissingEmojis1763300000000 } from '../data/migrations/1763300000000-missing-emojis';
+import { ListVariants1763400000000 } from '../data/migrations/1763400000000-list-variants';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -57,5 +58,41 @@ describe('migrations', () => {
 
         assert.equal(await emojiOf('Tofu'), null);
         assert.equal(await emojiOf('Kaneel'), '🍂');
+    });
+
+    it('gives every list entry its own id and trims its note, and goes back to one entry per product', async () => {
+        const runner = database.createQueryRunner();
+        await new ListVariants1763400000000().down(runner);
+        await database.query(
+            `INSERT INTO "list_entry" ("catalog_item_id", "state", "quantity", "note", "updated_at")
+            SELECT "id", 'to_buy', 2, ' extra ', '2026-11-15 12:00:00' FROM "catalog_item" WHERE "name" = 'Tofu'`
+        );
+        await new ListVariants1763400000000().up(runner);
+
+        const [entry] = (await database.query('SELECT "id", "note", "quantity" FROM "list_entry"')) as Array<{
+            id: string;
+            note: string;
+            quantity: number;
+        }>;
+        assert.match(entry.id, /^[0-9a-f]{32}$/);
+        assert.deepEqual([entry.note, entry.quantity], ['extra', 2]);
+        await database.query(
+            `INSERT INTO "list_entry" ("id", "catalog_item_id", "state", "quantity", "note", "updated_at")
+            SELECT 'second', "catalog_item_id", 'recent', 0, 'ander', '2026-11-15 13:00:00' FROM "list_entry"`
+        );
+        await assert.rejects(
+            database.query(
+                `INSERT INTO "list_entry" ("id", "catalog_item_id", "state", "quantity", "note", "updated_at")
+                SELECT 'third', "catalog_item_id", 'recent', 0, 'ander', '2026-11-15 13:00:00' FROM "list_entry" LIMIT 1`
+            )
+        );
+        assert.deepEqual(await database.query('SELECT "note" FROM "barcode"'), []);
+
+        await new ListVariants1763400000000().down(runner);
+        assert.deepEqual(await database.query('SELECT "note", "quantity" FROM "list_entry"'), [
+            { note: 'extra', quantity: 2 }
+        ]);
+        await new ListVariants1763400000000().up(runner);
+        await runner.release();
     });
 });

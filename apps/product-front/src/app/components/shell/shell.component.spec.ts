@@ -124,7 +124,7 @@ describe('ShellComponent', () => {
     it('says there is no connection, from when the list is, and how many changes wait', () => {
         store.online.set(false);
         store.updatedAt.set('2026-11-13T10:00:00.000Z');
-        store.pending.set([{ catalogItemId: 1 }, { catalogItemId: 2 }]);
+        store.pending.set([{ id: 'a' }, { id: 'b' }]);
         open();
 
         const banner = texts(page, '.offline span')[0];

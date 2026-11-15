@@ -53,6 +53,51 @@ history: ${history}`
     expect((await listOf(request)).length).toBe(before);
 });
 
+test('put a product on the list twice with different notes, and merge them with the same note', async ({
+    page,
+    request
+}) => {
+    const product = await productOffTheList(request);
+    const variants = async (): Promise<Array<[string, number]>> =>
+        (await listOf(request))
+            .filter((entry) => entry.catalogItemId === product.id && entry.state === 'to_buy')
+            .map((entry): [string, number] => [entry.note, entry.quantity])
+            .sort();
+    const addFromSearch = async (): Promise<void> => {
+        await page.locator('input[type=search]').fill(product.name);
+        await page
+            .locator('app-item-tile:not(:has(.quantity))')
+            .filter({ has: page.locator('.name', { hasText: new RegExp(`^${product.name}$`) }) })
+            .locator('button.tile')
+            .click();
+    };
+    const giveNote = async (from: string, note: string): Promise<void> => {
+        await tile(page, 'buy', product.name)
+            .filter(from ? { has: page.locator('.note', { hasText: from }) } : { hasNot: page.locator('.note') })
+            .locator('button.details')
+            .click();
+        await page.locator('#entry-note').fill(note);
+        await page.locator('app-sheet button.primary').click();
+    };
+
+    await page.goto('/#/list');
+    await addFromSearch();
+    await expect(tile(page, 'buy', product.name)).toHaveCount(1);
+    await giveNote('', 'jong');
+    await expect.poll(variants).toEqual([['jong', 1]]);
+
+    await addFromSearch();
+    await expect(tile(page, 'buy', product.name)).toHaveCount(2);
+    await expect.poll(variants).toEqual([
+        ['', 1],
+        ['jong', 1]
+    ]);
+
+    await giveNote('', 'jong');
+    await expect(tile(page, 'buy', product.name)).toHaveCount(1);
+    await expect.poll(variants).toEqual([['jong', 2]]);
+});
+
 test('shop without a connection and send the change later', async ({ page, context, request }) => {
     await page.goto('/#/list');
     const name = (await page.locator('app-item-tile:has(button.tile.buy) .name').first().innerText()).trim();

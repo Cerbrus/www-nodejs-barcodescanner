@@ -6,7 +6,7 @@ import { BarcodeService } from './barcode.service';
 import { CatalogService } from './catalog.service';
 import { ConnectorService } from './connector.service';
 import { EventsService } from './events.service';
-import { ListService } from './list.service';
+import { ListService, cleanNote } from './list.service';
 import { PushService } from './push.service';
 import { BarcodeEntity, ProductSuggestion, ScanEntity, ScanResult, ScanSource } from '../../data/entities';
 import { TransactionRunner } from '../../data/transaction.runner';
@@ -18,6 +18,7 @@ export interface ScanOutcome {
     result: ScanResult;
     catalogItemId?: number;
     itemName?: string;
+    note?: string;
     quantity?: number;
 }
 
@@ -49,9 +50,8 @@ export class ScanService {
             this.write(code, source, at, manager)
         );
 
-        this.logger.log(
-            `scan ${code} from ${source}: ${outcome.result}${outcome.itemName ? ` (${outcome.itemName})` : ''}`
-        );
+        const name = outcome.note ? `${outcome.itemName}, ${outcome.note}` : outcome.itemName;
+        this.logger.log(`scan ${code} from ${source}: ${outcome.result}${name ? ` (${name})` : ''}`);
         if (outcome.result === 'ignored') {
             return outcome;
         }
@@ -64,12 +64,13 @@ export class ScanService {
         return outcome;
     }
 
-    public async nameBarcode(code: string, catalogItemId: number): Promise<BarcodeEntity> {
+    public async nameBarcode(code: string, catalogItemId: number, note = ''): Promise<BarcodeEntity> {
         await this.catalog.getItem(catalogItemId);
+        const variant = cleanNote(note);
         const applied = await this.transactions.run(async (manager) => {
-            await this.barcodes.link(code, catalogItemId, manager);
+            await this.barcodes.link(code, catalogItemId, variant, manager);
 
-            return this.applyPending(code, catalogItemId, manager);
+            return this.applyPending(code, catalogItemId, variant, manager);
         });
 
         this.logger.log(`barcode ${code} linked to item ${catalogItemId}, ${applied} waiting scan(s) applied`);
@@ -145,7 +146,8 @@ export class ScanService {
         });
         const barcode = await this.barcodes.findOrCreate(code, manager);
         const catalogItemId = barcode.catalogItemId ?? undefined;
-        const entry = catalogItemId ? await this.list.getSnapshot(catalogItemId, manager) : undefined;
+        const note = catalogItemId ? cleanNote(barcode.note) : '';
+        const entry = catalogItemId ? await this.list.getSnapshot(catalogItemId, note, manager) : undefined;
         const decision = decideScan({ now, previousScanOfCodeAt: previous?.createdAt, catalogItemId, entry });
 
         const scan = await scans.save({
@@ -154,13 +156,14 @@ export class ScanService {
             result: decision.result,
             createdAt: now,
             catalogItemId: catalogItemId ?? null,
+            note: catalogItemId ? note : null,
             previousState: entry?.state ?? null,
             previousQuantity: entry?.quantity ?? null
         });
         if (decision.result !== 'ignored') {
             await this.barcodes.countScan(barcode, now, manager);
             if (catalogItemId && decision.entry) {
-                await this.list.writeSnapshot(catalogItemId, decision.entry, manager);
+                await this.list.writeSnapshot(catalogItemId, note, decision.entry, manager);
             }
         }
 
@@ -171,6 +174,7 @@ export class ScanService {
                 result: decision.result,
                 catalogItemId,
                 itemName: barcode.catalogItem?.name,
+                note: note || undefined,
                 quantity: decision.entry?.quantity
             },
             suggestions: barcode.suggestions
@@ -184,7 +188,12 @@ export class ScanService {
         return scannedAt && age >= 0 && age <= MAX_HELD_MILLISECONDS ? scannedAt : now;
     }
 
-    private async applyPending(code: string, catalogItemId: number, manager: EntityManager): Promise<number> {
+    private async applyPending(
+        code: string,
+        catalogItemId: number,
+        note: string,
+        manager: EntityManager
+    ): Promise<number> {
         const scans = manager.getRepository(ScanEntity);
         const pending = await scans.find({
             where: { code, result: 'needs_name', undoneAt: IsNull() },
@@ -192,15 +201,16 @@ export class ScanService {
         });
 
         for (const scan of pending) {
-            const snapshot = await this.list.getSnapshot(catalogItemId, manager);
+            const snapshot = await this.list.getSnapshot(catalogItemId, note, manager);
             const { result, entry } = addOneToEntry(snapshot);
             await scans.update(scan.id, {
                 result,
                 catalogItemId,
+                note,
                 previousState: snapshot?.state ?? null,
                 previousQuantity: snapshot?.quantity ?? null
             });
-            await this.list.writeSnapshot(catalogItemId, entry, manager);
+            await this.list.writeSnapshot(catalogItemId, note, entry, manager);
         }
 
         return pending.length;
@@ -208,17 +218,19 @@ export class ScanService {
 
     private async undoListChange(scan: ScanEntity, manager: EntityManager): Promise<void> {
         const catalogItemId = scan.catalogItemId as number;
-        const current = await this.list.getSnapshot(catalogItemId, manager);
+        const note = scan.note ?? '';
+        const current = await this.list.getSnapshot(catalogItemId, note, manager);
 
         if (scan.result === 'incremented' && current?.state === 'to_buy' && current.quantity > 1) {
-            await this.list.writeSnapshot(catalogItemId, { state: 'to_buy', quantity: current.quantity - 1 }, manager);
+            const lessOne = { state: 'to_buy' as const, quantity: current.quantity - 1 };
+            await this.list.writeSnapshot(catalogItemId, note, lessOne, manager);
             return;
         }
 
         const previous = scan.previousState
             ? { state: scan.previousState, quantity: scan.previousQuantity ?? 0 }
             : undefined;
-        await this.list.writeSnapshot(catalogItemId, previous, manager);
+        await this.list.writeSnapshot(catalogItemId, note, previous, manager);
     }
 
     private async followUpUnknown(code: string, source: ScanSource, known?: Array<ProductSuggestion>): Promise<void> {

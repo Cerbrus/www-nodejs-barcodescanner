@@ -35,6 +35,7 @@ export interface Barcode {
     code: string;
     catalogItemId?: number;
     catalogItem?: CatalogItem;
+    note?: string;
     suggestions?: Array<ProductSuggestion>;
     lookupFailed?: Array<string>;
     scanCount: number;
@@ -42,6 +43,7 @@ export interface Barcode {
 }
 
 export interface ListEntry {
+    id: string;
     catalogItemId: number;
     catalogItem: CatalogItem;
     state: ListState;
@@ -58,6 +60,7 @@ export interface Scan {
     createdAt: string;
     undoneAt?: string;
     catalogItemId?: number;
+    note?: string;
 }
 
 export interface ScanOutcome {
@@ -66,6 +69,7 @@ export interface ScanOutcome {
     result: ScanResult;
     catalogItemId?: number;
     itemName?: string;
+    note?: string;
     quantity?: number;
 }
 
@@ -144,6 +148,7 @@ export interface CatalogItemInput {
 }
 
 export interface ListEntryChange {
+    catalogItemId?: number;
     state?: ListState;
     quantity?: number;
     note?: string;

@@ -5,6 +5,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap, tap } from 'rxjs';
 
+import { withNote } from '../../display-name';
 import { ScanOutcome, ScanSource } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -108,7 +109,10 @@ export class ShellComponent {
 
         this.toasts.show({
             kind: 'ok',
-            text: this.translate.instant(`scan.${scan.result}`, { name: scan.itemName, quantity: scan.quantity }),
+            text: this.translate.instant(`scan.${scan.result}`, {
+                name: withNote(scan.itemName, scan.note),
+                quantity: scan.quantity
+            }),
             actionLabel: this.translate.instant('history.undo'),
             action: () => this.undoScan()
         });

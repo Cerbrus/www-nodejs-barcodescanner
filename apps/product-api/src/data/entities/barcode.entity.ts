@@ -15,6 +15,9 @@ export class BarcodeEntity {
     @JoinColumn({ name: 'catalog_item_id' })
     public catalogItem?: CatalogItemEntity | null;
 
+    @Column({ type: 'text', default: '' })
+    public note: string;
+
     @Column({ type: 'simple-json', nullable: true })
     public suggestions?: Array<ProductSuggestion>;
 

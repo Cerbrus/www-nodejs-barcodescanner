@@ -146,7 +146,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 - Installable: `assets/manifest.webmanifest`, the home-screen icons and the titles in `index.html`.
 - `src/sw.js` is the service worker. It handles notifications, and keeps the files of the web app so the app starts without a connection: the page itself comes from the network when there is one and from the cache otherwise; files with a version in their name come from the cache; other files come from the cache and are refreshed in the background. It never touches API calls. At every start the page asks the service worker to keep what is missing: the files the page loaded, and every script and style sheet named in `app-files.json`, a list the image build writes. So one visit is enough to open every page offline later, also pages not visited yet.
 - **Reload after an update** (`services/update.service.ts`): when the live connection reconnects or the app returns to the foreground, the page fetches `app-files.json` and compares it with the script and style sheet it was started with. When those are no longer in the list, a newer web app is published and the page reloads. It waits while a text field has focus, a dialog is open or the camera page is shown, and tries again at the next change of page. It reloads at most once per published list, so a cache that keeps serving old files cannot cause a loop. An update that only changes the API reloads nothing.
-- **Without a connection** the list is shown from a snapshot of the last loaded data, kept in the browser's storage and removed at logout. The banner says from when the list is. Checking off, putting back, quantity and note also work offline: the change is shown at once, marked with a small clock on the tile, and kept in an outbox in the browser's storage with the moment it was made. When the connection returns the outbox is sent in order to `POST /api/v1/list/offline-changes`, before the list is reloaded. The server applies each change unless that list entry was changed on the server after the change was made; then the server's state stays and the page says the list was updated from the server. Scanning, naming, creating and removing products need a connection.
+- **Without a connection** the list is shown from a snapshot of the last loaded data, kept in the browser's storage and removed at logout. The banner says from when the list is. Checking off, putting back, quantity and note also work offline: the change is shown at once, marked with a small clock on the tile, and kept in an outbox in the browser's storage with the moment it was made. An entry added offline gets its id in the browser, so later changes to it can wait in the outbox too. When the connection returns the outbox is sent in order to `POST /api/v1/list/offline-changes`, before the list is reloaded. The server applies each change unless that list entry was changed on the server after the change was made; then the server's state stays and the page says the list was updated from the server. Scanning, naming, creating and removing products need a connection.
 
 ## Data model
 
@@ -154,9 +154,9 @@ Angular with standalone components and signals; no state library. `apps/product-
 |---|---|---|
 | `section` | `id`, `name`, `sort_order`, `emoji` | Seeded from `data/seed-items.json` |
 | `catalog_item` | `id`, `name` (unique), `section_id`, `icon`, `emoji`, `custom` | `icon` is a file name in the icon folder, served under `/icons/<icon>.png` |
-| `barcode` | `code` (key), `catalog_item_id` (nullable), `suggestions` (JSON), `lookup_failed` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox. `lookup_failed` lists the connectors that gave no answer |
-| `list_entry` | `catalog_item_id` (unique), `state` (`to_buy`, `recent`), `quantity`, `note`, `updated_at` | One entry per catalog item |
-| `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `previous_state`, `previous_quantity` | History and undo; the `previous_` columns hold what the list entry was before the scan |
+| `barcode` | `code` (key), `catalog_item_id` (nullable), `note`, `suggestions` (JSON), `lookup_failed` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox. `note` is the variant its scans go to (empty for none). `lookup_failed` lists the connectors that gave no answer |
+| `list_entry` | `id` (key, UUID), `catalog_item_id`, `note`, `state` (`to_buy`, `recent`), `quantity`, `updated_at` | Catalog item plus note is unique: the note is the variant. The web app makes the id, so an entry can be added offline |
+| `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity` | History and undo; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan |
 | `feedback_setting` | `event` (key), `sound_id` | Chosen buzzer sound per scan result; no row means the default |
 | `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `origin`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
 
@@ -167,7 +167,7 @@ On first start with an empty database, the app imports sections, items and the c
 On `POST /api/v1/scans` with `{ code }`. The source is not sent: a scan posted with the agent's token is `handheld`, one posted by a logged-in browser is `phone`.
 
 1. Same code within 1 second of the previous scan: result `ignored`. The camera page has its own, longer pause of 3 seconds for a code that stays in view.
-2. Barcode has a catalog item:
+2. Barcode has a catalog item; the entry is the one of that item with the barcode's note:
    - entry is `to_buy`: quantity plus one, result `incremented`;
    - otherwise: state `to_buy`, quantity 1, result `added`.
 3. Barcode has no catalog item: store the scan, query connectors if there are no suggestions yet, result `needs_name`.
@@ -208,9 +208,9 @@ interface ProductSuggestion {
 | `POST /api/v1/scans/undo` | Undo the latest scan |
 | `GET /api/v1/scans` | History |
 | `GET /api/v1/list` | List entries with their catalog items |
-| `PATCH /api/v1/list/:itemId` | State, quantity, note |
+| `PATCH /api/v1/list/:id` | State, quantity, note of an entry; with `catalogItemId` it creates the entry under that id. A note another entry of the product already has merges the two |
 | `POST /api/v1/list/offline-changes` | Changes made without a connection, each with its time; answers how many were applied and which entries the server kept |
-| `DELETE /api/v1/list/:itemId` | Delete the entry; the web app uses it to remove a product from recent |
+| `DELETE /api/v1/list/:id` | Delete the entry; the web app uses it to remove a product from recent |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
 | `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) and `defaultIcon`, the icon the seed file gives a product of that name |
 | `GET /api/v1/sections` | Shop sections in display order |

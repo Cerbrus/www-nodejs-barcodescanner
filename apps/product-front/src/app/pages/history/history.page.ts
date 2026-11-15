@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable, debounceTime, startWith, switchMap, tap } from 'rxjs';
 
 import { CONNECTORS, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
+import { withNote } from '../../display-name';
 import { Scan } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
@@ -130,7 +131,7 @@ export class HistoryPage {
     }
 
     protected itemName(scan: Scan): string | undefined {
-        return scan.catalogItemId ? this.store.itemById(scan.catalogItemId)?.name : undefined;
+        return scan.catalogItemId ? withNote(this.store.itemById(scan.catalogItemId)?.name, scan.note) : undefined;
     }
 
     protected undo(): void {

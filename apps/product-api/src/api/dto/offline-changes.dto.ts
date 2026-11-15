@@ -7,6 +7,7 @@ import {
     IsInt,
     IsOptional,
     IsString,
+    Matches,
     MaxLength,
     Min,
     ValidateNested
@@ -16,9 +17,16 @@ import { ListState } from '../../data/entities';
 
 const MAX_CHANGES = 200;
 
+export const ENTRY_ID = /^[0-9a-f-]{8,64}$/i;
+
 export class OfflineChangeDto {
+    @IsOptional()
+    @Matches(ENTRY_ID)
+    public id?: string;
+
+    @IsOptional()
     @IsInt()
-    public catalogItemId: number;
+    public catalogItemId?: number;
 
     @IsISO8601()
     public changedAt: string;

@@ -17,6 +17,9 @@
             <span class="font-mono">{{ outcome.code }}</span>
             <span>
                 {{ outcome.itemName ?? ('inbox.unknownProduct' | translate) }}
+                @if (outcome.note) {
+                    ({{ outcome.note }})
+                }
                 @if (outcome.quantity) {
                     × {{ outcome.quantity }}
                 }

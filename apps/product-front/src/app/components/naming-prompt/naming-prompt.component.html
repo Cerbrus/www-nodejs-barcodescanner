@@ -56,6 +56,19 @@
         </div>
     }
 
+    <label class="field-label" for="naming-variant">{{ 'naming.variantLabel' | translate }}</label>
+    <input
+        #variantField
+        id="naming-variant"
+        class="field"
+        type="text"
+        maxlength="200"
+        autocomplete="off"
+        [placeholder]="'naming.variantPlaceholder' | translate"
+        [value]="variant()"
+        (input)="variant.set(variantField.value)"
+    />
+
     @if (newName(); as name) {
         <div class="card mt-3">
             <app-new-item-form

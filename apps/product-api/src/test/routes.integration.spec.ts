@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { rmSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
 import { after, before, describe, it } from 'node:test';
@@ -160,11 +161,33 @@ describe('data routes over HTTP', () => {
     });
 
     it('checks changes to the list', async () => {
-        assert.equal((await call('PATCH', `/list/${milkId}`, asUser, { state: 'bought' })).status, 400);
-        assert.equal((await call('PATCH', `/list/${milkId}`, asUser, { quantity: 0 })).status, 400);
-        assert.equal((await call('PATCH', '/list/999999', asUser, { state: 'to_buy' })).status, 404);
-        assert.equal((await call('PATCH', `/list/${milkId}`, asUser, { quantity: 3, note: 'halfvol' })).status, 200);
-        assert.equal((await call('DELETE', `/list/${milkId}`, asUser)).status, 204);
+        type Entry = { id: string; catalogItemId: number; note: string; state: string; quantity: number };
+        const entries = async (): Promise<Array<Entry>> => (await call<Array<Entry>>('GET', '/list', asUser)).body;
+        const milk = (await entries()).find((entry) => entry.catalogItemId === milkId && entry.note === '') as Entry;
+
+        assert.equal((await call('PATCH', `/list/${milk.id}`, asUser, { state: 'bought' })).status, 400);
+        assert.equal((await call('PATCH', `/list/${milk.id}`, asUser, { quantity: 0 })).status, 400);
+        assert.equal((await call('PATCH', '/list/not an id', asUser, { state: 'to_buy' })).status, 400);
+        assert.equal((await call('PATCH', `/list/${randomUUID()}`, asUser, { state: 'to_buy' })).status, 404);
+        assert.equal(
+            (await call('PATCH', `/list/${randomUUID()}`, asUser, { catalogItemId: 999999, state: 'to_buy' })).status,
+            404
+        );
+        assert.equal((await call('PATCH', `/list/${milk.id}`, asUser, { quantity: 3, note: ' halfvol ' })).status, 200);
+
+        const plain = randomUUID();
+        await call('PATCH', `/list/${plain}`, asUser, { catalogItemId: milkId, state: 'to_buy', quantity: 2 });
+        const variants = (await entries()).filter((entry) => entry.catalogItemId === milkId);
+        assert.deepEqual(variants.map((entry) => [entry.note, entry.quantity]).sort(), [
+            ['', 2],
+            ['halfvol', 3]
+        ]);
+
+        const merged = await call<Entry>('PATCH', `/list/${plain}`, asUser, { note: 'halfvol' });
+        assert.deepEqual([merged.body.id, merged.body.quantity], [milk.id, 5]);
+        assert.equal((await entries()).filter((entry) => entry.catalogItemId === milkId).length, 1);
+
+        assert.equal((await call('DELETE', `/list/${milk.id}`, asUser)).status, 204);
     });
 
     it('applies changes made offline in order, unless the server changed the entry later', async () => {
@@ -172,42 +195,50 @@ describe('data routes over HTTP', () => {
             (item) => item.name === 'Boter'
         )?.id as number;
         const at = (secondsAgo: number): string => new Date(Date.now() - secondsAgo * 1000).toISOString();
-        type Entry = { catalogItemId: number; state: string; quantity: number };
-        const entryOf = async (id: number): Promise<Entry | undefined> =>
-            (await call<Array<Entry>>('GET', '/list', asUser)).body.find((entry) => entry.catalogItemId === id);
+        type Entry = { id: string; catalogItemId: number; note: string; state: string; quantity: number };
+        type Sent = { applied: number; skipped: Array<string> };
+        const entryOf = async (id: string): Promise<Entry | undefined> =>
+            (await call<Array<Entry>>('GET', '/list', asUser)).body.find((entry) => entry.id === id);
+        const id = randomUUID();
 
-        await call('PATCH', `/list/${butter}`, asUser, { state: 'to_buy', quantity: 1 });
-        const sent = await call<{ applied: number; skipped: Array<number> }>('POST', '/list/offline-changes', asUser, {
+        await call('PATCH', `/list/${id}`, asUser, { catalogItemId: butter, state: 'to_buy', quantity: 1 });
+        const sent = await call<Sent>('POST', '/list/offline-changes', asUser, {
             changes: [
-                { catalogItemId: butter, quantity: 3, changedAt: at(-2) },
-                { catalogItemId: butter, state: 'recent', changedAt: at(-3) },
-                { catalogItemId: 999999, state: 'to_buy', changedAt: at(-3) }
+                { id, quantity: 3, changedAt: at(-2) },
+                { id, state: 'recent', changedAt: at(-3) },
+                { id: randomUUID(), catalogItemId: 999999, state: 'to_buy', changedAt: at(-3) }
             ]
         });
-        assert.deepEqual([sent.status, sent.body.applied, sent.body.skipped], [200, 2, [999999]]);
-        assert.equal((await entryOf(butter))?.state, 'recent');
+        assert.deepEqual([sent.status, sent.body.applied, sent.body.skipped.length], [200, 2, 1]);
+        assert.equal((await entryOf(id))?.state, 'recent');
 
-        await call('PATCH', `/list/${butter}`, asUser, { state: 'to_buy', quantity: 2 });
-        const late = await call<{ applied: number; skipped: Array<number> }>('POST', '/list/offline-changes', asUser, {
-            changes: [{ catalogItemId: butter, state: 'recent', changedAt: at(600) }]
+        await call('PATCH', `/list/${id}`, asUser, { state: 'to_buy', quantity: 2 });
+        const late = await call<Sent>('POST', '/list/offline-changes', asUser, {
+            changes: [{ id, state: 'recent', changedAt: at(600) }]
         });
-        assert.deepEqual([late.body.applied, late.body.skipped], [0, [butter]]);
-        assert.deepEqual([(await entryOf(butter))?.state, (await entryOf(butter))?.quantity], ['to_buy', 2]);
+        assert.deepEqual([late.body.applied, late.body.skipped], [0, [id]]);
+        assert.deepEqual([(await entryOf(id))?.state, (await entryOf(id))?.quantity], ['to_buy', 2]);
 
         await new Promise((resolve) => setTimeout(resolve, 1100));
-        const twice = await call<{ applied: number; skipped: Array<number> }>('POST', '/list/offline-changes', asUser, {
+        const twice = await call<Sent>('POST', '/list/offline-changes', asUser, {
             changes: [
-                { catalogItemId: butter, quantity: 3, changedAt: at(0.6) },
+                { id, quantity: 3, changedAt: at(0.6) },
                 { catalogItemId: butter, quantity: 4, changedAt: at(0.3) }
             ]
         });
         assert.deepEqual([twice.body.applied, twice.body.skipped], [2, []]);
-        assert.equal((await entryOf(butter))?.quantity, 4);
+        assert.equal((await entryOf(id))?.quantity, 4);
+
+        const added = randomUUID();
+        await call('POST', '/list/offline-changes', asUser, {
+            changes: [{ id: added, catalogItemId: butter, note: 'ongezouten', state: 'to_buy', changedAt: at(0) }]
+        });
+        assert.deepEqual([(await entryOf(added))?.note, (await entryOf(added))?.quantity], ['ongezouten', 1]);
 
         assert.equal(
             (
                 await call('POST', '/list/offline-changes', asUser, {
-                    changes: [{ catalogItemId: butter, state: 'gone', changedAt: at(1) }]
+                    changes: [{ id, state: 'gone', changedAt: at(1) }]
                 })
             ).status,
             400

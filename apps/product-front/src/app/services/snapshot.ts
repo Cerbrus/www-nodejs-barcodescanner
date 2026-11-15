@@ -15,7 +15,9 @@ export function loadSnapshot(): Snapshot | undefined {
         const stored = localStorage.getItem(SNAPSHOT_KEY);
         const snapshot = stored ? (JSON.parse(stored) as Snapshot) : undefined;
 
-        return snapshot?.savedAt && Array.isArray(snapshot.entries) ? snapshot : undefined;
+        return snapshot?.savedAt && Array.isArray(snapshot.entries) && snapshot.entries.every((entry) => entry.id)
+            ? snapshot
+            : undefined;
     } catch {
         return undefined;
     }
