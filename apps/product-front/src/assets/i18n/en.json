@@ -234,7 +234,8 @@
         "ready": "{count} open feedback",
         "write": "Write",
         "point": "Point",
-        "hint": "Point: then tap the part you mean. Quicker on a computer: right-click the part. The bottom menu: tap the tab that is already open.",
+        "hintTouch": "Point: then tap the part you mean. The bottom menu: tap the tab that is already open.",
+        "hintPointer": "Right-click the part you mean, also a tab. Or tap Point, then click the part.",
         "pointing": "Tap what you mean",
         "about": "About",
         "kind": {
