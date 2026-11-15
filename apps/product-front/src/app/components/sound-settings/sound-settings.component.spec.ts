@@ -123,4 +123,20 @@ describe('SoundSettingsComponent', () => {
         expect((page.querySelector('#sound-name') as HTMLInputElement).value).toBe('sound.name.beep');
         expect(texts(page, 'app-sound-editor button.danger')).toEqual(['delete sound.inUse']);
     });
+
+    it('opens the editor on the copy after saving a sound as new', async () => {
+        const copied: FeedbackSettings = {
+            ...SETTINGS,
+            sounds: [...SETTINGS.sounds, { id: 'copy1234', name: 'Fanfare 2', blocks: beep, steps: [] }]
+        };
+        api.createSound.mockReturnValue(of(copied));
+        click(page, '.row.preset button[aria-label="sound.edit"]', 1);
+        await settle();
+        click(page, 'app-sound-editor button.save-new');
+        await settle();
+
+        expect(page.querySelector('app-sound-editor')).not.toBeNull();
+        expect((page.querySelector('#sound-name') as HTMLInputElement).value).toBe('Fanfare 2');
+        expect(texts(page, '.row.preset .font-semibold')).toEqual(['sound.name.beep', 'Fanfare', 'Fanfare 2']);
+    });
 });

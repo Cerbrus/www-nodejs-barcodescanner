@@ -98,9 +98,10 @@ export class SoundSettingsComponent {
         this.editing.set({ forEvent: event });
     }
 
-    protected saved({ settings, soundId }: SoundSaved): void {
+    protected saved({ settings, soundId, copy }: SoundSaved): void {
         const event = this.editing()?.forEvent;
-        this.editing.set(undefined);
+        const copied = copy ? settings.sounds.find((sound) => sound.id === soundId) : undefined;
+        this.editing.set(copied ? { sound: copied } : undefined);
         this.settings.set(settings);
         if (event && soundId) {
             this.choose(event, soundId);

@@ -27,6 +27,7 @@ import { SoundTimelineComponent } from '../sound-timeline/sound-timeline.compone
 export interface SoundSaved {
     settings: FeedbackSettings;
     soundId?: string;
+    copy?: boolean;
 }
 
 const DURATIONS = [
@@ -154,8 +155,10 @@ export class SoundEditorComponent {
     protected save(asNew: boolean): void {
         const sound = this.sound();
         const name = this.name().trim();
-        if (asNew || !sound) {
+        if (!sound) {
             this.finish(this.api.createSound(name, this.blocks()), true);
+        } else if (asNew) {
+            this.finish(this.api.createSound(name, this.blocks()), true, true);
         } else {
             const keepName = !sound.name && name === this.shownName();
             this.finish(this.api.changeSound(sound.id, keepName ? undefined : name, this.blocks()), false);
@@ -169,12 +172,12 @@ export class SoundEditorComponent {
         }
     }
 
-    private finish(request: Observable<FeedbackSettings>, created: boolean): void {
+    private finish(request: Observable<FeedbackSettings>, created: boolean, copy = false): void {
         this.busy.set(true);
         request
             .pipe(
                 tap((settings) =>
-                    this.saved.emit({ settings, soundId: created ? settings.sounds.at(-1)?.id : undefined })
+                    this.saved.emit({ settings, soundId: created ? settings.sounds.at(-1)?.id : undefined, copy })
                 ),
                 finalize(() => this.busy.set(false))
             )

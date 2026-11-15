@@ -126,16 +126,16 @@ describe('SoundEditorComponent', () => {
             ['double', undefined, DOUBLE.blocks],
             ['double', 'Dubbel', DOUBLE.blocks]
         ]);
-        expect(saved[0]).toEqual({ settings: SETTINGS, soundId: undefined });
+        expect(saved[0]).toEqual({ settings: SETTINGS, soundId: undefined, copy: false });
     });
 
-    it('saves a copy as a new sound and tells which one was made', async () => {
+    it('saves a copy as a new sound and tells that it is a copy and which one was made', async () => {
         await open(DOUBLE, 'Twee tikken');
         click(page, 'button.save-new');
         await settle();
 
         expect(api.createSound).toHaveBeenCalledWith('Twee tikken', DOUBLE.blocks);
-        expect(saved[0].soundId).toBe('made1234');
+        expect([saved[0].soundId, saved[0].copy]).toEqual(['made1234', true]);
     });
 
     it('needs a name for a new sound, and has no copy or delete', async () => {
