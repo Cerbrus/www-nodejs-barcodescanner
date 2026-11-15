@@ -142,7 +142,7 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 - Kinds: bug, wish and note. The writer gets a thank-you, no promise and no state.
 - No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode and a two-finger tap on the phone, right click on a computer.
 - No screenshots: a page cannot take a real picture of itself. The part pointed at is recorded as data.
-- An agent on GitHub handles an issue the owner labels. Changed 2026-11-15, after the first four issues all ended in questions: an issue from the owner is his decision and carries his authority, so the agent implements it in a draft pull request unless a real question is open, also when it overrules an earlier decision, and labels the issue with its verdict. It never merges.
+- An agent on GitHub handles an issue the owner labels. Changed 2026-11-15, after the first four issues all ended in questions: an issue from the owner is his decision and carries his authority, so the agent implements it in a pull request unless a real question is open, also when it overrules an earlier decision, and labels the issue with its verdict. It never merges. Changed again 2026-11-15, after its first pull request: the pull request is opened ready for review, not as a draft, and the owner is code owner of the whole repository.
 
 ## Functional reference
 

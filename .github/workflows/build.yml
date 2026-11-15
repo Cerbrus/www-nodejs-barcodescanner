@@ -10,8 +10,12 @@ on:
             - '.github/workflows/dependabot-helper.yml'
             - '.github/workflows/issue-investigator.yml'
             - '.github/ISSUE_TEMPLATE/**'
+            - '.github/CODEOWNERS'
+            - '.github/issue-investigator.md'
+            - '.github/dependabot-helper.md'
     pull_request:
         types: [ opened, synchronize, reopened, ready_for_review ]
+    workflow_dispatch:
 
 permissions:
     contents: read

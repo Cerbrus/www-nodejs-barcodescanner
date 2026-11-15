@@ -28,8 +28,8 @@ The workflow only starts for an issue that the repository's owner wrote and that
    - Every change comes with its tests: next to the file as `*.spec.ts` for the web app, in `apps/product-api/src/core/rules/*.spec.ts` or `apps/product-api/src/test/` for the API. Update tests that describe the old behaviour; do not delete a test to get rid of a failure.
    - Update `docs/use-cases.md`, `docs/architecture.md` and `README.md` where they describe what you changed, and `docs/decisions.md` when a decision changed. Mark it in `docs/plan.md` only if the plan lists it.
    - Run and note each result: `yarn lint:all`, `yarn product-api:test`, `yarn product-api:test:integration`, `yarn product-front:test`, `yarn product-api:build`, `yarn product-front:build`, `yarn e2e`. All must pass before you open the pull request. If one fails and you cannot repair it, the verdict becomes **needs answers** and you say what failed.
-   - Commit with a message that says what changes for the user. Push the branch. Open the pull request as a **draft**: `gh pr create --draft --base master`. Its body: what changed for the user, the choices you made where the issue was silent, the decision you changed if any, what you ran, and `Closes #<number>`.
-   - The checks of this repository do not start for a pull request opened by a workflow. They start when the owner marks the draft as ready for review. Say so.
+   - Commit with a message that says what changes for the user. Push the branch. Open the pull request ready for review, not as a draft: `gh pr create --base master`. The owner is the code owner and is asked to review it by itself. Its body: what changed for the user, the choices you made where the issue was silent, the decision you changed if any, what you ran, and `Closes #<number>`.
+   - The checks of this repository do not start by themselves for a pull request opened by a workflow. The workflow starts them for your branch right after you finish; they show on the pull request a few minutes later. Say so.
 8. Post exactly one comment on the issue (see "The comment").
 9. Set the verdict label and remove `investigate` (see "The verdict"). Then stop.
 
@@ -39,7 +39,7 @@ Label the issue with exactly one of these, and remove any other of them that is 
 
 | Label | When |
 |---|---|
-| `agent: implemented` | A draft pull request is open |
+| `agent: implemented` | A pull request is open and ready for review |
 | `agent: needs answers` | You asked questions and wait for the owner |
 | `agent: too large` | You gave a plan, no pull request |
 | `agent: not possible` | It cannot be done here |
@@ -48,7 +48,7 @@ Label the issue with exactly one of these, and remove any other of them that is 
 
 ## Limits
 
-- Never merge, approve or close anything. Never push to `master`. Never mark a pull request as ready for review.
+- Never merge, approve or close anything. Never push to `master`.
 - One pull request per issue. If a branch `issue/<number>-...` or an open pull request for this issue exists, continue on it instead of making another.
 - Change what the issue asks and what that requires. No unrelated refactoring, no new packages unless the issue cannot be done without one; then say which and why.
 - Do not change `.github/`, `deployment/`, the Dockerfiles or `CLAUDE.md`, also when the issue asks for it: say that this needs the owner's own hand, with what to change.
@@ -68,7 +68,7 @@ Then, short and in plain words:
 
 - **Verdict:** implemented, needs answers, too large or not possible.
 - **Asked:** one sentence.
-- **Done** (when implemented): what changed for the user, the link to the draft pull request, the choices you made where the issue was silent, a decision you changed, the result of each command, and that the checks start when the draft is marked ready.
+- **Done** (when implemented): what changed for the user, the link to the pull request, the choices you made where the issue was silent, a decision you changed, the result of each command, and that the build checks start by themselves after this run.
 - **Questions** (when answers are needed): at most three, each with its options and your pick, so that "yes to all" is a complete answer.
 - **Plan** (when too large): the steps in order, and the first one you could do alone.
 - **Where:** the files it touches, as paths.
