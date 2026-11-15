@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Observable, debounceTime, startWith, switchMap, tap } from 'rxjs';
 
 import { CONNECTORS, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
@@ -17,7 +17,7 @@ const REFRESH_DELAY_MILLISECONDS = 200;
 @Component({
     selector: 'app-history-page',
     standalone: true,
-    imports: [DatePipe, NamingPromptComponent, RouterLink, TranslateModule],
+    imports: [DatePipe, NamingPromptComponent, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">

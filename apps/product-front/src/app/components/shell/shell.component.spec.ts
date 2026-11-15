@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import {
@@ -14,6 +13,7 @@ import {
     fakeStore,
     texts
 } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
@@ -49,7 +49,7 @@ describe('ShellComponent', () => {
         Object.defineProperty(navigator, 'setAppBadge', { configurable: true, value: setAppBadge });
         Object.defineProperty(navigator, 'clearAppBadge', { configurable: true, value: clearAppBadge });
         TestBed.configureTestingModule({
-            imports: [ShellComponent, TranslateModule.forRoot()],
+            imports: [ShellComponent, TranslateTesting],
             providers: [
                 provideRouter(['list', 'scan', 'inbox', 'catalog', 'system'].map((path) => ({ path, children: [] }))),
                 { provide: ShoppingStore, useValue: store },

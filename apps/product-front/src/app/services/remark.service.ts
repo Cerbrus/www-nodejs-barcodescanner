@@ -159,7 +159,7 @@ export class RemarkService {
             commit: this.version?.commit,
             userAgent: navigator.userAgent,
             viewport: `${window.innerWidth} × ${window.innerHeight}`,
-            language: this.translate.currentLang,
+            language: this.translate.getCurrentLang() ?? undefined,
             theme: this.theme.theme(),
             installed: window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true,
             online: navigator.onLine,

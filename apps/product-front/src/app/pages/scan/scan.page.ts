@@ -9,7 +9,7 @@ import {
     viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType } from '@zxing/library';
 import { catchError, of, switchMap, tap } from 'rxjs';
@@ -30,7 +30,7 @@ type CameraState = 'starting' | 'running' | 'blocked' | 'unsupported';
 @Component({
     selector: 'app-scan-page',
     standalone: true,
-    imports: [FormsModule, TranslateModule, NamingPromptComponent],
+    imports: [FormsModule, TranslatePipe, NamingPromptComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './scan.page.html',
     styleUrl: './scan.page.scss'

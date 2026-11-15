@@ -1,9 +1,10 @@
 import { ApplicationInitStatus } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Route, provideRouter } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
+import { TranslateTesting } from '../testing/translate';
 import { AppComponent } from './app.component';
 import { appRoutes } from './providers/routes.provider';
 import { provideSettings } from './providers/settings.provider';
@@ -35,7 +36,7 @@ describe('AppComponent', () => {
         log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
         api.getHealth.mockReturnValue(of({ status: 'ok', version: '1.1.32', commit: 'abc' }));
         TestBed.configureTestingModule({
-            imports: [AppComponent, TranslateModule.forRoot()],
+            imports: [AppComponent, TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: ApiService, useValue: api },
@@ -50,7 +51,7 @@ describe('AppComponent', () => {
     it('starts in Dutch, starts push and the update check, and sets the page language', () => {
         start();
 
-        expect(TestBed.inject(TranslateService).currentLang).toBe('nl');
+        expect(TestBed.inject(TranslateService).getCurrentLang()).toBe('nl');
         expect(document.documentElement.lang).toBe('nl');
         expect(startPush).toHaveBeenCalledTimes(1);
         expect(startUpdates).toHaveBeenCalledTimes(1);
@@ -59,11 +60,11 @@ describe('AppComponent', () => {
     it('starts in the remembered language, and ignores one it does not have', () => {
         localStorage.setItem('language', 'en');
         start();
-        expect(TestBed.inject(TranslateService).currentLang).toBe('en');
+        expect(TestBed.inject(TranslateService).getCurrentLang()).toBe('en');
 
         TestBed.resetTestingModule();
         TestBed.configureTestingModule({
-            imports: [AppComponent, TranslateModule.forRoot()],
+            imports: [AppComponent, TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: ApiService, useValue: api },
@@ -74,7 +75,7 @@ describe('AppComponent', () => {
         localStorage.setItem('language', 'fr');
         start();
 
-        expect(TestBed.inject(TranslateService).currentLang).toBe('nl');
+        expect(TestBed.inject(TranslateService).getCurrentLang()).toBe('nl');
     });
 
     it('prints the version in the console, also when the server cannot be reached', () => {

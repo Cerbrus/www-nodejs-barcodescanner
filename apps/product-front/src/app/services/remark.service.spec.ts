@@ -29,7 +29,10 @@ describe('RemarkService', () => {
                 { provide: AuthService, useValue: { owner } },
                 { provide: EventsService, useValue: events },
                 { provide: ShoppingStore, useValue: { pending: signal([{ catalogItemId: 1 }]) } },
-                { provide: TranslateService, useValue: { currentLang: 'nl', instant: (key: string): string => key } }
+                {
+                    provide: TranslateService,
+                    useValue: { getCurrentLang: (): string => 'nl', instant: (key: string): string => key }
+                }
             ]
         });
         const service = TestBed.inject(RemarkService);

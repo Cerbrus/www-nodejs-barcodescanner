@@ -1,11 +1,15 @@
-import { TranslateCompiler } from '@ngx-translate/core';
+import {
+    InterpolatableTranslation,
+    InterpolatableTranslationObject,
+    TranslateCompiler,
+    TranslationObject
+} from '@ngx-translate/core';
 import { IntlMessageFormat } from 'intl-messageformat';
 
 type Values = Record<string, string | number>;
-type Message = string | ((values?: Values) => string);
 
 export class MessageCompiler extends TranslateCompiler {
-    public compile(value: string, language: string): Message {
+    public compile(value: string, language: string): InterpolatableTranslation {
         if (!value.includes('{')) {
             return value;
         }
@@ -21,16 +25,20 @@ export class MessageCompiler extends TranslateCompiler {
         };
     }
 
-    public compileTranslations(translations: unknown, language: string): unknown {
-        if (typeof translations === 'string') {
-            return this.compile(translations, language);
+    public compileTranslations(translations: TranslationObject, language: string): InterpolatableTranslationObject {
+        return Object.fromEntries(
+            Object.entries(translations).map(([key, value]) => [key, this.compileValue(value, language)])
+        );
+    }
+
+    private compileValue(value: unknown, language: string): InterpolatableTranslation {
+        if (typeof value === 'string') {
+            return this.compile(value, language);
         }
-        if (typeof translations !== 'object' || translations === null) {
-            return translations;
+        if (typeof value !== 'object' || value === null) {
+            return value as InterpolatableTranslation;
         }
 
-        return Object.fromEntries(
-            Object.entries(translations).map(([key, value]) => [key, this.compileTranslations(value, language)])
-        );
+        return this.compileTranslations(value as TranslationObject, language);
     }
 }

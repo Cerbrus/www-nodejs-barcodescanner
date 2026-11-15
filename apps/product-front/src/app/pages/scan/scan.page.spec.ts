@@ -1,9 +1,10 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
+import { TranslateTesting } from '../../../testing/translate';
 import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -82,14 +83,14 @@ describe('ScanPage', () => {
         offerCamera();
 
         TestBed.configureTestingModule({
-            imports: [ScanPage, TranslateModule.forRoot()],
+            imports: [ScanPage, TranslateTesting],
             providers: [
                 { provide: ApiService, useValue: api },
                 { provide: ShoppingStore, useValue: store }
             ]
         });
         TestBed.overrideComponent(ScanPage, {
-            set: { imports: [FormsModule, TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] }
+            set: { imports: [FormsModule, TranslatePipe], schemas: [CUSTOM_ELEMENTS_SCHEMA] }
         });
     });
 

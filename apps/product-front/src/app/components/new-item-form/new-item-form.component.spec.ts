@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
 
 import { FakeStore, click, fakeStore, item, type } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -37,7 +37,7 @@ describe('NewItemFormComponent', () => {
         store = fakeStore();
         store.createItem.mockImplementation((input: { name: string }) => of(item(99, input.name)));
         TestBed.configureTestingModule({
-            imports: [NewItemFormComponent, TranslateModule.forRoot()],
+            imports: [NewItemFormComponent, TranslateTesting],
             providers: [
                 { provide: ShoppingStore, useValue: store },
                 { provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of(['milk']) } }

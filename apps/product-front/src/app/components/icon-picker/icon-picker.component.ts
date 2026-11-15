@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { ApiService } from '../../services/api.service';
 import { SheetComponent } from '../sheet/sheet.component';
@@ -9,7 +9,7 @@ import { SheetComponent } from '../sheet/sheet.component';
 @Component({
     selector: 'app-icon-picker',
     standalone: true,
-    imports: [FormsModule, TranslateModule, SheetComponent],
+    imports: [FormsModule, TranslatePipe, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <app-sheet (closed)="closed.emit()">

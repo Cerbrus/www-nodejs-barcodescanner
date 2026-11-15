@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -65,7 +65,7 @@ describe('ItemPage', () => {
         api.deleteCatalogItem.mockReturnValue(of(undefined));
         api.unmapBarcode.mockReturnValue(of(undefined));
         TestBed.configureTestingModule({
-            imports: [ItemPage, TranslateModule.forRoot()],
+            imports: [ItemPage, TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },

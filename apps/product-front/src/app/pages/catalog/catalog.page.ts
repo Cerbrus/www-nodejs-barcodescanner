@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { ItemTileComponent } from '../../components/item-tile/item-tile.component';
 import { CatalogItem } from '../../models';
@@ -10,7 +10,7 @@ import { ShoppingStore } from '../../services/shopping.store';
 @Component({
     selector: 'app-catalog-page',
     standalone: true,
-    imports: [FormsModule, TranslateModule, ItemTileComponent],
+    imports: [FormsModule, TranslatePipe, ItemTileComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">

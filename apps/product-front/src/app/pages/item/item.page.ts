@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, switchMap, tap } from 'rxjs';
 
 import { BarcodeComponent } from '../../components/barcode';
@@ -30,7 +30,7 @@ import { ToastService } from '../../services/toast.service';
         DatePipe,
         FormsModule,
         RouterLink,
-        TranslateModule,
+        TranslatePipe,
         BarcodeComponent,
         ItemIconComponent,
         IconPickerComponent,

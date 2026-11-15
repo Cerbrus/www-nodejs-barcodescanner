@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { click, texts } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { Release } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ChangelogPage } from './changelog.page';
@@ -23,7 +23,7 @@ describe('ChangelogPage', () => {
 
     const open = (): { fixture: ComponentFixture<ChangelogPage>; page: HTMLElement } => {
         TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot()],
+            imports: [TranslateTesting],
             providers: [provideRouter([]), { provide: ApiService, useValue: api }]
         });
         const fixture = TestBed.createComponent(ChangelogPage);

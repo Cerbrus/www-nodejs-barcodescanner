@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, catchError, finalize, of, startWith, switchMap, tap } from 'rxjs';
 
 import { SheetComponent } from '../../components/sheet/sheet.component';
@@ -35,7 +35,7 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 @Component({
     selector: 'app-remarks-page',
     standalone: true,
-    imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink, TranslateModule, SheetComponent],
+    imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">

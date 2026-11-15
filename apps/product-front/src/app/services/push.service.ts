@@ -132,7 +132,7 @@ export class PushService {
                 endpoint: subscription.endpoint,
                 p256dh: keys['p256dh'],
                 auth: keys['auth'],
-                language: this.translate.currentLang,
+                language: this.translate.getCurrentLang() ?? undefined,
                 origin: window.location.origin
             })
         );

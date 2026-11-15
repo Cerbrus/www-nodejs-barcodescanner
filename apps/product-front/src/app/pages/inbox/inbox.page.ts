@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -8,7 +8,7 @@ import { ShoppingStore } from '../../services/shopping.store';
 @Component({
     selector: 'app-inbox-page',
     standalone: true,
-    imports: [DatePipe, TranslateModule, NamingPromptComponent],
+    imports: [DatePipe, TranslatePipe, NamingPromptComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">

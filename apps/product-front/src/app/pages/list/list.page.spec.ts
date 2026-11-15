@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { FakeStore, click, entry, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
@@ -53,7 +53,7 @@ describe('ListPage', () => {
         );
         store.createItem.mockImplementation((input: { name: string }) => of(item(60, input.name)));
         TestBed.configureTestingModule({
-            imports: [ListPage, TranslateModule.forRoot()],
+            imports: [ListPage, TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },

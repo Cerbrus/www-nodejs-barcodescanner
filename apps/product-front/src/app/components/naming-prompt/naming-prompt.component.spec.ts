@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { Barcode } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
@@ -57,7 +57,7 @@ describe('NamingPromptComponent', () => {
         api.repeatLookup.mockReturnValue(of(known({ suggestions: [OFF] })));
         api.discardBarcode.mockReturnValue(of(undefined));
         TestBed.configureTestingModule({
-            imports: [NamingPromptComponent, TranslateModule.forRoot()],
+            imports: [NamingPromptComponent, TranslateTesting],
             providers: [
                 { provide: ShoppingStore, useValue: store },
                 { provide: ApiService, useValue: api },

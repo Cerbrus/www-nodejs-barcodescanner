@@ -39,7 +39,7 @@ export class AppComponent {
                 switchMap(() => translate.get('common.appName')),
                 tap((appName: string) => {
                     document.title = appName;
-                    document.documentElement.lang = translate.currentLang;
+                    document.documentElement.lang = translate.getCurrentLang() ?? 'nl';
                 }),
                 takeUntilDestroyed()
             )

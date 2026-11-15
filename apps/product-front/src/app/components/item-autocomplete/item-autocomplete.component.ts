@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { CatalogItem } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -11,7 +11,7 @@ const MAX_OPTIONS = 8;
 @Component({
     selector: 'app-item-autocomplete',
     standalone: true,
-    imports: [FormsModule, TranslateModule, ItemIconComponent],
+    imports: [FormsModule, TranslatePipe, ItemIconComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="wrap">

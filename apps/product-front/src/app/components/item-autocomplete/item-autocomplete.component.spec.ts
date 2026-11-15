@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 
+import { TranslateTesting } from '../../../testing/translate';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -42,7 +42,7 @@ describe('ItemAutocompleteComponent', () => {
         picked.length = 0;
         created.length = 0;
         TestBed.configureTestingModule({
-            imports: [ItemAutocompleteComponent, TranslateModule.forRoot()],
+            imports: [ItemAutocompleteComponent, TranslateTesting],
             providers: [
                 { provide: ShoppingStore, useValue: { items: signal(CATALOG) } },
                 { provide: ApiService, useValue: { iconsUrl: '/icons' } }

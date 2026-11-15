@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap, tap } from 'rxjs';
 
 import { withNote } from '../../display-name';
@@ -32,7 +32,7 @@ interface NavLink {
         RouterOutlet,
         RouterLink,
         RouterLinkActive,
-        TranslateModule,
+        TranslatePipe,
         RemarkPointerDirective,
         RemarkSheetComponent
     ],

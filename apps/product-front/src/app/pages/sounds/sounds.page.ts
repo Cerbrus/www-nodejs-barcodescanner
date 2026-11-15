@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { SoundTestComponent } from '../../components/sound-test/sound-test.component';
 
 @Component({
     selector: 'app-sounds-page',
     standalone: true,
-    imports: [RouterLink, TranslateModule, SoundTestComponent],
+    imports: [RouterLink, TranslatePipe, SoundTestComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, of, tap } from 'rxjs';
 
 import { FeedbackSettings } from '../../models';
@@ -11,7 +11,7 @@ const NO_SOUND = 'none';
 @Component({
     selector: 'app-sound-test',
     standalone: true,
-    imports: [FormsModule, TranslateModule],
+    imports: [FormsModule, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="card text-sm">

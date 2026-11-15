@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { tap } from 'rxjs';
 
 import { ItemTileComponent } from '../../components/item-tile/item-tile.component';
@@ -23,7 +23,7 @@ interface SearchResult {
 @Component({
     selector: 'app-list-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, TranslateModule, ItemTileComponent, NewItemFormComponent, SheetComponent],
+    imports: [FormsModule, RouterLink, TranslatePipe, ItemTileComponent, NewItemFormComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './list.page.html'
 })

@@ -88,7 +88,7 @@ describe('PushService', () => {
             providers: [
                 { provide: ApiService, useValue: api },
                 { provide: Router, useValue: { navigateByUrl: navigate } },
-                { provide: TranslateService, useValue: { currentLang: 'nl' } }
+                { provide: TranslateService, useValue: { getCurrentLang: (): string => 'nl' } }
             ]
         });
         service = TestBed.inject(PushService);

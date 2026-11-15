@@ -10,7 +10,7 @@ import {
     signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { filter, finalize, switchMap, tap } from 'rxjs';
 
 import { Barcode, CatalogItem, ProductSuggestion } from '../../models';
@@ -31,7 +31,7 @@ export type NamingOutcome = { kind: 'linked'; item: CatalogItem } | { kind: 'lat
 @Component({
     selector: 'app-naming-prompt',
     standalone: true,
-    imports: [TranslateModule, ItemAutocompleteComponent, NewItemFormComponent, SheetComponent],
+    imports: [TranslatePipe, ItemAutocompleteComponent, NewItemFormComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './naming-prompt.component.html'
 })

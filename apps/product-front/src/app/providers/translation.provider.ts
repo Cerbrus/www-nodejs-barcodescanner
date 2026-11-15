@@ -1,6 +1,11 @@
-import { HttpClient } from '@angular/common/http';
-import { EnvironmentProviders, Provider } from '@angular/core';
-import { TranslateCompiler, TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { Provider } from '@angular/core';
+import {
+    TranslateLoader,
+    TranslationObject,
+    provideTranslateCompiler,
+    provideTranslateLoader,
+    provideTranslateService
+} from '@ngx-translate/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -11,26 +16,17 @@ import { MessageCompiler } from './message.compiler';
 export class LazyTranslateLoader implements TranslateLoader {
     public translationsLoaded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-    public getTranslation(lang: string): Observable<unknown> {
-        return from(import(`../../assets/i18n/${lang}.json`)).pipe(tap(() => this.translationsLoaded$.next(true)));
+    public getTranslation(lang: string): Observable<TranslationObject> {
+        return from(import(`../../assets/i18n/${lang}.json`) as Promise<TranslationObject>).pipe(
+            tap(() => this.translationsLoaded$.next(true))
+        );
     }
 }
 
-export function createTranslateLoader(): LazyTranslateLoader {
-    return new LazyTranslateLoader();
-}
-
-export function provideTranslation(): Array<Provider | EnvironmentProviders> {
-    return TranslateModule.forRoot({
-        defaultLanguage: 'nl',
-        loader: {
-            provide: TranslateLoader,
-            useFactory: createTranslateLoader,
-            deps: [HttpClient]
-        },
-        compiler: {
-            provide: TranslateCompiler,
-            useClass: MessageCompiler
-        }
-    }).providers!;
+export function provideTranslation(): Array<Provider> {
+    return provideTranslateService({
+        fallbackLang: 'nl',
+        loader: provideTranslateLoader(LazyTranslateLoader),
+        compiler: provideTranslateCompiler(MessageCompiler)
+    });
 }

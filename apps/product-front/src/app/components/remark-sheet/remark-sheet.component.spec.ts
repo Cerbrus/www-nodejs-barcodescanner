@@ -1,9 +1,9 @@
 import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 
 import { FakeRemarks, click, fakeRemarks, texts, type } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 import { RemarkPointerDirective } from './remark-pointer.directive';
@@ -44,7 +44,7 @@ describe('RemarkSheetComponent', () => {
     beforeEach(async () => {
         remarks = fakeRemarks();
         TestBed.configureTestingModule({
-            imports: [RemarkSheetComponent, TranslateModule.forRoot()],
+            imports: [RemarkSheetComponent, TranslateTesting],
             providers: [{ provide: RemarkService, useValue: remarks }]
         });
         fixture = TestBed.createComponent(RemarkSheetComponent);

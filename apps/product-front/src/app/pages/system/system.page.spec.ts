@@ -1,10 +1,11 @@
 import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { FakeEvents, FakeRemarks, click, fakeEvents, fakeRemarks, texts } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { AgentStatus, AuthState } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -67,7 +68,7 @@ describe('SystemPage', () => {
         api.sendTestPush.mockReturnValue(of({ sent: 1, failed: 0 }));
         scanner({ agentOnline: true, scanner: 'connected', lastHandheldScanAt: '2026-11-13T20:41:00Z' });
         TestBed.configureTestingModule({
-            imports: [SystemPage, TranslateModule.forRoot()],
+            imports: [SystemPage, TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: AuthService, useValue: auth },

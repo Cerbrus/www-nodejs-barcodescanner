@@ -1,10 +1,10 @@
 import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 
 import { FakeEvents, FakeRemarks, fakeEvents, fakeRemarks, texts } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { AuthState, IssueDraft, Remark } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -85,7 +85,7 @@ describe('RemarksPage', () => {
             of(remark(1, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' }))
         );
         TestBed.configureTestingModule({
-            imports: [RemarksPage, TranslateModule.forRoot()],
+            imports: [RemarksPage, TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: ApiService, useValue: api },

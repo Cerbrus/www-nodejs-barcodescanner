@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { click, texts, type } from '../../../testing/fakes';
+import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { IconPickerComponent } from './icon-picker.component';
 
@@ -16,7 +16,7 @@ describe('IconPickerComponent', () => {
         picked.length = 0;
         closed = 0;
         TestBed.configureTestingModule({
-            imports: [IconPickerComponent, TranslateModule.forRoot()],
+            imports: [IconPickerComponent, TranslateTesting],
             providers: [
                 {
                     provide: ApiService,

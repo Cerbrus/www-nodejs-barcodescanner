@@ -2,7 +2,7 @@ import { DatePipe, LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
@@ -31,7 +31,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
 @Component({
     selector: 'app-system-page',
     standalone: true,
-    imports: [DatePipe, LowerCasePipe, RouterLink, TranslateModule],
+    imports: [DatePipe, LowerCasePipe, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -297,7 +297,7 @@ export class SystemPage {
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
     protected readonly managementLinks = MANAGEMENT_LINKS;
-    protected readonly currentLanguage = signal(inject(TranslateService).currentLang || 'nl');
+    protected readonly currentLanguage = signal(inject(TranslateService).getCurrentLang() || 'nl');
 
     private readonly agentApi = inject(ApiService);
 

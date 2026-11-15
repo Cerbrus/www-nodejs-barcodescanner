@@ -9,7 +9,7 @@ import {
     signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { finalize, tap } from 'rxjs';
 
 import { CatalogItem } from '../../models';
@@ -105,7 +105,7 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
 @Component({
     selector: 'app-new-item-form',
     standalone: true,
-    imports: [FormsModule, TranslateModule, IconPickerComponent, ItemIconComponent],
+    imports: [FormsModule, TranslatePipe, IconPickerComponent, ItemIconComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="flex items-center gap-3">

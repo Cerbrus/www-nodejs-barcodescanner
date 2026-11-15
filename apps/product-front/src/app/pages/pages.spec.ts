@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../testing/fakes';
+import { TranslateTesting } from '../../testing/translate';
 import { Scan } from '../models';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
@@ -80,7 +80,7 @@ describe('the smaller pages', () => {
         api.getFeedbackSettings.mockReturnValue(of(SOUNDS));
         api.setFeedbackSound.mockReturnValue(of(SOUNDS));
         TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot()],
+            imports: [TranslateTesting],
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },

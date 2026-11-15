@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, finalize, of, tap } from 'rxjs';
 
 import { REMARK_KINDS, RemarkKind } from '../../models';
@@ -13,7 +13,7 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
 @Component({
     selector: 'app-remark-sheet',
     standalone: true,
-    imports: [FormsModule, TranslateModule, SheetComponent],
+    imports: [FormsModule, TranslatePipe, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (remarks.draft(); as draft) {
