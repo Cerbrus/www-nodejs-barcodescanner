@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 @Component({
     selector: 'app-remarks-page',
     standalone: true,
-    imports: [DatePipe, FormsModule, RouterLink, TranslateModule, SheetComponent],
+    imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink, TranslateModule, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -41,84 +41,104 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
             }
 
             <div class="flex flex-col gap-2">
-                @for (remark of list(); track remark.id) {
-                    <article class="card" [class.opacity-60]="remark.state === 'closed'">
-                        <div class="flex items-center gap-2 text-sm">
-                            <i class="material-symbols-outlined kind" [class]="remark.kind">{{ icons[remark.kind] }}</i>
-                            <span class="font-semibold">{{ 'remark.kind.' + remark.kind | translate }}</span>
-                            <span class="muted grow">{{ remark.createdAt | date: 'd MMM HH:mm' }}</span>
-                            @if (remark.state === 'closed') {
-                                <span class="state">{{ 'remark.closed' | translate }}</span>
-                                <button
-                                    type="button"
-                                    class="toggle"
-                                    [attr.aria-expanded]="expanded().has(remark.id)"
-                                    [attr.aria-label]="(expanded().has(remark.id) ? 'remark.collapse' : 'remark.expand') | translate"
-                                    (click)="toggle(remark.id)">
-                                    <i class="material-symbols-outlined">{{ expanded().has(remark.id) ? 'expand_less' : 'expand_more' }}</i>
-                                </button>
-                            }
-                        </div>
-                        <p class="text">{{ remark.text }}</p>
-                        @if (remark.state === 'open' || expanded().has(remark.id)) {
-                            <p class="muted where text-xs">
-                                <span class="font-mono">{{ remark.page }}</span>
-                                @if (remark.target; as target) {
-                                    · {{ target.label || target.text || target.component }}
-                                }
-                                @if (auth.owner() && auth.state()?.enabled) {
-                                    · {{ remark.account }}
-                                }
-                            </p>
+                @for (remark of unhandled(); track remark.id) {
+                    <ng-container [ngTemplateOutlet]="card" [ngTemplateOutletContext]="{ $implicit: remark }" />
+                } @empty {
+                    @if (!handled().length) {
+                        <p class="empty">{{ (loaded() ? 'remark.empty' : 'common.loading') | translate }}</p>
+                    }
+                }
+            </div>
 
-                            @if (remark.issueUrl) {
-                                <a class="issue" target="_blank" rel="noopener" [href]="remark.issueUrl">
-                                    <i class="material-symbols-outlined">open_in_new</i>
-                                    {{ 'remark.onGitHub' | translate: { number: remark.issueNumber } }}
-                                </a>
-                            }
+            @if (handled().length) {
+                <button type="button" class="group" [attr.aria-expanded]="showHandled()" (click)="showHandled.set(!showHandled())">
+                    <i class="material-symbols-outlined">{{ showHandled() ? 'expand_less' : 'expand_more' }}</i>
+                    <span class="grow text-left">{{ 'remark.closed' | translate }}</span>
+                    <span class="state">{{ handled().length }}</span>
+                </button>
+                @if (showHandled()) {
+                    <div class="flex flex-col gap-2">
+                        @for (remark of handled(); track remark.id) {
+                            <ng-container [ngTemplateOutlet]="card" [ngTemplateOutletContext]="{ $implicit: remark }" />
+                        }
+                    </div>
+                }
+            }
+        </div>
 
-                            @if (rejecting() === remark.id) {
-                                <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
-                                <div class="mt-2 flex gap-2">
-                                    <button type="button" class="btn danger" (click)="reject(remark)">
+        <ng-template #card let-remark>
+            <article class="card" [class.opacity-60]="remark.state === 'closed'">
+                <div class="flex items-center gap-2 text-sm">
+                    <i class="material-symbols-outlined kind" [class]="remark.kind">{{ icon(remark.kind) }}</i>
+                    <span class="font-semibold">{{ 'remark.kind.' + remark.kind | translate }}</span>
+                    <span class="muted grow">{{ remark.createdAt | date: 'd MMM HH:mm' }}</span>
+                    @if (auth.owner()) {
+                        <button type="button" class="btn small" (click)="setState(remark, remark.state === 'open' ? 'closed' : 'open')">
+                            <i class="material-symbols-outlined">{{ remark.state === 'open' ? 'check' : 'undo' }}</i>
+                            {{ (remark.state === 'open' ? 'remark.close' : 'remark.reopen') | translate }}
+                        </button>
+                    }
+                    @if (!remark.issueUrl) {
+                        <div class="menu-anchor">
+                            <button
+                                type="button"
+                                class="btn small"
+                                [attr.aria-expanded]="menu() === remark.id"
+                                [attr.aria-label]="'remark.actions' | translate"
+                                (click)="menu.set(menu() === remark.id ? undefined : remark.id)">
+                                <i class="material-symbols-outlined">more_vert</i>
+                            </button>
+                            @if (menu() === remark.id) {
+                                <button type="button" class="backdrop" tabindex="-1" aria-hidden="true" (click)="menu.set(undefined)"></button>
+                                <div class="menu" role="menu">
+                                    @if (canSendToGitHub() && auth.owner()) {
+                                        <button type="button" role="menuitem" (click)="prepare(remark)">
+                                            <i class="material-symbols-outlined">outbox</i>
+                                            {{ 'remark.toGitHub' | translate }}
+                                        </button>
+                                    }
+                                    <button type="button" role="menuitem" (click)="rejecting.set(remark.id); menu.set(undefined)">
                                         <i class="material-symbols-outlined">block</i>
                                         {{ 'remark.reject' | translate }}
                                     </button>
-                                    <button type="button" class="btn" (click)="rejecting.set(undefined)">
-                                        <i class="material-symbols-outlined">close</i>
-                                        {{ 'common.cancel' | translate }}
-                                    </button>
-                                </div>
-                            } @else if (auth.owner() || !remark.issueUrl) {
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    @if (auth.owner()) {
-                                        <button type="button" class="btn" (click)="setState(remark, remark.state === 'open' ? 'closed' : 'open')">
-                                            <i class="material-symbols-outlined">{{ remark.state === 'open' ? 'check' : 'undo' }}</i>
-                                            {{ (remark.state === 'open' ? 'remark.close' : 'remark.reopen') | translate }}
-                                        </button>
-                                        @if (canSendToGitHub() && !remark.issueUrl) {
-                                            <button type="button" class="btn" (click)="prepare(remark)">
-                                                <i class="material-symbols-outlined">outbox</i>
-                                                {{ 'remark.toGitHub' | translate }}
-                                            </button>
-                                        }
-                                    }
-                                    @if (!remark.issueUrl) {
-                                        <button type="button" class="btn" (click)="rejecting.set(remark.id)">
-                                            <i class="material-symbols-outlined">block</i>
-                                            {{ 'remark.reject' | translate }}
-                                        </button>
-                                    }
                                 </div>
                             }
-                        }
-                    </article>
-                } @empty {
-                    <p class="empty">{{ (loaded() ? 'remark.empty' : 'common.loading') | translate }}</p>
+                        </div>
+                    }
+                </div>
+                <p class="text">{{ remark.text }}</p>
+                <p class="muted where text-xs">
+                    <span class="font-mono">{{ remark.page }}</span>
+                    @if (remark.target; as target) {
+                        · {{ target.label || target.text || target.component }}
+                    }
+                    @if (auth.owner() && auth.state()?.enabled) {
+                        · {{ remark.account }}
+                    }
+                </p>
+
+                @if (remark.issueUrl) {
+                    <a class="issue" target="_blank" rel="noopener" [href]="remark.issueUrl">
+                        <i class="material-symbols-outlined">open_in_new</i>
+                        {{ 'remark.onGitHub' | translate: { number: remark.issueNumber } }}
+                    </a>
                 }
-            </div>
-        </div>
+
+                @if (rejecting() === remark.id) {
+                    <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
+                    <div class="mt-2 flex gap-2">
+                        <button type="button" class="btn danger" (click)="reject(remark)">
+                            <i class="material-symbols-outlined">block</i>
+                            {{ 'remark.reject' | translate }}
+                        </button>
+                        <button type="button" class="btn" (click)="rejecting.set(undefined)">
+                            <i class="material-symbols-outlined">close</i>
+                            {{ 'common.cancel' | translate }}
+                        </button>
+                    </div>
+                }
+            </article>
+        </ng-template>
 
         @if (sending(); as remark) {
             <app-sheet (closed)="sending.set(undefined)">
@@ -161,7 +181,13 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
         .kind.bug { color: var(--danger); }
         .kind.wish { color: var(--accent); }
         .state { padding: 2px 8px; border-radius: 8px; background: var(--line); font-size: 0.75rem; font-weight: 700; }
-        .toggle { display: inline-flex; align-items: center; color: var(--text-muted); }
+        .group { display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 12px; padding: 8px 4px; color: var(--text-muted); font-weight: 600; }
+        .btn.small { padding: 4px 10px; font-size: 0.85rem; }
+        .menu-anchor { position: relative; }
+        .backdrop { position: fixed; inset: 0; z-index: 10; cursor: default; }
+        .menu { position: absolute; top: 100%; right: 0; z-index: 11; min-width: 160px; margin-top: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: 0 4px 16px rgb(0 0 0 / 0.2); }
+        .menu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border-radius: 8px; text-align: left; }
+        .menu button:hover { background: var(--line); }
         .text { margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
         .where { margin-top: 4px; overflow-wrap: anywhere; }
         .issue { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; color: var(--accent); font-size: 0.85rem; font-weight: 600; }
@@ -175,7 +201,6 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 export class RemarksPage {
     protected readonly remarks = inject(RemarkService);
     protected readonly auth = inject(AuthService);
-    protected readonly icons = KIND_ICONS;
     protected readonly optionNames: Array<keyof IssueOptions> = ['investigate', 'includeDevice', 'includeAccount'];
     protected readonly loaded = signal(false);
     protected readonly sending = signal<Remark | undefined>(undefined);
@@ -183,14 +208,16 @@ export class RemarksPage {
     protected readonly draft = signal<IssueDraft | undefined>(undefined);
     protected readonly busy = signal(false);
     protected readonly rejecting = signal<number | undefined>(undefined);
-    protected readonly expanded = signal<ReadonlySet<number>>(new Set());
+    protected readonly showHandled = signal(false);
+    protected readonly menu = signal<number | undefined>(undefined);
 
     private readonly answer = signal<RemarkList>({ remarks: [], canSendToGitHub: false });
     private readonly api = inject(ApiService);
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
-    protected readonly list = computed(() => this.answer().remarks);
+    protected readonly unhandled = computed(() => this.answer().remarks.filter((remark) => remark.state === 'open'));
+    protected readonly handled = computed(() => this.answer().remarks.filter((remark) => remark.state === 'closed'));
     protected readonly canSendToGitHub = computed(() => this.answer().canSendToGitHub);
 
     constructor() {
@@ -204,15 +231,8 @@ export class RemarksPage {
             .subscribe();
     }
 
-    protected toggle(id: number): void {
-        this.expanded.update((open) => {
-            const next = new Set(open);
-            if (!next.delete(id)) {
-                next.add(id);
-            }
-
-            return next;
-        });
+    protected icon(kind: RemarkKind): string {
+        return KIND_ICONS[kind];
     }
 
     protected setState(remark: Remark, state: Remark['state']): void {
@@ -231,6 +251,7 @@ export class RemarksPage {
     }
 
     protected prepare(remark: Remark): void {
+        this.menu.set(undefined);
         this.options.set(DEFAULT_OPTIONS);
         this.sending.set(remark);
         this.loadDraft(remark);
