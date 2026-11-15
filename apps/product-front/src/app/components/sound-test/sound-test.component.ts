@@ -23,7 +23,7 @@ const NO_SOUND = 'none';
                     @for (row of settings.events; track row.event) {
                         <div class="min-w-0">
                             <div class="flex items-center justify-between gap-1">
-                                <label class="field-label m-0! truncate" [for]="'sound-' + row.event">
+                                <label class="field-label m-0 truncate" [for]="'sound-' + row.event">
                                     {{ 'sound.event.' + row.event | translate }}
                                 </label>
                                 <button

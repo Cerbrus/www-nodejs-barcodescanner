@@ -23,7 +23,7 @@ import { ApiService } from '../../services/api.service';
 
             <div class="flex flex-col gap-1">
                 @for (release of releases(); track release.version) {
-                    <div class="card py-2!">
+                    <div class="card py-2">
                         <button
                             type="button"
                             class="head"

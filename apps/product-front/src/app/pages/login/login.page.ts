@@ -13,7 +13,7 @@ const KNOWN_ERRORS = ['not_allowed', 'failed'];
     template: `
         <main class="login">
             <img class="logo" src="assets/icons/icon-192.png" alt="" />
-            <h1 class="page-title m-0!">{{ 'common.appName' | translate }}</h1>
+            <h1 class="page-title m-0">{{ 'common.appName' | translate }}</h1>
             <p class="muted text-center">{{ 'login.intro' | translate }}</p>
 
             @if (errorKey(); as key) {

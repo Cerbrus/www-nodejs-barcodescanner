@@ -39,7 +39,7 @@ import { ShoppingStore } from '../../services/shopping.store';
 
             <div class="mt-3 flex flex-col gap-2">
                 @for (group of groups(); track group.section.id) {
-                    <section class="card p-0!">
+                    <section class="card p-0">
                         <button
                             type="button"
                             class="flex w-full items-center gap-2 p-3 text-left"

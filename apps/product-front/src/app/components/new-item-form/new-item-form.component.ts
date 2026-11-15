@@ -116,7 +116,7 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
                 <app-item-icon [item]="preview()" />
             </span>
             <div class="grow">
-                <label class="field-label mt-0!" for="new-item-name">{{ 'item.name' | translate }}</label>
+                <label class="field-label mt-0" for="new-item-name">{{ 'item.name' | translate }}</label>
                 <input
                     id="new-item-name"
                     class="field"
