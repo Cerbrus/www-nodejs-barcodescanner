@@ -255,6 +255,8 @@
         "closed": "handled",
         "close": "Mark as handled",
         "reopen": "Reopen",
+        "reject": "Reject",
+        "rejectConfirm": "Reject this feedback? It disappears from the list.",
         "toGitHub": "To GitHub",
         "sendToGitHub": "Send to GitHub",
         "sentToGitHub": "Sent to GitHub as issue {number}",

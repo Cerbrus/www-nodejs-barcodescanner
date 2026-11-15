@@ -63,6 +63,7 @@ describe('ApiService', () => {
             [() => api.sendRemark({ kind: 'bug', text: 'x', page: '#/list' }), 'POST', '/remarks', { kind: 'bug', text: 'x', page: '#/list' }],
             [() => api.getRemarks(), 'GET', '/remarks'],
             [() => api.setRemarkState(4, 'closed'), 'PATCH', '/remarks/4', { state: 'closed' }],
+            [() => api.rejectRemark(4), 'DELETE', '/remarks/4'],
             [() => api.getIssueDraft(4, options), 'POST', '/remarks/4/issue-draft', options],
             [() => api.sendRemarkToGitHub(4, options), 'POST', '/remarks/4/issue', options]
         ];

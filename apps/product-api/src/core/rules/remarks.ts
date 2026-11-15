@@ -3,6 +3,7 @@ export type RemarkKind = (typeof REMARK_KINDS)[number];
 
 export const REMARK_STATES = ['open', 'closed'] as const;
 export type RemarkState = (typeof REMARK_STATES)[number];
+export const REJECTED_STATE = 'rejected';
 
 export const MAX_REMARK_TEXT_LENGTH = 2000;
 export const MAX_REMARKS_PER_HOUR = 30;

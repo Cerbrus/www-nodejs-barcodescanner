@@ -255,6 +255,8 @@
         "closed": "afgehandeld",
         "close": "Afhandelen",
         "reopen": "Heropenen",
+        "reject": "Afwijzen",
+        "rejectConfirm": "Deze feedback afwijzen? Hij verdwijnt uit de lijst.",
         "toGitHub": "Naar GitHub",
         "sendToGitHub": "Versturen naar GitHub",
         "sentToGitHub": "Verstuurd naar GitHub als issue {number}",

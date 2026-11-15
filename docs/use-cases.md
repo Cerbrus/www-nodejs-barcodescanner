@@ -120,6 +120,7 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 4. The writer gets a thank-you and nothing more: no promise and no state to follow. The remark is on the Feedback page, where each account sees its own.
 5. Without a connection the remark is kept on the device and sent when the connection is back; the sheet says so.
 6. The owner sees every remark on the Feedback page, is told about a new one from another account by a notification and a message on screen, and can mark a remark as handled or reopen it.
+6a. The owner can reject any remark and a writer can reject their own. After a confirmation the remark is hidden from the list for everyone; the row stays in the database (a soft delete, state `rejected`). A remark that is already on GitHub cannot be rejected.
 7. The owner can send a remark to GitHub as an issue. The app first shows exactly what would be sent and warns that the repository is public. The account of the writer and the details of the device stay out unless the owner ticks them. A third tick asks the agent on GitHub to handle it: the issue says it comes from the owner, the agent implements it in a draft pull request unless a question is open, and labels the issue with its verdict.
 
 ## Using it as an app

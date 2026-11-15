@@ -32,7 +32,7 @@ export class RemarkEntity {
     public text: string;
 
     @Column({ type: 'varchar', default: 'open' })
-    public state: 'open' | 'closed';
+    public state: 'open' | 'closed' | 'rejected';
 
     @Column({ type: 'varchar', default: '' })
     public page: string;

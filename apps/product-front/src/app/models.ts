@@ -177,7 +177,7 @@ export interface Remark {
     id: number;
     kind: RemarkKind;
     text: string;
-    state: 'open' | 'closed';
+    state: 'open' | 'closed' | 'rejected';
     page: string;
     target?: RemarkTarget | null;
     context?: RemarkContext | null;
