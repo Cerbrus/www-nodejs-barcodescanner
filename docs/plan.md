@@ -155,7 +155,7 @@ Plan and decisions in [remarks-plan.md](remarks-plan.md). Released in 1.1.48 on 
 
 ### Smaller changes outside the milestones
 
-- Done 2026-11-15 03:00: a "What's new" page for every account, backfilled from the git tags (issue #23). Open: refreshing `changelog.json` after each release is a manual `yarn changelog`; a step in the tag workflow could commit it.
+- Done 2026-11-15 03:00: a "What's new" page for every account, backfilled from the git tags (issue #23). Changed in review: the build writes the changelog, so each release includes itself.
 - Done 2026-11-13 21:02, released in 1.1.27: searching on the list page also shows products that are already on the list, as "+1".
 
 ## Open points

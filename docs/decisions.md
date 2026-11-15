@@ -119,7 +119,7 @@ Decided 2026-11-13:
 
 ## Changelog in the app
 
-Decided 2026-11-15, on the owner's issue #23: the app shows a changelog to every logged-in account, a summary line per version with date and time, expanding into its notes. The data is a committed file in the web app, built from the git tags by `yarn changelog`, notes in English. Chosen over an API route and a table (nothing to store), and over generating it in the image build (the Dockerfile and workflows stay as they are; the owner can add the step later).
+Decided 2026-11-15, on the owner's issue #23: the app shows a changelog to every logged-in account, a summary line per version with date and time, expanding into its notes. The data is a file in the web app, written from the git history by `tools/changelog.mjs`, notes in English. Chosen over an API route and a table (nothing to store). Changed in review the same day: the build writes the file just before the image is made, including the version being built, instead of a committed file that was refreshed by hand and so always lacked the newest version.
 
 ## Node version
 

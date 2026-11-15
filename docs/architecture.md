@@ -303,7 +303,7 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 
 ## Changelog
 
-`apps/product-front/src/assets/changelog.json` holds one entry per published version: `version`, `released` (ISO time of the tagged commit), `summary` (the newest commit subject) and `notes` (every commit subject since the previous version). `tools/changelog.mjs` (`yarn changelog`) writes it from the git tags, which also backfills every version so far. The file ships inside the web app, so it needs no API route; `ChangelogPage` (`/changelog`, open to every logged-in account) fetches it through `ApiService.getChangelog()` and shows a summary line per release that expands into its notes. New versions appear after the script is run again and the file is committed.
+`apps/product-front/src/assets/changelog.json` holds one entry per version: `version`, `released` (time of the tagged commit), `notes` (the subjects of the commits since the previous version, oldest first) and `summary` (the first of them). Notes count only commits that change the product (`apps`, `data`, `deployment`, the Dockerfile, but not tests); a version without such commits lists all of its commits instead. `tools/changelog.mjs` (`yarn changelog`) writes it from the git tags, which also backfills every version so far. The build runs it with `--upcoming <version>` just before the app image is made, so the version being built is in it too; the file is not kept in git, and `yarn e2e` writes it locally. The file ships inside the web app, so it needs no API route; `ChangelogPage` (`/changelog`, open to every logged-in account) fetches it through `ApiService.getChangelog()` and shows a summary line per release that expands into its notes. Each release brings its own entry.
 
 ## Remarks
 

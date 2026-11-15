@@ -17,6 +17,7 @@ Desktop.ini
 
 # Build output
 dist/
+apps/product-front/src/assets/changelog.json
 
 # Local data: everything in data/ except the seed file and icons
 /data/*

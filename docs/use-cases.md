@@ -129,7 +129,7 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 1. Every account that is logged in finds "What's new" in the "This device" group of the System page.
 2. The page lists the releases, newest first. Each shows a summary line, the version and the date and time it was released.
 3. A tap on a release opens its individual notes; a second tap closes them, and opening another closes the first.
-4. The notes are the commit subjects between a version and the one before it, in English. Versions from the first one onward are filled in. After new versions are published, `yarn changelog` rebuilds the file from the git tags, and the result is committed.
+4. The notes are the changes between a version and the one before it, in English, oldest first; the first is the summary. Versions from the first one onward are filled in, and each new version brings its own entry.
 
 ## Using it as an app
 

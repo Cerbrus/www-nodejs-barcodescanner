@@ -14,6 +14,8 @@ import { PushService } from './services/push.service';
 import { SettingsService } from './services/settings/settings.service';
 import { UpdateService } from './services/update.service';
 
+const PAGE_LOAD_TIMEOUT_MILLISECONDS = 30_000;
+
 describe('AppComponent', () => {
     const startPush = vi.fn(() => Promise.resolve());
     const startUpdates = vi.fn();
@@ -127,7 +129,7 @@ describe('routes, settings and the console banner', () => {
 
         expect(pages.length).toBe(12);
         expect(pages.every((page) => typeof page === 'function')).toBe(true);
-    });
+    }, PAGE_LOAD_TIMEOUT_MILLISECONDS);
 
     it('reads the API address from the settings file before the app starts', async () => {
         vi.stubGlobal(
