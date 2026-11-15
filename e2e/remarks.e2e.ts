@@ -15,6 +15,7 @@ test.describe.configure({ mode: 'serial' });
 test('right-click a product, write a bug, and find it on the feedback page', async ({ page, request }) => {
     await page.goto('/#/list');
     const tile = page.locator('app-item-tile:has(button.tile.buy)').first();
+    await expect(tile).toBeVisible();
     const name = (await tile.locator('.name').innerText()).trim();
 
     await tile.locator('button.tile').click({ button: 'right' });
@@ -44,6 +45,7 @@ test('point at a part of the app from the settings, and write a wish about it', 
 
     await page.locator('nav a[href="#/list"]').click();
     await expect(page.getByText('Tik op wat je bedoelt')).toBeVisible();
+    await expect(page.locator('button.tile.buy').first()).toBeVisible();
     const before = await page.locator('button.tile.buy').count();
 
     await page.locator('button.tile.buy').first().click();
