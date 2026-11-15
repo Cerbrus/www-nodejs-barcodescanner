@@ -64,7 +64,12 @@ describe('AppComponent', () => {
         TestBed.resetTestingModule();
         TestBed.configureTestingModule({
             imports: [AppComponent, TranslateModule.forRoot()],
-            providers: [provideRouter([]), { provide: ApiService, useValue: api }, { provide: PushService, useValue: { start: startPush } }, { provide: UpdateService, useValue: { start: startUpdates } }]
+            providers: [
+                provideRouter([]),
+                { provide: ApiService, useValue: api },
+                { provide: PushService, useValue: { start: startPush } },
+                { provide: UpdateService, useValue: { start: startUpdates } }
+            ]
         });
         localStorage.setItem('language', 'fr');
         start();
@@ -85,7 +90,10 @@ describe('AppComponent', () => {
 
     it('closes the keyboard on a tap outside a text field, but not on a tap on a field, a label or a dropdown', () => {
         start();
-        document.body.insertAdjacentHTML('beforeend', '<div id="zone"><input id="field" /><label id="label">x</label><select id="choice"></select><p id="text">y</p></div>');
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            '<div id="zone"><input id="field" /><label id="label">x</label><select id="choice"></select><p id="text">y</p></div>'
+        );
         const field = document.getElementById('field') as HTMLInputElement;
         const tap = (id: string): void => {
             document.getElementById(id)?.dispatchEvent(new Event('pointerup', { bubbles: true }));
@@ -114,7 +122,9 @@ describe('routes, settings and the console banner', () => {
     });
 
     it('keeps history, log and sounds for the owner, and nothing else', () => {
-        const ownerOnly = shell.children?.filter((route) => route.canActivate?.includes(requireOwner)).map((route) => route.path);
+        const ownerOnly = shell.children
+            ?.filter((route) => route.canActivate?.includes(requireOwner))
+            .map((route) => route.path);
 
         expect(ownerOnly).toEqual(['history', 'log', 'sounds']);
     });
@@ -124,12 +134,20 @@ describe('routes, settings and the console banner', () => {
         expect(appRoutes.at(-1)).toEqual({ path: '**', redirectTo: 'list' });
     });
 
-    it('can load every page', async () => {
-        const pages = await Promise.all([...appRoutes, ...(shell.children ?? [])].filter((route) => route.loadComponent).map((route) => route.loadComponent?.()));
+    it(
+        'can load every page',
+        async () => {
+            const pages = await Promise.all(
+                [...appRoutes, ...(shell.children ?? [])]
+                    .filter((route) => route.loadComponent)
+                    .map((route) => route.loadComponent?.())
+            );
 
-        expect(pages.length).toBe(12);
-        expect(pages.every((page) => typeof page === 'function')).toBe(true);
-    }, PAGE_LOAD_TIMEOUT_MILLISECONDS);
+            expect(pages.length).toBe(12);
+            expect(pages.every((page) => typeof page === 'function')).toBe(true);
+        },
+        PAGE_LOAD_TIMEOUT_MILLISECONDS
+    );
 
     it('reads the API address from the settings file before the app starts', async () => {
         vi.stubGlobal(

@@ -10,8 +10,7 @@ export class BarcodeService {
     constructor(
         @InjectRepository(BarcodeEntity) private readonly barcodes: Repository<BarcodeEntity>,
         private readonly events: EventsService
-    ) {
-    }
+    ) {}
 
     public getAll(unmappedOnly: boolean): Promise<Array<BarcodeEntity>> {
         return this.barcodes.find({
@@ -65,7 +64,11 @@ export class BarcodeService {
         await this.in(manager).delete({ code });
     }
 
-    public async storeLookup(code: string, suggestions: Array<ProductSuggestion>, failed: Array<string>): Promise<void> {
+    public async storeLookup(
+        code: string,
+        suggestions: Array<ProductSuggestion>,
+        failed: Array<string>
+    ): Promise<void> {
         await this.barcodes.update({ code }, { suggestions, lookupFailed: failed });
         this.events.emit('barcode', { code, suggestions: suggestions.length, failed: failed.length });
     }

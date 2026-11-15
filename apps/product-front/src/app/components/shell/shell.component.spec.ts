@@ -5,7 +5,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { ShellComponent } from './shell.component';
-import { FakeEvents, FakeRemarks, FakeStore, click, fakeEvents, fakeRemarks, fakeStore, texts } from '../../../testing/fakes';
+import {
+    FakeEvents,
+    FakeRemarks,
+    FakeStore,
+    click,
+    fakeEvents,
+    fakeRemarks,
+    fakeStore,
+    texts
+} from '../../../testing/fakes';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
@@ -41,7 +50,14 @@ describe('ShellComponent', () => {
         Object.defineProperty(navigator, 'clearAppBadge', { configurable: true, value: clearAppBadge });
         TestBed.configureTestingModule({
             imports: [ShellComponent, TranslateModule.forRoot()],
-            providers: [provideRouter(['list', 'scan', 'inbox', 'catalog', 'system'].map((path) => ({ path, children: [] }))), { provide: ShoppingStore, useValue: store }, { provide: EventsService, useValue: events }, { provide: ApiService, useValue: api }, { provide: RemarkService, useValue: remarks }, { provide: AuthService, useValue: { owner } }]
+            providers: [
+                provideRouter(['list', 'scan', 'inbox', 'catalog', 'system'].map((path) => ({ path, children: [] }))),
+                { provide: ShoppingStore, useValue: store },
+                { provide: EventsService, useValue: events },
+                { provide: ApiService, useValue: api },
+                { provide: RemarkService, useValue: remarks },
+                { provide: AuthService, useValue: { owner } }
+            ]
         });
     });
 
@@ -52,10 +68,19 @@ describe('ShellComponent', () => {
     });
 
     it('shows the five tabs, and the number of unnamed barcodes on the inbox tab and the app icon', () => {
-        store.inbox.set([{ code: '1', scanCount: 1 }, { code: '2', scanCount: 1 }]);
+        store.inbox.set([
+            { code: '1', scanCount: 1 },
+            { code: '2', scanCount: 1 }
+        ]);
         open();
 
-        expect(Array.from(page.querySelectorAll('a.tab'), (tab) => tab.getAttribute('href'))).toEqual(['/list', '/scan', '/inbox', '/catalog', '/system']);
+        expect(Array.from(page.querySelectorAll('a.tab'), (tab) => tab.getAttribute('href'))).toEqual([
+            '/list',
+            '/scan',
+            '/inbox',
+            '/catalog',
+            '/system'
+        ]);
         expect(texts(page, '.tab-badge')).toEqual(['2']);
         expect(setAppBadge).toHaveBeenCalledWith(2);
     });
@@ -64,7 +89,13 @@ describe('ShellComponent', () => {
         remarks.ready.set(4);
         open();
 
-        expect(Array.from(page.querySelectorAll('a.tab'), (tab) => texts(tab, '.tab-badge'))).toEqual([[], [], [], [], ['4']]);
+        expect(Array.from(page.querySelectorAll('a.tab'), (tab) => texts(tab, '.tab-badge'))).toEqual([
+            [],
+            [],
+            [],
+            [],
+            ['4']
+        ]);
     });
 
     it('clears the number on the app icon when the inbox is empty, and leaves it alone before the data is loaded', () => {
@@ -172,7 +203,10 @@ describe('ShellComponent', () => {
 
         remarks.startPointing();
         fixture.detectChanges();
-        (page.querySelector('main') as HTMLElement).insertAdjacentHTML('beforeend', '<button id="probe" class="btn">Probe</button>');
+        (page.querySelector('main') as HTMLElement).insertAdjacentHTML(
+            'beforeend',
+            '<button id="probe" class="btn">Probe</button>'
+        );
         const probed = vi.fn();
         (page.querySelector('#probe') as HTMLElement).addEventListener('click', probed);
         click(page, '#probe');
@@ -202,7 +236,9 @@ describe('ShellComponent', () => {
         tabs[0].click();
         expect(tapped).toHaveBeenCalledTimes(1);
         expect(remarks.pointing()).toBe(false);
-        expect(remarks.draft()?.target).toEqual(expect.objectContaining({ text: 'nav.list', path: 'div > nav.tabs > a.tab' }));
+        expect(remarks.draft()?.target).toEqual(
+            expect.objectContaining({ text: 'nav.list', path: 'div > nav.tabs > a.tab' })
+        );
     });
 
     it('leaves a tap on the active tab alone while not pointing', () => {

@@ -26,7 +26,12 @@ import { ShoppingStore } from '../../services/shopping.store';
                     (ngModelChange)="search.set($event)"
                 />
                 @if (search()) {
-                    <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="search.set(''); field.focus()">
+                    <button
+                        type="button"
+                        class="clear-button"
+                        [attr.aria-label]="'common.clear' | translate"
+                        (click)="search.set(''); field.focus()"
+                    >
                         <i class="material-symbols-outlined">close</i>
                     </button>
                 }

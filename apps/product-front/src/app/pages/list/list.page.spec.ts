@@ -47,11 +47,18 @@ describe('ListPage', () => {
             .map((toast) => toast.text);
 
     beforeEach(() => {
-        store = fakeStore([milk, bread, cola, buttermilk], [entry(milk, 'to_buy', 2, 'halfvol'), entry(bread, 'to_buy'), entry(cola, 'recent')]);
+        store = fakeStore(
+            [milk, bread, cola, buttermilk],
+            [entry(milk, 'to_buy', 2, 'halfvol'), entry(bread, 'to_buy'), entry(cola, 'recent')]
+        );
         store.createItem.mockImplementation((input: { name: string }) => of(item(60, input.name)));
         TestBed.configureTestingModule({
             imports: [ListPage, TranslateModule.forRoot()],
-            providers: [provideRouter([]), { provide: ShoppingStore, useValue: store }, { provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of([]) } }]
+            providers: [
+                provideRouter([]),
+                { provide: ShoppingStore, useValue: store },
+                { provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of([]) } }
+            ]
         });
     });
 

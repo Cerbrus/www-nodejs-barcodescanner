@@ -19,11 +19,11 @@ export class AgentStatusService {
     private scanner?: ScannerState;
     private device?: string;
 
-    constructor(private readonly events: EventsService) {
-    }
+    constructor(private readonly events: EventsService) {}
 
     public get status(): AgentStatus {
-        const agentOnline = this.seenAt !== undefined && Date.now() - this.seenAt.getTime() < ONLINE_WITHIN_MILLISECONDS;
+        const agentOnline =
+            this.seenAt !== undefined && Date.now() - this.seenAt.getTime() < ONLINE_WITHIN_MILLISECONDS;
 
         return {
             agentOnline,

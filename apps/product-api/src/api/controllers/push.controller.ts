@@ -8,8 +8,7 @@ import { Account } from '../http';
 
 @Controller({ path: 'push', version: '1' })
 export class PushController {
-    constructor(private readonly push: PushService) {
-    }
+    constructor(private readonly push: PushService) {}
 
     @Get('key')
     public getKey(): { publicKey: string } {

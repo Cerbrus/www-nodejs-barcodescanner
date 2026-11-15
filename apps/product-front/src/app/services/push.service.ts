@@ -139,7 +139,10 @@ export class PushService {
     }
 
     private decodeKey(key: string): Uint8Array<ArrayBuffer> {
-        const base64 = key.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(key.length / 4) * 4, '=');
+        const base64 = key
+            .replace(/-/g, '+')
+            .replace(/_/g, '/')
+            .padEnd(Math.ceil(key.length / 4) * 4, '=');
         return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
     }
 }

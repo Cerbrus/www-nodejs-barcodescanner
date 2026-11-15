@@ -44,8 +44,11 @@ test('scan the same code again and get one more', async ({ page, request }) => {
     await expect.poll(() => answers.length).toBeGreaterThan(0);
 
     const history = await (await request.get('/api/v1/scans?limit=10')).text();
-    expect(answers.map((answer) => JSON.parse(answer).result), `answers: ${answers.join(' | ')}
-history: ${history}`).toEqual(['incremented']);
+    expect(
+        answers.map((answer) => JSON.parse(answer).result),
+        `answers: ${answers.join(' | ')}
+history: ${history}`
+    ).toEqual(['incremented']);
     await expect(page.getByText(/: nu 2$/)).toBeVisible();
     expect((await listOf(request)).length).toBe(before);
 });
@@ -56,7 +59,11 @@ test('shop without a connection and send the change later', async ({ page, conte
     await page.waitForFunction(async () => {
         const kept = await (await caches.open('app-files-v1')).keys();
 
-        return navigator.serviceWorker.controller !== null && kept.some((file) => /main-.*\.js$/.test(file.url)) && kept.some((file) => new URL(file.url).pathname === '/');
+        return (
+            navigator.serviceWorker.controller !== null &&
+            kept.some((file) => /main-.*\.js$/.test(file.url)) &&
+            kept.some((file) => new URL(file.url).pathname === '/')
+        );
     });
 
     await context.setOffline(true);
@@ -70,7 +77,9 @@ test('shop without a connection and send the change later', async ({ page, conte
 
     await context.setOffline(false);
     await expect(page.getByText('1 wijziging wacht')).toBeHidden({ timeout: 20_000 });
-    await expect.poll(async () => (await listOf(request)).find((entry) => entry.catalogItem.name === name)?.state).toBe('recent');
+    await expect
+        .poll(async () => (await listOf(request)).find((entry) => entry.catalogItem.name === name)?.state)
+        .toBe('recent');
 });
 
 test('other pages open, and the browser reported nothing the content policy would block', async ({ page, request }) => {

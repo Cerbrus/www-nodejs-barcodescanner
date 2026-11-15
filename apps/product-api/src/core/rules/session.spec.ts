@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { SESSION_LIFETIME_SECONDS, isAllowedEmail, newSession, parseCookies, safeEqual, signSession, verifySession } from './session';
+import {
+    SESSION_LIFETIME_SECONDS,
+    isAllowedEmail,
+    newSession,
+    parseCookies,
+    safeEqual,
+    signSession,
+    verifySession
+} from './session';
 
 const secret = 'test-secret';
 const now = new Date('2026-11-13T10:00:00Z');

@@ -30,7 +30,10 @@ export const reportFailedChanges: HttpInterceptorFn = (request, next) => {
                 error.status === UNAUTHORIZED ||
                 (error.status === NO_CONNECTION && request.context.get(QUIET_WITHOUT_CONNECTION));
             if (!silent) {
-                toasts.show({ kind: 'error', text: translate.instant(MESSAGE_BY_STATUS[error.status] ?? 'error.generic') });
+                toasts.show({
+                    kind: 'error',
+                    text: translate.instant(MESSAGE_BY_STATUS[error.status] ?? 'error.generic')
+                });
             }
 
             return throwError(() => error);

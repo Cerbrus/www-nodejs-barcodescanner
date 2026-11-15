@@ -16,8 +16,7 @@ export class EventController {
         private readonly events: EventsService,
         private readonly sessions: SessionService,
         private readonly config: AppConfig
-    ) {
-    }
+    ) {}
 
     @Agent()
     @Sse()
@@ -26,7 +25,9 @@ export class EventController {
             return this.events.stream();
         }
 
-        const sessionEnded$ = interval(SESSION_CHECK_MILLISECONDS).pipe(filter(() => !this.sessions.read(cookieHeader(request))));
+        const sessionEnded$ = interval(SESSION_CHECK_MILLISECONDS).pipe(
+            filter(() => !this.sessions.read(cookieHeader(request)))
+        );
 
         return this.events.stream().pipe(takeUntil(sessionEnded$));
     }

@@ -1,11 +1,25 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRender, inject, output, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    ElementRef,
+    afterNextRender,
+    inject,
+    output,
+    viewChild
+} from '@angular/core';
 
 @Component({
     selector: 'app-sheet',
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <dialog #dialog class="sheet-dialog" (cancel)="$event.preventDefault(); closed.emit()" (click)="onClick($event)">
+        <dialog
+            #dialog
+            class="sheet-dialog"
+            (cancel)="$event.preventDefault(); closed.emit()"
+            (click)="onClick($event)"
+        >
             <div class="sheet">
                 <ng-content />
             </div>

@@ -17,8 +17,7 @@ export class HealthController {
     constructor(
         private readonly dataSource: DataSource,
         private readonly config: AppConfig
-    ) {
-    }
+    ) {}
 
     @Get()
     public async check(): Promise<HealthDto> {

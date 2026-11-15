@@ -46,7 +46,11 @@ self.addEventListener('message', (event) => {
 
     event.waitUntil(
         listedFiles().then((listed) =>
-            keepAll([...event.data.urls, ...listed].map((address) => new URL(address, self.location.origin)).filter((url) => isKeptFile(url)))
+            keepAll(
+                [...event.data.urls, ...listed]
+                    .map((address) => new URL(address, self.location.origin))
+                    .filter((url) => isKeptFile(url))
+            )
         )
     );
 });
@@ -120,7 +124,9 @@ function readMessage(message) {
 function dropOtherCaches() {
     return self.caches
         .keys()
-        .then((names) => Promise.all(names.filter((name) => !KEPT_CACHES.includes(name)).map((name) => self.caches.delete(name))));
+        .then((names) =>
+            Promise.all(names.filter((name) => !KEPT_CACHES.includes(name)).map((name) => self.caches.delete(name)))
+        );
 }
 
 function keep(key, response) {
@@ -171,7 +177,12 @@ function isKeptFile(url) {
     if (url.hostname === FONT_HOST) {
         return true;
     }
-    if (url.origin !== self.location.origin || url.pathname.startsWith('/api/') || url.pathname === '/sw.js' || url.pathname === FILE_LIST) {
+    if (
+        url.origin !== self.location.origin ||
+        url.pathname.startsWith('/api/') ||
+        url.pathname === '/sw.js' ||
+        url.pathname === FILE_LIST
+    ) {
         return false;
     }
 

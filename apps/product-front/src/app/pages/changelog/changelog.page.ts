@@ -37,7 +37,9 @@ import { ApiService } from '../../services/api.service';
                                     · {{ release.released | date: 'd MMM y HH:mm' }}
                                 </span>
                             </span>
-                            <i class="material-symbols-outlined muted">{{ isOpen(release) ? 'expand_less' : 'expand_more' }}</i>
+                            <i class="material-symbols-outlined muted">{{
+                                isOpen(release) ? 'expand_less' : 'expand_more'
+                            }}</i>
                         </button>
                         @if (isOpen(release)) {
                             <ul class="notes">
@@ -54,9 +56,22 @@ import { ApiService } from '../../services/api.service';
         </div>
     `,
     styles: `
-        .head { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; }
-        .notes { margin: 8px 0 4px; padding-left: 18px; list-style: disc; font-size: 0.9rem; }
-        .notes li + li { margin-top: 4px; }
+        .head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+        }
+        .notes {
+            margin: 8px 0 4px;
+            padding-left: 18px;
+            list-style: disc;
+            font-size: 0.9rem;
+        }
+        .notes li + li {
+            margin-top: 4px;
+        }
     `
 })
 export class ChangelogPage {

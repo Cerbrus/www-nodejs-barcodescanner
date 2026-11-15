@@ -28,7 +28,10 @@ describe('ItemAutocompleteComponent', () => {
         fixture.detectChanges();
     };
     const options = (): Array<string> =>
-        Array.from(fixture.nativeElement.querySelectorAll('.option:not(.create) .grow') as NodeListOf<HTMLElement>, (element) => element.textContent?.trim() ?? '');
+        Array.from(
+            fixture.nativeElement.querySelectorAll('.option:not(.create) .grow') as NodeListOf<HTMLElement>,
+            (element) => element.textContent?.trim() ?? ''
+        );
     const createOption = (): HTMLElement | null => fixture.nativeElement.querySelector('.option.create');
     const pressEnter = (): void => {
         fixture.nativeElement.querySelector('input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));

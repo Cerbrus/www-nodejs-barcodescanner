@@ -17,5 +17,4 @@ import { AppConfig } from '../config/app.config';
     providers: [TransactionRunner],
     exports: [TypeOrmModule, TransactionRunner]
 })
-export class DataModule {
-}
+export class DataModule {}

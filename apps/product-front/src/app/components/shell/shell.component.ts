@@ -26,7 +26,15 @@ interface NavLink {
 @Component({
     selector: 'app-shell',
     standalone: true,
-    imports: [DatePipe, RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, RemarkPointerDirective, RemarkSheetComponent],
+    imports: [
+        DatePipe,
+        RouterOutlet,
+        RouterLink,
+        RouterLinkActive,
+        TranslateModule,
+        RemarkPointerDirective,
+        RemarkSheetComponent
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss'

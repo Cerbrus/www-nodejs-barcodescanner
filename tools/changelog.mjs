@@ -3,7 +3,15 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const OUTPUT = 'apps/product-front/src/assets/changelog.json';
-const USER_FACING = ['apps', 'data', 'deployment', 'Dockerfile', ':(exclude,glob)**/*.spec.ts', ':(exclude,glob)**/test/**', ':(exclude,glob)**/testing/**'];
+const USER_FACING = [
+    'apps',
+    'data',
+    'deployment',
+    'Dockerfile',
+    ':(exclude,glob)**/*.spec.ts',
+    ':(exclude,glob)**/test/**',
+    ':(exclude,glob)**/testing/**'
+];
 
 if (process.argv.includes('--hash')) {
     process.stdout.write(existsSync(OUTPUT) ? createHash('sha256').update(readFileSync(OUTPUT)).digest('hex') : 'none');
@@ -12,7 +20,8 @@ if (process.argv.includes('--hash')) {
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 const lines = (text) => text.split('\n').filter(Boolean);
-const subjects = (range, paths = []) => lines(git('log', '--no-merges', '--reverse', '--format=%s', range, '--', ...paths));
+const subjects = (range, paths = []) =>
+    lines(git('log', '--no-merges', '--reverse', '--format=%s', range, '--', ...paths));
 const upcoming = process.argv.includes('--upcoming') ? process.argv[process.argv.indexOf('--upcoming') + 1] : undefined;
 
 const previousTag = (ref) => {
@@ -32,7 +41,9 @@ const release = (version, ref, released) => {
     return { version, released, summary: notes[0] ?? version, notes };
 };
 
-const releases = lines(git('tag', '--list', 'v*')).map((tag) => release(tag.slice(1), tag, git('log', '-1', '--format=%cI', tag)));
+const releases = lines(git('tag', '--list', 'v*')).map((tag) =>
+    release(tag.slice(1), tag, git('log', '-1', '--format=%cI', tag))
+);
 
 if (upcoming && !releases.some((entry) => entry.version === upcoming)) {
     const head = release(upcoming, 'HEAD', new Date().toISOString());

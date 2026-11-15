@@ -13,16 +13,21 @@ export interface ListEntry {
 
 export const TYPED_CODE = '8710400990024';
 
-export const listOf = async (request: APIRequestContext): Promise<Array<ListEntry>> => (await request.get('/api/v1/list')).json();
+export const listOf = async (request: APIRequestContext): Promise<Array<ListEntry>> =>
+    (await request.get('/api/v1/list')).json();
 export const productOffTheList = async (request: APIRequestContext): Promise<CatalogItem> => {
     const catalog = (await (await request.get('/api/v1/catalog')).json()) as Array<CatalogItem>;
     const listed = new Set((await listOf(request)).map((entry) => entry.catalogItemId));
     const names = catalog.map((item) => item.name.toLowerCase());
 
-    return catalog.find((item) => !listed.has(item.id) && names.filter((name) => name.includes(item.name.toLowerCase())).length === 1) as CatalogItem;
+    return catalog.find(
+        (item) => !listed.has(item.id) && names.filter((name) => name.includes(item.name.toLowerCase())).length === 1
+    ) as CatalogItem;
 };
 export const tile = (page: Page, tone: 'buy' | 'recent', name: string): Locator =>
-    page.locator(`app-item-tile:has(button.tile.${tone})`).filter({ has: page.locator('.name', { hasText: new RegExp(`^${name}$`) }) });
+    page
+        .locator(`app-item-tile:has(button.tile.${tone})`)
+        .filter({ has: page.locator('.name', { hasText: new RegExp(`^${name}$`) }) });
 export const nameInPrompt = async (page: Page, name: string): Promise<void> => {
     const prompt = page.locator('app-naming-prompt');
     await expect(prompt.locator('.sheet')).toBeVisible();
@@ -36,7 +41,9 @@ const REPEAT_PAUSE_MILLISECONDS = 1000;
 export const pastTheRepeatPause = async (request: APIRequestContext): Promise<void> => {
     await expect
         .poll(async () => {
-            const [latest] = (await (await request.get('/api/v1/scans?limit=1')).json()) as Array<{ createdAt: string }>;
+            const [latest] = (await (await request.get('/api/v1/scans?limit=1')).json()) as Array<{
+                createdAt: string;
+            }>;
 
             return latest ? Date.now() - Date.parse(latest.createdAt) : REPEAT_PAUSE_MILLISECONDS * 2;
         })

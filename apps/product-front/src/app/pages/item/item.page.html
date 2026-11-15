@@ -6,7 +6,10 @@
 
     @if (item(); as item) {
         <div class="mt-2 flex items-center gap-3">
-            <span class="h-16 w-16 shrink-0 rounded-2xl p-2" style="background: var(--tile-neutral); color: var(--tile-text)">
+            <span
+                class="h-16 w-16 shrink-0 rounded-2xl p-2"
+                style="background: var(--tile-neutral); color: var(--tile-text)"
+            >
                 <app-item-icon [item]="preview()" />
             </span>
             <h1 class="page-title !m-0">{{ item.name }}</h1>
@@ -14,7 +17,14 @@
 
         <div class="card mt-3">
             <label class="field-label !mt-0" for="item-name">{{ 'item.name' | translate }}</label>
-            <input id="item-name" class="field" type="text" maxlength="80" [ngModel]="name()" (ngModelChange)="name.set($event)" />
+            <input
+                id="item-name"
+                class="field"
+                type="text"
+                maxlength="80"
+                [ngModel]="name()"
+                (ngModelChange)="name.set($event)"
+            />
 
             <label class="field-label" for="item-section">{{ 'item.section' | translate }}</label>
             <select id="item-section" class="field" [ngModel]="sectionId()" (ngModelChange)="sectionId.set($event)">
@@ -27,7 +37,10 @@
                 <div class="grow">
                     <span class="field-label">{{ 'item.icon' | translate }}</span>
                     <button type="button" class="btn w-full !justify-start" (click)="pickingIcon.set(true)">
-                        <span class="h-8 w-8 shrink-0 rounded-lg p-1" style="background: var(--tile-neutral); color: var(--tile-text)">
+                        <span
+                            class="h-8 w-8 shrink-0 rounded-lg p-1"
+                            style="background: var(--tile-neutral); color: var(--tile-text)"
+                        >
                             <app-item-icon [item]="preview()" />
                         </span>
                         {{ 'item.chooseIcon' | translate }}
@@ -35,12 +48,24 @@
                 </div>
                 <div class="w-24">
                     <label class="field-label" for="item-emoji">{{ 'item.emoji' | translate }}</label>
-                    <input id="item-emoji" class="field" type="text" maxlength="8" [ngModel]="emoji()" (ngModelChange)="emoji.set($event)" />
+                    <input
+                        id="item-emoji"
+                        class="field"
+                        type="text"
+                        maxlength="8"
+                        [ngModel]="emoji()"
+                        (ngModelChange)="emoji.set($event)"
+                    />
                 </div>
             </div>
             <p class="muted mt-1 text-xs">{{ 'item.iconHint' | translate }}</p>
 
-            <button type="button" class="btn primary mt-3 w-full" [disabled]="!changed() || !name().trim()" (click)="save()">
+            <button
+                type="button"
+                class="btn primary mt-3 w-full"
+                [disabled]="!changed() || !name().trim()"
+                (click)="save()"
+            >
                 <i class="material-symbols-outlined">save</i>
                 {{ 'common.save' | translate }}
             </button>
@@ -79,7 +104,11 @@
                         </button>
                     } @else {
                         <div class="mt-2 flex gap-2">
-                            <button type="button" class="btn" (click)="movingCode.set(barcode.code); moveSearch.set('')">
+                            <button
+                                type="button"
+                                class="btn"
+                                (click)="movingCode.set(barcode.code); moveSearch.set('')"
+                            >
                                 <i class="material-symbols-outlined">swap_horiz</i>
                                 {{ 'item.move' | translate }}
                             </button>
@@ -101,7 +130,9 @@
                 <p>{{ 'item.deleteConfirm' | translate: { name: item.name } }}</p>
                 <div class="mt-3 flex gap-2">
                     <button type="button" class="btn danger" (click)="delete()">{{ 'item.delete' | translate }}</button>
-                    <button type="button" class="btn" (click)="confirmingDelete.set(false)">{{ 'common.cancel' | translate }}</button>
+                    <button type="button" class="btn" (click)="confirmingDelete.set(false)">
+                        {{ 'common.cancel' | translate }}
+                    </button>
                 </div>
             </div>
         } @else {
@@ -116,5 +147,10 @@
 </div>
 
 @if (pickingIcon()) {
-    <app-icon-picker [selected]="icon()" [suggested]="item()?.defaultIcon" (picked)="chooseIcon($event)" (closed)="pickingIcon.set(false)" />
+    <app-icon-picker
+        [selected]="icon()"
+        [suggested]="item()?.defaultIcon"
+        (picked)="chooseIcon($event)"
+        (closed)="pickingIcon.set(false)"
+    />
 }

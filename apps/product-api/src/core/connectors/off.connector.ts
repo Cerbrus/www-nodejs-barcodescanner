@@ -45,7 +45,10 @@ export class OpenFoodFactsConnector implements ProductConnector {
             connectorId: this.id,
             title,
             brand: product.brands || undefined,
-            category: product.categories_tags?.at(-1)?.replace(/^[a-z]{2}:/, '').replace(/-/g, ' '),
+            category: product.categories_tags
+                ?.at(-1)
+                ?.replace(/^[a-z]{2}:/, '')
+                .replace(/-/g, ' '),
             imageUrl: product.image_front_small_url
         };
     }

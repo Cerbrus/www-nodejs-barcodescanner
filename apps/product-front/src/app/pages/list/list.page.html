@@ -10,7 +10,12 @@
             (ngModelChange)="search.set($event)"
         />
         @if (search()) {
-            <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="search.set(''); field.focus()">
+            <button
+                type="button"
+                class="clear-button"
+                [attr.aria-label]="'common.clear' | translate"
+                (click)="search.set(''); field.focus()"
+            >
                 <i class="material-symbols-outlined">close</i>
             </button>
         }
@@ -21,7 +26,13 @@
         <div class="tile-grid">
             @for (result of searchResults(); track result.item.id) {
                 @if (result.entry; as entry) {
-                    <app-item-tile tone="buy" badge="+1" [item]="result.item" [note]="entry.note" (selected)="addOneMore(entry)" />
+                    <app-item-tile
+                        tone="buy"
+                        badge="+1"
+                        [item]="result.item"
+                        [note]="entry.note"
+                        (selected)="addOneMore(entry)"
+                    />
                 } @else {
                     <app-item-tile [item]="result.item" (selected)="add(result.item)" />
                 }
@@ -98,10 +109,17 @@
                     [attr.aria-label]="(entry.quantity <= 1 ? 'list.toRecent' : 'list.less') | translate"
                     (click)="decrease(entry)"
                 >
-                    <i class="material-symbols-outlined">{{ entry.quantity <= 1 ? 'remove_shopping_cart' : 'remove' }}</i>
+                    <i class="material-symbols-outlined">{{
+                        entry.quantity <= 1 ? 'remove_shopping_cart' : 'remove'
+                    }}</i>
                 </button>
                 <span class="min-w-8 text-center text-xl font-bold">{{ entry.quantity }}</span>
-                <button type="button" class="btn" [attr.aria-label]="'list.more' | translate" (click)="changeQuantity(entry, 1)">
+                <button
+                    type="button"
+                    class="btn"
+                    [attr.aria-label]="'list.more' | translate"
+                    (click)="changeQuantity(entry, 1)"
+                >
                     <i class="material-symbols-outlined">add</i>
                 </button>
             </div>

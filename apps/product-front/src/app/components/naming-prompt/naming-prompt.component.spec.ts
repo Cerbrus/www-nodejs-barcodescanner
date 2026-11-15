@@ -20,7 +20,13 @@ describe('NamingPromptComponent', () => {
     let store: FakeStore;
     let events: FakeEvents;
     const outcomes: Array<NamingOutcome> = [];
-    const api = { iconsUrl: '/icons', getIcons: () => of([]), getBarcode: vi.fn(), repeatLookup: vi.fn(), discardBarcode: vi.fn() };
+    const api = {
+        iconsUrl: '/icons',
+        getIcons: () => of([]),
+        getBarcode: vi.fn(),
+        repeatLookup: vi.fn(),
+        discardBarcode: vi.fn()
+    };
 
     const open = async (barcode: Barcode): Promise<void> => {
         api.getBarcode.mockReturnValue(of(barcode));
@@ -65,7 +71,9 @@ describe('NamingPromptComponent', () => {
 
         expect(texts(page, '.font-mono')).toEqual([CODE]);
         expect(texts(page, 'button.card .font-semibold')).toEqual(['AH Halfvolle melk', 'Melk 1L']);
-        expect(Array.from(page.querySelectorAll('button.card img[title]'), (logo) => logo.getAttribute('title'))).toEqual(['Albert Heijn', 'Open Food Facts']);
+        expect(
+            Array.from(page.querySelectorAll('button.card img[title]'), (logo) => logo.getAttribute('title'))
+        ).toEqual(['Albert Heijn', 'Open Food Facts']);
     });
 
     it('says it is still looking, or that nothing was found', async () => {
@@ -86,7 +94,10 @@ describe('NamingPromptComponent', () => {
         await settle();
 
         expect(search().value).toBe('Melk 1L');
-        expect(Array.from(page.querySelectorAll('button.card'), (card) => card.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
+        expect(Array.from(page.querySelectorAll('button.card'), (card) => card.getAttribute('aria-pressed'))).toEqual([
+            'false',
+            'true'
+        ]);
     });
 
     it('names the sources that gave no answer and asks them again on request', async () => {
@@ -126,7 +137,14 @@ describe('NamingPromptComponent', () => {
     });
 
     it('takes the section the server derived from the shop category', async () => {
-        await open(known({ suggestions: [OFF, { connectorId: 'ah', title: 'AH Karnemelk', category: 'Zuivel, eieren', sectionId: 'zuivel' }] }));
+        await open(
+            known({
+                suggestions: [
+                    OFF,
+                    { connectorId: 'ah', title: 'AH Karnemelk', category: 'Zuivel, eieren', sectionId: 'zuivel' }
+                ]
+            })
+        );
         await typeName('Cola');
         click(page, 'app-item-autocomplete .option.create');
         await settle();

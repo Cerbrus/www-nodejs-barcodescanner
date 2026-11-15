@@ -18,8 +18,18 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
 
 type RemarkAction = 'handle' | 'reopen' | 'toGitHub' | 'reject';
 
-const ACTION_ICONS: Record<RemarkAction, string> = { handle: 'check', reopen: 'undo', toGitHub: 'outbox', reject: 'block' };
-const ACTION_TEXTS: Record<RemarkAction, string> = { handle: 'remark.close', reopen: 'remark.reopen', toGitHub: 'remark.toGitHub', reject: 'remark.reject' };
+const ACTION_ICONS: Record<RemarkAction, string> = {
+    handle: 'check',
+    reopen: 'undo',
+    toGitHub: 'outbox',
+    reject: 'block'
+};
+const ACTION_TEXTS: Record<RemarkAction, string> = {
+    handle: 'remark.close',
+    reopen: 'remark.reopen',
+    toGitHub: 'remark.toGitHub',
+    reject: 'remark.reject'
+};
 const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: false, investigate: true };
 
 @Component({
@@ -56,7 +66,12 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
             </div>
 
             @if (handled().length) {
-                <button type="button" class="group" [attr.aria-expanded]="showHandled()" (click)="showHandled.set(!showHandled())">
+                <button
+                    type="button"
+                    class="group"
+                    [attr.aria-expanded]="showHandled()"
+                    (click)="showHandled.set(!showHandled())"
+                >
                     <i class="material-symbols-outlined">{{ showHandled() ? 'expand_less' : 'expand_more' }}</i>
                     <span class="grow text-left">{{ 'remark.closed' | translate }}</span>
                     <span class="state">{{ handled().length }}</span>
@@ -90,11 +105,18 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                                 class="btn small"
                                 [attr.aria-expanded]="menu() === remark.id"
                                 [attr.aria-label]="'remark.actions' | translate"
-                                (click)="menu.set(menu() === remark.id ? undefined : remark.id)">
+                                (click)="menu.set(menu() === remark.id ? undefined : remark.id)"
+                            >
                                 <i class="material-symbols-outlined">more_vert</i>
                             </button>
                             @if (menu() === remark.id) {
-                                <button type="button" class="backdrop" tabindex="-1" aria-hidden="true" (click)="menu.set(undefined)"></button>
+                                <button
+                                    type="button"
+                                    class="backdrop"
+                                    tabindex="-1"
+                                    aria-hidden="true"
+                                    (click)="menu.set(undefined)"
+                                ></button>
                                 <div class="menu" role="menu">
                                     @for (action of actions; track action) {
                                         <button type="button" role="menuitem" (click)="run(remark, action)">
@@ -148,7 +170,11 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 
                 @for (option of optionNames; track option) {
                     <label class="option">
-                        <input type="checkbox" [ngModel]="options()[option]" (ngModelChange)="choose(remark, option, $event)" />
+                        <input
+                            type="checkbox"
+                            [ngModel]="options()[option]"
+                            (ngModelChange)="choose(remark, option, $event)"
+                        />
                         <span>{{ 'remark.option.' + option | translate }}</span>
                     </label>
                 }
@@ -169,7 +195,12 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                         <i class="material-symbols-outlined">close</i>
                         {{ 'common.cancel' | translate }}
                     </button>
-                    <button type="button" class="btn primary grow" [disabled]="busy() || !draft()" (click)="sendToGitHub(remark)">
+                    <button
+                        type="button"
+                        class="btn primary grow"
+                        [disabled]="busy() || !draft()"
+                        (click)="sendToGitHub(remark)"
+                    >
                         <i class="material-symbols-outlined">send</i>
                         {{ 'remark.sendToGitHub' | translate }}
                     </button>
@@ -178,25 +209,119 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
         }
     `,
     styles: `
-        .kind { font-size: 20px; color: var(--text-muted); }
-        .kind.bug { color: var(--danger); }
-        .kind.wish { color: var(--accent); }
-        .state { padding: 2px 8px; border-radius: 8px; background: var(--line); font-size: 0.75rem; font-weight: 700; }
-        .group { display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 12px; padding: 8px 4px; color: var(--text-muted); font-weight: 600; }
-        .btn.small { padding: 4px 10px; font-size: 0.85rem; }
-        .menu-anchor { position: relative; }
-        .backdrop { position: fixed; inset: 0; z-index: 10; cursor: default; }
-        .menu { position: absolute; top: 100%; right: 0; z-index: 11; min-width: 160px; margin-top: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: 0 4px 16px rgb(0 0 0 / 0.2); }
-        .menu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border-radius: 8px; text-align: left; }
-        .menu button:hover { background: var(--line); }
-        .text { margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
-        .where { margin-top: 4px; overflow-wrap: anywhere; }
-        .issue { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; color: var(--accent); font-size: 0.85rem; font-weight: 600; }
-        .issue i { font-size: 16px; }
-        .option { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.9rem; }
-        .option input { width: 18px; height: 18px; accent-color: var(--accent); }
-        .preview { max-height: 36dvh; padding: 10px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--page); }
-        .preview pre { margin-top: 6px; font-family: inherit; font-size: 0.8rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .kind {
+            font-size: 20px;
+            color: var(--text-muted);
+        }
+        .kind.bug {
+            color: var(--danger);
+        }
+        .kind.wish {
+            color: var(--accent);
+        }
+        .state {
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: var(--line);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-top: 12px;
+            padding: 8px 4px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .btn.small {
+            padding: 4px 10px;
+            font-size: 0.85rem;
+        }
+        .menu-anchor {
+            position: relative;
+        }
+        .backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            cursor: default;
+        }
+        .menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 11;
+            min-width: 160px;
+            margin-top: 4px;
+            padding: 4px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--surface);
+            box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+        }
+        .menu button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .menu button:hover {
+            background: var(--line);
+        }
+        .text {
+            margin-top: 6px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        .where {
+            margin-top: 4px;
+            overflow-wrap: anywhere;
+        }
+        .issue {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .issue i {
+            font-size: 16px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        .option input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+        .preview {
+            max-height: 36dvh;
+            padding: 10px;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--page);
+        }
+        .preview pre {
+            margin-top: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
     `
 })
 export class RemarksPage {
@@ -301,7 +426,10 @@ export class RemarksPage {
             .pipe(
                 tap((sent) => {
                     this.sending.set(undefined);
-                    this.toasts.show({ kind: 'ok', text: this.translate.instant('remark.sentToGitHub', { number: sent.issueNumber }) });
+                    this.toasts.show({
+                        kind: 'ok',
+                        text: this.translate.instant('remark.sentToGitHub', { number: sent.issueNumber })
+                    });
                 }),
                 switchMap(() => this.load()),
                 catchError(() => of(undefined)),

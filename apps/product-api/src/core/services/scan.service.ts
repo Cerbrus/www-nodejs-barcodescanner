@@ -41,14 +41,17 @@ export class ScanService {
         private readonly connectors: ConnectorService,
         private readonly events: EventsService,
         private readonly push: PushService
-    ) {
-    }
+    ) {}
 
     public async register(code: string, source: ScanSource, scannedAt?: Date): Promise<ScanOutcome> {
         const at = this.acceptedTime(scannedAt);
-        const { outcome, suggestions } = await this.transactions.run((manager) => this.write(code, source, at, manager));
+        const { outcome, suggestions } = await this.transactions.run((manager) =>
+            this.write(code, source, at, manager)
+        );
 
-        this.logger.log(`scan ${code} from ${source}: ${outcome.result}${outcome.itemName ? ` (${outcome.itemName})` : ''}`);
+        this.logger.log(
+            `scan ${code} from ${source}: ${outcome.result}${outcome.itemName ? ` (${outcome.itemName})` : ''}`
+        );
         if (outcome.result === 'ignored') {
             return outcome;
         }
@@ -78,7 +81,9 @@ export class ScanService {
     public async discardBarcode(code: string): Promise<void> {
         const barcode = await this.barcodes.get(code);
         await this.transactions.run(async (manager) => {
-            await manager.getRepository(ScanEntity).update({ code, result: 'needs_name', undoneAt: IsNull() }, { undoneAt: new Date() });
+            await manager
+                .getRepository(ScanEntity)
+                .update({ code, result: 'needs_name', undoneAt: IsNull() }, { undoneAt: new Date() });
             if (!barcode.catalogItemId) {
                 await this.barcodes.remove(code, manager);
             }
@@ -210,7 +215,9 @@ export class ScanService {
             return;
         }
 
-        const previous = scan.previousState ? { state: scan.previousState, quantity: scan.previousQuantity ?? 0 } : undefined;
+        const previous = scan.previousState
+            ? { state: scan.previousState, quantity: scan.previousQuantity ?? 0 }
+            : undefined;
         await this.list.writeSnapshot(catalogItemId, previous, manager);
     }
 
@@ -221,7 +228,10 @@ export class ScanService {
         }
     }
 
-    private async fetchSuggestions(code: string, keep: Array<ProductSuggestion> = []): Promise<Array<ProductSuggestion> | undefined> {
+    private async fetchSuggestions(
+        code: string,
+        keep: Array<ProductSuggestion> = []
+    ): Promise<Array<ProductSuggestion> | undefined> {
         try {
             const { suggestions, failed } = await this.connectors.lookupAll(code);
             const kept = keep.filter((known) => failed.includes(known.connectorId));

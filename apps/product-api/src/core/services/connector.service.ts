@@ -40,7 +40,10 @@ export class ConnectorService {
             const suggestion = await connector.lookup(code);
             const sectionId = sectionForCategory(suggestion?.category);
 
-            return { connectorId: connector.id, suggestion: suggestion && sectionId ? { ...suggestion, sectionId } : suggestion };
+            return {
+                connectorId: connector.id,
+                suggestion: suggestion && sectionId ? { ...suggestion, sectionId } : suggestion
+            };
         } catch (error) {
             this.logger.warn(`Connector ${connector.id} failed for ${code}: ${error}`);
 

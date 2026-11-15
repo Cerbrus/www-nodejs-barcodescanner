@@ -18,7 +18,10 @@ export function contentPolicyMode(value?: string): ContentPolicyMode {
 }
 
 export function inlineScriptHashes(html: string): Array<string> {
-    return Array.from(html.matchAll(INLINE_SCRIPT), ([, script]) => `'sha256-${createHash('sha256').update(script).digest('base64')}'`);
+    return Array.from(
+        html.matchAll(INLINE_SCRIPT),
+        ([, script]) => `'sha256-${createHash('sha256').update(script).digest('base64')}'`
+    );
 }
 
 export function buildPolicy(scriptHashes: Array<string>, reportPath: string): string {
@@ -53,7 +56,11 @@ export function readReports(body: unknown): Array<PolicyReport> {
 
     return entries
         .map((entry) => ({
-            directive: text(field(entry, 'effective-directive') ?? field(entry, 'effectiveDirective') ?? field(entry, 'violated-directive')),
+            directive: text(
+                field(entry, 'effective-directive') ??
+                    field(entry, 'effectiveDirective') ??
+                    field(entry, 'violated-directive')
+            ),
             blocked: text(field(entry, 'blocked-uri') ?? field(entry, 'blockedURL')),
             page: text(field(entry, 'document-uri') ?? field(entry, 'documentURL'))
         }))

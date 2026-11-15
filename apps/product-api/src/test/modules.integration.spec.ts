@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-
 import assert from 'node:assert/strict';
 import { rmSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
@@ -25,8 +24,7 @@ const folder = testFolder;
 const CODE = '8710400335481';
 
 @Module({ imports: [AppConfigModule, CoreModule] })
-class TestModule {
-}
+class TestModule {}
 
 async function checkFeedbackSettings(feedback: FeedbackService): Promise<void> {
     const before = await feedback.getSettings();
@@ -50,7 +48,10 @@ async function checkRemoveFromList(list: ListService, catalogItemId: number): Pr
 
     await list.remove(catalogItemId);
     assert.equal(await list.getSnapshot(catalogItemId), undefined);
-    assert.equal((await list.getEntries()).some((entry) => entry.catalogItemId === catalogItemId), false);
+    assert.equal(
+        (await list.getEntries()).some((entry) => entry.catalogItemId === catalogItemId),
+        false
+    );
 
     await list.remove(catalogItemId);
 }
@@ -92,7 +93,10 @@ describe('scan flow against a real database', () => {
     it('puts an unknown barcode in the inbox and ignores a double read', async () => {
         assert.equal((await scans.register(CODE, 'handheld')).result, 'needs_name');
         assert.equal((await scans.register(CODE, 'handheld')).result, 'ignored');
-        assert.deepEqual((await barcodes.getAll(true)).map((barcode) => barcode.code), [CODE]);
+        assert.deepEqual(
+            (await barcodes.getAll(true)).map((barcode) => barcode.code),
+            [CODE]
+        );
         assert.equal((await barcodes.get(CODE)).scanCount, 1);
     });
 
@@ -124,14 +128,18 @@ describe('scan flow against a real database', () => {
 
     it('returns a detached barcode to the inbox', async () => {
         await barcodes.unlink(CODE);
-        assert.deepEqual((await barcodes.getAll(true)).map((barcode) => barcode.code), [CODE]);
+        assert.deepEqual(
+            (await barcodes.getAll(true)).map((barcode) => barcode.code),
+            [CODE]
+        );
         assert.deepEqual(
             (await scans.history(10)).map((scan) => scan.result),
             ['incremented', 'added', 'ignored', 'incremented']
         );
     });
 
-    it('keeps a chosen sound per event and falls back to the default', () => checkFeedbackSettings(app.get(FeedbackService)));
+    it('keeps a chosen sound per event and falls back to the default', () =>
+        checkFeedbackSettings(app.get(FeedbackService)));
 
     it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));
 
@@ -139,8 +147,11 @@ describe('scan flow against a real database', () => {
         const connectors = app.get(ConnectorService) as unknown as { connectors: Array<ProductConnector> };
         let supermarketDown = true;
         const askSupermarket = (): Promise<ProductSuggestion> =>
-            supermarketDown ? Promise.reject(new Error('timeout')) : Promise.resolve({ connectorId: 'ah', title: 'AH Pindakaas', category: 'Ontbijtgranen, beleg' });
-        const askOpenData = (): Promise<ProductSuggestion> => Promise.resolve({ connectorId: 'off', title: 'Peanut butter' });
+            supermarketDown
+                ? Promise.reject(new Error('timeout'))
+                : Promise.resolve({ connectorId: 'ah', title: 'AH Pindakaas', category: 'Ontbijtgranen, beleg' });
+        const askOpenData = (): Promise<ProductSuggestion> =>
+            Promise.resolve({ connectorId: 'off', title: 'Peanut butter' });
         connectors.connectors = [
             { id: 'ah', lookup: askSupermarket },
             { id: 'off', lookup: askOpenData }
@@ -150,20 +161,30 @@ describe('scan flow against a real database', () => {
         await wait(100);
         const first = await barcodes.get('8712345678906');
         assert.deepEqual(first.lookupFailed, ['ah']);
-        assert.deepEqual(first.suggestions?.map((suggestion) => suggestion.connectorId), ['off']);
+        assert.deepEqual(
+            first.suggestions?.map((suggestion) => suggestion.connectorId),
+            ['off']
+        );
 
         supermarketDown = false;
         const second = await scans.repeatLookup('8712345678906');
         assert.deepEqual(second.lookupFailed, []);
         assert.deepEqual(second.suggestions?.map((suggestion) => suggestion.connectorId).sort(), ['ah', 'off']);
-        assert.equal(second.suggestions?.find((suggestion) => suggestion.connectorId === 'ah')?.sectionId, 'graanproducten');
+        assert.equal(
+            second.suggestions?.find((suggestion) => suggestion.connectorId === 'ah')?.sectionId,
+            'graanproducten'
+        );
 
         connectors.connectors = [];
         await scans.discardBarcode('8712345678906');
     });
 
     it('writes nothing when a scan fails halfway', async () => {
-        const before = { scans: (await scans.history(100)).length, entry: await list.getSnapshot(milkId), count: (await barcodes.get(CODE)).scanCount };
+        const before = {
+            scans: (await scans.history(100)).length,
+            entry: await list.getSnapshot(milkId),
+            count: (await barcodes.get(CODE)).scanCount
+        };
         await scans.nameBarcode(CODE, milkId);
         const mapped = { entry: await list.getSnapshot(milkId), count: (await barcodes.get(CODE)).scanCount };
         const original = list.writeSnapshot.bind(list);

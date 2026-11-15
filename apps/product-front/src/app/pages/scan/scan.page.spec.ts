@@ -19,7 +19,11 @@ const camera = vi.hoisted(() => ({
 
 vi.mock('@zxing/browser', () => ({
     BrowserMultiFormatReader: class {
-        public decodeFromConstraints(_: unknown, __: unknown, callback: (result?: { getText(): string }) => void): Promise<{ stop(): void }> {
+        public decodeFromConstraints(
+            _: unknown,
+            __: unknown,
+            callback: (result?: { getText(): string }) => void
+        ): Promise<{ stop(): void }> {
             camera.starts++;
             if (camera.refuse) {
                 return Promise.reject(new Error('NotAllowedError'));
@@ -33,7 +37,13 @@ vi.mock('@zxing/browser', () => ({
 
 const MILK = '8710400000001';
 const BREAD = '8710400000002';
-const outcome = (code: string, result: ScanOutcome['result']): ScanOutcome => ({ scanId: 1, code, result, itemName: 'Melk', quantity: 1 });
+const outcome = (code: string, result: ScanOutcome['result']): ScanOutcome => ({
+    scanId: 1,
+    code,
+    result,
+    itemName: 'Melk',
+    quantity: 1
+});
 
 describe('ScanPage', () => {
     let fixture: ComponentFixture<ScanPage>;
@@ -78,7 +88,9 @@ describe('ScanPage', () => {
                 { provide: ShoppingStore, useValue: store }
             ]
         });
-        TestBed.overrideComponent(ScanPage, { set: { imports: [FormsModule, TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] } });
+        TestBed.overrideComponent(ScanPage, {
+            set: { imports: [FormsModule, TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] }
+        });
     });
 
     afterEach(() => {

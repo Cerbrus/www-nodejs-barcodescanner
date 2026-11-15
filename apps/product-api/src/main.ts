@@ -21,7 +21,9 @@ async function bootstrap(): Promise<void> {
     app.enableShutdownHooks();
 
     await app.listen(config.port);
-    logger.log(`Listening on port ${config.port}, API under /${API_PREFIX}, version ${config.version} (${config.commit?.slice(0, COMMIT_LENGTH) ?? 'local'})`);
+    logger.log(
+        `Listening on port ${config.port}, API under /${API_PREFIX}, version ${config.version} (${config.commit?.slice(0, COMMIT_LENGTH) ?? 'local'})`
+    );
 }
 
 bootstrap();

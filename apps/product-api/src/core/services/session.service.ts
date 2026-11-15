@@ -5,7 +5,15 @@ import { dirname } from 'path';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AppConfig } from '../../config/app.config';
-import { SESSION_COOKIE, Session, isAllowedEmail, newSession, parseCookies, signSession, verifySession } from '../rules/session';
+import {
+    SESSION_COOKIE,
+    Session,
+    isAllowedEmail,
+    newSession,
+    parseCookies,
+    signSession,
+    verifySession
+} from '../rules/session';
 
 const SECRET_BYTES = 48;
 

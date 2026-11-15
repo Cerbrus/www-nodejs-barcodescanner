@@ -85,11 +85,17 @@ export class ApiService {
     }
 
     public changeListEntry(catalogItemId: number, change: ListEntryChange): Observable<ListEntry> {
-        return this.http.patch<ListEntry>(`${this.baseUrl}/list/${catalogItemId}`, change, { context: QUEUED_WITHOUT_CONNECTION });
+        return this.http.patch<ListEntry>(`${this.baseUrl}/list/${catalogItemId}`, change, {
+            context: QUEUED_WITHOUT_CONNECTION
+        });
     }
 
     public sendOfflineChanges(changes: Array<PendingChange>): Observable<{ applied: number; skipped: Array<number> }> {
-        return this.http.post<{ applied: number; skipped: Array<number> }>(`${this.baseUrl}/list/offline-changes`, { changes }, { context: QUIET });
+        return this.http.post<{ applied: number; skipped: Array<number> }>(
+            `${this.baseUrl}/list/offline-changes`,
+            { changes },
+            { context: QUIET }
+        );
     }
 
     public removeListEntry(catalogItemId: number): Observable<void> {
@@ -169,7 +175,9 @@ export class ApiService {
     }
 
     public sendRemark(remark: RemarkInput): Observable<{ id: number }> {
-        return this.http.post<{ id: number }>(`${this.baseUrl}/remarks`, remark, { context: QUEUED_WITHOUT_CONNECTION });
+        return this.http.post<{ id: number }>(`${this.baseUrl}/remarks`, remark, {
+            context: QUEUED_WITHOUT_CONNECTION
+        });
     }
 
     public getRemarks(): Observable<RemarkList> {

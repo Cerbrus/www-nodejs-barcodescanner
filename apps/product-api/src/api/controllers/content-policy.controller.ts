@@ -6,8 +6,7 @@ import { Public } from '../guards/public.decorator';
 @Public()
 @Controller({ path: 'csp-reports', version: '1' })
 export class ContentPolicyController {
-    constructor(private readonly policy: ContentPolicyService) {
-    }
+    constructor(private readonly policy: ContentPolicyService) {}
 
     @Post()
     @HttpCode(204)

@@ -22,7 +22,13 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
 
                 <div class="segments wide">
                     @for (option of kinds; track option) {
-                        <button type="button" class="segment" [class.chosen]="kind() === option" [attr.aria-pressed]="kind() === option" (click)="kind.set(option)">
+                        <button
+                            type="button"
+                            class="segment"
+                            [class.chosen]="kind() === option"
+                            [attr.aria-pressed]="kind() === option"
+                            (click)="kind.set(option)"
+                        >
                             <i class="material-symbols-outlined">{{ icons[option] }}</i>
                             {{ 'remark.kind.' + option | translate }}
                         </button>
@@ -32,12 +38,23 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
                 @if (draft.target; as target) {
                     <p class="about">
                         <i class="material-symbols-outlined">ads_click</i>
-                        <span>{{ 'remark.about' | translate }}: {{ target.label || target.text || target.component || target.path }}</span>
+                        <span
+                            >{{ 'remark.about' | translate }}:
+                            {{ target.label || target.text || target.component || target.path }}</span
+                        >
                     </p>
                 }
 
                 <label class="field-label" for="remark-text">{{ 'remark.text.' + kind() | translate }}</label>
-                <textarea id="remark-text" class="field" rows="5" maxlength="2000" [ngModel]="text()" (ngModelChange)="text.set($event)" (keydown)="onKey($event)"></textarea>
+                <textarea
+                    id="remark-text"
+                    class="field"
+                    rows="5"
+                    maxlength="2000"
+                    [ngModel]="text()"
+                    (ngModelChange)="text.set($event)"
+                    (keydown)="onKey($event)"
+                ></textarea>
 
                 @if (asking()) {
                     <p class="mt-3 text-sm">{{ 'remark.closeAsk' | translate }}</p>
@@ -71,10 +88,25 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
         }
     `,
     styles: `
-        .about { display: flex; align-items: center; gap: 6px; margin-top: 10px; color: var(--text-muted); font-size: 0.85rem; }
-        .about i { font-size: 18px; }
-        .about span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        textarea { resize: vertical; }
+        .about {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .about i {
+            font-size: 18px;
+        }
+        .about span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        textarea {
+            resize: vertical;
+        }
     `
 })
 export class RemarkSheetComponent {
@@ -126,7 +158,10 @@ export class RemarkSheetComponent {
             .pipe(
                 tap((delivery) => {
                     this.text.set('');
-                    this.toasts.show({ kind: 'ok', text: this.translate.instant(delivery === 'sent' ? 'remark.thanks' : 'remark.kept') });
+                    this.toasts.show({
+                        kind: 'ok',
+                        text: this.translate.instant(delivery === 'sent' ? 'remark.thanks' : 'remark.kept')
+                    });
                 }),
                 catchError(() => of(undefined)),
                 finalize(() => this.busy.set(false))

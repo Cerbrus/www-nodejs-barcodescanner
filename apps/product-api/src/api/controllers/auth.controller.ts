@@ -3,7 +3,13 @@ import { randomBytes } from 'crypto';
 import { Controller, Get, HttpCode, Logger, Post, Query, Req, Res } from '@nestjs/common';
 
 import { AppConfig } from '../../config/app.config';
-import { SESSION_COOKIE, SESSION_LIFETIME_SECONDS, SESSION_RENEW_AFTER_SECONDS, parseCookies, safeEqual } from '../../core/rules/session';
+import {
+    SESSION_COOKIE,
+    SESSION_LIFETIME_SECONDS,
+    SESSION_RENEW_AFTER_SECONDS,
+    parseCookies,
+    safeEqual
+} from '../../core/rules/session';
 import { SessionService } from '../../core/services/session.service';
 import { Public } from '../guards/public.decorator';
 import { CookieOptions, HttpRequest, HttpResponse, cookieHeader } from '../http';
@@ -37,8 +43,7 @@ export class AuthController {
     constructor(
         private readonly config: AppConfig,
         private readonly sessions: SessionService
-    ) {
-    }
+    ) {}
 
     @Get('me')
     public me(@Req() request: HttpRequest, @Res({ passthrough: true }) response: HttpResponse): AuthState {
@@ -95,7 +100,10 @@ export class AuthController {
 
         const identity = await this.exchange(code);
         const email = identity?.email?.toLowerCase();
-        const genuine = identity?.aud === this.config.googleClientId && GOOGLE_ISSUERS.includes(identity.iss ?? '') && identity.email_verified;
+        const genuine =
+            identity?.aud === this.config.googleClientId &&
+            GOOGLE_ISSUERS.includes(identity.iss ?? '') &&
+            identity.email_verified;
         if (!email || !genuine) {
             response.redirect(`${LOGIN_PAGE}?error=failed`);
             return;
@@ -144,7 +152,10 @@ export class AuthController {
     }
 
     private setSession(response: HttpResponse, email: string): void {
-        response.cookie(SESSION_COOKIE, this.sessions.issue(email), { ...this.cookieOptions(), maxAge: SESSION_LIFETIME_SECONDS * 1000 });
+        response.cookie(SESSION_COOKIE, this.sessions.issue(email), {
+            ...this.cookieOptions(),
+            maxAge: SESSION_LIFETIME_SECONDS * 1000
+        });
     }
 
     private cookieOptions(): CookieOptions {

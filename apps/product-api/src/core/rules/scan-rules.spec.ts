@@ -38,7 +38,9 @@ describe('decideScan', () => {
     });
 
     it('ignores an unmapped code inside the debounce window too', () => {
-        assert.deepEqual(decideScan({ now, previousScanOfCodeAt: millisecondsAgo(DEBOUNCE_MILLISECONDS / 2) }), { result: 'ignored' });
+        assert.deepEqual(decideScan({ now, previousScanOfCodeAt: millisecondsAgo(DEBOUNCE_MILLISECONDS / 2) }), {
+            result: 'ignored'
+        });
     });
 
     it('accepts the same code once the debounce window has passed', () => {

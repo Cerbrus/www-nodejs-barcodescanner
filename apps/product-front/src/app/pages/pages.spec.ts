@@ -51,7 +51,10 @@ describe('the smaller pages', () => {
         testSound: vi.fn(() => of(undefined))
     };
 
-    const open = async <T>(component: new () => T, inputs: Record<string, unknown> = {}): Promise<ComponentFixture<T>> => {
+    const open = async <T>(
+        component: new () => T,
+        inputs: Record<string, unknown> = {}
+    ): Promise<ComponentFixture<T>> => {
         const fixture = TestBed.createComponent(component);
         for (const [name, value] of Object.entries(inputs)) {
             fixture.componentRef.setInput(name, value);
@@ -96,7 +99,11 @@ describe('the smaller pages', () => {
             expect(texts(page, '.empty')).toEqual(['inbox.empty']);
 
             store.inbox.set([
-                { code: '8710400000001', scanCount: 2, suggestions: [{ connectorId: 'ah', title: 'AH Melk', imageUrl: 'https://img.example/melk.jpg' }] },
+                {
+                    code: '8710400000001',
+                    scanCount: 2,
+                    suggestions: [{ connectorId: 'ah', title: 'AH Melk', imageUrl: 'https://img.example/melk.jpg' }]
+                },
                 { code: '8710400000002', scanCount: 1 }
             ]);
             await settle(fixture);
@@ -170,13 +177,21 @@ describe('the smaller pages', () => {
     describe('history', () => {
         it('lists the scans with product name, source and result, and greys out an undone one', async () => {
             api.getScans.mockReturnValue(
-                of([scan(1, 'added', { catalogItemId: 1, source: 'phone' }), scan(2, 'needs_name'), scan(3, 'incremented', { catalogItemId: 1, undoneAt: '2026-11-13T10:01:00.000Z' })])
+                of([
+                    scan(1, 'added', { catalogItemId: 1, source: 'phone' }),
+                    scan(2, 'needs_name'),
+                    scan(3, 'incremented', { catalogItemId: 1, undoneAt: '2026-11-13T10:01:00.000Z' })
+                ])
             );
             await open(HistoryPage);
 
             expect(texts(page, '.card .font-semibold')).toEqual(['Melk', 'inbox.unknownProduct', 'Melk']);
             expect(texts(page, '.card > i')).toEqual(['smartphone', 'barcode_reader', 'barcode_reader']);
-            expect(texts(page, '.result')).toEqual(['history.result.added', 'history.result.needs_name', 'history.result.undone']);
+            expect(texts(page, '.result')).toEqual([
+                'history.result.added',
+                'history.result.needs_name',
+                'history.result.undone'
+            ]);
             expect(page.querySelectorAll('.card.opacity-50').length).toBe(1);
         });
 
@@ -185,7 +200,9 @@ describe('the smaller pages', () => {
                 { code: '8710400000002', scanCount: 1, lookupFailed: ['ah', 'off'] },
                 { code: '8710400000003', scanCount: 1, lookupFailed: [] }
             ]);
-            api.getScans.mockReturnValue(of([scan(1, 'added', { catalogItemId: 1 }), scan(2, 'needs_name'), scan(3, 'needs_name')]));
+            api.getScans.mockReturnValue(
+                of([scan(1, 'added', { catalogItemId: 1 }), scan(2, 'needs_name'), scan(3, 'needs_name')])
+            );
             const fixture = await open(HistoryPage);
 
             const marked = page.querySelectorAll('button.lookup-failed');
@@ -213,7 +230,9 @@ describe('the smaller pages', () => {
         it('undoes the last scan, reloads the list and the history, and has nothing to undo among ignored or undone scans', async () => {
             api.getScans.mockReturnValue(of([scan(1, 'added')]));
             const fixture = await open(HistoryPage);
-            api.getScans.mockReturnValue(of([scan(1, 'added', { undoneAt: '2026-11-13T10:01:00.000Z' }), scan(2, 'ignored')]));
+            api.getScans.mockReturnValue(
+                of([scan(1, 'added', { undoneAt: '2026-11-13T10:01:00.000Z' }), scan(2, 'ignored')])
+            );
 
             click(page, 'button.btn');
             await settle(fixture);
@@ -234,12 +253,20 @@ describe('the smaller pages', () => {
 
     describe('log', () => {
         it('shows the lines with time, source and level, adds new ones as they come, and shows the connection', async () => {
-            api.getLogs.mockReturnValue(of([{ id: 1, time: '2026-11-13T10:00:00.000Z', source: 'app', level: 'info', message: 'started' }]));
+            api.getLogs.mockReturnValue(
+                of([{ id: 1, time: '2026-11-13T10:00:00.000Z', source: 'app', level: 'info', message: 'started' }])
+            );
             const fixture = await open(LogPage);
             expect(texts(page, '.message')).toEqual(['started']);
             expect(texts(page, '.status')).toEqual(['log.live']);
 
-            events.emit('log', { id: 2, time: '2026-11-13T10:00:01.000Z', source: 'agent', level: 'warning', message: 'scanner gone' });
+            events.emit('log', {
+                id: 2,
+                time: '2026-11-13T10:00:01.000Z',
+                source: 'agent',
+                level: 'warning',
+                message: 'scanner gone'
+            });
             events.connected.set(false);
             await settle(fixture);
 
@@ -253,7 +280,13 @@ describe('the smaller pages', () => {
             expect(texts(page, '.message')).toEqual(['log.empty']);
 
             for (let id = 1; id <= 510; id++) {
-                events.emit('log', { id, time: '2026-11-13T10:00:00.000Z', source: 'app', level: 'info', message: `line ${id}` });
+                events.emit('log', {
+                    id,
+                    time: '2026-11-13T10:00:00.000Z',
+                    source: 'app',
+                    level: 'info',
+                    message: `line ${id}`
+                });
             }
             await settle(fixture);
 
@@ -285,7 +318,9 @@ describe('the smaller pages', () => {
             await open(SoundsPage);
 
             expect(texts(page, 'label.field-label')).toEqual(['sound.event.added', 'sound.event.ignored']);
-            expect(Array.from(page.querySelectorAll('button.play'), (button) => (button as HTMLButtonElement).disabled)).toEqual([false, true]);
+            expect(
+                Array.from(page.querySelectorAll('button.play'), (button) => (button as HTMLButtonElement).disabled)
+            ).toEqual([false, true]);
 
             click(page, 'button.play');
 

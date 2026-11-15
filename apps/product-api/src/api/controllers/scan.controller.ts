@@ -12,8 +12,7 @@ const MAX_HISTORY = 500;
 
 @Controller({ path: 'scans', version: '1' })
 export class ScanController {
-    constructor(private readonly scans: ScanService) {
-    }
+    constructor(private readonly scans: ScanService) {}
 
     @Agent()
     @Post()

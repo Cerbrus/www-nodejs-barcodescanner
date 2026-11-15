@@ -19,8 +19,7 @@ export class SeedService implements OnApplicationBootstrap {
     constructor(
         private readonly dataSource: DataSource,
         private readonly config: AppConfig
-    ) {
-    }
+    ) {}
 
     public async onApplicationBootstrap(): Promise<void> {
         if (await this.dataSource.getRepository(SectionEntity).count()) {
@@ -56,6 +55,8 @@ export class SeedService implements OnApplicationBootstrap {
                     }))
             );
         });
-        this.logger.log(`Seeded ${seed.sections.length} sections, ${seed.items.length} items, ${seed.list.length} list entries`);
+        this.logger.log(
+            `Seeded ${seed.sections.length} sections, ${seed.items.length} items, ${seed.list.length} list entries`
+        );
     }
 }

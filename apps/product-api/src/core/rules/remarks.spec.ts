@@ -8,8 +8,22 @@ const remark = (extra: Partial<RemarkContent> = {}): RemarkContent => ({
     kind: 'bug',
     text: 'The count pill is white on white\nSeen after switching to light.',
     page: '#/list',
-    target: { component: 'app-item-tile', label: 'Product tile "Melk"', text: 'Melk', path: 'app-list-page > app-item-tile > button.tile' },
-    context: { version: '1.1.40', commit: '5ed181e', userAgent: 'Safari', viewport: '390 × 844', installed: true, online: true, waitingChanges: 2, recentMessages: ['Melk afgevinkt'] },
+    target: {
+        component: 'app-item-tile',
+        label: 'Product tile "Melk"',
+        text: 'Melk',
+        path: 'app-list-page > app-item-tile > button.tile'
+    },
+    context: {
+        version: '1.1.40',
+        commit: '5ed181e',
+        userAgent: 'Safari',
+        viewport: '390 × 844',
+        installed: true,
+        online: true,
+        waitingChanges: 2,
+        recentMessages: ['Melk afgevinkt']
+    },
     account: 'guest@example.com',
     ...extra
 });
@@ -18,10 +32,13 @@ const least = { includeDevice: false, includeAccount: false, investigate: false 
 
 describe('remarks', () => {
     it('keeps only the known facts about what was pointed at, cut to size', () => {
-        assert.deepEqual(cleanTarget({ component: ' app-item-tile ', text: `a\n b${'x'.repeat(400)}`, other: 'dropped', path: 5 }), {
-            component: 'app-item-tile',
-            text: `a b${'x'.repeat(297)}`
-        });
+        assert.deepEqual(
+            cleanTarget({ component: ' app-item-tile ', text: `a\n b${'x'.repeat(400)}`, other: 'dropped', path: 5 }),
+            {
+                component: 'app-item-tile',
+                text: `a b${'x'.repeat(297)}`
+            }
+        );
         assert.equal(cleanTarget({ other: 'x' }), undefined);
         assert.equal(cleanTarget('text'), undefined);
         assert.equal(cleanTarget(['x']), undefined);
@@ -58,9 +75,15 @@ describe('remarks', () => {
         const body = issueFromRemark(remark(), least).body;
 
         assert.match(body, /### What happened\n\nThe count pill is white on white\nSeen after switching to light\./);
-        assert.match(body, /### Where in the app\n\n- Page: `#\/list`\n- Pointed at: Product tile "Melk"\n- Its text: "Melk"\n- Component: `app-item-tile`/);
+        assert.match(
+            body,
+            /### Where in the app\n\n- Page: `#\/list`\n- Pointed at: Product tile "Melk"\n- Its text: "Melk"\n- Component: `app-item-tile`/
+        );
         assert.match(body, /### Version\n\n1\.1\.40 \(5ed181e\)/);
-        assert.match(body, /### Authority\n\nSent to GitHub by the owner \(admin\) of this app\. It is his decision that this is to be done/);
+        assert.match(
+            body,
+            /### Authority\n\nSent to GitHub by the owner \(admin\) of this app\. It is his decision that this is to be done/
+        );
         assert.match(body, /_Sent from the app as remark 7\._$/);
         assert.match(issueFromRemark(remark({ kind: 'wish' }), least).body, /### What is wished/);
     });
@@ -70,7 +93,10 @@ describe('remarks', () => {
         const full = issueFromRemark(remark(), everything).body;
 
         assert.doesNotMatch(bare, /Safari|guest@example\.com|Melk afgevinkt/);
-        assert.match(full, /### Device\n\n- Browser: Safari\n- Viewport: 390 × 844\n- Installed as app: yes\n- Connected: yes\n- Changes waiting: 2\n- Message on screen: "Melk afgevinkt"/);
+        assert.match(
+            full,
+            /### Device\n\n- Browser: Safari\n- Viewport: 390 × 844\n- Installed as app: yes\n- Connected: yes\n- Changes waiting: 2\n- Message on screen: "Melk afgevinkt"/
+        );
         assert.match(full, /### Sent by\n\nguest@example\.com/);
     });
 

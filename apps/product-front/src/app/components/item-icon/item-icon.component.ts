@@ -17,9 +17,22 @@ import { ApiService } from '../../services/api.service';
         }
     `,
     styles: `
-        :host { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-        .emoji { font-size: 1.9em; line-height: 1; }
-        .letter { font-size: 1.6em; font-weight: 600; opacity: 0.9; }
+        :host {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .emoji {
+            font-size: 1.9em;
+            line-height: 1;
+        }
+        .letter {
+            font-size: 1.6em;
+            font-weight: 600;
+            opacity: 0.9;
+        }
     `
 })
 export class ItemIconComponent {

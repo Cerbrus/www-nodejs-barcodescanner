@@ -17,9 +17,17 @@ import { ShoppingStore } from '../../services/shopping.store';
 
             <div class="flex flex-col gap-2">
                 @for (barcode of store.inbox(); track barcode.code) {
-                    <button type="button" class="card flex items-center gap-3 text-left" (click)="namingCode.set(barcode.code)">
+                    <button
+                        type="button"
+                        class="card flex items-center gap-3 text-left"
+                        (click)="namingCode.set(barcode.code)"
+                    >
                         @if (barcode.suggestions?.[0]?.imageUrl; as imageUrl) {
-                            <img class="h-14 w-14 shrink-0 rounded-lg bg-white object-contain" [src]="imageUrl" alt="" />
+                            <img
+                                class="h-14 w-14 shrink-0 rounded-lg bg-white object-contain"
+                                [src]="imageUrl"
+                                alt=""
+                            />
                         }
                         <span class="grow">
                             <span class="block font-semibold">

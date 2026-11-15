@@ -15,8 +15,7 @@ const CREATED = 201;
 export class GitHubService {
     private readonly logger = new Logger('GitHub');
 
-    constructor(private readonly config: AppConfig) {
-    }
+    constructor(private readonly config: AppConfig) {}
 
     public get enabled(): boolean {
         return this.config.githubIssuesToken !== '' && this.config.githubRepository !== '';
@@ -44,8 +43,8 @@ export class GitHubService {
             return await fetch(`${this.config.githubApiUrl}/repos/${this.config.githubRepository}/issues`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.config.githubIssuesToken}`,
-                    'Accept': 'application/vnd.github+json',
+                    Authorization: `Bearer ${this.config.githubIssuesToken}`,
+                    Accept: 'application/vnd.github+json',
                     'Content-Type': 'application/json',
                     'User-Agent': 'barcodescanner',
                     'X-GitHub-Api-Version': API_VERSION

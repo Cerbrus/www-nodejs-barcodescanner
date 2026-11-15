@@ -25,8 +25,7 @@ export class BarcodeComponent {
         const input = this.barcode()?.toString() ?? '';
         const barcode = input.length === 12 ? `0${input}` : input;
 
-        if (!/^(\d{8}|\d{13})$/.test(barcode))
-            return;
+        if (!/^(\d{8}|\d{13})$/.test(barcode)) return;
 
         const digits = [...barcode].map((c) => BC.encoding[Number(c)]);
         const isShort = digits.length === 8;
@@ -41,16 +40,16 @@ export class BarcodeComponent {
             this.toBars(BC.guards.center, true),
             right.map((encoded) => this.toBars(encoded.R, false)),
             this.toBars(BC.guards.startEnd, true)
-        ].flat(2).reduce((bars, bar) => {
-            const last = bars.at(-1);
+        ]
+            .flat(2)
+            .reduce((bars, bar) => {
+                const last = bars.at(-1);
 
-            if (last && this.equals(last, bar))
-                last.width++;
-            else
-                bars.push(bar);
+                if (last && this.equals(last, bar)) last.width++;
+                else bars.push(bar);
 
-            return bars;
-        }, [] as Array<Bar>);
+                return bars;
+            }, [] as Array<Bar>);
 
         const width = this.fixWidth(this.width());
         const height = this.fixHeight(this.height());
@@ -58,8 +57,8 @@ export class BarcodeComponent {
         return {
             input: barcode,
             encoding: encoding?.I,
-            left: left.map(e => e.I).join(''),
-            right: right.map(e => e.I).join(''),
+            left: left.map((e) => e.I).join(''),
+            right: right.map((e) => e.I).join(''),
             bars,
             sizes: {
                 width,
@@ -90,16 +89,13 @@ export class BarcodeComponent {
     }
 
     private fixHeight(h: number): number {
-        return this.lockRatio()
-            ? Math.round(this.width() / 2)
-            : Math.max(h, Math.round(this.width() / 3.75));
+        return this.lockRatio() ? Math.round(this.width() / 2) : Math.max(h, Math.round(this.width() / 3.75));
     }
 
     private equals(a: Bar, b: Bar): boolean {
         return a.bit === b.bit && a.isGuard === b.isGuard;
     }
 }
-
 
 /*
 3 areas for the start marker (101)
@@ -120,4 +116,3 @@ export class BarcodeComponent {
 
 // https://en.wikipedia.org/wiki/International_Article_Number#Binary_encoding_of_data_digits_into_EAN-13_barcode
 // http://www.gomaro.ch/Specifications/EAN13e.htm
-

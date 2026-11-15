@@ -76,7 +76,9 @@ describe('PushService', () => {
                     match: () => {
                         const stored = pending;
 
-                        return Promise.resolve(stored === undefined ? undefined : { text: () => Promise.resolve(stored) });
+                        return Promise.resolve(
+                            stored === undefined ? undefined : { text: () => Promise.resolve(stored) }
+                        );
                     },
                     delete: () => Promise.resolve((pending = undefined))
                 })
@@ -121,7 +123,12 @@ describe('PushService', () => {
         await service.start();
 
         expect(api.savePushSubscription).toHaveBeenCalledWith(
-            expect.objectContaining({ endpoint: 'https://push.example/abc', p256dh: 'key-1', auth: 'key-2', language: 'nl' })
+            expect.objectContaining({
+                endpoint: 'https://push.example/abc',
+                p256dh: 'key-1',
+                auth: 'key-2',
+                language: 'nl'
+            })
         );
         expect(service.status()).toBe('on');
     });

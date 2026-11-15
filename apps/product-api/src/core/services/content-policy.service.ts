@@ -5,7 +5,13 @@ import { Injectable } from '@nestjs/common';
 
 import { LogService } from './log.service';
 import { AppConfig } from '../../config/app.config';
-import { buildPolicy, contentPolicyMode, inlineScriptHashes, policyHeaders, readReports } from '../rules/content-policy';
+import {
+    buildPolicy,
+    contentPolicyMode,
+    inlineScriptHashes,
+    policyHeaders,
+    readReports
+} from '../rules/content-policy';
 
 export const POLICY_REPORT_PATH = '/api/v1/csp-reports';
 
@@ -42,7 +48,11 @@ export class ContentPolicyService {
 
             this.lastLogged.set(key, now);
             const outcome = this.mode === 'enforce' ? 'blocked' : 'would block';
-            this.logs.add('phone', 'warning', `content policy ${outcome} ${report.blocked} (${report.directive}) on ${report.page || 'unknown page'}`);
+            this.logs.add(
+                'phone',
+                'warning',
+                `content policy ${outcome} ${report.blocked} (${report.directive}) on ${report.page || 'unknown page'}`
+            );
         }
     }
 

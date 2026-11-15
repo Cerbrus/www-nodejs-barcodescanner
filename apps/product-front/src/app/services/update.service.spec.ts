@@ -12,7 +12,8 @@ describe('UpdateService', () => {
     let resumed$: Subject<void>;
     let routerEvents$: Subject<unknown>;
     let reload: ReturnType<typeof vi.spyOn>;
-    const showAddress = (address: string): void => (window as unknown as { happyDOM: { setURL(url: string): void } }).happyDOM.setURL(address);
+    const showAddress = (address: string): void =>
+        (window as unknown as { happyDOM: { setURL(url: string): void } }).happyDOM.setURL(address);
     let published: Array<string> | undefined;
 
     const settle = async (): Promise<void> => {
@@ -40,7 +41,11 @@ describe('UpdateService', () => {
         document.body.innerHTML = '';
         vi.stubGlobal(
             'fetch',
-            vi.fn(() => (published ? Promise.resolve({ ok: true, json: () => Promise.resolve(published) }) : Promise.reject(new Error('offline'))))
+            vi.fn(() =>
+                published
+                    ? Promise.resolve({ ok: true, json: () => Promise.resolve(published) })
+                    : Promise.reject(new Error('offline'))
+            )
         );
 
         TestBed.configureTestingModule({

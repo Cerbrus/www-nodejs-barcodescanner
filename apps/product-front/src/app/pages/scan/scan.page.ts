@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRender, inject, signal, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    ElementRef,
+    afterNextRender,
+    inject,
+    signal,
+    viewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
@@ -80,7 +89,10 @@ export class ScanPage {
 
         try {
             this.controls = await reader.decodeFromConstraints(
-                { audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                {
+                    audio: false,
+                    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+                },
                 this.video().nativeElement,
                 (result) => {
                     if (result) {
@@ -136,7 +148,10 @@ export class ScanPage {
 
         this.toasts.show({
             kind: 'ok',
-            text: this.translate.instant(`scan.${outcome.result}`, { name: outcome.itemName, quantity: outcome.quantity }),
+            text: this.translate.instant(`scan.${outcome.result}`, {
+                name: outcome.itemName,
+                quantity: outcome.quantity
+            }),
             actionLabel: this.translate.instant('history.undo'),
             action: () => this.undo()
         });

@@ -11,5 +11,7 @@ test('read a barcode with the camera', async ({ page, request }) => {
     await expect(page.locator('.camera .last')).toContainText(CAMERA_CODE, { timeout: 20_000 });
     await nameInPrompt(page, product.name);
 
-    expect((await listOf(request)).some((entry) => entry.catalogItemId === product.id && entry.state === 'to_buy')).toBe(true);
+    expect(
+        (await listOf(request)).some((entry) => entry.catalogItemId === product.id && entry.state === 'to_buy')
+    ).toBe(true);
 });

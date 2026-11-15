@@ -43,7 +43,15 @@ describe('ShoppingStore', () => {
         TestBed.configureTestingModule({
             providers: [
                 { provide: ApiService, useValue: api },
-                { provide: EventsService, useValue: { connected: signal(true), on: (...types: Array<string>): Observable<string> => events$.pipe(filter((type) => types.includes(type))), resumed: resumed$ } },
+                {
+                    provide: EventsService,
+                    useValue: {
+                        connected: signal(true),
+                        on: (...types: Array<string>): Observable<string> =>
+                            events$.pipe(filter((type) => types.includes(type))),
+                        resumed: resumed$
+                    }
+                },
                 { provide: TranslateService, useValue: { instant: (key: string): string => key } }
             ]
         });
@@ -183,7 +191,11 @@ describe('ShoppingStore', () => {
 
         resumed$.next();
 
-        expect(TestBed.inject(ToastService).toasts().map((toast) => toast.text)).toEqual(['offline.serverWon']);
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map((toast) => toast.text)
+        ).toEqual(['offline.serverWon']);
     });
 
     it('tries again every five seconds while loading fails', () => {

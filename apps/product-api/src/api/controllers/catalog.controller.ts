@@ -6,8 +6,7 @@ import { CatalogItemCreateDto, CatalogItemUpdateDto } from '../dto/catalog-item.
 
 @Controller({ path: 'catalog', version: '1' })
 export class CatalogController {
-    constructor(private readonly catalog: CatalogService) {
-    }
+    constructor(private readonly catalog: CatalogService) {}
 
     @Get()
     public getItems(@Query('search') search?: string): Promise<Array<CatalogItemEntity>> {

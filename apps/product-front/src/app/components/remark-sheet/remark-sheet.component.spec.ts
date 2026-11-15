@@ -15,14 +15,15 @@ import { ToastService } from '../../services/toast.service';
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     template: `
         <main appRemarkPointer>
-            <app-item-tile><button class="tile" id="tile"><span id="name">Melk</span></button></app-item-tile>
+            <app-item-tile
+                ><button class="tile" id="tile"><span id="name">Melk</span></button></app-item-tile
+            >
             <input id="field" placeholder="Zoeken" />
         </main>
         <button id="outside">Tab</button>
     `
 })
-class PointerHostComponent {
-}
+class PointerHostComponent {}
 
 describe('RemarkSheetComponent', () => {
     let fixture: ComponentFixture<RemarkSheetComponent>;
@@ -64,7 +65,11 @@ describe('RemarkSheetComponent', () => {
     it('offers bug, wish and note, starts on bug, and asks a question that fits the kind', async () => {
         remarks.write();
         await settle();
-        expect(texts(page, '.segment')).toEqual(['bug_report remark.kind.bug', 'lightbulb remark.kind.wish', 'sticky_note_2 remark.kind.note']);
+        expect(texts(page, '.segment')).toEqual([
+            'bug_report remark.kind.bug',
+            'lightbulb remark.kind.wish',
+            'sticky_note_2 remark.kind.note'
+        ]);
         expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
         expect(texts(page, 'label.field-label')).toEqual(['remark.text.bug']);
 
@@ -158,7 +163,9 @@ describe('RemarkSheetComponent', () => {
 
     it('sends with Ctrl+Enter or Cmd+Enter, and not when empty or with Enter alone', async () => {
         const press = async (init: KeyboardEventInit): Promise<void> => {
-            (page.querySelector('textarea') as HTMLTextAreaElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true, ...init }));
+            (page.querySelector('textarea') as HTMLTextAreaElement).dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'Enter', cancelable: true, ...init })
+            );
             await settle();
         };
         remarks.write();
@@ -200,7 +207,11 @@ describe('RemarkSheetComponent', () => {
             click(page, 'button.btn');
             await settle();
             expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
-            expect(texts(page, 'button.btn')).toEqual(['arrow_back remark.keepWriting', 'close remark.closeKeep', 'delete remark.closeClear']);
+            expect(texts(page, 'button.btn')).toEqual([
+                'arrow_back remark.keepWriting',
+                'close remark.closeKeep',
+                'delete remark.closeClear'
+            ]);
             expect(remarks.draft()).toBeDefined();
 
             await choose('remark.keepWriting');
@@ -211,7 +222,9 @@ describe('RemarkSheetComponent', () => {
             expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
             await choose('remark.keepWriting');
 
-            (page.querySelector('dialog') as HTMLDialogElement).dispatchEvent(new Event('cancel', { cancelable: true }));
+            (page.querySelector('dialog') as HTMLDialogElement).dispatchEvent(
+                new Event('cancel', { cancelable: true })
+            );
             await settle();
             expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
             expect(remarks.draft()).toBeDefined();
@@ -259,7 +272,10 @@ describe('RemarkPointerDirective', () => {
 
     beforeEach(() => {
         remarks = fakeRemarks();
-        TestBed.configureTestingModule({ imports: [PointerHostComponent], providers: [{ provide: RemarkService, useValue: remarks }] });
+        TestBed.configureTestingModule({
+            imports: [PointerHostComponent],
+            providers: [{ provide: RemarkService, useValue: remarks }]
+        });
         const fixture = TestBed.createComponent(PointerHostComponent);
         fixture.detectChanges();
         page = fixture.nativeElement as HTMLElement;

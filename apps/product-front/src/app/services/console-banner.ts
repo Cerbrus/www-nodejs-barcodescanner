@@ -23,7 +23,8 @@ export interface BannerDetails {
 
 export function printConsoleBanner(details: BannerDetails): void {
     const standalone =
-        window.matchMedia('(display-mode: standalone)').matches || 'standalone' in navigator && navigator.standalone === true;
+        window.matchMedia('(display-mode: standalone)').matches ||
+        ('standalone' in navigator && navigator.standalone === true);
     const rows: Array<[string, string]> = [
         ['version', details.version ?? 'unknown (server not reachable)'],
         ['commit', details.commit ?? '-'],

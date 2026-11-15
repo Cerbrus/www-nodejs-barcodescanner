@@ -14,7 +14,14 @@ export function item(id: number, name: string, sectionId = 'zuivel'): CatalogIte
 }
 
 export function entry(catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1, note = ''): ListEntry {
-    return { catalogItemId: catalogItem.id, catalogItem, state, quantity: state === 'recent' ? 0 : quantity, note, updatedAt: '2026-11-13T10:00:00.000Z' };
+    return {
+        catalogItemId: catalogItem.id,
+        catalogItem,
+        state,
+        quantity: state === 'recent' ? 0 : quantity,
+        note,
+        updatedAt: '2026-11-13T10:00:00.000Z'
+    };
 }
 
 export interface FakeStore {
@@ -111,7 +118,9 @@ export function fakeEvents(): FakeEvents {
 }
 
 export function texts(root: Element, selector: string): Array<string> {
-    return Array.from(root.querySelectorAll(selector), (element) => (element.textContent ?? '').replace(/\s+/g, ' ').trim());
+    return Array.from(root.querySelectorAll(selector), (element) =>
+        (element.textContent ?? '').replace(/\s+/g, ' ').trim()
+    );
 }
 
 export function click(root: Element, selector: string, index = 0): void {

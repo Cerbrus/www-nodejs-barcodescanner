@@ -73,17 +73,37 @@ const REFRESH_DELAY_MILLISECONDS = 200;
         }
     `,
     styles: `
-        .result { padding: 2px 8px; border-radius: 8px; background: var(--line); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
-        .result.added, .result.incremented { background: color-mix(in srgb, var(--accent) 22%, transparent); }
-        .result.needs_name { background: var(--warning); color: var(--warning-text); }
-        .lookup-failed { padding: 6px; border-color: var(--warning); background: var(--warning); color: var(--warning-text); }
+        .result {
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: var(--line);
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .result.added,
+        .result.incremented {
+            background: color-mix(in srgb, var(--accent) 22%, transparent);
+        }
+        .result.needs_name {
+            background: var(--warning);
+            color: var(--warning-text);
+        }
+        .lookup-failed {
+            padding: 6px;
+            border-color: var(--warning);
+            background: var(--warning);
+            color: var(--warning-text);
+        }
     `
 })
 export class HistoryPage {
     protected readonly scans = signal<Array<Scan>>([]);
     protected readonly loaded = signal(false);
     protected readonly namingCode = signal<string | undefined>(undefined);
-    protected readonly canUndo = computed(() => this.scans().some((scan) => !scan.undoneAt && scan.result !== 'ignored'));
+    protected readonly canUndo = computed(() =>
+        this.scans().some((scan) => !scan.undoneAt && scan.result !== 'ignored')
+    );
 
     private readonly api = inject(ApiService);
     private readonly store = inject(ShoppingStore);
@@ -103,7 +123,10 @@ export class HistoryPage {
     protected failedSources(scan: Scan): string | undefined {
         const barcode = this.store.inbox().find((unnamed) => unnamed.code === scan.code);
 
-        return barcode?.lookupFailed?.map((connectorId) => CONNECTORS[connectorId]?.name ?? connectorId).join(', ') || undefined;
+        return (
+            barcode?.lookupFailed?.map((connectorId) => CONNECTORS[connectorId]?.name ?? connectorId).join(', ') ||
+            undefined
+        );
     }
 
     protected itemName(scan: Scan): string | undefined {

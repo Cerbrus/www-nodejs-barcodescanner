@@ -1,21 +1,25 @@
 @let encoded = encodeBarcode();
 
 @if (encoded) {
-    <div class="barcode-container"
-         [style.width.px]="encoded.sizes.width"
-         [style.height.px]="encoded.sizes.height"
-         [style.font-size.pt]="encoded.sizes.font"
-         [title]="encoded.input">
+    <div
+        class="barcode-container"
+        [style.width.px]="encoded.sizes.width"
+        [style.height.px]="encoded.sizes.height"
+        [style.font-size.pt]="encoded.sizes.font"
+        [title]="encoded.input"
+    >
         <div class="numeric encoding">
             <span>{{ encoded.encoding }}</span>
         </div>
         <div class="barcode">
             <div class="barcode-bars">
                 @for (bar of encoded.bars; track $index) {
-                    <div class="barcode-bar"
-                         [class]="bar.styling.class"
-                         [style]="bar.styling.style"
-                         [style.flex-grow]="bar.width"></div>
+                    <div
+                        class="barcode-bar"
+                        [class]="bar.styling.class"
+                        [style]="bar.styling.style"
+                        [style.flex-grow]="bar.width"
+                    ></div>
                 }
             </div>
             <div class="numeric">

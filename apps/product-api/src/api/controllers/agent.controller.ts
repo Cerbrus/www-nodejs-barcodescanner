@@ -11,8 +11,7 @@ export class AgentController {
     constructor(
         private readonly agent: AgentStatusService,
         private readonly scans: ScanService
-    ) {
-    }
+    ) {}
 
     @OwnerOnly()
     @Get('status')

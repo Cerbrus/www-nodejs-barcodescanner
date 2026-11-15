@@ -33,5 +33,4 @@ import { DataModule } from './data/data.module';
         ApiModule
     ]
 })
-export class AppModule {
-}
+export class AppModule {}

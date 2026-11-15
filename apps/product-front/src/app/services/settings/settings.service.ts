@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, filter } from 'rxjs';
 import { AppSettings, MicroserviceKey } from './app-settings.model';
 
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class SettingsService {
     private readonly _settings = new BehaviorSubject<AppSettings | undefined>(undefined); // Note: initialized with APP_INITIALIZER.

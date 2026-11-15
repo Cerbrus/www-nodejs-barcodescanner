@@ -28,8 +28,7 @@ export class ListService {
         @InjectRepository(ListEntryEntity) private readonly entries: Repository<ListEntryEntity>,
         @InjectRepository(CatalogItemEntity) private readonly items: Repository<CatalogItemEntity>,
         private readonly events: EventsService
-    ) {
-    }
+    ) {}
 
     public getEntries(): Promise<Array<ListEntryEntity>> {
         return this.entries.find({
@@ -43,7 +42,11 @@ export class ListService {
         return entry ? { state: entry.state, quantity: entry.quantity } : undefined;
     }
 
-    public async writeSnapshot(catalogItemId: number, snapshot: EntrySnapshot | undefined, manager?: EntityManager): Promise<void> {
+    public async writeSnapshot(
+        catalogItemId: number,
+        snapshot: EntrySnapshot | undefined,
+        manager?: EntityManager
+    ): Promise<void> {
         if (snapshot) {
             await this.in(manager).upsert(
                 { catalogItemId, state: snapshot.state, quantity: snapshot.quantity, updatedAt: new Date() },

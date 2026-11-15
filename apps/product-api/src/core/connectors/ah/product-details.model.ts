@@ -10,8 +10,8 @@ export interface AHProductDetailsModel {
     tradeItem: {
         gln: string;
         gtin: string;
-        additionalTradeItemIdentification: Array<{ value: string; typeCode: AHLabeledValue; }>;
-        allergenInformation: Array<{ items: Array<AHAllergenInformationItem>; statement: string; }>;
+        additionalTradeItemIdentification: Array<{ value: string; typeCode: AHLabeledValue }>;
+        allergenInformation: Array<{ items: Array<AHAllergenInformationItem>; statement: string }>;
         certificationInformation: Array<string>;
         consumerInstructions: {
             storageInstructions: Array<string>;
@@ -20,8 +20,8 @@ export interface AHProductDetailsModel {
         };
         foodAndBeverageIngredientStatement: string;
         foodAndBeveragePreparationServing: {
-            preparationServing: Array<{ instructions: string; }>;
-            servingQuantityInformation: { numberOfServingsPerPackage: number; };
+            preparationServing: Array<{ instructions: string }>;
+            servingQuantityInformation: { numberOfServingsPerPackage: number };
         };
         gdsnClassification: {
             additionalTradeItemClassification: Array<{ additionalTradeItemClassificationSystemCode: AHLabeledValue }>;
@@ -37,21 +37,21 @@ export interface AHProductDetailsModel {
         nutritionalInformation: {
             nutrientHeaders: Array<{
                 dailyValueIntakeReference: Array<string>;
-                nutrientBasisQuantity: { value: number; measurementUnitCode: AHLabeledValue; };
+                nutrientBasisQuantity: { value: number; measurementUnitCode: AHLabeledValue };
                 nutrientBasisQuantityDescription: Array<string>;
                 nutrientDetail: Array<{
                     measurementPrecisionCode: AHLabeledValue;
                     nutrientSource: Array<unknown>;
                     nutrientTypeCode: AHLabeledValue;
-                    quantityContained: Array<{ value: number; measurementUnitCode: AHLabeledValue; }>;
+                    quantityContained: Array<{ value: number; measurementUnitCode: AHLabeledValue }>;
                 }>;
                 preparationStateCode: AHLabeledValue;
             }>;
             nutritionalClaim: Array<string>;
         };
-        packagingMarking: { localPackagingMarkedLabelAccreditationCodeReference: Array<AHLabeledValue>; };
+        packagingMarking: { localPackagingMarkedLabelAccreditationCodeReference: Array<AHLabeledValue> };
         placeOfItemActivity: {
-            placeOfProductActivity: { productActivityDetails: Array<string>; provenanceStatement: Array<string>; };
+            placeOfProductActivity: { productActivityDetails: Array<string>; provenanceStatement: Array<string> };
         };
         referencedFileDetailInformation: Array<string>;
         regulatoryInformation: Array<{
@@ -63,16 +63,16 @@ export interface AHProductDetailsModel {
             contactAddress: string;
             contactName: string;
             targetMarketCommunicationChannel: Array<{
-                communicationChannel: Array<{ code: AHLabeledValue; value: string; }>;
+                communicationChannel: Array<{ code: AHLabeledValue; value: string }>;
             }>;
             contactTypeCode: AHLabeledValue;
         }>;
-        description: { regulatedProductName: Array<string>; };
-        lifespan: { itemPeriodSafeToUseAfterOpening: Array<string>; };
+        description: { regulatedProductName: Array<string> };
+        lifespan: { itemPeriodSafeToUseAfterOpening: Array<string> };
         measurements: {
-            netContent: Array<{ value: number; measurementUnitCode: AHLabeledValue; }>;
+            netContent: Array<{ value: number; measurementUnitCode: AHLabeledValue }>;
             weight: unknown;
-        }
+        };
     };
     properties: AHProductProperties;
     disclaimerText: string;

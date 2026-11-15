@@ -57,29 +57,41 @@ const MAX_TITLE_LENGTH = 80;
 const TARGET_FIELDS = ['component', 'label', 'text', 'path'] as const;
 const CONTEXT_TEXT_FIELDS = ['version', 'commit', 'userAgent', 'viewport', 'language', 'theme'] as const;
 const CONTEXT_FLAG_FIELDS = ['installed', 'online'] as const;
-const AUTHORITY = 'Sent to GitHub by the owner (admin) of this app. It is his decision that this is to be done, not a suggestion: implement it unless a real question is open.';
+const AUTHORITY =
+    'Sent to GitHub by the owner (admin) of this app. It is his decision that this is to be done, not a suggestion: implement it unless a real question is open.';
 const HEADING: Record<RemarkKind, string> = { bug: 'What happened', wish: 'What is wished', note: 'Note' };
 const LABEL: Record<RemarkKind, Array<string>> = { bug: ['bug'], wish: ['enhancement'], note: [] };
 
-const cut = (value: unknown): string | undefined => (typeof value === 'string' && value.trim() ? value.trim().replace(/\s+/g, ' ').slice(0, MAX_FIELD_LENGTH) : undefined);
-const fields = (source: unknown): Record<string, unknown> => (typeof source === 'object' && source !== null && !Array.isArray(source) ? (source as Record<string, unknown>) : {});
-const withoutEmpty = <T extends object>(value: T): T => Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
+const cut = (value: unknown): string | undefined =>
+    typeof value === 'string' && value.trim()
+        ? value.trim().replace(/\s+/g, ' ').slice(0, MAX_FIELD_LENGTH)
+        : undefined;
+const fields = (source: unknown): Record<string, unknown> =>
+    typeof source === 'object' && source !== null && !Array.isArray(source) ? (source as Record<string, unknown>) : {};
+const withoutEmpty = <T extends object>(value: T): T =>
+    Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
 
 export function cleanTarget(source: unknown): RemarkTarget | undefined {
     const given = fields(source);
-    const target = withoutEmpty(Object.fromEntries(TARGET_FIELDS.map((name) => [name, cut(given[name])])) as RemarkTarget);
+    const target = withoutEmpty(
+        Object.fromEntries(TARGET_FIELDS.map((name) => [name, cut(given[name])])) as RemarkTarget
+    );
 
     return Object.keys(target).length ? target : undefined;
 }
 
 export function cleanContext(source: unknown): RemarkContext {
     const given = fields(source);
-    const messages = Array.isArray(given['recentMessages']) ? given['recentMessages'].map(cut).filter((message): message is string => message !== undefined) : [];
+    const messages = Array.isArray(given['recentMessages'])
+        ? given['recentMessages'].map(cut).filter((message): message is string => message !== undefined)
+        : [];
     const waiting = given['waitingChanges'];
 
     return withoutEmpty({
         ...(Object.fromEntries(CONTEXT_TEXT_FIELDS.map((name) => [name, cut(given[name])])) as RemarkContext),
-        ...(Object.fromEntries(CONTEXT_FLAG_FIELDS.map((name) => [name, typeof given[name] === 'boolean' ? given[name] : undefined])) as RemarkContext),
+        ...(Object.fromEntries(
+            CONTEXT_FLAG_FIELDS.map((name) => [name, typeof given[name] === 'boolean' ? given[name] : undefined])
+        ) as RemarkContext),
         waitingChanges: typeof waiting === 'number' && Number.isInteger(waiting) && waiting >= 0 ? waiting : undefined,
         recentMessages: messages.length ? messages.slice(-MAX_MESSAGES) : undefined
     });
@@ -96,7 +108,9 @@ export function issueFromRemark(remark: RemarkContent, options: IssueOptions): I
     const sections = [
         section(HEADING[remark.kind], [remark.text.trim()]),
         section('Where in the app', whereLines(remark)),
-        section('Version', [[context.version, context.commit ? `(${context.commit})` : undefined].filter(Boolean).join(' ') || 'unknown'])
+        section('Version', [
+            [context.version, context.commit ? `(${context.commit})` : undefined].filter(Boolean).join(' ') || 'unknown'
+        ])
     ];
 
     if (options.includeDevice) {
@@ -108,7 +122,11 @@ export function issueFromRemark(remark: RemarkContent, options: IssueOptions): I
     sections.push(section('Authority', [AUTHORITY]));
     sections.push(`_Sent from the app as remark ${remark.id}._`);
 
-    return { title, body: sections.join('\n\n'), labels: [...LABEL[remark.kind], ...(options.investigate ? [INVESTIGATE_LABEL] : [])] };
+    return {
+        title,
+        body: sections.join('\n\n'),
+        labels: [...LABEL[remark.kind], ...(options.investigate ? [INVESTIGATE_LABEL] : [])]
+    };
 }
 
 function section(heading: string, lines: Array<string>): string {

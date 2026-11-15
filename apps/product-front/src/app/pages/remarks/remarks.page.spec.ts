@@ -33,7 +33,13 @@ describe('RemarksPage', () => {
     let events: FakeEvents;
     let remarks: FakeRemarks;
     const state = signal<AuthState | undefined>(OWNER);
-    const api = { getRemarks: vi.fn(), setRemarkState: vi.fn(), rejectRemark: vi.fn(), getIssueDraft: vi.fn(), sendRemarkToGitHub: vi.fn() };
+    const api = {
+        getRemarks: vi.fn(),
+        setRemarkState: vi.fn(),
+        rejectRemark: vi.fn(),
+        getIssueDraft: vi.fn(),
+        sendRemarkToGitHub: vi.fn()
+    };
 
     const settle = async (): Promise<void> => {
         fixture.detectChanges();
@@ -47,14 +53,19 @@ describe('RemarksPage', () => {
         page = fixture.nativeElement as HTMLElement;
         await settle();
     };
-    const buttons = (index = 0): Array<string> => texts(page.querySelectorAll('article')[index], 'button:not(.backdrop)');
+    const buttons = (index = 0): Array<string> =>
+        texts(page.querySelectorAll('article')[index], 'button:not(.backdrop)');
     const menuItems = (index = 0): Array<string> => texts(page.querySelectorAll('article')[index], '.menu button');
     const openMenu = async (index = 0): Promise<void> => {
         (page.querySelectorAll('article')[index].querySelector('.menu-anchor > button') as HTMLElement).click();
         await settle();
     };
     const press = async (label: string, root: Element = page): Promise<void> => {
-        (Array.from(root.querySelectorAll('button')).find((button) => (button.textContent ?? '').includes(label)) as HTMLElement).click();
+        (
+            Array.from(root.querySelectorAll('button')).find((button) =>
+                (button.textContent ?? '').includes(label)
+            ) as HTMLElement
+        ).click();
         await settle();
     };
 
@@ -70,7 +81,9 @@ describe('RemarksPage', () => {
         api.setRemarkState.mockReturnValue(of(remark(1, { state: 'closed' })));
         api.rejectRemark.mockReturnValue(of(undefined));
         api.getIssueDraft.mockReturnValue(of(DRAFT));
-        api.sendRemarkToGitHub.mockReturnValue(of(remark(1, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })));
+        api.sendRemarkToGitHub.mockReturnValue(
+            of(remark(1, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' }))
+        );
         TestBed.configureTestingModule({
             imports: [RemarksPage, TranslateModule.forRoot()],
             providers: [
@@ -94,7 +107,11 @@ describe('RemarksPage', () => {
     });
 
     it('keeps handled remarks behind a "handled" item with their number, and shows them on request', async () => {
-        await open(OWNER, [remark(1), remark(2, { state: 'closed', issueNumber: 12, issueUrl: 'https://github.example/issues/12' }), remark(3, { state: 'closed' })]);
+        await open(OWNER, [
+            remark(1),
+            remark(2, { state: 'closed', issueNumber: 12, issueUrl: 'https://github.example/issues/12' }),
+            remark(3, { state: 'closed' })
+        ]);
 
         expect(texts(page, 'article .text')).toEqual(['Remark 1']);
         expect(texts(page, 'button.group')).toEqual(['expand_moreremark.closed2']);
@@ -182,7 +199,11 @@ describe('RemarksPage', () => {
     });
 
     it('lets a writer reject their own remark, but not one that is already on GitHub', async () => {
-        await open(GUEST, [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })], false);
+        await open(
+            GUEST,
+            [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })],
+            false
+        );
 
         expect(buttons(0)).toEqual(['block remark.reject']);
         expect(buttons(1)).toEqual([]);
@@ -211,11 +232,19 @@ describe('RemarksPage', () => {
         await openMenu();
         await press('remark.toGitHub');
 
-        expect(api.getIssueDraft).toHaveBeenCalledWith(1, { includeDevice: false, includeAccount: false, investigate: true });
+        expect(api.getIssueDraft).toHaveBeenCalledWith(1, {
+            includeDevice: false,
+            includeAccount: false,
+            investigate: true
+        });
         expect(texts(page, 'app-sheet .muted.text-sm')).toEqual(['remark.publicWarning']);
         expect(texts(page, '.preview .font-semibold')).toEqual(['Remark 1']);
         expect(texts(page, '.preview pre')[0]).toContain('### What happened');
-        expect(texts(page, 'label.option span')).toEqual(['remark.option.investigate', 'remark.option.includeDevice', 'remark.option.includeAccount']);
+        expect(texts(page, 'label.option span')).toEqual([
+            'remark.option.investigate',
+            'remark.option.includeDevice',
+            'remark.option.includeAccount'
+        ]);
         const boxes = Array.from(page.querySelectorAll('label.option input')) as Array<HTMLInputElement>;
         expect(boxes.map((box) => box.checked)).toEqual([true, false, false]);
     });
@@ -258,13 +287,25 @@ describe('RemarksPage', () => {
 
         await tick(1);
         await tick(0, false);
-        expect(api.getIssueDraft).toHaveBeenLastCalledWith(1, { includeDevice: true, includeAccount: false, investigate: false });
+        expect(api.getIssueDraft).toHaveBeenLastCalledWith(1, {
+            includeDevice: true,
+            includeAccount: false,
+            investigate: false
+        });
 
         await press('remark.sendToGitHub');
 
-        expect(api.sendRemarkToGitHub).toHaveBeenCalledWith(1, { includeDevice: true, includeAccount: false, investigate: false });
+        expect(api.sendRemarkToGitHub).toHaveBeenCalledWith(1, {
+            includeDevice: true,
+            includeAccount: false,
+            investigate: false
+        });
         expect(page.querySelector('app-sheet')).toBeNull();
-        expect(TestBed.inject(ToastService).toasts().map((toast) => toast.text)).toEqual(['remark.sentToGitHub']);
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map((toast) => toast.text)
+        ).toEqual(['remark.sentToGitHub']);
     });
 
     it('starts each "to GitHub" with only the agent ticked', async () => {
@@ -279,7 +320,11 @@ describe('RemarksPage', () => {
         await openMenu(1);
         await press('remark.toGitHub', page.querySelectorAll('article')[1]);
 
-        expect(api.getIssueDraft).toHaveBeenLastCalledWith(2, { includeDevice: false, includeAccount: false, investigate: true });
+        expect(api.getIssueDraft).toHaveBeenLastCalledWith(2, {
+            includeDevice: false,
+            includeAccount: false,
+            investigate: true
+        });
     });
 
     it('keeps the sheet open when GitHub refuses, so the owner can try again', async () => {
@@ -290,7 +335,13 @@ describe('RemarksPage', () => {
         await press('remark.sendToGitHub');
 
         expect(page.querySelector('app-sheet')).not.toBeNull();
-        expect((Array.from(page.querySelectorAll('button')).find((button) => (button.textContent ?? '').includes('remark.sendToGitHub')) as HTMLButtonElement).disabled).toBe(false);
+        expect(
+            (
+                Array.from(page.querySelectorAll('button')).find((button) =>
+                    (button.textContent ?? '').includes('remark.sendToGitHub')
+                ) as HTMLButtonElement
+            ).disabled
+        ).toBe(false);
     });
 
     it('reloads when a remark comes in, and keeps what it shows when the server cannot be reached', async () => {

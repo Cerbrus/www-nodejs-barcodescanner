@@ -23,7 +23,7 @@ describe('ApiService', () => {
 
     afterEach(() => server.verify());
 
-    it('reads the changelog from the web app\'s own files', () => {
+    it("reads the changelog from the web app's own files", () => {
         api.getChangelog().subscribe();
 
         const request = server.expectOne('assets/changelog.json');
@@ -44,8 +44,18 @@ describe('ApiService', () => {
             [() => api.getSections(), 'GET', '/sections'],
             [() => api.getCatalog(), 'GET', '/catalog'],
             [() => api.getCatalogItem(7), 'GET', '/catalog/7'],
-            [() => api.createCatalogItem({ name: 'Kwark', sectionId: 'zuivel' }), 'POST', '/catalog', { name: 'Kwark', sectionId: 'zuivel' }],
-            [() => api.updateCatalogItem(7, { name: 'Kwark', sectionId: 'zuivel' }), 'PATCH', '/catalog/7', { name: 'Kwark', sectionId: 'zuivel' }],
+            [
+                () => api.createCatalogItem({ name: 'Kwark', sectionId: 'zuivel' }),
+                'POST',
+                '/catalog',
+                { name: 'Kwark', sectionId: 'zuivel' }
+            ],
+            [
+                () => api.updateCatalogItem(7, { name: 'Kwark', sectionId: 'zuivel' }),
+                'PATCH',
+                '/catalog/7',
+                { name: 'Kwark', sectionId: 'zuivel' }
+            ],
             [() => api.deleteCatalogItem(7), 'DELETE', '/catalog/7'],
             [() => api.getList(), 'GET', '/list'],
             [() => api.changeListEntry(7, { state: 'recent' }), 'PATCH', '/list/7', { state: 'recent' }],
@@ -68,7 +78,12 @@ describe('ApiService', () => {
             [() => api.getFeedbackSettings(), 'GET', '/feedback/settings'],
             [() => api.setFeedbackSound('added', 'blip'), 'PUT', '/feedback/settings/added', { soundId: 'blip' }],
             [() => api.testSound('blip'), 'POST', '/feedback/test', { soundId: 'blip' }],
-            [() => api.sendRemark({ kind: 'bug', text: 'x', page: '#/list' }), 'POST', '/remarks', { kind: 'bug', text: 'x', page: '#/list' }],
+            [
+                () => api.sendRemark({ kind: 'bug', text: 'x', page: '#/list' }),
+                'POST',
+                '/remarks',
+                { kind: 'bug', text: 'x', page: '#/list' }
+            ],
             [() => api.getRemarks(), 'GET', '/remarks'],
             [() => api.setRemarkState(4, 'closed'), 'PATCH', '/remarks/4', { state: 'closed' }],
             [() => api.rejectRemark(4), 'DELETE', '/remarks/4'],
@@ -103,7 +118,9 @@ describe('ApiService', () => {
         api.removeListEntry(7).subscribe();
 
         expect(server.expectOne('https://shop.example/api/v1/scans').request.context.get(QUIET_FAILURE)).toBe(true);
-        expect(server.expectOne('https://shop.example/api/v1/push/subscriptions').request.context.get(QUIET_FAILURE)).toBe(true);
+        expect(
+            server.expectOne('https://shop.example/api/v1/push/subscriptions').request.context.get(QUIET_FAILURE)
+        ).toBe(true);
         const [change, removal] = server.match('https://shop.example/api/v1/list/7').map((call) => call.request);
 
         expect(change.context.get(QUIET_WITHOUT_CONNECTION)).toBe(true);

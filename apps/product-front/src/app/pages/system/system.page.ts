@@ -169,7 +169,9 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                     <div class="row">
                         <span class="dot" [class.bad]="!events.connected()"></span>
                         <span class="label">{{ 'system.connection' | translate }}</span>
-                        <span class="value">{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</span>
+                        <span class="value">{{
+                            (events.connected() ? 'log.live' : 'log.disconnected') | translate
+                        }}</span>
                     </div>
                     <div class="row">
                         <span class="dot" [class.bad]="scannerState() !== 'connected'"></span>
@@ -202,28 +204,86 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
         </div>
     `,
     styles: `
-        .group { padding: 0; overflow: hidden; }
+        .group {
+            padding: 0;
+            overflow: hidden;
+        }
         .row {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
-            min-height: 52px; padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            min-height: 52px;
+            padding: 8px 12px;
         }
-        .row + .row, .note + .row, .row + .note + .link { border-top: 1px solid var(--line); }
-        .label { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; font-weight: 600; }
-        .hint { color: var(--text-muted); font-size: 0.8rem; font-weight: 400; }
-        .value { color: var(--text-muted); font-size: 0.9rem; text-align: right; }
-        .note { padding: 0 12px 10px; color: var(--text-muted); font-size: 0.85rem; }
+        .row + .row,
+        .note + .row,
+        .row + .note + .link {
+            border-top: 1px solid var(--line);
+        }
+        .label {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-width: 0;
+            font-weight: 600;
+        }
+        .hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+        .value {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: right;
+        }
+        .note {
+            padding: 0 12px 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
         .count {
-            min-width: 22px; padding: 0 7px; border-radius: 11px; background: var(--danger);
-            color: #fff; font-size: 0.75rem; font-weight: 700; line-height: 22px; text-align: center;
+            min-width: 22px;
+            padding: 0 7px;
+            border-radius: 11px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 22px;
+            text-align: center;
         }
-        .link:hover, .link:focus-visible { background: var(--page); }
+        .link:hover,
+        .link:focus-visible {
+            background: var(--page);
+        }
         @media (max-width: 480px) {
-            .choice { flex-flow: column nowrap; align-items: stretch; }
-            .choice .segment { flex: 1 1 0; justify-content: center; }
+            .choice {
+                flex-flow: column nowrap;
+                align-items: stretch;
+            }
+            .choice .segment {
+                flex: 1 1 0;
+                justify-content: center;
+            }
         }
-        .dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-        .dot.bad { background: var(--danger); }
-        .version { margin-top: 12px; color: var(--text-muted); font-size: 0.8rem; text-align: center; }
+        .dot {
+            flex: 0 0 auto;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        .dot.bad {
+            background: var(--danger);
+        }
+        .version {
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
     `
 })
 export class SystemPage {
@@ -244,7 +304,9 @@ export class SystemPage {
     protected readonly agent = toSignal(
         merge(interval(AGENT_REFRESH_MILLISECONDS), this.events.on('agent', 'scan')).pipe(
             startWith(undefined),
-            switchMap(() => (this.auth.owner() ? this.agentApi.getAgentStatus().pipe(catchError(() => of(undefined))) : of(undefined)))
+            switchMap(() =>
+                this.auth.owner() ? this.agentApi.getAgentStatus().pipe(catchError(() => of(undefined))) : of(undefined)
+            )
         )
     );
 
@@ -278,13 +340,19 @@ export class SystemPage {
     }
 
     protected enablePush(): void {
-        this.push.enable().catch(() => this.toasts.show({ kind: 'error', text: this.translate.instant('push.failed') }));
+        this.push
+            .enable()
+            .catch(() => this.toasts.show({ kind: 'error', text: this.translate.instant('push.failed') }));
     }
 
     protected testPush(): void {
         this.api
             .sendTestPush()
-            .pipe(tap((result) => this.toasts.show({ kind: 'ok', text: this.translate.instant('push.testResult', result) })))
+            .pipe(
+                tap((result) =>
+                    this.toasts.show({ kind: 'ok', text: this.translate.instant('push.testResult', result) })
+                )
+            )
             .subscribe();
     }
 

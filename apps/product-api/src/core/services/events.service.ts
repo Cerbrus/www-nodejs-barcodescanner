@@ -1,7 +1,8 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
 import { Observable, Subject, interval, map, merge } from 'rxjs';
 
-export type AppEventType = 'scan' | 'list' | 'barcode' | 'catalog' | 'log' | 'feedback' | 'feedback_settings' | 'agent' | 'remark';
+export type AppEventType =
+    'scan' | 'list' | 'barcode' | 'catalog' | 'log' | 'feedback' | 'feedback_settings' | 'agent' | 'remark';
 
 const HEARTBEAT_MILLISECONDS = 25000;
 
@@ -14,9 +15,7 @@ export class EventsService {
     }
 
     public stream(): Observable<MessageEvent> {
-        const heartbeat$ = interval(HEARTBEAT_MILLISECONDS).pipe(
-            map((): MessageEvent => ({ type: 'ping', data: {} }))
-        );
+        const heartbeat$ = interval(HEARTBEAT_MILLISECONDS).pipe(map((): MessageEvent => ({ type: 'ping', data: {} })));
 
         return merge(this.events$, heartbeat$);
     }

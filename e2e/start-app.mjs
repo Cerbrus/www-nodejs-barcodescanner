@@ -19,7 +19,10 @@ const site = join(folder, 'public');
 
 cpSync(WEB_APP, site, { recursive: true });
 writeFileSync(join(site, 'assets', 'appsettings.json'), JSON.stringify({ api: { core: '/api' } }));
-writeFileSync(join(site, 'app-files.json'), JSON.stringify(readdirSync(site).filter((file) => /\.(js|css)$/.test(file) && file !== 'sw.js')));
+writeFileSync(
+    join(site, 'app-files.json'),
+    JSON.stringify(readdirSync(site).filter((file) => /\.(js|css)$/.test(file) && file !== 'sw.js'))
+);
 
 const server = spawn(process.execPath, [API_BUNDLE], {
     stdio: 'inherit',

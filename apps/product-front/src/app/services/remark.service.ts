@@ -1,7 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { EMPTY, Observable, catchError, concatMap, filter, from, fromEvent, map, merge, of, switchMap, tap, throwError, toArray } from 'rxjs';
+import {
+    EMPTY,
+    Observable,
+    catchError,
+    concatMap,
+    filter,
+    from,
+    fromEvent,
+    map,
+    merge,
+    of,
+    switchMap,
+    tap,
+    throwError,
+    toArray
+} from 'rxjs';
 
 import { Remark, RemarkContext, RemarkInput, RemarkKind, RemarkTarget } from '../models';
 import { ApiService } from './api.service';
@@ -65,7 +80,9 @@ export class RemarkService {
     }
 
     public count(remarks: Array<Remark>): void {
-        this.ready.set(this.auth.owner() ? remarks.filter((remark) => remark.state === 'open' && !remark.issueUrl).length : 0);
+        this.ready.set(
+            this.auth.owner() ? remarks.filter((remark) => remark.state === 'open' && !remark.issueUrl).length : 0
+        );
     }
 
     public write(target?: RemarkTarget): void {
@@ -100,7 +117,9 @@ export class RemarkService {
 
         return this.api.sendRemark(remark).pipe(
             map((): RemarkDelivery => 'sent'),
-            catchError((error: HttpErrorResponse) => (error.status === NO_CONNECTION ? of(this.keep(remark)) : throwError(() => error)))
+            catchError((error: HttpErrorResponse) =>
+                error.status === NO_CONNECTION ? of(this.keep(remark)) : throwError(() => error)
+            )
         );
     }
 

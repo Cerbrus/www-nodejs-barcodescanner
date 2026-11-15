@@ -25,7 +25,12 @@ describe('SystemPage', () => {
     let remarks: FakeRemarks;
     const state = signal<AuthState | undefined>(OWNER);
     const auth = { state, owner: computed(() => state()?.owner ?? false), logout: vi.fn(() => of(undefined)) };
-    const push = { status: signal<PushStatus>('off'), busy: signal(false), enable: vi.fn(() => Promise.resolve()), disable: vi.fn(() => Promise.resolve()) };
+    const push = {
+        status: signal<PushStatus>('off'),
+        busy: signal(false),
+        enable: vi.fn(() => Promise.resolve()),
+        disable: vi.fn(() => Promise.resolve())
+    };
     const api = { getAgentStatus: vi.fn(), getHealth: vi.fn(), sendTestPush: vi.fn() };
 
     const open = async (who: AuthState): Promise<void> => {
@@ -41,7 +46,9 @@ describe('SystemPage', () => {
     };
     const groups = (): Array<string> => texts(page, '.section-title');
     const row = (label: string): HTMLElement =>
-        Array.from(page.querySelectorAll('.row')).find((candidate) => (candidate.querySelector('.label')?.textContent ?? '').includes(label)) as HTMLElement;
+        Array.from(page.querySelectorAll('.row')).find((candidate) =>
+            (candidate.querySelector('.label')?.textContent ?? '').includes(label)
+        ) as HTMLElement;
     const scanner = (status: Partial<AgentStatus>): void => {
         api.getAgentStatus.mockReturnValue(of(status));
     };
@@ -54,7 +61,9 @@ describe('SystemPage', () => {
         remarks = fakeRemarks();
         push.status.set('off');
         push.busy.set(false);
-        api.getHealth.mockReturnValue(of({ status: 'ok', version: '1.1.32', commit: 'c96a5b5d1a16', builtAt: '2026-11-13T21:29:08Z' }));
+        api.getHealth.mockReturnValue(
+            of({ status: 'ok', version: '1.1.32', commit: 'c96a5b5d1a16', builtAt: '2026-11-13T21:29:08Z' })
+        );
         api.sendTestPush.mockReturnValue(of({ sent: 1, failed: 0 }));
         scanner({ agentOnline: true, scanner: 'connected', lastHandheldScanAt: '2026-11-13T20:41:00Z' });
         TestBed.configureTestingModule({
@@ -76,7 +85,13 @@ describe('SystemPage', () => {
         await open(OWNER);
 
         expect(groups()).toEqual(['system.device', 'login.account', 'system.management']);
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks', '/changelog', '/sounds', '/history', '/log']);
+        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
+            '/remarks',
+            '/changelog',
+            '/sounds',
+            '/history',
+            '/log'
+        ]);
         expect(texts(page, '.version')[0]).toContain('1.1.32 (c96a5b5)');
     });
 
@@ -94,7 +109,10 @@ describe('SystemPage', () => {
 
         expect(groups()).toEqual(['system.device', 'login.account']);
         expect(page.querySelector('.version')).toBeNull();
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks', '/changelog']);
+        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
+            '/remarks',
+            '/changelog'
+        ]);
         expect(api.getAgentStatus).not.toHaveBeenCalled();
         expect(texts(page, '.row .truncate')).toEqual(['guest@example.com']);
     });
@@ -140,7 +158,11 @@ describe('SystemPage', () => {
         await settle();
 
         expect(push.enable).toHaveBeenCalledTimes(1);
-        expect(TestBed.inject(ToastService).toasts().map((toast) => toast.text)).toEqual(['push.failed']);
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map((toast) => toast.text)
+        ).toEqual(['push.failed']);
     });
 
     it('explains why when notifications are blocked or not supported, without a button', async () => {
@@ -221,7 +243,11 @@ describe('SystemPage', () => {
         expect(auth.logout).not.toHaveBeenCalled();
         expect(texts(page, '.note')).toContain('login.logoutConfirm');
 
-        (Array.from(page.querySelectorAll('button')).find((button) => (button.textContent ?? '').includes('common.cancel')) as HTMLElement).click();
+        (
+            Array.from(page.querySelectorAll('button')).find((button) =>
+                (button.textContent ?? '').includes('common.cancel')
+            ) as HTMLElement
+        ).click();
         await settle();
         expect(texts(page, '.note')).not.toContain('login.logoutConfirm');
 

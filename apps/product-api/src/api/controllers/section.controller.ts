@@ -5,8 +5,7 @@ import { SectionEntity } from '../../data/entities';
 
 @Controller({ path: 'sections', version: '1' })
 export class SectionController {
-    constructor(private readonly catalog: CatalogService) {
-    }
+    constructor(private readonly catalog: CatalogService) {}
 
     @Get()
     public getSections(): Promise<Array<SectionEntity>> {

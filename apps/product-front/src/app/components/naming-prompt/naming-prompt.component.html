@@ -28,7 +28,12 @@
                     <i class="material-symbols-outlined" style="color: var(--accent)">check_circle</i>
                 }
                 @if (connectors[suggestion.connectorId]; as connector) {
-                    <img class="h-6 w-6 shrink-0 rounded object-contain" [src]="connector.logo" [alt]="connector.name" [title]="connector.name" />
+                    <img
+                        class="h-6 w-6 shrink-0 rounded object-contain"
+                        [src]="connector.logo"
+                        [alt]="connector.name"
+                        [title]="connector.name"
+                    />
                 } @else {
                     <span class="muted text-xs uppercase">{{ suggestion.connectorId }}</span>
                 }

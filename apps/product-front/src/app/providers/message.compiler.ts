@@ -29,6 +29,8 @@ export class MessageCompiler extends TranslateCompiler {
             return translations;
         }
 
-        return Object.fromEntries(Object.entries(translations).map(([key, value]) => [key, this.compileTranslations(value, language)]));
+        return Object.fromEntries(
+            Object.entries(translations).map(([key, value]) => [key, this.compileTranslations(value, language)])
+        );
     }
 }

@@ -18,8 +18,7 @@ export class FeedbackService {
     constructor(
         @InjectRepository(FeedbackSettingEntity) private readonly settings: Repository<FeedbackSettingEntity>,
         private readonly events: EventsService
-    ) {
-    }
+    ) {}
 
     public async getSettings(): Promise<FeedbackSettings> {
         const stored = new Map((await this.settings.find()).map((setting) => [setting.event, setting.soundId]));

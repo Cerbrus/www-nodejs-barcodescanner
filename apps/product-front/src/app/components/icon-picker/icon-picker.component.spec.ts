@@ -17,7 +17,12 @@ describe('IconPickerComponent', () => {
         closed = 0;
         TestBed.configureTestingModule({
             imports: [IconPickerComponent, TranslateModule.forRoot()],
-            providers: [{ provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of(['milk', 'milk_carton', 'bread']) } }]
+            providers: [
+                {
+                    provide: ApiService,
+                    useValue: { iconsUrl: '/icons', getIcons: () => of(['milk', 'milk_carton', 'bread']) }
+                }
+            ]
         });
         fixture = TestBed.createComponent(IconPickerComponent);
         fixture.componentInstance.picked.subscribe((name) => picked.push(name));
@@ -30,7 +35,9 @@ describe('IconPickerComponent', () => {
     it('opens as a dialog and lists "none" first, then every icon with a readable name', () => {
         expect(page.querySelector('dialog')?.hasAttribute('open')).toBe(true);
         expect(texts(page, '.icon span')).toEqual(['icons.none', 'milk', 'milk carton', 'bread']);
-        expect((page.querySelectorAll('.icon img')[1] as HTMLImageElement).getAttribute('src')).toBe('/icons/milk_carton.png');
+        expect((page.querySelectorAll('.icon img')[1] as HTMLImageElement).getAttribute('src')).toBe(
+            '/icons/milk_carton.png'
+        );
     });
 
     it('filters while typing, reading a space as the underscore in file names', () => {

@@ -39,7 +39,9 @@ const STICK_TO_BOTTOM_PIXELS = 40;
                         <span class="message">{{ line.message }}</span>
                     </div>
                 } @empty {
-                    <div class="line"><span class="message dim">{{ 'log.empty' | translate }}</span></div>
+                    <div class="line">
+                        <span class="message dim">{{ 'log.empty' | translate }}</span>
+                    </div>
                 }
                 <div class="line"><span class="prompt">$</span><span class="cursor"></span></div>
             </div>

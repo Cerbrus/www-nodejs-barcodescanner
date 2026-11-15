@@ -21,8 +21,7 @@ const issueOptions = (choice: RemarkIssueDto): IssueOptions => ({
 
 @Controller({ path: 'remarks', version: '1' })
 export class RemarkController {
-    constructor(private readonly remarks: RemarkService) {
-    }
+    constructor(private readonly remarks: RemarkService) {}
 
     @Post()
     public async create(@Body() remark: RemarkCreateDto, @CurrentAccount() account: Account): Promise<{ id: number }> {
@@ -31,7 +30,10 @@ export class RemarkController {
 
     @Get()
     public async list(@CurrentAccount() account: Account): Promise<RemarkList> {
-        return { remarks: await this.remarks.list(account), canSendToGitHub: account.owner && this.remarks.canSendToGitHub };
+        return {
+            remarks: await this.remarks.list(account),
+            canSendToGitHub: account.owner && this.remarks.canSendToGitHub
+        };
     }
 
     @OwnerOnly()

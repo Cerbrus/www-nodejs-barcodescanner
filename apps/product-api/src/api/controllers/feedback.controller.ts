@@ -8,8 +8,7 @@ import { OwnerOnly } from '../guards/owner.decorator';
 
 @Controller({ path: 'feedback', version: '1' })
 export class FeedbackController {
-    constructor(private readonly feedback: FeedbackService) {
-    }
+    constructor(private readonly feedback: FeedbackService) {}
 
     @OwnerOnly()
     @Agent()

@@ -1,7 +1,21 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, catchError, debounceTime, defer, filter, forkJoin, fromEvent, interval, map, of, switchMap, tap, throwError } from 'rxjs';
+import {
+    Observable,
+    catchError,
+    debounceTime,
+    defer,
+    filter,
+    forkJoin,
+    fromEvent,
+    interval,
+    map,
+    of,
+    switchMap,
+    tap,
+    throwError
+} from 'rxjs';
 
 import { Barcode, CatalogItem, CatalogItemInput, ListEntry, ListEntryChange, Section } from '../models';
 import { ApiService } from './api.service';
@@ -34,7 +48,10 @@ export class ShoppingStore {
 
     public readonly toBuy = computed(() => this.entries().filter((entry) => entry.state === 'to_buy'));
     public readonly recent = computed(() => this.entries().filter((entry) => entry.state === 'recent'));
-    public readonly toBuyGroups = computed(() => this.groupBySection(this.toBuy(), (entry) => entry.catalogItem.sectionId));
+    public readonly toBuyGroups = computed(() =>
+        this.groupBySection(this.toBuy(), (entry) => entry.catalogItem.sectionId)
+    );
+
     public readonly itemGroups = computed(() => this.groupBySection(this.items(), (item) => item.sectionId));
     public readonly online = computed(() => this.events.connected() && !this.failed());
 
@@ -82,7 +99,9 @@ export class ShoppingStore {
 
     public refreshAll(): Observable<void> {
         return this.sendPending().pipe(
-            switchMap(() => forkJoin([this.api.getSections(), this.api.getCatalog(), this.api.getList(), this.api.getInbox()])),
+            switchMap(() =>
+                forkJoin([this.api.getSections(), this.api.getCatalog(), this.api.getList(), this.api.getInbox()])
+            ),
             tap(([sections, items, entries, inbox]) => {
                 this.sections.set(sections);
                 this.items.set(items);
@@ -116,7 +135,9 @@ export class ShoppingStore {
 
         return this.api.changeListEntry(catalogItemId, change).pipe(
             switchMap(() => this.refreshListAndInbox()),
-            catchError((error: HttpErrorResponse) => (error.status === NO_CONNECTION ? this.keepForLater(catalogItemId, change) : throwError(() => error)))
+            catchError((error: HttpErrorResponse) =>
+                error.status === NO_CONNECTION ? this.keepForLater(catalogItemId, change) : throwError(() => error)
+            )
         );
     }
 
@@ -134,13 +155,14 @@ export class ShoppingStore {
     }
 
     public createItem(input: CatalogItemInput): Observable<CatalogItem> {
-        return this.api
-            .createCatalogItem(input)
-            .pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
+        return this.api.createCatalogItem(input).pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
     }
 
     private keepForLater(catalogItemId: number, change: ListEntryChange): Observable<void> {
-        this.pending.update((pending) => [...pending, { ...change, catalogItemId, changedAt: new Date().toISOString() }]);
+        this.pending.update((pending) => [
+            ...pending,
+            { ...change, catalogItemId, changedAt: new Date().toISOString() }
+        ]);
         saveOutbox(this.pending());
         this.entries.update((entries) => this.withLocalChange(entries, catalogItemId, change));
         this.saveSnapshotNow(this.updatedAt() ?? new Date().toISOString());
@@ -150,7 +172,11 @@ export class ShoppingStore {
         return of(undefined);
     }
 
-    private withLocalChange(entries: Array<ListEntry>, catalogItemId: number, change: ListEntryChange): Array<ListEntry> {
+    private withLocalChange(
+        entries: Array<ListEntry>,
+        catalogItemId: number,
+        change: ListEntryChange
+    ): Array<ListEntry> {
         const current = entries.find((entry) => entry.catalogItemId === catalogItemId);
         const catalogItem = current?.catalogItem ?? this.itemById(catalogItemId);
         if (!catalogItem) {
@@ -191,7 +217,13 @@ export class ShoppingStore {
     }
 
     private saveSnapshotNow(savedAt: string): void {
-        saveSnapshot({ savedAt, sections: this.sections(), items: this.items(), entries: this.entries(), inbox: this.inbox() });
+        saveSnapshot({
+            savedAt,
+            sections: this.sections(),
+            items: this.items(),
+            entries: this.entries(),
+            inbox: this.inbox()
+        });
     }
 
     private restore(): void {

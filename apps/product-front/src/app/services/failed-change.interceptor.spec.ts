@@ -65,7 +65,9 @@ describe('reportFailedChanges', () => {
         fail(500);
         http.post('/thing', {}).subscribe({ error: () => undefined });
         fail(401);
-        http.post('/thing', {}, { context: new HttpContext().set(QUIET_FAILURE, true) }).subscribe({ error: () => undefined });
+        http.post('/thing', {}, { context: new HttpContext().set(QUIET_FAILURE, true) }).subscribe({
+            error: () => undefined
+        });
         fail(500);
 
         expect(shown()).toEqual([]);

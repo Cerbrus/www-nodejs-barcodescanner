@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-
 import assert from 'node:assert/strict';
 import { rmSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
@@ -35,8 +34,7 @@ interface Answer<T> {
 }
 
 @Module({ imports: [AppConfigModule, ApiModule] })
-class TestModule {
-}
+class TestModule {}
 
 describe('data routes over HTTP', () => {
     let app: NestExpressApplication;
@@ -46,7 +44,12 @@ describe('data routes over HTTP', () => {
     let milkId: number;
     const asAgent = { 'x-agent-token': AGENT_TOKEN };
 
-    async function call<T = unknown>(method: string, path: string, headers: Record<string, string>, body?: unknown): Promise<Answer<T>> {
+    async function call<T = unknown>(
+        method: string,
+        path: string,
+        headers: Record<string, string>,
+        body?: unknown
+    ): Promise<Answer<T>> {
         const answer = await fetch(`${base}${path}`, {
             method,
             headers: { ...headers, ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
@@ -81,7 +84,10 @@ describe('data routes over HTTP', () => {
     });
 
     it('records a scan from a browser as a phone scan, whatever the request claims', async () => {
-        const scan = await call<{ result: string }>('POST', '/scans', asUser, { code: UNKNOWN_CODE, source: 'handheld' });
+        const scan = await call<{ result: string }>('POST', '/scans', asUser, {
+            code: UNKNOWN_CODE,
+            source: 'handheld'
+        });
         const history = await call<Array<{ code: string; source: string }>>('GET', '/scans?limit=1', asUser);
 
         assert.equal(scan.status, 201);
@@ -121,8 +127,14 @@ describe('data routes over HTTP', () => {
 
     it('counts two held scans of one product that are delivered together', async () => {
         const at = (secondsAgo: number): string => new Date(Date.now() - secondsAgo * 1000).toISOString();
-        const first = await call<{ result: string }>('POST', '/scans', asAgent, { code: '11116666', scannedAt: at(40) });
-        const second = await call<{ result: string }>('POST', '/scans', asAgent, { code: '11116666', scannedAt: at(30) });
+        const first = await call<{ result: string }>('POST', '/scans', asAgent, {
+            code: '11116666',
+            scannedAt: at(40)
+        });
+        const second = await call<{ result: string }>('POST', '/scans', asAgent, {
+            code: '11116666',
+            scannedAt: at(30)
+        });
 
         assert.deepEqual([first.body.result, second.body.result], ['needs_name', 'needs_name']);
         const barcode = await call<{ scanCount: number }>('GET', '/barcodes/11116666', asUser);
@@ -137,7 +149,11 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('PUT', `/barcodes/${UNKNOWN_CODE}`, asUser, { catalogItemId: 999999 })).status, 404);
         assert.equal((await call('PUT', `/barcodes/${UNKNOWN_CODE}`, asUser, { catalogItemId: milkId })).status, 200);
 
-        const list = await call<Array<{ catalogItemId: number; state: string; quantity: number }>>('GET', '/list', asUser);
+        const list = await call<Array<{ catalogItemId: number; state: string; quantity: number }>>(
+            'GET',
+            '/list',
+            asUser
+        );
         const milk = list.body.find((entry) => entry.catalogItemId === milkId);
         assert.equal(milk?.state, 'to_buy');
         assert.equal(milk?.quantity, 2);
@@ -152,7 +168,9 @@ describe('data routes over HTTP', () => {
     });
 
     it('applies changes made offline in order, unless the server changed the entry later', async () => {
-        const butter = (await call<Array<{ id: number; name: string }>>('GET', '/catalog', asUser)).body.find((item) => item.name === 'Boter')?.id as number;
+        const butter = (await call<Array<{ id: number; name: string }>>('GET', '/catalog', asUser)).body.find(
+            (item) => item.name === 'Boter'
+        )?.id as number;
         const at = (secondsAgo: number): string => new Date(Date.now() - secondsAgo * 1000).toISOString();
         type Entry = { catalogItemId: number; state: string; quantity: number };
         const entryOf = async (id: number): Promise<Entry | undefined> =>
@@ -186,16 +204,29 @@ describe('data routes over HTTP', () => {
         assert.deepEqual([twice.body.applied, twice.body.skipped], [2, []]);
         assert.equal((await entryOf(butter))?.quantity, 4);
 
-        assert.equal((await call('POST', '/list/offline-changes', asUser, { changes: [{ catalogItemId: butter, state: 'gone', changedAt: at(1) }] })).status, 400);
+        assert.equal(
+            (
+                await call('POST', '/list/offline-changes', asUser, {
+                    changes: [{ catalogItemId: butter, state: 'gone', changedAt: at(1) }]
+                })
+            ).status,
+            400
+        );
         assert.equal((await call('POST', '/list/offline-changes', asAgent, { changes: [] })).status, 403);
     });
 
     it('checks new and changed products', async () => {
         assert.equal((await call('POST', '/catalog', asUser, { sectionId: 'zuivel' })).status, 400);
         assert.equal((await call('POST', '/catalog', asUser, { name: 'Melk', sectionId: 'zuivel' })).status, 409);
-        assert.equal((await call('POST', '/catalog', asUser, { name: 'Winterpeen', sectionId: 'nowhere' })).status, 404);
+        assert.equal(
+            (await call('POST', '/catalog', asUser, { name: 'Winterpeen', sectionId: 'nowhere' })).status,
+            404
+        );
 
-        const created = await call<{ id: number; custom: boolean }>('POST', '/catalog', asUser, { name: 'Winterpeen', sectionId: 'fruit-groenten' });
+        const created = await call<{ id: number; custom: boolean }>('POST', '/catalog', asUser, {
+            name: 'Winterpeen',
+            sectionId: 'fruit-groenten'
+        });
         assert.equal(created.status, 201);
         assert.equal(created.body.custom, true);
 
@@ -216,7 +247,10 @@ describe('data routes over HTTP', () => {
 
     it('keeps the agent to its own four routes', async () => {
         assert.equal((await call('GET', '/feedback/settings', asAgent)).status, 200);
-        assert.equal((await call('POST', '/logs', asAgent, { level: 'info', message: 'scanner connected' })).status, 204);
+        assert.equal(
+            (await call('POST', '/logs', asAgent, { level: 'info', message: 'scanner connected' })).status,
+            204
+        );
 
         assert.equal((await call('GET', '/list', asAgent)).status, 403);
         assert.equal((await call('GET', '/catalog', asAgent)).status, 403);
@@ -230,9 +264,20 @@ describe('data routes over HTTP', () => {
         assert.deepEqual([silent.body.agentOnline, silent.body.scanner], [false, undefined]);
 
         assert.equal((await call('POST', '/agent/status', asAgent, { scanner: 'sleeping' })).status, 400);
-        assert.equal((await call('POST', '/agent/status', asAgent, { scanner: 'connected', device: 'HID 0581:011c' })).status, 204);
-        const connected = await call<{ agentOnline: boolean; scanner: string; device: string; lastHandheldScanAt?: string }>('GET', '/agent/status', asUser);
-        assert.deepEqual([connected.body.agentOnline, connected.body.scanner, connected.body.device], [true, 'connected', 'HID 0581:011c']);
+        assert.equal(
+            (await call('POST', '/agent/status', asAgent, { scanner: 'connected', device: 'HID 0581:011c' })).status,
+            204
+        );
+        const connected = await call<{
+            agentOnline: boolean;
+            scanner: string;
+            device: string;
+            lastHandheldScanAt?: string;
+        }>('GET', '/agent/status', asUser);
+        assert.deepEqual(
+            [connected.body.agentOnline, connected.body.scanner, connected.body.device],
+            [true, 'connected', 'HID 0581:011c']
+        );
         assert.ok(connected.body.lastHandheldScanAt);
 
         await call('POST', '/agent/status', asAgent, { scanner: 'waiting' });

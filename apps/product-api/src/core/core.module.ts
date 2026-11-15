@@ -42,5 +42,4 @@ const services = [
     providers: [AHConnector, OpenFoodFactsConnector, ...services],
     exports: services
 })
-export class CoreModule {
-}
+export class CoreModule {}

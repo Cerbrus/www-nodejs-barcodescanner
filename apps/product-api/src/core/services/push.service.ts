@@ -35,7 +35,17 @@ export interface PushResult {
     failed: number;
 }
 
-type Texts = Record<'unknownTitle' | 'unknownNamed' | 'unknownBare' | 'testTitle' | 'testBody' | 'remarkBug' | 'remarkWish' | 'remarkNote', string>;
+type Texts = Record<
+    | 'unknownTitle'
+    | 'unknownNamed'
+    | 'unknownBare'
+    | 'testTitle'
+    | 'testBody'
+    | 'remarkBug'
+    | 'remarkWish'
+    | 'remarkNote',
+    string
+>;
 type Audience = 'everyone' | 'owner';
 
 const TIME_TO_LIVE_SECONDS = 24 * 60 * 60;
@@ -75,15 +85,19 @@ export class PushService {
         @InjectRepository(PushSubscriptionEntity) private readonly subscriptions: Repository<PushSubscriptionEntity>,
         private readonly barcodes: BarcodeService,
         private readonly config: AppConfig
-    ) {
-    }
+    ) {}
 
     public get publicKey(): string {
         return this.vapidKeys().publicKey;
     }
 
     public async subscribe(input: PushSubscriptionInput, account?: string): Promise<void> {
-        await this.subscriptions.save({ ...input, language: input.language ?? DEFAULT_LANGUAGE, account: account ?? null, createdAt: new Date() });
+        await this.subscriptions.save({
+            ...input,
+            language: input.language ?? DEFAULT_LANGUAGE,
+            account: account ?? null,
+            createdAt: new Date()
+        });
         this.logger.log(`push: device subscribed (${await this.subscriptions.count()} in total)`);
     }
 
@@ -96,7 +110,9 @@ export class PushService {
         try {
             const result = await this.send((texts) => ({
                 title: texts.unknownTitle,
-                body: (title ? texts.unknownNamed : texts.unknownBare).replace('{title}', title ?? '').replace('{code}', code),
+                body: (title ? texts.unknownNamed : texts.unknownBare)
+                    .replace('{title}', title ?? '')
+                    .replace('{code}', code),
                 url: '/#/inbox',
                 tag: `barcode-${code}`
             }));
@@ -112,7 +128,12 @@ export class PushService {
         const title: Record<typeof kind, keyof Texts> = { bug: 'remarkBug', wish: 'remarkWish', note: 'remarkNote' };
         try {
             const result = await this.send(
-                (texts) => ({ title: texts[title[kind]], body: text.slice(0, REMARK_PREVIEW_LENGTH), url: '/#/remarks', tag: `remark-${id}` }),
+                (texts) => ({
+                    title: texts[title[kind]],
+                    body: text.slice(0, REMARK_PREVIEW_LENGTH),
+                    url: '/#/remarks',
+                    tag: `remark-${id}`
+                }),
                 'owner'
             );
             if (result.sent || result.failed) {
@@ -128,7 +149,9 @@ export class PushService {
     }
 
     private async send(compose: (texts: Texts) => PushMessage, audience: Audience = 'everyone'): Promise<PushResult> {
-        const subscriptions = (await this.subscriptions.find()).filter((subscription) => audience === 'everyone' || this.belongsToOwner(subscription.account));
+        const subscriptions = (await this.subscriptions.find()).filter(
+            (subscription) => audience === 'everyone' || this.belongsToOwner(subscription.account)
+        );
         if (!subscriptions.length) {
             return { sent: 0, failed: 0 };
         }
@@ -137,7 +160,9 @@ export class PushService {
         const badge = await this.barcodes.inboxCount();
         const outcomes = await Promise.all(
             subscriptions.map(async ({ endpoint, p256dh, auth, language, origin }) => {
-                const payload = JSON.stringify(this.payload(compose(TEXTS[language] ?? TEXTS[DEFAULT_LANGUAGE]), badge, language, origin));
+                const payload = JSON.stringify(
+                    this.payload(compose(TEXTS[language] ?? TEXTS[DEFAULT_LANGUAGE]), badge, language, origin)
+                );
                 try {
                     await webpush.sendNotification({ endpoint, keys: { p256dh, auth } }, payload, {
                         TTL: TIME_TO_LIVE_SECONDS,

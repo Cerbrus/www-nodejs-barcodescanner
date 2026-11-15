@@ -49,7 +49,9 @@ export class NamingPromptComponent {
             .join(' ')
     );
 
-    protected readonly shopSectionId = computed(() => this.suggestions().find((suggestion) => suggestion.sectionId)?.sectionId);
+    protected readonly shopSectionId = computed(
+        () => this.suggestions().find((suggestion) => suggestion.sectionId)?.sectionId
+    );
 
     private readonly api = inject(ApiService);
     private readonly events = inject(EventsService);

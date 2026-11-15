@@ -61,16 +61,17 @@ class ThingController {
 }
 
 @Module({ imports: [AppConfigModule, ApiModule], controllers: [ThingController] })
-class TestModule {
-}
+class TestModule {}
 
 describe('login guard over HTTP', () => {
     let app: NestExpressApplication;
     let base: string;
     let secret: string;
 
-    const cookieFor = (email: string): string => `${SESSION_COOKIE}=${signSession(newSession(email, new Date()), secret)}`;
-    const status = async (path: string, init?: RequestInit): Promise<number> => (await fetch(`${base}${path}`, { redirect: 'manual', ...init })).status;
+    const cookieFor = (email: string): string =>
+        `${SESSION_COOKIE}=${signSession(newSession(email, new Date()), secret)}`;
+    const status = async (path: string, init?: RequestInit): Promise<number> =>
+        (await fetch(`${base}${path}`, { redirect: 'manual', ...init })).status;
 
     before(async () => {
         app = await NestFactory.create<NestExpressApplication>(TestModule, { logger: false });
@@ -120,7 +121,10 @@ describe('login guard over HTTP', () => {
     });
 
     it('tells a logged-in browser apart from the agent', async () => {
-        const answer = await fetch(`${base}/things/for-agent`, { method: 'POST', headers: { cookie: cookieFor(OWNER) } });
+        const answer = await fetch(`${base}/things/for-agent`, {
+            method: 'POST',
+            headers: { cookie: cookieFor(OWNER) }
+        });
 
         assert.deepEqual(await answer.json(), { caller: 'user' });
     });
@@ -128,13 +132,21 @@ describe('login guard over HTTP', () => {
     it('refuses a change that comes from another site', async () => {
         const headers = { cookie: cookieFor(OWNER) };
 
-        assert.equal(await status('/things', { method: 'POST', headers: { ...headers, origin: 'https://evil.example.com' } }), 403);
+        assert.equal(
+            await status('/things', { method: 'POST', headers: { ...headers, origin: 'https://evil.example.com' } }),
+            403
+        );
         assert.equal(await status('/things', { method: 'POST', headers: { ...headers, origin: SITE } }), 201);
     });
 
     it('reports the login state', async () => {
-        const anonymous = (await (await fetch(`${base}/auth/me`)).json()) as { enabled: boolean; authenticated: boolean };
-        const owner = (await (await fetch(`${base}/auth/me`, { headers: { cookie: cookieFor(OWNER) } })).json()) as { email?: string };
+        const anonymous = (await (await fetch(`${base}/auth/me`)).json()) as {
+            enabled: boolean;
+            authenticated: boolean;
+        };
+        const owner = (await (await fetch(`${base}/auth/me`, { headers: { cookie: cookieFor(OWNER) } })).json()) as {
+            email?: string;
+        };
 
         assert.deepEqual(anonymous, { enabled: true, authenticated: false, owner: false });
         assert.equal(owner.email, OWNER);

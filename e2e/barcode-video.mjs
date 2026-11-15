@@ -1,6 +1,17 @@
 import { writeFileSync } from 'node:fs';
 
-const LEFT = ['0001101', '0011001', '0010011', '0111101', '0100011', '0110001', '0101111', '0111011', '0110111', '0001011'];
+const LEFT = [
+    '0001101',
+    '0011001',
+    '0010011',
+    '0111101',
+    '0100011',
+    '0110001',
+    '0101111',
+    '0111011',
+    '0110111',
+    '0001011'
+];
 const PARITY = ['LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL', 'LGLLGG', 'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL'];
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -23,7 +34,9 @@ export function withCheckDigit(twelveDigits) {
 function modules(code) {
     const digits = [...code].map(Number);
     const parity = PARITY[digits[0]];
-    const left = digits.slice(1, 7).map((digit, index) => (parity[index] === 'L' ? LEFT[digit] : reverse(complement(LEFT[digit]))));
+    const left = digits
+        .slice(1, 7)
+        .map((digit, index) => (parity[index] === 'L' ? LEFT[digit] : reverse(complement(LEFT[digit]))));
     const right = digits.slice(7).map((digit) => complement(LEFT[digit]));
 
     return `101${left.join('')}01010${right.join('')}101`;
@@ -37,7 +50,11 @@ export function writeBarcodeVideo(path, code) {
     for (let y = BAR_TOP; y < BAR_BOTTOM; y++) {
         for (let index = 0; index < bars.length; index++) {
             if (bars[index] === '1') {
-                luminance.fill(BLACK, y * WIDTH + start + index * MODULE_PIXELS, y * WIDTH + start + (index + 1) * MODULE_PIXELS);
+                luminance.fill(
+                    BLACK,
+                    y * WIDTH + start + index * MODULE_PIXELS,
+                    y * WIDTH + start + (index + 1) * MODULE_PIXELS
+                );
             }
         }
     }
@@ -45,5 +62,8 @@ export function writeBarcodeVideo(path, code) {
     const colour = Buffer.alloc((WIDTH / 2) * (HEIGHT / 2) * 2, NO_COLOUR);
     const frame = Buffer.concat([Buffer.from('FRAME\n'), luminance, colour]);
 
-    writeFileSync(path, Buffer.concat([Buffer.from(`YUV4MPEG2 W${WIDTH} H${HEIGHT} F10:1 Ip A1:1 C420jpeg\n`), frame, frame]));
+    writeFileSync(
+        path,
+        Buffer.concat([Buffer.from(`YUV4MPEG2 W${WIDTH} H${HEIGHT} F10:1 Ip A1:1 C420jpeg\n`), frame, frame])
+    );
 }

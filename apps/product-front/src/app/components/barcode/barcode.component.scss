@@ -1,4 +1,4 @@
-@use "sass:math";
+@use 'sass:math';
 
 :host {
     @apply inline-block;
@@ -10,8 +10,8 @@ $sideMarginBars: 3;
 $separatorBars: 5;
 
 $encodingMarginPercentage: math.div($encodingMarginBars, $bars) * 100%;
-$sidePaddingPercentage: math.div($sideMarginBars , $bars) * 100%;
-$separatorPercentage: math.div($separatorBars , $bars) * 100%;
+$sidePaddingPercentage: math.div($sideMarginBars, $bars) * 100%;
+$separatorPercentage: math.div($separatorBars, $bars) * 100%;
 
 .barcode {
     @apply relative w-full;
@@ -33,7 +33,6 @@ $separatorPercentage: math.div($separatorBars , $bars) * 100%;
         padding: 0 $sidePaddingPercentage;
         gap: $separatorPercentage;
         @apply absolute bottom-0 w-full justify-around;
-
     }
 }
 

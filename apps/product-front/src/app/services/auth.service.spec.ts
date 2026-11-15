@@ -25,7 +25,9 @@ describe('login in the web app', () => {
 
     const run = (guard: typeof requireLogin, state: AuthState | 'unreachable'): GuardResult => {
         let result: GuardResult = false;
-        const outcome = TestBed.runInInjectionContext(() => guard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)) as Observable<GuardResult>;
+        const outcome = TestBed.runInInjectionContext(() =>
+            guard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
+        ) as Observable<GuardResult>;
         outcome.subscribe((value) => (result = value));
 
         const request = server.match('/api/v1/auth/me')[0];
@@ -48,7 +50,10 @@ describe('login in the web app', () => {
                 provideHttpClientTesting(),
                 { provide: SettingsService, useValue: { getApiUrl: (): string => '/api' } },
                 { provide: EventsService, useValue: { stop: stopEvents } },
-                { provide: Router, useValue: { parseUrl: (redirect: string): GuardResult => ({ redirect }), navigateByUrl: navigate } }
+                {
+                    provide: Router,
+                    useValue: { parseUrl: (redirect: string): GuardResult => ({ redirect }), navigateByUrl: navigate }
+                }
             ]
         });
         server = TestBed.inject(HttpTestingController);

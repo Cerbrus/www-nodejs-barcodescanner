@@ -32,7 +32,12 @@ const MAX_OPTIONS = 8;
                     (keydown.escape)="focused.set(false)"
                 />
                 @if (text()) {
-                    <button type="button" class="clear-button" [attr.aria-label]="'common.clear' | translate" (click)="text.set(''); field.focus()">
+                    <button
+                        type="button"
+                        class="clear-button"
+                        [attr.aria-label]="'common.clear' | translate"
+                        (click)="text.set(''); field.focus()"
+                    >
                         <i class="material-symbols-outlined">close</i>
                     </button>
                 }
@@ -59,20 +64,52 @@ const MAX_OPTIONS = 8;
         </div>
     `,
     styles: `
-        .wrap { position: relative; }
+        .wrap {
+            position: relative;
+        }
         .options {
-            margin-top: 4px; padding: 4px;
-            border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+            margin-top: 4px;
+            padding: 4px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--surface);
         }
         .option {
-            display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px;
-            border-radius: 8px; font-weight: 600; text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: left;
         }
-        .option:hover, .option:focus-visible { background: var(--page); }
-        .option-icon { width: 32px; height: 32px; flex: 0 0 auto; padding: 4px; border-radius: 8px; background: var(--tile-neutral); color: var(--tile-text); }
-        .option.create { color: var(--accent); }
-        .option.create i { width: 32px; font-size: 26px; text-align: center; }
-        .none { padding: 8px; color: var(--text-muted); font-size: 0.9rem; }
+        .option:hover,
+        .option:focus-visible {
+            background: var(--page);
+        }
+        .option-icon {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 auto;
+            padding: 4px;
+            border-radius: 8px;
+            background: var(--tile-neutral);
+            color: var(--tile-text);
+        }
+        .option.create {
+            color: var(--accent);
+        }
+        .option.create i {
+            width: 32px;
+            font-size: 26px;
+            text-align: center;
+        }
+        .none {
+            padding: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
     `
 })
 export class ItemAutocompleteComponent {
@@ -102,7 +139,11 @@ export class ItemAutocompleteComponent {
 
     protected readonly canCreate = computed(() => {
         const term = this.text().trim().toLowerCase();
-        return this.allowCreate() && term.length > 0 && !this.store.items().some((item) => item.name.toLowerCase() === term);
+        return (
+            this.allowCreate() &&
+            term.length > 0 &&
+            !this.store.items().some((item) => item.name.toLowerCase() === term)
+        );
     });
 
     private readonly store = inject(ShoppingStore);

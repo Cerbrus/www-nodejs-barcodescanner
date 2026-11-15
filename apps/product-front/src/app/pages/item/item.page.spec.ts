@@ -16,7 +16,12 @@ const MILK: CatalogItem = {
     icon: 'milk',
     defaultIcon: 'milk_carton',
     barcodes: [
-        { code: '8710400335481', scanCount: 3, catalogItemId: 1, suggestions: [{ connectorId: 'ah', title: 'AH Melk' }] },
+        {
+            code: '8710400335481',
+            scanCount: 3,
+            catalogItemId: 1,
+            suggestions: [{ connectorId: 'ah', title: 'AH Melk' }]
+        },
         { code: '22223333', scanCount: 1, catalogItemId: 1 }
     ]
 };
@@ -47,7 +52,9 @@ describe('ItemPage', () => {
     };
     const save = (): HTMLButtonElement => page.querySelector('button.primary') as HTMLButtonElement;
     const button = (label: string, index = 0): HTMLElement =>
-        Array.from(page.querySelectorAll('button')).filter((candidate) => (candidate.textContent ?? '').includes(label))[index] as HTMLElement;
+        Array.from(page.querySelectorAll('button')).filter((candidate) =>
+            (candidate.textContent ?? '').includes(label)
+        )[index] as HTMLElement;
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -58,7 +65,11 @@ describe('ItemPage', () => {
         api.unmapBarcode.mockReturnValue(of(undefined));
         TestBed.configureTestingModule({
             imports: [ItemPage, TranslateModule.forRoot()],
-            providers: [provideRouter([]), { provide: ShoppingStore, useValue: store }, { provide: ApiService, useValue: api }]
+            providers: [
+                provideRouter([]),
+                { provide: ShoppingStore, useValue: store },
+                { provide: ApiService, useValue: api }
+            ]
         });
     });
 
@@ -91,9 +102,18 @@ describe('ItemPage', () => {
         await settle();
         save().click();
 
-        expect(api.updateCatalogItem).toHaveBeenCalledWith(1, { name: 'Volle melk', sectionId: 'zuivel', emoji: '🥛', icon: 'milk' });
+        expect(api.updateCatalogItem).toHaveBeenCalledWith(1, {
+            name: 'Volle melk',
+            sectionId: 'zuivel',
+            emoji: '🥛',
+            icon: 'milk'
+        });
         expect(store.refreshAll).toHaveBeenCalledTimes(1);
-        expect(TestBed.inject(ToastService).toasts().map((toast) => toast.text)).toEqual(['item.saved']);
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map((toast) => toast.text)
+        ).toEqual(['item.saved']);
     });
 
     it('changes the icon through the picker, which offers the standard icon of the product', async () => {

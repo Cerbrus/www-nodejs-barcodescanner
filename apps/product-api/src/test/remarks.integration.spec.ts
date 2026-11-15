@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-
 import assert from 'node:assert/strict';
 import { rmSync } from 'node:fs';
 import { Server, createServer } from 'node:http';
@@ -51,8 +50,7 @@ interface ReceivedIssue {
 }
 
 @Module({ imports: [AppConfigModule, ApiModule] })
-class TestModule {
-}
+class TestModule {}
 
 describe('remarks over HTTP', () => {
     let app: NestExpressApplication;
@@ -64,7 +62,12 @@ describe('remarks over HTTP', () => {
     let githubStatus = 201;
     const received: Array<ReceivedIssue> = [];
 
-    async function call<T = unknown>(method: string, path: string, headers: Record<string, string>, body?: unknown): Promise<Answer<T>> {
+    async function call<T = unknown>(
+        method: string,
+        path: string,
+        headers: Record<string, string>,
+        body?: unknown
+    ): Promise<Answer<T>> {
         const answer = await fetch(`${base}${path}`, {
             method,
             headers: { ...headers, ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
@@ -85,7 +88,11 @@ describe('remarks over HTTP', () => {
             let text = '';
             request.on('data', (part) => (text += part));
             request.on('end', () => {
-                received.push({ path: request.url ?? '', authorization: request.headers.authorization, body: JSON.parse(text) });
+                received.push({
+                    path: request.url ?? '',
+                    authorization: request.headers.authorization,
+                    body: JSON.parse(text)
+                });
                 response.writeHead(githubStatus, { 'content-type': 'application/json' });
                 response.end(JSON.stringify({ number: 12, html_url: 'https://github.example/issues/12' }));
             });
@@ -104,7 +111,9 @@ describe('remarks over HTTP', () => {
         configureApi(app);
         await app.listen(0, '127.0.0.1');
         base = `http://127.0.0.1:${(app.getHttpServer().address() as AddressInfo).port}/api/v1`;
-        const cookie = (email: string): Record<string, string> => ({ cookie: `${SESSION_COOKIE}=${app.get(SessionService).issue(email)}` });
+        const cookie = (email: string): Record<string, string> => ({
+            cookie: `${SESSION_COOKIE}=${app.get(SessionService).issue(email)}`
+        });
         asOwner = cookie(OWNER);
         asGuest = cookie(GUEST);
         asOther = cookie(OTHER);
@@ -122,8 +131,18 @@ describe('remarks over HTTP', () => {
     });
 
     it('refuses a remark without a text, with an unknown kind or with a text that is too long', async () => {
-        for (const remark of [{ kind: 'bug' }, { kind: 'bug', text: '' }, { kind: 'rant', text: 'x' }, { kind: 'bug', text: 'x'.repeat(2001) }, { kind: 'bug', text: 'x', target: 'tile' }]) {
-            assert.equal((await call('POST', '/remarks', asGuest, remark)).status, 400, JSON.stringify(remark).slice(0, 60));
+        for (const remark of [
+            { kind: 'bug' },
+            { kind: 'bug', text: '' },
+            { kind: 'rant', text: 'x' },
+            { kind: 'bug', text: 'x'.repeat(2001) },
+            { kind: 'bug', text: 'x', target: 'tile' }
+        ]) {
+            assert.equal(
+                (await call('POST', '/remarks', asGuest, remark)).status,
+                400,
+                JSON.stringify(remark).slice(0, 60)
+            );
         }
     });
 
@@ -147,20 +166,35 @@ describe('remarks over HTTP', () => {
         await write(asOther, { kind: 'wish', text: 'A dark icon' });
         await write(asOwner, { kind: 'note', text: 'Check the buzzer' });
 
-        assert.deepEqual((await listed(asOther)).map((remark) => remark.text), ['A dark icon']);
+        assert.deepEqual(
+            (await listed(asOther)).map((remark) => remark.text),
+            ['A dark icon']
+        );
         assert.deepEqual(new Set((await listed(asGuest)).map((remark) => remark.account)), new Set([GUEST]));
-        assert.deepEqual((await listed(asOwner)).slice(0, 2).map((remark) => remark.text), ['Check the buzzer', 'A dark icon']);
+        assert.deepEqual(
+            (await listed(asOwner)).slice(0, 2).map((remark) => remark.text),
+            ['Check the buzzer', 'A dark icon']
+        );
         assert.equal((await listed(asOwner)).length, 3);
     });
 
     it('keeps the time a remark was written without a connection, but not a time in the future', async () => {
         const earlier = await write(asGuest, { kind: 'note', text: 'offline', writtenAt: '2026-11-01T10:00:00.000Z' });
-        const later = await write(asGuest, { kind: 'note', text: 'clock is off', writtenAt: '2099-01-01T00:00:00.000Z' });
-        const rows = (await (app.get(DataSource).getRepository(RemarkEntity).find())).filter((row) => [earlier, later].includes(row.id));
+        const later = await write(asGuest, {
+            kind: 'note',
+            text: 'clock is off',
+            writtenAt: '2099-01-01T00:00:00.000Z'
+        });
+        const rows = (await app.get(DataSource).getRepository(RemarkEntity).find()).filter((row) =>
+            [earlier, later].includes(row.id)
+        );
 
         assert.equal(rows.find((row) => row.id === earlier)?.createdAt.toISOString(), '2026-11-01T10:00:00.000Z');
         assert.ok((rows.find((row) => row.id === later)?.createdAt.getTime() ?? Infinity) <= Date.now());
-        assert.equal((await call('POST', '/remarks', asGuest, { kind: 'note', text: 'x', writtenAt: 'yesterday' })).status, 400);
+        assert.equal(
+            (await call('POST', '/remarks', asGuest, { kind: 'note', text: 'x', writtenAt: 'yesterday' })).status,
+            400
+        );
     });
 
     it('lets only the owner close a remark, send it to GitHub or see what would be sent', async () => {
@@ -173,20 +207,36 @@ describe('remarks over HTTP', () => {
 
         const closed = await call<Remark>('PATCH', `/remarks/${remark.id}`, asOwner, { state: 'closed' });
         assert.deepEqual([closed.status, closed.body.state], [200, 'closed']);
-        assert.equal((await call<Remark>('PATCH', `/remarks/${remark.id}`, asOwner, { state: 'open' })).body.state, 'open');
+        assert.equal(
+            (await call<Remark>('PATCH', `/remarks/${remark.id}`, asOwner, { state: 'open' })).body.state,
+            'open'
+        );
         assert.equal((await call('PATCH', `/remarks/${remark.id}`, asOwner, { state: 'done' })).status, 400);
         assert.equal((await call('PATCH', '/remarks/99999', asOwner, { state: 'closed' })).status, 404);
     });
 
     it('tells the owner, and nobody else, that remarks can go to GitHub', async () => {
         assert.equal((await call<{ canSendToGitHub: boolean }>('GET', '/remarks', asOwner)).body.canSendToGitHub, true);
-        assert.equal((await call<{ canSendToGitHub: boolean }>('GET', '/remarks', asGuest)).body.canSendToGitHub, false);
+        assert.equal(
+            (await call<{ canSendToGitHub: boolean }>('GET', '/remarks', asGuest)).body.canSendToGitHub,
+            false
+        );
     });
 
     it('shows the owner exactly what would be sent, without the account and the device unless asked', async () => {
         const id = (await listed(asGuest)).find((remark) => remark.text === 'The pill is white on white')?.id;
-        const bare = await call<{ title: string; body: string; labels: Array<string> }>('POST', `/remarks/${id}/issue-draft`, asOwner, {});
-        const full = await call<{ body: string; labels: Array<string> }>('POST', `/remarks/${id}/issue-draft`, asOwner, { includeAccount: true, investigate: true });
+        const bare = await call<{ title: string; body: string; labels: Array<string> }>(
+            'POST',
+            `/remarks/${id}/issue-draft`,
+            asOwner,
+            {}
+        );
+        const full = await call<{ body: string; labels: Array<string> }>(
+            'POST',
+            `/remarks/${id}/issue-draft`,
+            asOwner,
+            { includeAccount: true, investigate: true }
+        );
 
         assert.equal(bare.body.title, 'The pill is white on white');
         assert.deepEqual(bare.body.labels, ['bug']);
@@ -200,15 +250,24 @@ describe('remarks over HTTP', () => {
         const id = (await listed(asGuest)).find((remark) => remark.text === 'The pill is white on white')?.id;
         const sent = await call<Remark>('POST', `/remarks/${id}/issue`, asOwner, { investigate: true });
 
-        assert.deepEqual([sent.status, sent.body.issueNumber, sent.body.issueUrl], [200, 12, 'https://github.example/issues/12']);
-        assert.deepEqual([received[0].path, received[0].authorization], ['/repos/someone/shop/issues', `Bearer ${TOKEN}`]);
+        assert.deepEqual(
+            [sent.status, sent.body.issueNumber, sent.body.issueUrl],
+            [200, 12, 'https://github.example/issues/12']
+        );
+        assert.deepEqual(
+            [received[0].path, received[0].authorization],
+            ['/repos/someone/shop/issues', `Bearer ${TOKEN}`]
+        );
         assert.equal(received[0].body.title, 'The pill is white on white');
         assert.deepEqual(received[0].body.labels, ['bug', 'investigate']);
         assert.doesNotMatch(received[0].body.body, /guest@example\.com/);
 
         assert.equal((await call('POST', `/remarks/${id}/issue`, asOwner, {})).status, 409);
         assert.equal(received.length, 1);
-        assert.equal((await listed(asGuest)).find((remark) => remark.id === id)?.issueUrl, 'https://github.example/issues/12');
+        assert.equal(
+            (await listed(asGuest)).find((remark) => remark.id === id)?.issueUrl,
+            'https://github.example/issues/12'
+        );
     });
 
     it('keeps the remark as it was when GitHub refuses', async () => {
@@ -231,12 +290,21 @@ describe('remarks over HTTP', () => {
         assert.equal((await call('DELETE', `/remarks/${mine}`, asGuest)).status, 204);
         assert.equal((await call('DELETE', `/remarks/${theirs}`, asOwner)).status, 204);
 
-        assert.equal((await listed(asGuest)).some((remark) => remark.id === mine), false);
-        assert.equal((await listed(asOwner)).some((remark) => [mine, theirs].includes(remark.id)), false);
+        assert.equal(
+            (await listed(asGuest)).some((remark) => remark.id === mine),
+            false
+        );
+        assert.equal(
+            (await listed(asOwner)).some((remark) => [mine, theirs].includes(remark.id)),
+            false
+        );
         assert.equal((await call('DELETE', `/remarks/${mine}`, asOwner)).status, 404);
         assert.equal((await call('PATCH', `/remarks/${mine}`, asOwner, { state: 'closed' })).status, 404);
         assert.equal((await call('DELETE', '/remarks/99999', asOwner)).status, 404);
-        assert.equal((await app.get(DataSource).getRepository(RemarkEntity).findOneBy({ id: mine }))?.state, 'rejected');
+        assert.equal(
+            (await app.get(DataSource).getRepository(RemarkEntity).findOneBy({ id: mine }))?.state,
+            'rejected'
+        );
     });
 
     it('does not reject a remark that is already on GitHub', async () => {
@@ -263,7 +331,9 @@ describe('remarks over HTTP', () => {
 
         assert.equal((await call('POST', '/push/subscriptions', asGuest, subscription)).status, 204);
 
-        const stored = await app.get(DataSource).query('SELECT account FROM push_subscription WHERE endpoint = ?', [subscription.endpoint]);
+        const stored = await app
+            .get(DataSource)
+            .query('SELECT account FROM push_subscription WHERE endpoint = ?', [subscription.endpoint]);
         assert.equal(stored[0].account, GUEST);
     });
 });

@@ -3,14 +3,10 @@
     "compilerOptions": {
         "outDir": "../../dist/out-tsc",
         "module": "commonjs",
-        "types": [
-            "node"
-        ],
+        "types": ["node"],
         "emitDecoratorMetadata": true,
         "target": "es2021"
     },
     "exclude": [],
-    "include": [
-        "src/**/*.ts"
-    ]
+    "include": ["src/**/*.ts"]
 }

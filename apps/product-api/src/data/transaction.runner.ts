@@ -5,8 +5,7 @@ import { DataSource, EntityManager } from 'typeorm';
 export class TransactionRunner {
     private queue: Promise<unknown> = Promise.resolve();
 
-    constructor(private readonly dataSource: DataSource) {
-    }
+    constructor(private readonly dataSource: DataSource) {}
 
     public run<T>(work: (manager: EntityManager) => Promise<T>): Promise<T> {
         const result = this.queue.then(() => this.dataSource.transaction(work));

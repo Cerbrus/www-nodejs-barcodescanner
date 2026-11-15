@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize, tap } from 'rxjs';
@@ -9,18 +18,88 @@ import { IconPickerComponent } from '../icon-picker/icon-picker.component';
 import { ItemIconComponent } from '../item-icon/item-icon.component';
 
 const SECTION_KEYWORDS: Record<string, Array<string>> = {
-    'zuivel': ['zuivel', 'melk', 'milk', 'kaas', 'cheese', 'yoghurt', 'yogurt', 'dair', 'eieren', 'egg', 'boter', 'butter'],
-    'dranken': ['drank', 'cola', 'sap', 'juice', 'bier', 'beer', 'wijn', 'wine', 'water', 'koffie', 'coffee', 'thee', 'tea', 'beverage', 'drink', 'soda'],
+    zuivel: [
+        'zuivel',
+        'melk',
+        'milk',
+        'kaas',
+        'cheese',
+        'yoghurt',
+        'yogurt',
+        'dair',
+        'eieren',
+        'egg',
+        'boter',
+        'butter'
+    ],
+    dranken: [
+        'drank',
+        'cola',
+        'sap',
+        'juice',
+        'bier',
+        'beer',
+        'wijn',
+        'wine',
+        'water',
+        'koffie',
+        'coffee',
+        'thee',
+        'tea',
+        'beverage',
+        'drink',
+        'soda'
+    ],
     'brood-gebak': ['brood', 'bread', 'bakker', 'gebak', 'bakery', 'pastr'],
     'vlees-vis': ['vlees', 'meat', 'vis', 'fish', 'kip', 'chicken', 'worst', 'sausage', 'vega'],
-    'fruit-groenten': ['fruit', 'groente', 'vegetable', 'aardappel', 'potato', 'salade', 'salad', 'peen', 'wortel', 'kool', 'appel', 'sla'],
-    'graanproducten': ['pasta', 'rijst', 'rice', 'ontbijtgranen', 'cereal', 'muesli', 'noodle', 'meel', 'flour'],
-    'snacks-snoep': ['snoep', 'candy', 'chips', 'koek', 'cookie', 'biscuit', 'chocola', 'snack', 'beleg', 'spread', 'jam', 'sweet'],
+    'fruit-groenten': [
+        'fruit',
+        'groente',
+        'vegetable',
+        'aardappel',
+        'potato',
+        'salade',
+        'salad',
+        'peen',
+        'wortel',
+        'kool',
+        'appel',
+        'sla'
+    ],
+    graanproducten: ['pasta', 'rijst', 'rice', 'ontbijtgranen', 'cereal', 'muesli', 'noodle', 'meel', 'flour'],
+    'snacks-snoep': [
+        'snoep',
+        'candy',
+        'chips',
+        'koek',
+        'cookie',
+        'biscuit',
+        'chocola',
+        'snack',
+        'beleg',
+        'spread',
+        'jam',
+        'sweet'
+    ],
     'gereed-diepvries': ['diepvries', 'frozen', 'maaltijd', 'meal', 'pizza', 'soep', 'soup', 'ijs'],
-    'ingredienten-kruiden': ['kruiden', 'spice', 'saus', 'sauce', 'olie', 'oil', 'conserven', 'canned', 'bakken', 'baking', 'suiker', 'sugar', 'azijn'],
-    'huishouden': ['huishoud', 'household', 'schoonmaak', 'clean', 'wasmiddel', 'laundry', 'afwas', 'papier'],
+    'ingredienten-kruiden': [
+        'kruiden',
+        'spice',
+        'saus',
+        'sauce',
+        'olie',
+        'oil',
+        'conserven',
+        'canned',
+        'bakken',
+        'baking',
+        'suiker',
+        'sugar',
+        'azijn'
+    ],
+    huishouden: ['huishoud', 'household', 'schoonmaak', 'clean', 'wasmiddel', 'laundry', 'afwas', 'papier'],
     'verzorging-gezondheid': ['verzorging', 'drogist', 'care', 'hygi', 'shampoo', 'tand', 'health', 'baby'],
-    'dierenvoeding': ['dier', 'huisdier', 'pet', 'kat', 'hond']
+    dierenvoeding: ['dier', 'huisdier', 'pet', 'kat', 'hond']
 };
 
 @Component({
@@ -30,12 +109,22 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="flex items-center gap-3">
-            <span class="h-12 w-12 shrink-0 rounded-xl p-1.5" style="background: var(--tile-neutral); color: var(--tile-text)">
+            <span
+                class="h-12 w-12 shrink-0 rounded-xl p-1.5"
+                style="background: var(--tile-neutral); color: var(--tile-text)"
+            >
                 <app-item-icon [item]="preview()" />
             </span>
             <div class="grow">
                 <label class="field-label !mt-0" for="new-item-name">{{ 'item.name' | translate }}</label>
-                <input id="new-item-name" class="field" type="text" maxlength="80" [ngModel]="name()" (ngModelChange)="name.set($event)" />
+                <input
+                    id="new-item-name"
+                    class="field"
+                    type="text"
+                    maxlength="80"
+                    [ngModel]="name()"
+                    (ngModelChange)="name.set($event)"
+                />
             </div>
         </div>
 
@@ -56,7 +145,14 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
             </div>
             <div class="w-24">
                 <label class="field-label" for="new-item-emoji">{{ 'item.emoji' | translate }}</label>
-                <input id="new-item-emoji" class="field" type="text" maxlength="8" [ngModel]="emoji()" (ngModelChange)="emoji.set($event)" />
+                <input
+                    id="new-item-emoji"
+                    class="field"
+                    type="text"
+                    maxlength="8"
+                    [ngModel]="emoji()"
+                    (ngModelChange)="emoji.set($event)"
+                />
             </div>
         </div>
 
@@ -65,7 +161,12 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
                 <i class="material-symbols-outlined">close</i>
                 {{ 'common.cancel' | translate }}
             </button>
-            <button type="button" class="btn primary grow" [disabled]="busy() || !name().trim() || !sectionId()" (click)="create()">
+            <button
+                type="button"
+                class="btn primary grow"
+                [disabled]="busy() || !name().trim() || !sectionId()"
+                (click)="create()"
+            >
                 <i class="material-symbols-outlined">{{ submitIcon() }}</i>
                 {{ submitLabel() }}
             </button>
@@ -107,7 +208,9 @@ export class NewItemFormComponent {
         }
 
         const text = `${this.hint()} ${this.initialName()}`.toLowerCase();
-        return Object.entries(SECTION_KEYWORDS).find(([, keywords]) => keywords.some((word) => text.includes(word)))?.[0];
+        return Object.entries(SECTION_KEYWORDS).find(([, keywords]) =>
+            keywords.some((word) => text.includes(word))
+        )?.[0];
     });
 
     protected chooseIcon(icon: string): void {

@@ -6,7 +6,17 @@ import { EventsService } from './events.service';
 import { GitHubService } from './github.service';
 import { PushService } from './push.service';
 import { RemarkEntity } from '../../data/entities';
-import { IssueDraft, IssueOptions, REJECTED_STATE, RemarkKind, RemarkState, cleanContext, cleanTarget, issueFromRemark, tooManyRemarks } from '../rules/remarks';
+import {
+    IssueDraft,
+    IssueOptions,
+    REJECTED_STATE,
+    RemarkKind,
+    RemarkState,
+    cleanContext,
+    cleanTarget,
+    issueFromRemark,
+    tooManyRemarks
+} from '../rules/remarks';
 
 export interface RemarkInput {
     kind: RemarkKind;
@@ -34,15 +44,16 @@ export class RemarkService {
         private readonly github: GitHubService,
         private readonly push: PushService,
         private readonly events: EventsService
-    ) {
-    }
+    ) {}
 
     public get canSendToGitHub(): boolean {
         return this.github.enabled;
     }
 
     public async create(writer: RemarkWriter, input: RemarkInput, now = new Date()): Promise<RemarkEntity> {
-        const recent = await this.remarks.count({ where: { account: writer.email, createdAt: MoreThan(new Date(now.getTime() - HOUR_MILLISECONDS)) } });
+        const recent = await this.remarks.count({
+            where: { account: writer.email, createdAt: MoreThan(new Date(now.getTime() - HOUR_MILLISECONDS)) }
+        });
         if (tooManyRemarks(recent)) {
             throw new HttpException('Too many remarks in the last hour', HttpStatus.TOO_MANY_REQUESTS);
         }
@@ -68,7 +79,10 @@ export class RemarkService {
     }
 
     public list(reader: RemarkWriter): Promise<Array<RemarkEntity>> {
-        return this.remarks.find({ where: { state: Not(REJECTED_STATE), ...(reader.owner ? {} : { account: reader.email }) }, order: { createdAt: 'DESC', id: 'DESC' } });
+        return this.remarks.find({
+            where: { state: Not(REJECTED_STATE), ...(reader.owner ? {} : { account: reader.email }) },
+            order: { createdAt: 'DESC', id: 'DESC' }
+        });
     }
 
     public async setState(id: number, state: RemarkState): Promise<RemarkEntity> {

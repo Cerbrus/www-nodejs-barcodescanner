@@ -55,7 +55,10 @@ describe('service worker', () => {
         await Promise.all(waits);
         await settle();
     };
-    const request = async (address: string, init: { method?: string; mode?: string } = {}): Promise<Response | undefined> => {
+    const request = async (
+        address: string,
+        init: { method?: string; mode?: string } = {}
+    ): Promise<Response | undefined> => {
         let answer: Promise<Response> | undefined;
         handlers.get('fetch')?.({
             request: { url: new URL(address, SITE).href, method: init.method ?? 'GET', mode: init.mode ?? 'no-cors' },
@@ -178,9 +181,19 @@ describe('service worker', () => {
     it('keeps the files the page names and the published ones, but no API answers and nothing twice', async () => {
         appFiles().entries.set(`${SITE}/main-AAAAAAAA.js`, new Response('already there'));
 
-        await fire('message', { data: { type: 'keep-files', urls: [`${SITE}/`, `${SITE}/chunk-CCCCCCCC.js`, `${SITE}/api/v1/list`, `${SITE}/sw.js`] } });
+        await fire('message', {
+            data: {
+                type: 'keep-files',
+                urls: [`${SITE}/`, `${SITE}/chunk-CCCCCCCC.js`, `${SITE}/api/v1/list`, `${SITE}/sw.js`]
+            }
+        });
 
-        expect([...appFiles().entries.keys()].sort()).toEqual(['/', `${SITE}/chunk-CCCCCCCC.js`, `${SITE}/main-AAAAAAAA.js`, `${SITE}/styles-BBBBBBBB.css`]);
+        expect([...appFiles().entries.keys()].sort()).toEqual([
+            '/',
+            `${SITE}/chunk-CCCCCCCC.js`,
+            `${SITE}/main-AAAAAAAA.js`,
+            `${SITE}/styles-BBBBBBBB.css`
+        ]);
         expect(await textOf(await appFiles().match(`${SITE}/main-AAAAAAAA.js`))).toBe('already there');
         expect(fetched).not.toContain('/api/v1/list');
     });
@@ -193,11 +206,23 @@ describe('service worker', () => {
     });
 
     it('shows a pushed notification and sets the number on the app icon', async () => {
-        const message = { web_push: 8030, notification: { title: 'Onbekend product', body: '8710400000001', tag: 'inbox', navigate: `${SITE}/#/inbox`, app_badge: '3' } };
+        const message = {
+            web_push: 8030,
+            notification: {
+                title: 'Onbekend product',
+                body: '8710400000001',
+                tag: 'inbox',
+                navigate: `${SITE}/#/inbox`,
+                app_badge: '3'
+            }
+        };
 
         await fire('push', { data: { json: () => message } });
 
-        expect(showNotification).toHaveBeenCalledWith('Onbekend product', expect.objectContaining({ body: '8710400000001', tag: 'inbox', data: { url: '/#/inbox' } }));
+        expect(showNotification).toHaveBeenCalledWith(
+            'Onbekend product',
+            expect.objectContaining({ body: '8710400000001', tag: 'inbox', data: { url: '/#/inbox' } })
+        );
         expect(setAppBadge).toHaveBeenCalledWith(3);
     });
 

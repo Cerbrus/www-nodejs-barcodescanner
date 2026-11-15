@@ -2,9 +2,16 @@ import { TEncoding, TParity } from './barcode.types';
 
 const BARCODE_CONSTANTS = {
     parity: [
-        'LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL',
-        'LGLLGG', 'LGGLLG', 'LGGGLL', 'LGLGLG',
-        'LGLGGL', 'LGGLGL'
+        'LLLLLL',
+        'LLGLGG',
+        'LLGGLG',
+        'LLGGGL',
+        'LGLLGG',
+        'LGGLLG',
+        'LGGGLL',
+        'LGLGLG',
+        'LGLGGL',
+        'LGGLGL'
     ] as Array<`${TParity}${TParity}${TParity}${TParity}${TParity}${TParity}`>,
     encoding: [
         { I: 0, L: '0001101', G: '0100111', R: '1110010' },

@@ -82,7 +82,12 @@ describe('NewItemFormComponent', () => {
         fixture.detectChanges();
         submit().click();
 
-        expect(store.createItem).toHaveBeenCalledWith({ name: 'Karnemelk', sectionId: 'zuivel', icon: undefined, emoji: '🥛' });
+        expect(store.createItem).toHaveBeenCalledWith({
+            name: 'Karnemelk',
+            sectionId: 'zuivel',
+            icon: undefined,
+            emoji: '🥛'
+        });
         expect(created).toEqual(['Karnemelk']);
     });
 

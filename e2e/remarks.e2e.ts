@@ -8,7 +8,8 @@ interface Remark {
     context?: { version?: string; viewport?: string };
 }
 
-const remarksOf = async (request: APIRequestContext): Promise<Array<Remark>> => (await (await request.get('/api/v1/remarks')).json()).remarks;
+const remarksOf = async (request: APIRequestContext): Promise<Array<Remark>> =>
+    (await (await request.get('/api/v1/remarks')).json()).remarks;
 
 test.describe.configure({ mode: 'serial' });
 
@@ -61,7 +62,10 @@ test('point at a part of the app from the settings, and write a wish about it', 
     expect((await remarksOf(request))[0]).toMatchObject({ kind: 'wish', text: 'Sort by aisle', page: '#/list' });
 });
 
-test('point at the bottom menu: the active tab is picked, another tab navigates, and right click works', async ({ page, request }) => {
+test('point at the bottom menu: the active tab is picked, another tab navigates, and right click works', async ({
+    page,
+    request
+}) => {
     await page.goto('/#/system');
     await page.getByRole('button', { name: 'Aanwijzen' }).click();
     await page.locator('nav a[href="#/list"]').click();
@@ -89,7 +93,10 @@ test('send with Ctrl+Enter, and choose what happens to the text when closing', a
     await page.locator('app-remark-sheet textarea').fill('Half written');
     await page.locator('app-remark-sheet').getByRole('button', { name: 'Annuleren' }).click();
     await expect(page.getByText('Weet je zeker dat je dit formulier wilt sluiten?')).toBeVisible();
-    await page.locator('app-remark-sheet').getByRole('button', { name: / Sluiten$/ }).click();
+    await page
+        .locator('app-remark-sheet')
+        .getByRole('button', { name: / Sluiten$/ })
+        .click();
     await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
 
     await page.getByRole('button', { name: 'Schrijven' }).click();

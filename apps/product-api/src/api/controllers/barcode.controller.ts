@@ -10,8 +10,7 @@ export class BarcodeController {
     constructor(
         private readonly barcodes: BarcodeService,
         private readonly scans: ScanService
-    ) {
-    }
+    ) {}
 
     @Get()
     public getBarcodes(

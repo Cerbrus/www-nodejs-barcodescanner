@@ -11,8 +11,7 @@ const MAX_LINES = 500;
 
 @Controller({ path: 'logs', version: '1' })
 export class LogController {
-    constructor(private readonly logs: LogService) {
-    }
+    constructor(private readonly logs: LogService) {}
 
     @OwnerOnly()
     @Get()

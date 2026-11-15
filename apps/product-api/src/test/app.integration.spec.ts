@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-
 import assert from 'node:assert/strict';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { AddressInfo } from 'node:net';
@@ -79,9 +78,16 @@ describe('the whole app module', () => {
     });
 
     it('writes a policy report to the log once, and ignores what is not a report', async () => {
-        const report = JSON.stringify({ 'csp-report': { 'effective-directive': 'img-src', 'blocked-uri': 'http://x.example/a.png', 'document-uri': `${site}/` } });
+        const report = JSON.stringify({
+            'csp-report': {
+                'effective-directive': 'img-src',
+                'blocked-uri': 'http://x.example/a.png',
+                'document-uri': `${site}/`
+            }
+        });
         const send = async (body: string, type: string): Promise<number> =>
-            (await fetch(`${site}/api/v1/csp-reports`, { method: 'POST', headers: { 'content-type': type }, body })).status;
+            (await fetch(`${site}/api/v1/csp-reports`, { method: 'POST', headers: { 'content-type': type }, body }))
+                .status;
 
         assert.equal(await send(report, 'application/csp-report'), 204);
         assert.equal(await send(report, 'application/csp-report'), 204);

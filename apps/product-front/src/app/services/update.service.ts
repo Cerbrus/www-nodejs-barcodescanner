@@ -39,7 +39,9 @@ export class UpdateService {
     }
 
     private publishedFiles(): Observable<Array<string>> {
-        return from(fetch(FILE_LIST_URL, { cache: 'no-store' }).then((response) => (response.ok ? response.json() : []))).pipe(
+        return from(
+            fetch(FILE_LIST_URL, { cache: 'no-store' }).then((response) => (response.ok ? response.json() : []))
+        ).pipe(
             map((files: unknown) => (Array.isArray(files) ? files.filter((file) => typeof file === 'string') : [])),
             catchError(() => EMPTY)
         );
@@ -68,7 +70,10 @@ export class UpdateService {
 
     private loadedFiles(): Array<string> {
         return Array.from(document.querySelectorAll<HTMLScriptElement | HTMLLinkElement>(ENTRY_FILES))
-            .map((element) => new URL(element instanceof HTMLScriptElement ? element.src : element.href, window.location.origin))
+            .map(
+                (element) =>
+                    new URL(element instanceof HTMLScriptElement ? element.src : element.href, window.location.origin)
+            )
             .filter((url) => url.origin === window.location.origin && VERSIONED_FILE.test(url.pathname))
             .map((url) => url.pathname.slice(1));
     }

@@ -98,7 +98,15 @@ describe('RemarkService', () => {
         expect([remark.kind, remark.text, remark.page]).toEqual(['bug', 'It is white on white', '#/list']);
         expect(remark.target).toEqual({ component: 'app-item-tile', text: 'Melk' });
         expect(remark.context).toEqual(
-            expect.objectContaining({ version: '1.1.40', commit: '5ed181e', language: 'nl', theme: 'auto', online: true, waitingChanges: 1, recentMessages: ['Melk afgevinkt'] })
+            expect.objectContaining({
+                version: '1.1.40',
+                commit: '5ed181e',
+                language: 'nl',
+                theme: 'auto',
+                online: true,
+                waitingChanges: 1,
+                recentMessages: ['Melk afgevinkt']
+            })
         );
         expect(remark.context?.viewport).toMatch(/^\d+ × \d+$/);
         expect(Date.parse(remark.writtenAt ?? '')).not.toBeNaN();
@@ -138,11 +146,18 @@ describe('RemarkService', () => {
         expect(api.sendRemark.mock.calls.map(([remark]) => remark.text)).toEqual(['first', 'second']);
         expect(queued()).toEqual([]);
         expect(service.waiting()).toBe(0);
-        expect(TestBed.inject(ToastService).toasts().map((toast) => toast.text)).toEqual(['remark.sentLater']);
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map((toast) => toast.text)
+        ).toEqual(['remark.sentLater']);
     });
 
     it('sends remarks kept by an earlier visit at start', () => {
-        localStorage.setItem('remark-outbox', JSON.stringify([{ kind: 'note', text: 'from yesterday', page: '#/list' }]));
+        localStorage.setItem(
+            'remark-outbox',
+            JSON.stringify([{ kind: 'note', text: 'from yesterday', page: '#/list' }])
+        );
         create();
 
         expect(sentRemark().text).toBe('from yesterday');
@@ -155,7 +170,9 @@ describe('RemarkService', () => {
         send(service, 'refused');
         send(service, 'no connection');
         online = true;
-        api.sendRemark.mockImplementation((remark: RemarkInput) => throwError(remark.text === 'refused' ? () => new HttpErrorResponse({ status: 400 }) : noConnection));
+        api.sendRemark.mockImplementation((remark: RemarkInput) =>
+            throwError(remark.text === 'refused' ? () => new HttpErrorResponse({ status: 400 }) : noConnection)
+        );
 
         window.dispatchEvent(new Event('online'));
 
@@ -178,7 +195,11 @@ describe('RemarkService', () => {
 
     it('counts the open remarks that are not on GitHub yet, and keeps them up to date', () => {
         const remark = (state: string, issueUrl?: string): object => ({ state, issueUrl });
-        api.getRemarks.mockReturnValue(of({ remarks: [remark('open'), remark('open'), remark('closed'), remark('open', 'https://example.test/1')] }));
+        api.getRemarks.mockReturnValue(
+            of({
+                remarks: [remark('open'), remark('open'), remark('closed'), remark('open', 'https://example.test/1')]
+            })
+        );
         const service = create();
         expect(service.ready()).toBe(2);
 
@@ -233,7 +254,10 @@ describe('what was pointed at', () => {
     afterEach(() => (document.body.innerHTML = ''));
 
     it('describes the tile a tap landed in, not the icon inside it', () => {
-        const icon = inside('<app-list-page><app-item-tile><button class="tile buy"><span class="icon"><img id="hit"></span><span class="name"> Melk\n halfvol </span></button></app-item-tile></app-list-page>', '#hit');
+        const icon = inside(
+            '<app-list-page><app-item-tile><button class="tile buy"><span class="icon"><img id="hit"></span><span class="name"> Melk\n halfvol </span></button></app-item-tile></app-list-page>',
+            '#hit'
+        );
 
         expect(describeElement(icon)).toEqual({
             component: 'app-item-tile',
@@ -243,7 +267,10 @@ describe('what was pointed at', () => {
     });
 
     it('takes the label of a button without text, and the placeholder of a field but never what was typed', () => {
-        const button = inside('<app-shell><button id="hit" aria-label="Wissen"><i>close</i></button></app-shell>', '#hit');
+        const button = inside(
+            '<app-shell><button id="hit" aria-label="Wissen"><i>close</i></button></app-shell>',
+            '#hit'
+        );
         expect(describeElement(button).label).toBe('Wissen');
 
         const field = inside('<input id="hit" placeholder="Product toevoegen…" value="my secret">', '#hit');
@@ -260,10 +287,16 @@ describe('what was pointed at', () => {
     });
 
     it('leaves the names of icons out of the text', () => {
-        const row = inside('<a class="row" id="hit"><i class="material-symbols-outlined">forum</i><span>Feedback</span><i class="material-symbols-outlined">chevron_right</i></a>', '#hit');
+        const row = inside(
+            '<a class="row" id="hit"><i class="material-symbols-outlined">forum</i><span>Feedback</span><i class="material-symbols-outlined">chevron_right</i></a>',
+            '#hit'
+        );
         expect(describeElement(row).text).toBe('Feedback');
 
-        const icon = inside('<button aria-label="Wissen"><i id="hit" class="material-symbols-outlined">close</i></button>', '#hit');
+        const icon = inside(
+            '<button aria-label="Wissen"><i id="hit" class="material-symbols-outlined">close</i></button>',
+            '#hit'
+        );
         expect(describeElement(icon)).toEqual(expect.objectContaining({ label: 'Wissen' }));
         expect(describeElement(icon).text).toBeUndefined();
     });

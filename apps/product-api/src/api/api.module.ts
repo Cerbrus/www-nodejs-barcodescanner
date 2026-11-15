@@ -40,5 +40,4 @@ import { CoreModule } from '../core/core.module';
     ],
     providers: [AuthGuard, { provide: APP_GUARD, useExisting: AuthGuard }]
 })
-export class ApiModule {
-}
+export class ApiModule {}

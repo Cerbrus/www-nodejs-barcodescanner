@@ -111,6 +111,8 @@ export class ListPage {
     }
 
     private putBack(entry: ListEntry): void {
-        this.store.changeEntry(entry.catalogItemId, { state: 'to_buy', quantity: entry.quantity, note: entry.note }).subscribe();
+        this.store
+            .changeEntry(entry.catalogItemId, { state: 'to_buy', quantity: entry.quantity, note: entry.note })
+            .subscribe();
     }
 }

@@ -18,8 +18,7 @@ export class AuthGuard implements CanActivate {
         private readonly config: AppConfig,
         private readonly sessions: SessionService,
         private readonly reflector: Reflector
-    ) {
-    }
+    ) {}
 
     public canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest<CallerRequest>();

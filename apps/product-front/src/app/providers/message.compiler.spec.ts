@@ -32,7 +32,10 @@ describe('MessageCompiler', () => {
     });
 
     it('compiles a whole translation file, nested groups included', () => {
-        const compiled = compiler.compileTranslations({ nav: { list: 'Lijst' }, list: { checkedOff: '{name} afgevinkt' } }, 'nl') as {
+        const compiled = compiler.compileTranslations(
+            { nav: { list: 'Lijst' }, list: { checkedOff: '{name} afgevinkt' } },
+            'nl'
+        ) as {
             nav: { list: string };
             list: { checkedOff: Compiled };
         };

@@ -1,5 +1,16 @@
 import { Type } from 'class-transformer';
-import { ArrayMaxSize, IsArray, IsISO8601, IsIn, IsInt, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
+import {
+    ArrayMaxSize,
+    IsArray,
+    IsISO8601,
+    IsIn,
+    IsInt,
+    IsOptional,
+    IsString,
+    MaxLength,
+    Min,
+    ValidateNested
+} from 'class-validator';
 
 import { ListState } from '../../data/entities';
 

@@ -25,8 +25,7 @@ export class CatalogService {
         @InjectRepository(CatalogItemEntity) private readonly items: Repository<CatalogItemEntity>,
         private readonly events: EventsService,
         private readonly config: AppConfig
-    ) {
-    }
+    ) {}
 
     public getSections(): Promise<Array<SectionEntity>> {
         return this.sections.find({ order: { sortOrder: 'ASC' } });
@@ -48,7 +47,9 @@ export class CatalogService {
         return item;
     }
 
-    public async createItem(input: Required<Pick<CatalogItemInput, 'name' | 'sectionId'>> & CatalogItemInput): Promise<CatalogItemEntity> {
+    public async createItem(
+        input: Required<Pick<CatalogItemInput, 'name' | 'sectionId'>> & CatalogItemInput
+    ): Promise<CatalogItemEntity> {
         await this.assertValid(input);
         const item = await this.items.save({ ...input, custom: true });
         this.events.emit('catalog', { catalogItemId: item.id });
@@ -90,7 +91,9 @@ export class CatalogService {
 
     private readSeedIcons(): Map<string, string> {
         try {
-            const seed = JSON.parse(readFileSync(this.config.seedPath, 'utf-8')) as { items: Array<{ name: string; icon?: string }> };
+            const seed = JSON.parse(readFileSync(this.config.seedPath, 'utf-8')) as {
+                items: Array<{ name: string; icon?: string }>;
+            };
             return new Map(seed.items.flatMap(({ name, icon }) => (icon ? [[name.toLowerCase(), icon] as const] : [])));
         } catch {
             return new Map();

@@ -9,7 +9,12 @@ import { Release } from '../../models';
 import { ApiService } from '../../services/api.service';
 
 const RELEASES: Array<Release> = [
-    { version: '1.1.60', released: '2026-11-15T02:35:08+01:00', summary: 'Newest summary', notes: ['Newest summary', 'Earlier note'] },
+    {
+        version: '1.1.60',
+        released: '2026-11-15T02:35:08+01:00',
+        summary: 'Newest summary',
+        notes: ['Newest summary', 'Earlier note']
+    },
     { version: '1.1.57', released: '2026-11-15T02:28:18+01:00', summary: 'Older summary', notes: ['Older summary'] }
 ];
 

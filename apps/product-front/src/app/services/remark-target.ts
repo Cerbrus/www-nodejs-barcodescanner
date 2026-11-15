@@ -34,7 +34,9 @@ function componentOf(element: Element): string | undefined {
 }
 
 function textOf(element: Element): string | undefined {
-    const text = element.matches(TEXT_FIELD) ? (element.getAttribute('placeholder') ?? element.getAttribute('name') ?? '') : readableText(element);
+    const text = element.matches(TEXT_FIELD)
+        ? (element.getAttribute('placeholder') ?? element.getAttribute('name') ?? '')
+        : readableText(element);
 
     return text.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LENGTH) || undefined;
 }
@@ -50,7 +52,11 @@ function readableText(element: Element): string {
 
 function pathTo(element: Element): string {
     const steps: Array<string> = [];
-    for (let current: Element | null = element; current && steps.length < MAX_PATH_STEPS && current !== document.body; current = current.parentElement) {
+    for (
+        let current: Element | null = element;
+        current && steps.length < MAX_PATH_STEPS && current !== document.body;
+        current = current.parentElement
+    ) {
         const name = Array.from(current.classList).find((className) => !GENERATED_CLASS.test(className));
         steps.unshift(`${current.tagName.toLowerCase()}${name ? `.${name}` : ''}`);
     }

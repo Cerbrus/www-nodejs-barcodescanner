@@ -76,9 +76,18 @@ const NO_SOUND = 'none';
         </div>
     `,
     styles: `
-        .play { display: flex; padding: 2px; border-radius: 8px; color: var(--accent); }
-        .play:disabled { opacity: 0.35; }
-        .play i { font-size: 20px; }
+        .play {
+            display: flex;
+            padding: 2px;
+            border-radius: 8px;
+            color: var(--accent);
+        }
+        .play:disabled {
+            opacity: 0.35;
+        }
+        .play i {
+            font-size: 20px;
+        }
     `
 })
 export class SoundTestComponent {

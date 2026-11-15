@@ -12,7 +12,10 @@ describe('BarcodeComponent', () => {
         return fixture.nativeElement as HTMLElement;
     };
     const modules = (element: HTMLElement): number =>
-        Array.from(element.querySelectorAll('.barcode-bar') as NodeListOf<HTMLElement>).reduce((sum, bar) => sum + Number(bar.style.flexGrow), 0);
+        Array.from(element.querySelectorAll('.barcode-bar') as NodeListOf<HTMLElement>).reduce(
+            (sum, bar) => sum + Number(bar.style.flexGrow),
+            0
+        );
     const digits = (element: HTMLElement): string =>
         Array.from(element.querySelectorAll('.numeric span'), (span) => span.textContent?.trim() ?? '').join(' ');
 
@@ -40,7 +43,9 @@ describe('BarcodeComponent', () => {
     });
 
     it('starts and ends with a dark bar and never draws two bars of the same colour side by side', () => {
-        const bars = Array.from(draw('8710400335481').querySelectorAll('.barcode-bar'), (bar) => bar.classList.contains('bg-black'));
+        const bars = Array.from(draw('8710400335481').querySelectorAll('.barcode-bar'), (bar) =>
+            bar.classList.contains('bg-black')
+        );
 
         expect(bars[0]).toBe(true);
         expect(bars.at(-1)).toBe(true);
