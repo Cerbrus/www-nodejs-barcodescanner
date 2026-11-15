@@ -1,0 +1,104 @@
+<div class="card text-sm">
+    <p class="muted">{{ 'sound.intro' | translate }}</p>
+
+    @if (settings(); as settings) {
+        <h3 class="field-label">{{ 'sound.events' | translate }}</h3>
+        @for (row of settings.events; track row.event) {
+            <button type="button" class="row event" (click)="picking.set(row.event)">
+                <span class="min-w-0 grow">
+                    <span class="muted block text-xs">{{ 'sound.event.' + row.event | translate }}</span>
+                    @if (soundOf(row.soundId); as sound) {
+                        <span class="block truncate font-semibold">
+                            {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
+                        </span>
+                    } @else {
+                        <span class="muted block font-semibold">{{ 'sound.none' | translate }}</span>
+                    }
+                </span>
+                @if (soundOf(row.soundId); as sound) {
+                    <app-sound-timeline [blocks]="sound.blocks" />
+                }
+                <i class="material-symbols-outlined muted">chevron_right</i>
+            </button>
+        }
+
+        <h3 class="field-label">{{ 'sound.presets' | translate }} ({{ settings.sounds.length }})</h3>
+        @for (sound of settings.sounds; track sound.id) {
+            <div class="row preset">
+                <span class="min-w-0 grow truncate font-semibold">
+                    {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
+                </span>
+                <app-sound-timeline [blocks]="sound.blocks" />
+                <button
+                    type="button"
+                    class="icon"
+                    [attr.aria-label]="'sound.play' | translate"
+                    (click)="play(sound.id)"
+                >
+                    <i class="material-symbols-outlined">volume_up</i>
+                </button>
+                <button
+                    type="button"
+                    class="icon"
+                    [attr.aria-label]="'sound.edit' | translate"
+                    (click)="editing.set({ sound })"
+                >
+                    <i class="material-symbols-outlined">edit</i>
+                </button>
+            </div>
+        }
+        <button type="button" class="btn new mt-3 w-full" (click)="startNew()">
+            <i class="material-symbols-outlined">add</i>
+            {{ 'sound.new' | translate }}
+        </button>
+    } @else {
+        <p class="mt-2">{{ (failed() ? 'sound.unavailable' : 'common.loading') | translate }}</p>
+    }
+</div>
+
+@if (picking(); as event) {
+    <app-sheet (closed)="picking.set(undefined)">
+        <h2 class="page-title">{{ 'sound.choose' | translate: { event: ('sound.event.' + event | translate) } }}</h2>
+        <button
+            type="button"
+            class="row option"
+            [class.chosen]="chosenFor(event) === noSound"
+            (click)="choose(event, noSound)"
+        >
+            <span class="grow font-semibold">{{ 'sound.none' | translate }}</span>
+            @if (chosenFor(event) === noSound) {
+                <i class="material-symbols-outlined">check</i>
+            }
+        </button>
+        @for (sound of settings()?.sounds ?? []; track sound.id) {
+            <button
+                type="button"
+                class="row option"
+                [class.chosen]="chosenFor(event) === sound.id"
+                (click)="choose(event, sound.id)"
+            >
+                <span class="min-w-0 grow truncate font-semibold">
+                    {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
+                </span>
+                <app-sound-timeline [blocks]="sound.blocks" />
+                @if (chosenFor(event) === sound.id) {
+                    <i class="material-symbols-outlined">check</i>
+                }
+            </button>
+        }
+        <button type="button" class="btn new mt-3 w-full" (click)="startNew(event)">
+            <i class="material-symbols-outlined">add</i>
+            {{ 'sound.new' | translate }}
+        </button>
+    </app-sheet>
+}
+
+@if (editing(); as edit) {
+    <app-sound-editor
+        [sound]="edit.sound"
+        [shownName]="edit.sound ? (edit.sound.name ?? ('sound.name.' + edit.sound.id | translate)) : ''"
+        [inUse]="edit.sound ? inUse(edit.sound.id) : false"
+        (saved)="saved($event)"
+        (closed)="editing.set(undefined)"
+    />
+}

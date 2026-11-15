@@ -6,6 +6,7 @@ import { PushSubscriptionEntity } from './push-subscription.entity';
 import { RemarkEntity } from './remark.entity';
 import { ScanEntity } from './scan.entity';
 import { SectionEntity } from './section.entity';
+import { SoundEntity } from './sound.entity';
 
 export * from './section.entity';
 export * from './catalog-item.entity';
@@ -15,6 +16,7 @@ export * from './scan.entity';
 export * from './push-subscription.entity';
 export * from './feedback-setting.entity';
 export * from './remark.entity';
+export * from './sound.entity';
 export * from './product-suggestion';
 export * from './types';
 
@@ -26,5 +28,6 @@ export const Entities = [
     ScanEntity,
     PushSubscriptionEntity,
     FeedbackSettingEntity,
-    RemarkEntity
+    RemarkEntity,
+    SoundEntity
 ];

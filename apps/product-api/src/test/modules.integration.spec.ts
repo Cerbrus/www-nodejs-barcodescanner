@@ -24,7 +24,7 @@ import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
 import { ScanService } from '../core/services/scan.service';
-import { FeedbackSettingEntity } from '../data/entities';
+import { FeedbackSettingEntity, SoundEntity } from '../data/entities';
 import { testFolder } from './test-env';
 
 const folder = testFolder;
@@ -38,15 +38,72 @@ async function checkFeedbackSettings(feedback: FeedbackService): Promise<void> {
     assert.equal(before.events.find((row) => row.event === 'added')?.soundId, 'beep');
     assert.equal(before.events.find((row) => row.event === 'ignored')?.soundId, 'none');
 
-    await feedback.setSound('added', 'trill15');
+    await feedback.setSound('added', 'trill8');
     await feedback.setSound('error', 'none');
     const after = await feedback.getSettings();
-    assert.equal(after.events.find((row) => row.event === 'added')?.soundId, 'trill15');
+    assert.equal(after.events.find((row) => row.event === 'added')?.soundId, 'trill8');
     assert.equal(after.events.find((row) => row.event === 'added')?.steps[0].kind, 'gate');
     assert.deepEqual(after.events.find((row) => row.event === 'error')?.steps, []);
     assert.equal(after.events.find((row) => row.event === 'needs_name')?.soundId, 'long');
 
     await assert.rejects(feedback.setSound('added', 'does-not-exist'));
+}
+
+async function checkSoundPresets(feedback: FeedbackService, events: EventsService): Promise<void> {
+    const starters = (await feedback.getSettings()).sounds;
+    assert.deepEqual(
+        starters.map((sound) => sound.id),
+        [
+            'tick',
+            'blip',
+            'beep',
+            'long',
+            'double',
+            'triple',
+            'longShort',
+            'shortShortLong',
+            'shortTrill',
+            'trill8',
+            'rough500'
+        ]
+    );
+    assert.deepEqual(starters.find((sound) => sound.id === 'double')?.steps, [
+        { kind: 'on', seconds: 0.06 },
+        { kind: 'off', seconds: 0.07 },
+        { kind: 'on', seconds: 0.06 }
+    ]);
+
+    const blocks = [
+        { kind: 'beep' as const, ms: 40, rate: 9 },
+        { kind: 'pause' as const, ms: 50 },
+        { kind: 'buzz' as const, ms: 200, rate: 300 }
+    ];
+    const created = (await feedback.createSound(' Fanfare ', blocks)).sounds.at(-1);
+    assert.equal(created?.name, 'Fanfare');
+    assert.deepEqual(created?.blocks[0], { kind: 'beep', ms: 40 });
+    assert.deepEqual(created?.steps.at(-1), { kind: 'gate', hz: 300, duty: 50, seconds: 0.2 });
+
+    const emitted: Array<string> = [];
+    const watch = events.stream().subscribe((event) => emitted.push(String(event.type)));
+    await feedback.setSound('needs_name', created?.id as string);
+    await feedback.changeSound(created?.id as string, undefined, [{ kind: 'trill', ms: 500, rate: 12 }]);
+    feedback.testBlocks([{ kind: 'beep', ms: 100 }]);
+    watch.unsubscribe();
+    const changed = await feedback.getSettings();
+    assert.equal(changed.sounds.at(-1)?.name, undefined);
+    assert.equal(changed.events.find((row) => row.event === 'needs_name')?.steps[0].hz, 12);
+    assert.deepEqual(emitted, ['feedback_settings', 'feedback_settings', 'feedback']);
+
+    await assert.rejects(feedback.deleteSound(created?.id as string), /used for needs_name/);
+    await assert.rejects(feedback.deleteSound('double'), /used for incremented/);
+    await assert.rejects(feedback.createSound('Te lang', [{ kind: 'beep', ms: 2010 }]), /at most 2000 ms/);
+    await assert.rejects(feedback.createSound('Stil', [{ kind: 'pause', ms: 100 }]), /makes sound/);
+    await assert.rejects(feedback.createSound('Te snel', [{ kind: 'trill', ms: 100, rate: 41 }]), /rate from 4 to 40/);
+    await assert.rejects(feedback.createSound('Krom', [{ kind: 'beep', ms: 15 }]), /10 ms steps/);
+    await assert.rejects(feedback.createSound('  ', [{ kind: 'beep', ms: 10 }]), /name/);
+
+    await feedback.setSound('needs_name', 'long');
+    assert.equal((await feedback.deleteSound(created?.id as string)).sounds.length, starters.length);
 }
 
 async function entryIdOf(list: ListService, catalogItemId: number, note = ''): Promise<string> {
@@ -156,12 +213,16 @@ describe('scan flow against a real database', () => {
     it('keeps a chosen sound per event and falls back to the default', () =>
         checkFeedbackSettings(app.get(FeedbackService)));
 
+    it('keeps sounds as presets made of blocks, within limits, and keeps one in use', () =>
+        checkSoundPresets(app.get(FeedbackService), app.get(EventsService)));
+
     it('announces a new version once at the scanner, with the chosen sound, not after a restart', async () => {
         const path = join(folder, 'announced-version');
         const feedback = app.get(FeedbackService);
         const service = (version: string): FeedbackService => {
             const started = new FeedbackService(
                 app.get(getRepositoryToken(FeedbackSettingEntity)),
+                app.get(getRepositoryToken(SoundEntity)),
                 app.get(EventsService),
                 { version, announcedVersionPath: path } as AppConfig
             );
@@ -170,7 +231,7 @@ describe('scan flow against a real database', () => {
             return started;
         };
 
-        await feedback.setSound('updated', 'trill15');
+        await feedback.setSound('updated', 'trill8');
         const first = service('1.2.3');
         const announcement = await first.takeUpdateAnnouncement();
         assert.equal(announcement?.type, 'feedback');

@@ -122,8 +122,18 @@ export interface SoundStep {
     duty?: number;
 }
 
+export const BLOCK_KINDS = ['beep', 'pause', 'trill', 'buzz'] as const;
+
+export interface SoundBlock {
+    kind: (typeof BLOCK_KINDS)[number];
+    ms: number;
+    rate?: number;
+}
+
 export interface Sound {
     id: string;
+    name?: string;
+    blocks: Array<SoundBlock>;
     steps: Array<SoundStep>;
 }
 
@@ -131,6 +141,10 @@ export interface FeedbackSettings {
     events: Array<{ event: string; soundId: string; steps: Array<SoundStep> }>;
     sounds: Array<Sound>;
 }
+
+export const MAX_SOUND_BLOCKS = 12;
+export const MAX_SOUND_MILLISECONDS = 2000;
+export const SOUND_RATES = { trill: { min: 4, max: 40, step: 1 }, buzz: { min: 100, max: 1000, step: 50 } };
 
 export interface AuthState {
     enabled: boolean;

@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { SoundTestComponent } from '../../components/sound-test/sound-test.component';
+import { SoundSettingsComponent } from '../../components/sound-settings/sound-settings.component';
 
 @Component({
     selector: 'app-sounds-page',
     standalone: true,
-    imports: [RouterLink, TranslatePipe, SoundTestComponent],
+    imports: [RouterLink, TranslatePipe, SoundSettingsComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="page">
@@ -16,7 +16,7 @@ import { SoundTestComponent } from '../../components/sound-test/sound-test.compo
                 {{ 'nav.system' | translate }}
             </a>
             <h1 class="page-title">{{ 'sound.title' | translate }}</h1>
-            <app-sound-test />
+            <app-sound-settings />
         </div>
     `
 })

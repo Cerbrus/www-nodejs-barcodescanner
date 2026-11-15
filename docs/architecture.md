@@ -109,7 +109,7 @@ What it deliberately does not have: a class per use case, domain models separate
 | `list` | List entries: to buy, recent, quantity, note |
 | `connector` | Runs the product connectors in parallel |
 | `events` | Server-sent events to open pages and the hardware agent |
-| `feedback` | The library of buzzer sounds, the sound chosen per scan result and for a new version, test sounds. At start the app compares its version with `/data/announced-version`; when it differs, the hardware agent's event stream starts with that sound and the file gets the new version |
+| `feedback` | Buzzer sounds as presets made of blocks (`sound` table, rules in `core/rules/sounds.ts`: beep, pause, trill, buzz, at most 12 blocks and 2 seconds), the sound chosen per scan result and for a new version, test sounds. The server turns blocks into the on, off and gate steps the hardware agent plays. At start the app compares its version with `/data/announced-version`; when it differs, the hardware agent's event stream starts with that sound and the file gets the new version |
 | `push` | Web push: subscriptions and the notification for an unknown handheld scan. Creates its key pair in `/data/push-keys.json` |
 | `log` | The last 500 log lines in memory and in `/data/logs/app.log` (rotates at 256 KB, three old files), from the app, the agent and the phone |
 | `agent-status` | Remembers, in memory, when the hardware agent last reported and whether it sees the scanner |
@@ -227,6 +227,10 @@ interface ProductSuggestion {
 | `POST /api/v1/barcodes/:code/discard` | Cancel the waiting scans of an unnamed barcode and drop it from the inbox |
 | `GET /api/v1/feedback/settings` | The sound chosen per event, and the library of sounds |
 | `PUT /api/v1/feedback/settings/:event` | Choose the sound for an event, or `none` |
+| `POST /api/v1/feedback/sounds` | Make a sound from a name and blocks |
+| `PUT /api/v1/feedback/sounds/:id` | Change a sound's name and blocks; without a name a starting sound keeps its translated name |
+| `DELETE /api/v1/feedback/sounds/:id` | Delete a sound; 409 while an event uses it |
+| `POST /api/v1/feedback/test-blocks` | Play blocks that are not saved yet |
 | `POST /api/v1/feedback/test` | Play one sound from the library at the scanner |
 | `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent and the phone post their own |
 | `POST /api/v1/remarks`, `GET` | Write a remark; read the own ones, or all for the owner, with whether sending to GitHub is set up |

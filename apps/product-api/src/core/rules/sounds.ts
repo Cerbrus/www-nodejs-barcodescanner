@@ -1,3 +1,7 @@
+import { BLOCK_KINDS, SoundBlock } from '../../data/entities';
+
+export { BLOCK_KINDS, SoundBlock };
+
 export interface SoundStep {
     kind: 'on' | 'off' | 'gate';
     seconds: number;
@@ -7,6 +11,8 @@ export interface SoundStep {
 
 export interface Sound {
     id: string;
+    name?: string;
+    blocks: Array<SoundBlock>;
     steps: Array<SoundStep>;
 }
 
@@ -14,38 +20,16 @@ export const FEEDBACK_EVENTS = ['added', 'incremented', 'needs_name', 'ignored',
 export type FeedbackEvent = (typeof FEEDBACK_EVENTS)[number];
 
 export const NO_SOUND = 'none';
+export const MAX_BLOCKS = 12;
+export const MAX_MILLISECONDS = 2000;
+export const MIN_BLOCK_MILLISECONDS = 10;
+export const MAX_NAME_LENGTH = 40;
+export const RATES: Record<'trill' | 'buzz', { min: number; max: number }> = {
+    trill: { min: 4, max: 40 },
+    buzz: { min: 100, max: 1000 }
+};
 
-const BLIP = 0.06;
-const GAP = 0.07;
-
-const on = (seconds: number): SoundStep => ({ kind: 'on', seconds });
-const off = (seconds: number): SoundStep => ({ kind: 'off', seconds });
-const gate = (hz: number, seconds: number, duty = 50): SoundStep => ({ kind: 'gate', hz, duty, seconds });
-
-export const SOUNDS: Array<Sound> = [
-    { id: 'tick', steps: [on(0.02)] },
-    { id: 'blip', steps: [on(0.05)] },
-    { id: 'beep', steps: [on(0.08)] },
-    { id: 'clean', steps: [on(0.25)] },
-    { id: 'long', steps: [on(0.45)] },
-    { id: 'longer', steps: [on(0.8)] },
-    { id: 'double', steps: [on(BLIP), off(GAP), on(BLIP)] },
-    { id: 'triple', steps: [on(0.08), off(GAP), on(0.08), off(GAP), on(0.08)] },
-    { id: 'shortShortLong', steps: [on(BLIP), off(BLIP), on(BLIP), off(BLIP), on(0.3)] },
-    { id: 'longShort', steps: [on(0.3), off(BLIP), on(BLIP)] },
-    { id: 'trill8', steps: [gate(8, 0.9)] },
-    { id: 'trill15', steps: [gate(15, 0.9)] },
-    { id: 'trill30', steps: [gate(30, 0.9)] },
-    { id: 'shortTrill', steps: [gate(20, 0.3)] },
-    { id: 'blipThenTrill', steps: [on(BLIP), off(GAP), gate(20, 0.4)] },
-    { id: 'rough200', steps: [gate(200, 0.6)] },
-    { id: 'rough500', steps: [gate(500, 0.6)] },
-    { id: 'rough1000', steps: [gate(1000, 0.6)] },
-    { id: 'shortRough', steps: [gate(300, 0.15)] },
-    { id: 'soft20', steps: [gate(2000, 0.6, 20)] },
-    { id: 'soft5', steps: [gate(2000, 0.6, 5)] },
-    { id: 'softBlip', steps: [gate(2000, 0.08, 15)] }
-];
+const GATE_DUTY = 50;
 
 export const DEFAULT_SOUND_IDS: Record<FeedbackEvent, string> = {
     added: 'beep',
@@ -56,3 +40,55 @@ export const DEFAULT_SOUND_IDS: Record<FeedbackEvent, string> = {
     error: 'triple',
     updated: 'shortShortLong'
 };
+
+function blockProblem(block: SoundBlock, index: number): string | undefined {
+    const at = `block ${index + 1}`;
+    if (!BLOCK_KINDS.includes(block.kind)) {
+        return `${at} has an unknown kind`;
+    }
+    if (!Number.isInteger(block.ms) || block.ms < MIN_BLOCK_MILLISECONDS || block.ms % MIN_BLOCK_MILLISECONDS) {
+        return `${at} must last a whole number of ${MIN_BLOCK_MILLISECONDS} ms steps`;
+    }
+    if (block.kind === 'trill' || block.kind === 'buzz') {
+        const { min, max } = RATES[block.kind];
+        if (!Number.isInteger(block.rate) || (block.rate ?? 0) < min || (block.rate ?? 0) > max) {
+            return `${at} needs a rate from ${min} to ${max} a second`;
+        }
+    }
+
+    return undefined;
+}
+
+export function soundProblem(blocks: Array<SoundBlock>): string | undefined {
+    if (!blocks.some((block) => block.kind !== 'pause')) {
+        return 'a sound needs at least one block that makes sound';
+    }
+    if (blocks.length > MAX_BLOCKS) {
+        return `a sound has at most ${MAX_BLOCKS} blocks`;
+    }
+    if (blocks.reduce((total, block) => total + block.ms, 0) > MAX_MILLISECONDS) {
+        return `a sound lasts at most ${MAX_MILLISECONDS} ms`;
+    }
+
+    return blocks.map(blockProblem).find((problem) => problem);
+}
+
+export function toSteps(blocks: Array<SoundBlock>): Array<SoundStep> {
+    return blocks.map(({ kind, ms, rate }): SoundStep => {
+        const seconds = ms / 1000;
+        if (kind === 'beep') {
+            return { kind: 'on', seconds };
+        }
+        if (kind === 'pause') {
+            return { kind: 'off', seconds };
+        }
+
+        return { kind: 'gate', hz: rate, duty: GATE_DUTY, seconds };
+    });
+}
+
+export function cleanBlocks(blocks: Array<SoundBlock>): Array<SoundBlock> {
+    return blocks.map(({ kind, ms, rate }) =>
+        kind === 'trill' || kind === 'buzz' ? { kind, ms, rate } : { kind, ms }
+    );
+}

@@ -11,6 +11,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { databaseOptions } from '../data/database';
 import { MissingEmojis1763300000000 } from '../data/migrations/1763300000000-missing-emojis';
 import { ListVariants1763400000000 } from '../data/migrations/1763400000000-list-variants';
+import { SoundPresets1763500000000 } from '../data/migrations/1763500000000-sound-presets';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -94,5 +95,28 @@ describe('migrations', () => {
         ]);
         await new ListVariants1763400000000().up(runner);
         await runner.release();
+    });
+
+    it('fills the starting sounds and drops settings that point to a sound that is gone', async () => {
+        const runner = database.createQueryRunner();
+        await new SoundPresets1763500000000().down(runner);
+        await database.query(
+            `INSERT INTO "feedback_setting" ("event", "sound_id") VALUES ('added', 'soft5'), ('error', 'trill8'), ('ignored', 'none')`
+        );
+        await new SoundPresets1763500000000().up(runner);
+        await runner.release();
+
+        const sounds = (await database.query('SELECT "id", "blocks" FROM "sound" ORDER BY "created_at"')) as Array<{
+            id: string;
+            blocks: string;
+        }>;
+        assert.equal(sounds.length, 11);
+        assert.deepEqual(JSON.parse(sounds.find((sound) => sound.id === 'trill8')?.blocks ?? '[]'), [
+            { kind: 'trill', ms: 900, rate: 8 }
+        ]);
+        assert.deepEqual(await database.query('SELECT "event", "sound_id" FROM "feedback_setting" ORDER BY "event"'), [
+            { event: 'error', sound_id: 'trill8' },
+            { event: 'ignored', sound_id: 'none' }
+        ]);
     });
 });

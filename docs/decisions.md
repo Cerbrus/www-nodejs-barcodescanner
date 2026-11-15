@@ -159,6 +159,10 @@ Decided 2026-11-15, see [naming-plan.md](naming-plan.md): naming an unknown barc
 
 Built 2026-11-15 (step 2): a list entry has its own id, a UUID the web app makes, so an entry added without a connection needs no answer from the server. Product plus note is unique; when a change gives an entry the note of another entry of the same product, the server merges them, quantities added when both are to buy. The search on the list page shows every line of a found product that is to buy, with its note and "+1", and a plain tile that starts a new line when the product has no line without a note (owner, 2026-11-15). A scan of a barcode with a variant adds to the entry of that product with that note.
 
+## Scanner sounds from building blocks
+
+Decided 2026-11-15, see [sounds-plan.md](sounds-plan.md): sounds are built from beep, pause, trill and buzz blocks for the active buzzer (no pitch), at most 12 blocks and 2 seconds, kept as named presets in the database. The fixed list of sounds goes, the soft sounds included; a preset in use cannot be deleted. A speaker or passive buzzer for real tones is shelved.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

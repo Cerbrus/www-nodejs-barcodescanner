@@ -22,7 +22,8 @@ import {
     RemarkList,
     Scan,
     ScanOutcome,
-    Section
+    Section,
+    SoundBlock
 } from '../models';
 import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
 import { PendingChange } from './outbox';
@@ -172,6 +173,22 @@ export class ApiService {
 
     public testSound(soundId: string): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/feedback/test`, { soundId });
+    }
+
+    public testSoundBlocks(blocks: Array<SoundBlock>): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/feedback/test-blocks`, { blocks });
+    }
+
+    public createSound(name: string, blocks: Array<SoundBlock>): Observable<FeedbackSettings> {
+        return this.http.post<FeedbackSettings>(`${this.baseUrl}/feedback/sounds`, { name, blocks });
+    }
+
+    public changeSound(id: string, name: string | undefined, blocks: Array<SoundBlock>): Observable<FeedbackSettings> {
+        return this.http.put<FeedbackSettings>(`${this.baseUrl}/feedback/sounds/${id}`, { name, blocks });
+    }
+
+    public deleteSound(id: string): Observable<FeedbackSettings> {
+        return this.http.delete<FeedbackSettings>(`${this.baseUrl}/feedback/sounds/${id}`);
     }
 
     public sendRemark(remark: RemarkInput): Observable<{ id: number }> {

@@ -1,0 +1,138 @@
+<app-sheet (closed)="closed.emit()">
+    <h2 class="page-title">{{ (sound() ? 'sound.editTitle' : 'sound.newTitle') | translate }}</h2>
+
+    <label class="field-label" for="sound-name">{{ 'sound.nameLabel' | translate }}</label>
+    <input
+        #nameField
+        id="sound-name"
+        class="field"
+        type="text"
+        maxlength="40"
+        [value]="name()"
+        (input)="name.set(nameField.value)"
+    />
+
+    <div class="mt-3 flex items-center justify-between gap-2">
+        <span class="field-label m-0">{{ 'sound.blocks' | translate }}</span>
+        <span class="muted text-xs" [class.problem]="total() > maxMilliseconds">
+            {{ 'sound.total' | translate: { ms: total(), max: maxMilliseconds } }}
+        </span>
+    </div>
+    <app-sound-timeline class="mt-1" [blocks]="blocks()" />
+
+    <div class="mt-1">
+        @for (block of blocks(); track $index; let index = $index, first = $first, last = $last) {
+            <div class="block">
+                <select
+                    #kindField
+                    class="field"
+                    [attr.aria-label]="'sound.kindLabel' | translate"
+                    (change)="changeKind(index, kindField.value)"
+                >
+                    @for (kind of kinds; track kind) {
+                        <option [value]="kind" [selected]="kind === block.kind">
+                            {{ 'sound.kind.' + kind | translate }}
+                        </option>
+                    }
+                </select>
+                <div class="flex items-center">
+                    <button
+                        type="button"
+                        class="icon"
+                        [disabled]="first"
+                        [attr.aria-label]="'sound.moveUp' | translate"
+                        (click)="move(index, -1)"
+                    >
+                        <i class="material-symbols-outlined">arrow_upward</i>
+                    </button>
+                    <button
+                        type="button"
+                        class="icon"
+                        [disabled]="last"
+                        [attr.aria-label]="'sound.moveDown' | translate"
+                        (click)="move(index, 1)"
+                    >
+                        <i class="material-symbols-outlined">arrow_downward</i>
+                    </button>
+                    <button
+                        type="button"
+                        class="icon"
+                        [attr.aria-label]="'sound.remove' | translate"
+                        (click)="remove(index)"
+                    >
+                        <i class="material-symbols-outlined">close</i>
+                    </button>
+                </div>
+                <label class="slider">
+                    <input
+                        #msField
+                        type="range"
+                        min="0"
+                        [max]="durations.length - 1"
+                        step="1"
+                        [value]="durationStep(block.ms)"
+                        [attr.aria-label]="'sound.durationLabel' | translate"
+                        (input)="change(index, 'ms', durations[+msField.value])"
+                    />
+                    <span class="text-sm">{{ 'sound.duration' | translate: { ms: block.ms } }}</span>
+                </label>
+                @if (block.kind === 'trill' || block.kind === 'buzz') {
+                    <label class="slider">
+                        <input
+                            #rateField
+                            type="range"
+                            [min]="rates[block.kind].min"
+                            [max]="rates[block.kind].max"
+                            [step]="rates[block.kind].step"
+                            [value]="block.rate"
+                            [attr.aria-label]="'sound.rateLabel' | translate"
+                            (input)="change(index, 'rate', rateField.value)"
+                        />
+                        <span class="text-sm">{{ 'sound.rate' | translate: { rate: block.rate } }}</span>
+                    </label>
+                }
+            </div>
+        }
+    </div>
+
+    <span class="field-label">{{ 'sound.addBlock' | translate }}</span>
+    <div class="grid grid-cols-4 gap-2">
+        @for (kind of kinds; track kind) {
+            <button type="button" class="btn add px-2 text-sm" (click)="add(kind)">
+                {{ 'sound.kind.' + kind | translate }}
+            </button>
+        }
+    </div>
+
+    @if (problem(); as problem) {
+        <p class="problem mt-3 text-sm">{{ problem | translate }}</p>
+    }
+
+    <div class="mt-4 flex flex-wrap gap-2">
+        <button type="button" class="btn play" [disabled]="problem() !== undefined" (click)="play()">
+            <i class="material-symbols-outlined">volume_up</i>
+            {{ 'sound.play' | translate }}
+        </button>
+        <button type="button" class="btn primary save grow" [disabled]="!canSave() || busy()" (click)="save(false)">
+            <i class="material-symbols-outlined">check</i>
+            {{ 'sound.save' | translate }}
+        </button>
+    </div>
+    @if (sound()) {
+        <div class="mt-2 flex flex-wrap gap-2">
+            <button
+                type="button"
+                class="btn save-new grow"
+                [disabled]="!canSave() || !name().trim() || busy()"
+                (click)="save(true)"
+            >
+                <i class="material-symbols-outlined">content_copy</i>
+                {{ 'sound.saveAsNew' | translate }}
+            </button>
+            <button type="button" class="btn danger grow" [disabled]="inUse() || busy()" (click)="delete()">
+                <i class="material-symbols-outlined">delete</i>
+                {{ (inUse() ? 'sound.inUse' : 'sound.delete') | translate }}
+            </button>
+        </div>
+    }
+</app-sheet>

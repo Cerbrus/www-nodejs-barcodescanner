@@ -1,18 +1,60 @@
+import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
 
-import { BadRequestException, Injectable, Logger, MessageEvent, OnApplicationBootstrap } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    Logger,
+    MessageEvent,
+    OnApplicationBootstrap
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AppConfig } from '../../config/app.config';
-import { FeedbackSettingEntity } from '../../data/entities';
-import { DEFAULT_SOUND_IDS, FEEDBACK_EVENTS, FeedbackEvent, NO_SOUND, SOUNDS, Sound, SoundStep } from '../rules/sounds';
+import { FeedbackSettingEntity, SoundEntity } from '../../data/entities';
+import {
+    DEFAULT_SOUND_IDS,
+    FEEDBACK_EVENTS,
+    FeedbackEvent,
+    MAX_NAME_LENGTH,
+    NO_SOUND,
+    Sound,
+    SoundBlock,
+    SoundStep,
+    cleanBlocks,
+    soundProblem,
+    toSteps
+} from '../rules/sounds';
 import { EventsService } from './events.service';
 
 export interface FeedbackSettings {
     events: Array<{ event: FeedbackEvent; soundId: string; steps: Array<SoundStep> }>;
     sounds: Array<Sound>;
+}
+
+function toSound({ id, name, blocks }: SoundEntity): Sound {
+    return { id, ...(name ? { name } : {}), blocks, steps: toSteps(blocks) };
+}
+
+function checked(blocks: Array<SoundBlock>): Array<SoundBlock> {
+    const problem = soundProblem(blocks);
+    if (problem) {
+        throw new BadRequestException(problem);
+    }
+
+    return cleanBlocks(blocks);
+}
+
+function cleanName(name: string): string {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed.length > MAX_NAME_LENGTH) {
+        throw new BadRequestException(`A name has 1 to ${MAX_NAME_LENGTH} characters`);
+    }
+
+    return trimmed;
 }
 
 @Injectable()
@@ -22,6 +64,7 @@ export class FeedbackService implements OnApplicationBootstrap {
 
     constructor(
         @InjectRepository(FeedbackSettingEntity) private readonly settings: Repository<FeedbackSettingEntity>,
+        @InjectRepository(SoundEntity) private readonly sounds: Repository<SoundEntity>,
         private readonly events: EventsService,
         private readonly config: AppConfig
     ) {}
@@ -52,21 +95,22 @@ export class FeedbackService implements OnApplicationBootstrap {
 
     public async getSettings(): Promise<FeedbackSettings> {
         const stored = new Map((await this.settings.find()).map((setting) => [setting.event, setting.soundId]));
+        const sounds = (await this.sounds.find({ order: { createdAt: 'ASC', id: 'ASC' } })).map(toSound);
 
         return {
             events: FEEDBACK_EVENTS.map((event) => {
                 const chosen = stored.get(event) ?? DEFAULT_SOUND_IDS[event];
-                const sound = SOUNDS.find(({ id }) => id === chosen);
+                const sound = sounds.find(({ id }) => id === chosen);
 
                 return { event, soundId: sound?.id ?? NO_SOUND, steps: sound?.steps ?? [] };
             }),
-            sounds: SOUNDS
+            sounds
         };
     }
 
     public async setSound(event: FeedbackEvent, soundId: string): Promise<FeedbackSettings> {
         if (soundId !== NO_SOUND) {
-            this.findSound(soundId);
+            await this.findSound(soundId);
         }
 
         await this.settings.save({ event, soundId });
@@ -76,18 +120,58 @@ export class FeedbackService implements OnApplicationBootstrap {
         return this.getSettings();
     }
 
-    public test(soundId: string): void {
-        const sound = this.findSound(soundId);
+    public async createSound(name: string, blocks: Array<SoundBlock>): Promise<FeedbackSettings> {
+        const id = randomUUID().slice(0, 8);
+        await this.sounds.insert({ id, name: cleanName(name), blocks: checked(blocks), createdAt: new Date() });
+        this.logger.log(`sound "${id}" created`);
+
+        return this.getSettings();
+    }
+
+    public async changeSound(
+        id: string,
+        name: string | undefined,
+        blocks: Array<SoundBlock>
+    ): Promise<FeedbackSettings> {
+        await this.findSound(id);
+        await this.sounds.update(id, { name: name === undefined ? null : cleanName(name), blocks: checked(blocks) });
+        this.logger.log(`sound "${id}" changed`);
+        this.events.emit('feedback_settings', { soundId: id });
+
+        return this.getSettings();
+    }
+
+    public async deleteSound(id: string): Promise<FeedbackSettings> {
+        await this.findSound(id);
+        const usedBy = (await this.getSettings()).events
+            .filter(({ soundId }) => soundId === id)
+            .map(({ event }) => event);
+        if (usedBy.length) {
+            throw new ConflictException(`Sound "${id}" is used for ${usedBy.join(', ')}`);
+        }
+
+        await this.sounds.delete(id);
+        this.logger.log(`sound "${id}" deleted`);
+
+        return this.getSettings();
+    }
+
+    public async test(soundId: string): Promise<void> {
+        const sound = await this.findSound(soundId);
         this.logger.log(`test sound "${sound.id}" sent to the scanner`);
         this.events.emit('feedback', { name: sound.id, steps: sound.steps });
     }
 
-    private findSound(soundId: string): Sound {
-        const sound = SOUNDS.find(({ id }) => id === soundId);
+    public testBlocks(blocks: Array<SoundBlock>): void {
+        this.events.emit('feedback', { name: 'draft', steps: toSteps(checked(blocks)) });
+    }
+
+    private async findSound(id: string): Promise<Sound> {
+        const sound = await this.sounds.findOneBy({ id });
         if (!sound) {
-            throw new BadRequestException(`Unknown sound "${soundId}"`);
+            throw new BadRequestException(`Unknown sound "${id}"`);
         }
 
-        return sound;
+        return toSound(sound);
     }
 }

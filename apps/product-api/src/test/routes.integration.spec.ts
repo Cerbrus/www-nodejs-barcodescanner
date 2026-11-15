@@ -276,6 +276,34 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('PUT', '/feedback/settings/added', asUser, { soundId: 'tick' })).status, 200);
     });
 
+    it('checks sounds made of blocks', async () => {
+        const sound = (blocks: unknown, name = 'Test'): Promise<{ status: number }> =>
+            call('POST', '/feedback/sounds', asUser, { name, blocks });
+        assert.equal((await sound([{ kind: 'kazoo', ms: 100 }])).status, 400);
+        assert.equal((await sound([{ kind: 'beep', ms: 'long' }])).status, 400);
+        assert.equal((await sound(Array.from({ length: 13 }, () => ({ kind: 'beep', ms: 10 })))).status, 400);
+        assert.equal((await sound([{ kind: 'beep', ms: 100 }], 'x'.repeat(41))).status, 400);
+
+        const made = await call<{ sounds: Array<{ id: string; name?: string }> }>('POST', '/feedback/sounds', asUser, {
+            name: 'Toeter',
+            blocks: [{ kind: 'buzz', ms: 300, rate: 400 }]
+        });
+        const id = made.body.sounds.find((preset) => preset.name === 'Toeter')?.id as string;
+        assert.equal(made.status, 201);
+        assert.equal(
+            (await call('PUT', `/feedback/sounds/${id}`, asUser, { blocks: [{ kind: 'beep', ms: 30 }] })).status,
+            200
+        );
+        assert.equal(
+            (await call('POST', '/feedback/test-blocks', asUser, { blocks: [{ kind: 'beep', ms: 30 }] })).status,
+            202
+        );
+        assert.equal((await call('POST', '/feedback/test-blocks', asUser, { blocks: [] })).status, 400);
+        assert.equal((await call('DELETE', '/feedback/sounds/tick', asUser)).status, 409);
+        assert.equal((await call('DELETE', `/feedback/sounds/${id}`, asUser)).status, 200);
+        assert.equal((await call('DELETE', `/feedback/sounds/${id}`, asUser)).status, 400);
+    });
+
     it('keeps the agent to its own four routes', async () => {
         assert.equal((await call('GET', '/feedback/settings', asAgent)).status, 200);
         assert.equal(
@@ -328,6 +356,7 @@ describe('data routes over HTTP', () => {
             ['GET', '/feedback/settings', undefined],
             ['PUT', '/feedback/settings/added', { soundId: 'tick' }],
             ['POST', '/feedback/test', { soundId: 'tick' }],
+            ['POST', '/feedback/test-blocks', { blocks: [{ kind: 'beep', ms: 20 }] }],
             ['POST', '/push/test', undefined]
         ] as Array<[string, string, unknown]>) {
             assert.equal((await call(method, path, asGuest, body)).status, 403, `${method} ${path} as guest`);

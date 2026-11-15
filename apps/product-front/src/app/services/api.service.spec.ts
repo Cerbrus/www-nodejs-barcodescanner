@@ -80,6 +80,35 @@ describe('ApiService', () => {
             [() => api.setFeedbackSound('added', 'blip'), 'PUT', '/feedback/settings/added', { soundId: 'blip' }],
             [() => api.testSound('blip'), 'POST', '/feedback/test', { soundId: 'blip' }],
             [
+                () => api.testSoundBlocks([{ kind: 'beep', ms: 50 }]),
+                'POST',
+                '/feedback/test-blocks',
+                { blocks: [{ kind: 'beep', ms: 50 }] }
+            ],
+            [
+                () => api.createSound('Toeter', [{ kind: 'beep', ms: 50 }]),
+                'POST',
+                '/feedback/sounds',
+                { name: 'Toeter', blocks: [{ kind: 'beep', ms: 50 }] }
+            ],
+            [
+                () =>
+                    api.changeSound('s1', undefined, [
+                        { kind: 'pause', ms: 50 },
+                        { kind: 'beep', ms: 50 }
+                    ]),
+                'PUT',
+                '/feedback/sounds/s1',
+                {
+                    name: undefined,
+                    blocks: [
+                        { kind: 'pause', ms: 50 },
+                        { kind: 'beep', ms: 50 }
+                    ]
+                }
+            ],
+            [() => api.deleteSound('s1'), 'DELETE', '/feedback/sounds/s1'],
+            [
                 () => api.sendRemark({ kind: 'bug', text: 'x', page: '#/list' }),
                 'POST',
                 '/remarks',

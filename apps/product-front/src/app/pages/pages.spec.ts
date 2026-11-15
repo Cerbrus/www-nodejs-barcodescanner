@@ -25,15 +25,8 @@ const scan = (id: number, result: Scan['result'], extra: Partial<Scan> = {}): Sc
     ...extra
 });
 const SOUNDS = {
-    events: [
-        { event: 'added', soundId: 'blip', steps: [] },
-        { event: 'ignored', soundId: 'none', steps: [] },
-        { event: 'updated', soundId: 'long', steps: [] }
-    ],
-    sounds: [
-        { id: 'blip', steps: [] },
-        { id: 'long', steps: [] }
-    ]
+    events: [{ event: 'added', soundId: 'blip', steps: [] }],
+    sounds: [{ id: 'blip', blocks: [{ kind: 'beep', ms: 50 }], steps: [] }]
 };
 
 describe('the smaller pages', () => {
@@ -315,59 +308,6 @@ describe('the smaller pages', () => {
     });
 
     describe('sounds', () => {
-        it('shows the sound per event and plays one on request, but not "no sound"', async () => {
-            await open(SoundsPage);
-
-            expect(texts(page, 'label.field-label')).toEqual([
-                'sound.event.added',
-                'sound.event.ignored',
-                'sound.event.updated'
-            ]);
-            expect(
-                Array.from(page.querySelectorAll('button.play'), (button) => (button as HTMLButtonElement).disabled)
-            ).toEqual([false, true, false]);
-
-            click(page, 'button.play');
-
-            expect(api.testSound).toHaveBeenCalledWith('blip');
-        });
-
-        it('saves a chosen sound and plays it, and saves "no sound" without playing', async () => {
-            const fixture = await open(SoundsPage);
-            const choose = async (index: number, value: string): Promise<void> => {
-                const select = page.querySelectorAll('select')[index] as HTMLSelectElement;
-                select.value = value;
-                select.dispatchEvent(new Event('change'));
-                await settle(fixture);
-            };
-
-            await choose(1, 'long');
-            await choose(0, 'none');
-            await choose(2, 'blip');
-
-            expect(api.setFeedbackSound.mock.calls).toEqual([
-                ['ignored', 'long'],
-                ['added', 'none'],
-                ['updated', 'blip']
-            ]);
-            expect(api.testSound.mock.calls).toEqual([['long'], ['blip']]);
-        });
-
-        it('opens the list of all sounds to listen to, and closes it again', async () => {
-            const fixture = await open(SoundsPage);
-            expect(page.querySelector('button.btn')).toBeNull();
-
-            click(page, 'button[aria-expanded]');
-            await settle(fixture);
-            click(page, 'button.btn', 1);
-
-            expect(api.testSound).toHaveBeenCalledWith('long');
-
-            click(page, 'button[aria-expanded]');
-            await settle(fixture);
-            expect(page.querySelector('button.btn')).toBeNull();
-        });
-
         it('says the settings are not available when the server refuses', async () => {
             api.getFeedbackSettings.mockReturnValue(throwError(() => new Error('403')));
             await open(SoundsPage);

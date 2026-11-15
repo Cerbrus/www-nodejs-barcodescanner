@@ -10,6 +10,7 @@ import { BarcodeLookupFailed1763020000000 } from './migrations/1763020000000-bar
 import { Remark1763200000000 } from './migrations/1763200000000-remark';
 import { MissingEmojis1763300000000 } from './migrations/1763300000000-missing-emojis';
 import { ListVariants1763400000000 } from './migrations/1763400000000-list-variants';
+import { SoundPresets1763500000000 } from './migrations/1763500000000-sound-presets';
 import { SnakeNamingStrategy } from './snake-naming.strategy';
 
 export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
@@ -26,7 +27,8 @@ export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
             BarcodeLookupFailed1763020000000,
             Remark1763200000000,
             MissingEmojis1763300000000,
-            ListVariants1763400000000
+            ListVariants1763400000000,
+            SoundPresets1763500000000
         ],
         migrationsRun: true,
         synchronize: false,
