@@ -2,26 +2,27 @@
 
 How the prototype became the product, and what is left. Decisions behind this plan are in [decisions.md](decisions.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
 
-## Where it stands (2026-11-13, version 1.1.32)
+## Where it stands (2026-11-15, version 1.1.67)
 
 In daily-use shape and running on the Pi:
 
 - Handheld and camera scanning, the scan rules, inbox and naming, the list, product management, history with undo, the system log.
-- Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app reloads itself after an update.
+- Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app reloads itself after an update. The Pi also runs the card scanner; the two updaters share a lock.
 - Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans, shopping without a connection.
 - Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner.
-- Current packages: Node 25, Nx 24, Angular 22, TypeScript 6. A content security policy in report-only mode.
+- Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request, which is reviewed and landed locally. A "What's new" page built from the releases.
+- Tests: API rules and routes, 263 web app tests, 11 browser tests, the hardware agent; all run before any image is published.
+- Packages: Node 25, Nx 24, Angular 22, TypeScript 6. A content security policy in report-only mode.
 
 ## What comes next
 
-In this order, agreed with the owner on 2026-11-13:
+Agreed with the owner on 2026-11-15:
 
-1. **Tests for the web app** (milestone 9): done and released in 1.1.40.
-2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
-3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
-4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
-5. **Remarks from inside the app** (milestone 11): released; the owner files wishes from the app and an agent on GitHub implements them in pull requests.
-6. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
+1. **Small leftovers**, discussed with the owner one by one: mark scans whose lookup failed on the history page; guess a new product's section from the shop's category; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
+2. **Rollback test** with `IMAGE_TAG`: two minutes on the Pi, and it proves the way back.
+3. **The remaining package families** (see "Package upgrades"), one at a time, smallest first. Dependabot proposes the small ones weekly; #7 is open.
+4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy, and Tera's answer on the beeper (milestone 7).
+5. **Operations never tested** (list at the end).
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
 
@@ -88,9 +89,9 @@ Done when: naming a typical new barcode takes one or two taps.
 ### 6. Daily-use hardening: started
 
 - Done 2026-11-12 19:09: log file that survives restarts, hourly database backup, reconnecting pages.
-- Open: use it for two weeks and fix what annoys.
-- Done 2026-11-13 01:52, released in 1.1.11: the naming prompt shows which lookup source gave no answer and can ask again. Not done: marking such scans on the history page.
-- Open: a test run of `install.sh` and of the restore procedure on a fresh Pi.
+- Open: use it for two weeks and fix what annoys. Since 2026-11-15 most of this arrives through the feedback button (milestone 11).
+- Done 2026-11-13 01:52, released in 1.1.11: the naming prompt shows which lookup source gave no answer and can ask again. Not done: marking such scans on the history page (in "What comes next").
+- Open: a test run of the restore procedure on another machine. A run of `install.sh` on a fresh Pi is not planned: there is no spare Pi.
 
 - Done 2026-11-13 00:32: login with Google for the accounts on an allowlist, a secret for the hardware agent, a login page (UC-17). Live on the Pi; the owner logged in, and every data route was probed through the proxy without login and answered 401. The owner confirmed on 2026-11-13 the login inside the installed iPhone app and a handheld scan with login on, and removed the proxy's access list.
 
@@ -100,6 +101,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 21:40, released in 1.1.29: an open app reloads itself when a newer web app is published (UC-10). Confirmed by the owner on the iPhone with the release of 1.1.30.
 - Done 2026-11-13 22:28, released in 1.1.32: a content security policy in report-only mode, with reports in the system log, and FormatJS as message formatter because the former one needs `eval`. Open: read the log after a week and set `CSP_MODE=enforce`.
 - Done 2026-11-13: a ruleset on `master` that forbids deleting it and force-pushing to it. Two-factor login on the GitHub account is on, confirmed by the owner on 2026-11-14.
+- Done 2026-11-15 02:28, released in 1.1.57: the card scanner now runs on the same Pi, and its updater's image prune broke this updater's pull ("lease does not exist"), which kept the Pi on 1.1.50 for an hour. Both updaters take a shared lock around pull, restart and prune; seen working both ways the same night.
 
 ### 7. Feedback at the scanner: mostly done
 
@@ -140,22 +142,36 @@ Requested by the owner on 2026-11-13.
 - Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
 - Later, said by the owner on 2026-11-13: the `ALLOWED_EMAILS` setting is to become an invite system. Not planned in detail yet.
 
-### 11. Remarks from inside the app: built
+### 11. Remarks from inside the app: done 2026-11-15 01:09
 
-Plan and decisions in [remarks-plan.md](remarks-plan.md). Released in 1.1.48 on 2026-11-15; the agent's rules followed in 1.1.49 and 1.1.50.
+Plan and decisions in [remarks-plan.md](remarks-plan.md). Released in 1.1.48.
 
-- Done 2026-11-15 00:35: remarks on the server: the table, the rules, routes for every account and for the owner, the limit per hour, a notification to the owner only, sending to GitHub tested against a stand-in server.
-- Done 2026-11-15 00:57: the web app: the remark sheet, the row on the System page, pointing mode, right click (the two-finger tap was removed again, issue #10), the queue for remarks without a connection, the Feedback page with "send to GitHub" and its preview, the message to the owner.
-- Done 2026-11-15 01:05: issue forms on GitHub, the settings, the agent's workflow and instructions, the label `investigate`.
-- Tests: 7 for the rules, 12 route tests, 46 in the web app, 3 in the browser (right click, pointing mode, without a connection).
-- Open, only the owner can do these: pointing mode on the iPhone; the first real "send to GitHub"; the first run of the agent, best on a small wish.
-- Done 2026-11-15 02:20, released in 1.1.49: after the first four issues all ended in questions, the agent's instructions changed: an issue from the owner carries his authority and is implemented unless a real question is open, and the issue gets a verdict label. The text of the pointed-at part no longer contains icon names.
-- Done 2026-11-15 02:11: the first four issues handled by the agent on GitHub, reviewed and finished locally and landed together: the two-finger tap removed (#10), remarks about the bottom menu by right click or a tap on the active tab while pointing (#11), a number for open feedback on the System tab and the Feedback row, for the owner (#9), and rejecting a remark as a soft delete (#12). Changed in review: the number is for the owner only, the Feedback page kept its formatting, the hint names the tab trick, and a `!!` went out.
+- Done 2026-11-15 00:44: remarks on the server: the table, the rules, routes for every account and for the owner, the limit per hour, a notification to the owner only, sending to GitHub tested against a stand-in server.
+- Done 2026-11-15 00:59: the web app: the remark sheet, the row on the System page, pointing mode, right click, the queue for remarks without a connection, the Feedback page with "send to GitHub" and its preview, the message to the owner.
+- Done 2026-11-15 01:03: issue forms on GitHub, the settings, the agent's workflow and instructions, the label `investigate`.
+- Tried by the owner the same night: pointing mode on the iPhone, sending to GitHub, and the agent on a dozen issues.
 - Not built: a way for the writer to see an answer. Decided against.
+
+The agent, tuned after its first runs:
+
+- Done 2026-11-15 01:40, released in 1.1.49: the first four issues all ended in questions. An issue from the owner now carries his authority: the agent implements it unless a real question is open, and labels its verdict.
+- Done 2026-11-15 01:52, released in 1.1.50: pull requests open ready for review, the workflow starts their checks, and the owner is code owner of the whole repository.
+- Done 2026-11-15 02:02: the issue or pull request that waits for the owner is assigned to him, also when a run fails.
+- Done 2026-11-15 12:04: the agent may not reformat code it does not change; it had rewritten whole files twice.
+
+What the agent built from the owner's feedback, each reviewed, finished and landed locally:
+
+| Version | Issues | What changed for the user | Changed in review |
+|---|---|---|---|
+| 1.1.56 | #9, #10, #11, #12 | two-finger tap removed; remarks about the bottom menu; a number for open feedback; rejecting a remark | number for the owner only; formatter noise removed |
+| 1.1.60 | #17, #18 | a hint that fits the device; the row highlight stays inside the card | wording on a computer, a test clean-up |
+| 1.1.63 | #21, #23 | handled remarks fold away; a "What's new" page | the changelog is written by the build, so a release lists itself |
+| 1.1.65 | #26 | "Let the agent look at it" first and ticked | Nx cache bug of the changelog fixed |
+| 1.1.67 | #25 | actions under a menu, Ctrl+Enter sends, a question when closing with text | one action shows as a button; Handle in the menu; plainer close question |
 
 ### Smaller changes outside the milestones
 
-- Done 2026-11-15 03:00: a "What's new" page for every account, backfilled from the git tags (issue #23). Changed in review: the build writes the changelog, so each release includes itself.
+- Done 2026-11-15 12:04, released in 1.1.63: a "What's new" page for every account, backfilled from the git tags (issue #23). The build writes the changelog, so each release lists itself.
 - Done 2026-11-13 21:02, released in 1.1.27: searching on the list page also shows products that are already on the list, as "+1".
 
 ## Open points
@@ -167,10 +183,11 @@ Plan and decisions in [remarks-plan.md](remarks-plan.md). Released in 1.1.48 on 
 
 ## Never tested
 
-- `install.sh` on a fresh Pi since the firewall, backup, notification, buzzer and login additions (agent token, GPIO device). The same steps were done by hand on the running Pi.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - Rollback with `IMAGE_TAG`.
 - A reboot with the firewall service since it was added.
-- Push notifications on anything but the iPhone (Android, desktop browsers), which take the service worker path.
+- Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
+
+Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
