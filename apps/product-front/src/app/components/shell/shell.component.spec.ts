@@ -41,7 +41,7 @@ describe('ShellComponent', () => {
         Object.defineProperty(navigator, 'clearAppBadge', { configurable: true, value: clearAppBadge });
         TestBed.configureTestingModule({
             imports: [ShellComponent, TranslateModule.forRoot()],
-            providers: [provideRouter([]), { provide: ShoppingStore, useValue: store }, { provide: EventsService, useValue: events }, { provide: ApiService, useValue: api }, { provide: RemarkService, useValue: remarks }, { provide: AuthService, useValue: { owner } }]
+            providers: [provideRouter(['list', 'scan', 'inbox', 'catalog', 'system'].map((path) => ({ path, children: [] }))), { provide: ShoppingStore, useValue: store }, { provide: EventsService, useValue: events }, { provide: ApiService, useValue: api }, { provide: RemarkService, useValue: remarks }, { provide: AuthService, useValue: { owner } }]
         });
     });
 
@@ -177,6 +177,44 @@ describe('ShellComponent', () => {
         expect(remarks.pointing()).toBe(false);
         expect(remarks.draft()?.target?.text).toBe('Probe');
         expect(page.querySelector('app-remark-sheet dialog')).not.toBeNull();
+    });
+
+    it('while pointing, a tap on the active tab starts a remark about it, and a tap on another tab only navigates', () => {
+        open();
+        const tabs = Array.from(page.querySelectorAll<HTMLElement>('a.tab'));
+        tabs[0].classList.add('active');
+        const tapped = vi.fn((event: Event) => event.preventDefault());
+        page.querySelector('nav')?.addEventListener('click', tapped);
+        remarks.startPointing();
+
+        tabs[1].click();
+        expect(tapped).toHaveBeenCalledTimes(1);
+        expect(remarks.pointing()).toBe(true);
+        expect(remarks.draft()).toBeUndefined();
+
+        tabs[0].click();
+        expect(tapped).toHaveBeenCalledTimes(1);
+        expect(remarks.pointing()).toBe(false);
+        expect(remarks.draft()?.target).toEqual(expect.objectContaining({ text: 'nav.list', path: 'div > nav.tabs > a.tab' }));
+    });
+
+    it('leaves a tap on the active tab alone while not pointing', () => {
+        open();
+        const tab = page.querySelector<HTMLElement>('a.tab') as HTMLElement;
+        tab.classList.add('active');
+        tab.addEventListener('click', (event) => event.preventDefault());
+        tab.click();
+
+        expect(remarks.draft()).toBeUndefined();
+    });
+
+    it('starts a remark about a tab on a right click', () => {
+        open();
+        const event = new Event('contextmenu', { bubbles: true, cancelable: true });
+        page.querySelectorAll('a.tab')[2].dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(remarks.draft()?.target).toEqual(expect.objectContaining({ text: 'nav.inbox' }));
     });
 
     it('shows at most three messages and lets each go after five seconds', () => {

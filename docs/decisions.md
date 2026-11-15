@@ -141,6 +141,7 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 - Only the owner sends a remark to GitHub, after seeing what goes out; the repository is public, so this step is the privacy gate. The account and the device details stay out unless ticked.
 - Kinds: bug, wish and note. The writer gets a thank-you, no promise and no state.
 - No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode and a two-finger tap on the phone, right click on a computer.
+- The bottom menu can be pointed at too (owner, 2026-11-15, issue #11): right click on a tab, and in pointing mode a tap on the active tab picks it, while a tap on another tab navigates.
 - No screenshots: a page cannot take a real picture of itself. The part pointed at is recorded as data.
 - An agent on GitHub handles an issue the owner labels. Changed 2026-11-15, after the first four issues all ended in questions: an issue from the owner is his decision and carries his authority, so the agent implements it in a draft pull request unless a real question is open, also when it overrules an earlier decision, and labels the issue with its verdict. It never merges.
 
