@@ -20,7 +20,7 @@ In this order, agreed with the owner on 2026-11-13:
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
 3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
-5. **Remarks from inside the app** (milestone 11): built, waits for release and for the owner's tries on the iPhone and on GitHub.
+5. **Remarks from inside the app** (milestone 11): released; the owner files wishes from the app and an agent on GitHub implements them in pull requests.
 6. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
@@ -142,14 +142,15 @@ Requested by the owner on 2026-11-13.
 
 ### 11. Remarks from inside the app: built
 
-Plan and decisions in [remarks-plan.md](remarks-plan.md). On branch `feature/remarks`, not released.
+Plan and decisions in [remarks-plan.md](remarks-plan.md). Released in 1.1.48 on 2026-11-15; the agent's rules followed in 1.1.49 and 1.1.50.
 
 - Done 2026-11-15 00:35: remarks on the server: the table, the rules, routes for every account and for the owner, the limit per hour, a notification to the owner only, sending to GitHub tested against a stand-in server.
 - Done 2026-11-15 00:57: the web app: the remark sheet, the row on the System page, pointing mode, right click (the two-finger tap was removed again, issue #10), the queue for remarks without a connection, the Feedback page with "send to GitHub" and its preview, the message to the owner.
 - Done 2026-11-15 01:05: issue forms on GitHub, the settings, the agent's workflow and instructions, the label `investigate`.
 - Tests: 7 for the rules, 12 route tests, 46 in the web app, 3 in the browser (right click, pointing mode, without a connection).
 - Open, only the owner can do these: pointing mode on the iPhone; the first real "send to GitHub"; the first run of the agent, best on a small wish.
-- Done 2026-11-15 02:20, on branch `feature/agent-authority`, not released: after the first four issues all ended in questions, the agent's instructions changed: an issue from the owner carries his authority and is implemented unless a real question is open, and the issue gets a verdict label. The text of the pointed-at part no longer contains icon names.
+- Done 2026-11-15 02:20, released in 1.1.49: after the first four issues all ended in questions, the agent's instructions changed: an issue from the owner carries his authority and is implemented unless a real question is open, and the issue gets a verdict label. The text of the pointed-at part no longer contains icon names.
+- Done 2026-11-15 02:11: the first four issues handled by the agent on GitHub, reviewed and finished locally and landed together: the two-finger tap removed (#10), remarks about the bottom menu by right click or a tap on the active tab while pointing (#11), a number for open feedback on the System tab and the Feedback row, for the owner (#9), and rejecting a remark as a soft delete (#12). Changed in review: the number is for the owner only, the Feedback page kept its formatting, the hint names the tab trick, and a `!!` went out.
 - Not built: a way for the writer to see an answer. Decided against.
 
 ### Smaller changes outside the milestones
