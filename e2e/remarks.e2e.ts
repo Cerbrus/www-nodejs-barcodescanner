@@ -61,6 +61,28 @@ test('point at a part of the app from the settings, and write a wish about it', 
     expect((await remarksOf(request))[0]).toMatchObject({ kind: 'wish', text: 'Sort by aisle', page: '#/list' });
 });
 
+test('point at the bottom menu: the active tab is picked, another tab navigates, and right click works', async ({ page, request }) => {
+    await page.goto('/#/system');
+    await page.getByRole('button', { name: 'Aanwijzen' }).click();
+    await page.locator('nav a[href="#/list"]').click();
+    await expect(page).toHaveURL(/#\/list$/);
+    await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
+
+    await page.locator('nav a[href="#/list"]').click();
+    await expect(page.locator('app-remark-sheet .sheet')).toBeVisible();
+    await expect(page).toHaveURL(/#\/list$/);
+    await page.getByRole('button', { name: 'Wens' }).click();
+    await page.locator('app-remark-sheet textarea').fill('Menu wish');
+    await page.locator('app-remark-sheet button.primary').click();
+    await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
+    expect((await remarksOf(request))[0]).toMatchObject({ text: 'Menu wish', page: '#/list' });
+
+    await page.locator('nav a[href="#/catalog"]').click({ button: 'right' });
+    await expect(page.locator('app-remark-sheet .sheet')).toBeVisible();
+    await expect(page).toHaveURL(/#\/list$/);
+    await page.locator('app-remark-sheet').getByRole('button', { name: 'Annuleren' }).click();
+});
+
 test('write a note without a connection and see it arrive later', async ({ page, context, request }) => {
     await page.goto('/#/system');
     await expect(page.getByRole('button', { name: 'Schrijven' })).toBeVisible();

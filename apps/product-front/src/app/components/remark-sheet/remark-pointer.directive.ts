@@ -1,4 +1,4 @@
-import { DestroyRef, Directive, ElementRef, inject } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, inject, input } from '@angular/core';
 
 import { describeElement, isTextField } from '../../services/remark-target';
 import { RemarkService } from '../../services/remark.service';
@@ -8,6 +8,8 @@ import { RemarkService } from '../../services/remark.service';
     standalone: true
 })
 export class RemarkPointerDirective {
+    public readonly appRemarkPointerSkip = input('');
+
     private readonly remarks = inject(RemarkService);
     private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
@@ -28,13 +30,19 @@ export class RemarkPointerDirective {
     }
 
     private onClick(event: Event): void {
-        if (!this.remarks.pointing() || !(event.target instanceof Element)) {
+        if (!this.remarks.pointing() || !(event.target instanceof Element) || this.isSkipped(event.target)) {
             return;
         }
 
         event.preventDefault();
         event.stopPropagation();
         this.remarks.write(describeElement(event.target));
+    }
+
+    private isSkipped(element: Element): boolean {
+        const selector = this.appRemarkPointerSkip();
+
+        return selector ? element.closest(selector) !== null : false;
     }
 
     private onContextMenu(event: Event): void {

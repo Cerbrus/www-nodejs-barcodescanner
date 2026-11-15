@@ -40,7 +40,7 @@
     }
 </div>
 
-<nav class="tabs">
+<nav class="tabs" appRemarkPointer appRemarkPointerSkip="a:not(.active)">
     @for (link of links; track link.route) {
         <a class="tab" [routerLink]="link.route" routerLinkActive="active">
             <span class="tab-icon">
