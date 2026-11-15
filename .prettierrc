@@ -3,5 +3,14 @@
     "printWidth": 120,
     "tabWidth": 4,
     "endOfLine": "lf",
-    "bracketSameLine": true
+    "bracketSameLine": false,
+    "trailingComma": "none",
+    "overrides": [
+        {
+            "files": "*.html",
+            "options": {
+                "parser": "angular"
+            }
+        }
+    ]
 }

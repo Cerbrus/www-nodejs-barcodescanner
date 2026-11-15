@@ -18,8 +18,9 @@
         "product-front:serve": "nx run product-front:serve",
         "product-front:lint": "nx run product-front:lint",
         "test:all": "nx run-many --target=test",
-        "lint:all": "nx run-many --target=lint",
-        "prettier:autofix": "yarn prettier \"./apps/**/*.{js,ts,scss,html}\" -w"
+        "lint:all": "nx run-many --target=lint && yarn format:check",
+        "format": "prettier --write \"{apps,e2e,tools}/**/*.{js,mjs,ts,scss,html,json}\"",
+        "format:check": "prettier --check \"{apps,e2e,tools}/**/*.{js,mjs,ts,scss,html,json}\""
     },
     "dependencies": {
         "@angular/common": "~22.2.0",

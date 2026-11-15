@@ -59,7 +59,7 @@ Don't start the serve commands from a session; ask the user to run them. The bui
 
 ## Code style
 
-- Prettier: single quotes, 120 characters, 4-space indent, LF.
+- Prettier: single quotes, 120 characters, 4-space indent, LF, no trailing commas, Angular parser for HTML. `yarn format` fixes it; `yarn lint:all` checks it.
 - ESLint: strict TypeScript (`no-any`, `explicit-member-accessibility`), ordered imports, blank lines between multi-line class members, max 75 lines per function.
 - Angular: prefix `app`, standalone components, signals over observables in components, `@ngx-translate` with EN and NL. Every visible text goes in both language files.
 - Styling: colours come from the CSS variables in `styles.scss`, which carry the light and dark theme. No hard-coded colours in components.
