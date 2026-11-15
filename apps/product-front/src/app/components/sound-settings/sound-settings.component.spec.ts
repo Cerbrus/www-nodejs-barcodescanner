@@ -38,6 +38,11 @@ describe('SoundSettingsComponent', () => {
         fixture.detectChanges();
     };
 
+    const openList = async (): Promise<void> => {
+        click(page, 'button.toggle');
+        await settle();
+    };
+
     beforeEach(async () => {
         vi.clearAllMocks();
         api.getFeedbackSettings.mockReturnValue(of(SETTINGS));
@@ -53,21 +58,40 @@ describe('SoundSettingsComponent', () => {
         await settle();
     });
 
-    it('shows each event with its sound and a timeline, and the presets with their names', () => {
+    it('shows each event with its sound and a timeline, and keeps the list of sounds folded until opened', async () => {
         expect(texts(page, '.row.event .text-xs')).toEqual(['sound.event.added', 'sound.event.ignored']);
         expect(texts(page, '.row.event .font-semibold')).toEqual(['sound.name.beep', 'sound.none']);
         expect(page.querySelectorAll('.row.event app-sound-timeline').length).toBe(1);
+        expect(page.querySelector('.row.preset')).toBeNull();
+
+        await openList();
         expect(texts(page, '.row.preset .font-semibold')).toEqual(['sound.name.beep', 'Fanfare']);
+
+        click(page, 'button.toggle');
+        await settle();
+        expect(page.querySelector('.row.preset')).toBeNull();
     });
 
-    it('plays a preset on request', () => {
+    it('plays the sound chosen for an event, and has nothing to play for "no sound"', () => {
+        const play = Array.from(
+            page.querySelectorAll('.row.event button[aria-label="sound.play"]')
+        ) as Array<HTMLButtonElement>;
+        expect(play.map((button) => button.disabled)).toEqual([false, true]);
+
+        play[0].click();
+
+        expect(api.testSound).toHaveBeenCalledWith('beep');
+    });
+
+    it('plays a sound from the list on request', async () => {
+        await openList();
         click(page, '.row.preset button[aria-label="sound.play"]', 1);
 
         expect(api.testSound).toHaveBeenCalledWith('a1b2c3d4');
     });
 
     it('picks another sound for an event in a popup, saves it and plays it, and marks the current one', async () => {
-        click(page, '.row.event', 1);
+        click(page, '.row.event button.pick', 1);
         await settle();
         expect(texts(page, 'app-sheet .page-title')).toEqual(['sound.choose']);
         expect(texts(page, 'app-sheet .row.chosen .font-semibold')).toEqual(['sound.none']);
@@ -84,7 +108,7 @@ describe('SoundSettingsComponent', () => {
     });
 
     it('saves "no sound" without playing', async () => {
-        click(page, '.row.event', 0);
+        click(page, '.row.event button.pick', 0);
         await settle();
         click(page, 'app-sheet .row.option', 0);
         await settle();
@@ -99,7 +123,7 @@ describe('SoundSettingsComponent', () => {
             sounds: [...SETTINGS.sounds, { id: 'new12345', name: 'Toeter', blocks: beep, steps: [] }]
         };
         api.createSound.mockReturnValue(of(created));
-        click(page, '.row.event', 0);
+        click(page, '.row.event button.pick', 0);
         await settle();
         click(page, 'app-sheet button.new');
         await settle();
@@ -117,6 +141,7 @@ describe('SoundSettingsComponent', () => {
     });
 
     it('opens a preset for editing, and knows whether it is in use', async () => {
+        await openList();
         click(page, '.row.preset button[aria-label="sound.edit"]', 0);
         await settle();
 
@@ -130,6 +155,7 @@ describe('SoundSettingsComponent', () => {
             sounds: [...SETTINGS.sounds, { id: 'copy1234', name: 'Fanfare 2', blocks: beep, steps: [] }]
         };
         api.createSound.mockReturnValue(of(copied));
+        await openList();
         click(page, '.row.preset button[aria-label="sound.edit"]', 1);
         await settle();
         click(page, 'app-sound-editor button.save-new');

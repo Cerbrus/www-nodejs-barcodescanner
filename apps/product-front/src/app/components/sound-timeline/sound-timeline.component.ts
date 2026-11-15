@@ -91,11 +91,12 @@ function waves(blocks: Array<SoundBlock>, density: Density): Array<Wave> {
         :host {
             display: block;
             height: 18px;
+            overflow: hidden;
         }
         svg {
             width: 100%;
             height: 100%;
-            overflow: visible;
+            overflow: hidden;
         }
         path {
             fill: none;

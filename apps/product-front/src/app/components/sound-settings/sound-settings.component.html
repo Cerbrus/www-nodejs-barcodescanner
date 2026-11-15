@@ -4,26 +4,46 @@
     @if (settings(); as settings) {
         <h3 class="field-label">{{ 'sound.events' | translate }}</h3>
         @for (row of settings.events; track row.event) {
-            <button type="button" class="row event" (click)="picking.set(row.event)">
-                <span class="min-w-0 grow">
-                    <span class="muted block text-xs">{{ 'sound.event.' + row.event | translate }}</span>
+            <div class="row event">
+                <button type="button" class="pick" (click)="picking.set(row.event)">
+                    <span class="min-w-0 grow">
+                        <span class="muted block text-xs">{{ 'sound.event.' + row.event | translate }}</span>
+                        @if (soundOf(row.soundId); as sound) {
+                            <span class="block truncate font-semibold">
+                                {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
+                            </span>
+                        } @else {
+                            <span class="muted block font-semibold">{{ 'sound.none' | translate }}</span>
+                        }
+                    </span>
                     @if (soundOf(row.soundId); as sound) {
-                        <span class="block truncate font-semibold">
-                            {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
-                        </span>
-                    } @else {
-                        <span class="muted block font-semibold">{{ 'sound.none' | translate }}</span>
+                        <app-sound-timeline [compact]="true" [blocks]="sound.blocks" />
                     }
-                </span>
-                @if (soundOf(row.soundId); as sound) {
-                    <app-sound-timeline [compact]="true" [blocks]="sound.blocks" />
-                }
-                <i class="material-symbols-outlined muted">chevron_right</i>
-            </button>
+                    <i class="material-symbols-outlined muted">chevron_right</i>
+                </button>
+                <button
+                    type="button"
+                    class="icon"
+                    [class.invisible]="row.soundId === noSound"
+                    [disabled]="row.soundId === noSound"
+                    [attr.aria-label]="'sound.play' | translate"
+                    (click)="play(row.soundId)"
+                >
+                    <i class="material-symbols-outlined">volume_up</i>
+                </button>
+            </div>
         }
 
-        <h3 class="field-label">{{ 'sound.presets' | translate }} ({{ settings.sounds.length }})</h3>
-        @for (sound of settings.sounds; track sound.id) {
+        <button
+            type="button"
+            class="toggle field-label flex w-full items-center"
+            [attr.aria-expanded]="showSounds()"
+            (click)="showSounds.set(!showSounds())"
+        >
+            <span class="grow text-left">{{ 'sound.presets' | translate }} ({{ settings.sounds.length }})</span>
+            <i class="material-symbols-outlined muted">{{ showSounds() ? 'expand_less' : 'expand_more' }}</i>
+        </button>
+        @for (sound of showSounds() ? settings.sounds : []; track sound.id) {
             <div class="row preset">
                 <span class="min-w-0 grow truncate font-semibold">
                     {{ sound.name ?? ('sound.name.' + sound.id | translate) }}

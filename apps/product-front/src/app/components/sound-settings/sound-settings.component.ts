@@ -37,6 +37,14 @@ interface Editing {
         .row app-sound-timeline {
             flex: 0 0 6rem;
         }
+        .pick {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            text-align: left;
+        }
         .row.chosen {
             color: var(--accent);
         }
@@ -54,6 +62,7 @@ export class SoundSettingsComponent {
     protected readonly failed = signal(false);
     protected readonly picking = signal<string | undefined>(undefined);
     protected readonly editing = signal<Editing | undefined>(undefined);
+    protected readonly showSounds = signal(false);
 
     private readonly api = inject(ApiService);
 
