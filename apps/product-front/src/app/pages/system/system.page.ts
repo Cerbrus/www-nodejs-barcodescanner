@@ -197,7 +197,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
         </div>
     `,
     styles: `
-        .group { padding: 0; }
+        .group { padding: 0; overflow: hidden; }
         .row {
             display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
             min-height: 52px; padding: 8px 12px;

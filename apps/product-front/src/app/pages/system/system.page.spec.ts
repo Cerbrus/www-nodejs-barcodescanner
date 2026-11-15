@@ -78,6 +78,15 @@ describe('SystemPage', () => {
         expect(texts(page, '.version')[0]).toContain('1.1.32 (c96a5b5)');
     });
 
+    it('clips the row highlight to the rounded corners of its group', async () => {
+        await open(OWNER);
+
+        const groups = Array.from(page.querySelectorAll<HTMLElement>('.card.group'));
+
+        expect(groups.length).toBeGreaterThan(0);
+        expect(groups.every((group) => getComputedStyle(group).overflow === 'hidden')).toBe(true);
+    });
+
     it('shows another account only this device and the account, and asks the server for nothing of the owner', async () => {
         await open(GUEST);
 
