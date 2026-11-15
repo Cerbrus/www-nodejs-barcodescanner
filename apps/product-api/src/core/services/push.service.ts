@@ -4,7 +4,7 @@ import { dirname } from 'path';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import webpush, { WebPushError } from 'web-push';
+import { WebPushError, generateVAPIDKeys, sendNotification } from 'web-push';
 
 import { BarcodeService } from './barcode.service';
 import { AppConfig } from '../../config/app.config';
@@ -164,7 +164,7 @@ export class PushService {
                     this.payload(compose(TEXTS[language] ?? TEXTS[DEFAULT_LANGUAGE]), badge, language, origin)
                 );
                 try {
-                    await webpush.sendNotification({ endpoint, keys: { p256dh, auth } }, payload, {
+                    await sendNotification({ endpoint, keys: { p256dh, auth } }, payload, {
                         TTL: TIME_TO_LIVE_SECONDS,
                         vapidDetails: { subject: this.config.pushSubject, ...keys }
                     });
@@ -223,7 +223,7 @@ export class PushService {
         if (existsSync(this.config.pushKeysPath)) {
             this.keys = JSON.parse(readFileSync(this.config.pushKeysPath, 'utf-8')) as VapidKeys;
         } else {
-            this.keys = webpush.generateVAPIDKeys();
+            this.keys = generateVAPIDKeys();
             mkdirSync(dirname(this.config.pushKeysPath), { recursive: true });
             writeFileSync(this.config.pushKeysPath, JSON.stringify(this.keys), { mode: 0o600 });
             this.logger.log(`push: new key pair written to ${this.config.pushKeysPath}`);

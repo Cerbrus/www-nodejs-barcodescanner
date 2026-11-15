@@ -48,7 +48,7 @@
         "tslib": "^2.9.1",
         "typeorm": "~0.3.31",
         "typeorm-naming-strategies": "^4.1.0",
-        "web-push": "^3.6.7"
+        "web-push": "^4.0.0"
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "~22.2.0",
