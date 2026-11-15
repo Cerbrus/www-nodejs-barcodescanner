@@ -172,7 +172,7 @@ What the agent built from the owner's feedback, each reviewed, finished and land
 
 Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. Four steps: small leftovers and the section from the shop's category; variants on the list; naming rules; an AI suggestion behind the rules.
 
-- Done 2026-11-15 14:35, on branch `feature/naming-step-1`, not released: step 1. The server maps the shop's category to a section (`core/rules/shop-sections.ts`) and adds it to each suggestion as `sectionId`; the new-product form takes it before the keyword guess. The history page marks scans of unnamed barcodes whose lookup failed and opens the naming prompt for them. The eight products without an emoji get the approved ones (migration, only where none was chosen, and the seed file). The hardware agent no longer sends `source`. Suggestions stored before this keep using the keyword guess.
+- Done 2026-11-15 14:35, released in 1.1.70: step 1. The server maps the shop's category to a section (`core/rules/shop-sections.ts`) and adds it to each suggestion as `sectionId`; the new-product form takes it before the keyword guess. The history page marks scans of unnamed barcodes whose lookup failed and opens the naming prompt for them. The eight products without an emoji get the approved ones (migration, only where none was chosen, and the seed file). The hardware agent no longer sends `source`. Suggestions stored before this keep using the keyword guess.
 
 ### Smaller changes outside the milestones
 
