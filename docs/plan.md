@@ -23,6 +23,8 @@ Agreed with the owner on 2026-11-15:
 3. **Package families**: all updated in 1.1.87 except the two that are blocked (see "Package upgrades"). Dependabot proposes the small ones weekly.
 4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy, and Tera's answer on the beeper (milestone 7).
 5. **Operations never tested** (list at the end).
+6. **Milestone 13, chosen by the owner on 2026-11-15**: command barcodes for the scanner, Siri shortcut, share the list as text, merge products, alerts to the owner. Not planned in detail yet.
+7. **Later**: several accounts with working invites (milestone 10).
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
 
@@ -141,7 +143,7 @@ Requested by the owner on 2026-11-13.
 - Done 2026-11-13 20:12, released in 1.1.26: one owner account; the system parts (history, log, scanner status, version, sounds, test notification) are shown to the owner only and refused by the API to other accounts. Everyone keeps language, appearance, notifications for the own device and the account with logout.
 - Done 2026-11-13 21:19, released in 1.1.28: the System page in three groups (this device, account, management) and the sounds on a page of their own; 1.1.30 stacks the language and appearance rows on a phone.
 - Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
-- Later, said by the owner on 2026-11-13: the `ALLOWED_EMAILS` setting is to become an invite system. Not planned in detail yet.
+- Later, said by the owner on 2026-11-13 and again on 2026-11-15: support for several accounts with working invites, replacing the `ALLOWED_EMAILS` setting. Not planned in detail yet; it settles the open question above about own lists and rights.
 
 ### 11. Remarks from inside the app: done 2026-11-15 01:09
 
@@ -177,6 +179,18 @@ Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. F
 - Done 2026-11-15 14:35, released in 1.1.70: step 1. The server maps the shop's category to a section (`core/rules/shop-sections.ts`) and adds it to each suggestion as `sectionId`; the new-product form takes it before the keyword guess. The history page marks scans of unnamed barcodes whose lookup failed and opens the naming prompt for them. The eight products without an emoji get the approved ones (migration, only where none was chosen, and the seed file). The hardware agent no longer sends `source`. Suggestions stored before this keep using the keyword guess.
 - Done 2026-11-15 15:12, released in 1.1.76: step 2. List entries have their own id; a product can be on the list once per note, and a note that another line of the product has merges them. The search shows each line of a product with "+1" and a plain tile for a new line. A barcode can carry a variant, set in the naming prompt and shown on the product page; its scans and their undo go to that line. Offline adds and changes queue by entry id. Migration keeps every entry and trims its note.
 - Done 2026-11-15 15:45, released in 1.1.77: step 3. The naming prompt shows a proposal from the shop titles (`core/rules/naming.ts`): the existing product whose whole words the title names, most specific first, with the rest of the title as variant, or a new name without brand, shop name and amount. One tap links it or opens the new product form. Matching compound words ("Hazelnootpasta" as "Pasta") was tried on the real barcodes and dropped. Step 4, the AI suggestion, is deferred.
+
+### 13. Scanner commands, Siri, sharing, merging, alerts: chosen, not planned in detail
+
+Chosen by the owner on 2026-11-15 from a list of ideas; each gets its own plan before it is built.
+
+- **Command barcodes**: a printed sheet with codes the handheld scanner understands as commands, such as "undo the last scan", "the next scan counts down" and "the next scan goes on its own line", so the phone is not needed at the scanner.
+- **Siri shortcut**: "Hé Siri, zet melk op de lijst" calls the API with a token of its own and adds the product, matched by name with the naming rules.
+- **Share as text**: copy the products to buy as plain text, with notes and quantities, to send to someone else.
+- **Merge products**: fold a duplicate product into another; its barcodes, list lines and history move along.
+- **Alerts to the owner**: a push notification when the scanner has been away for a while, the hourly backup fails, or a deploy does not come up healthy.
+
+Not chosen: "due again" suggestions, a "done shopping" action with trimming of recent, section order per shop, prices from the shop, shop photos as icons, multiple lists.
 
 ### Smaller changes outside the milestones
 
