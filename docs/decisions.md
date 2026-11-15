@@ -133,6 +133,17 @@ Decided 2026-11-13: the policy starts in report-only mode and reports go to the 
 
 Decided 2026-11-13: light protection for `master`, as a repository ruleset: no deletion, no force-push. No required pull request or checks, because there is no second person to review and releases are direct pushes.
 
+## Remarks from inside the app
+
+Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
+
+- Remarks are stored in the app's own database. Every account may write them and sees its own; the owner sees all.
+- Only the owner sends a remark to GitHub, after seeing what goes out; the repository is public, so this step is the privacy gate. The account and the device details stay out unless ticked.
+- Kinds: bug, wish and note. The writer gets a thank-you, no promise and no state.
+- No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode and a two-finger tap on the phone, right click on a computer.
+- No screenshots: a page cannot take a real picture of itself. The part pointed at is recorded as data.
+- An agent on GitHub may investigate an issue the owner labels, and open a draft pull request for something small. It never merges.
+
 ## Functional reference
 
 Bring's web app remains a reference and source of inspiration for how the list page should behave.

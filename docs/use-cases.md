@@ -112,6 +112,16 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 2. On the sounds page, reached from the System page, the user picks, per event, a sound from a list or "no sound". The choice is saved and played at once on the buzzer.
 3. A button per sound plays it, to compare them and to check the buzzer works.
 
+### UC-18 Say what is wrong or missing
+
+1. Anyone who is logged in can write a remark: a bug, a wish or a note. Three ways to start: the "Write" button under Feedback on the System page; pointing at a part of the app; or the Feedback page.
+2. Pointing: "Point" on the System page puts a bar at the top, "Tap what you mean". The tabs keep working, so the user can walk to the page it is about. The next tap on the page picks that part and does nothing else: a product is not checked off by it. Quicker ways to pick a part at once: a short tap with two fingers, or a right click on a computer. In a text field a right click keeps the browser's own menu.
+3. The sheet says which part the remark is about, asks for the kind and the text, and sends it. The app adds the page, the part pointed at, its version and a few facts about the device. It never adds what was typed in a field.
+4. The writer gets a thank-you and nothing more: no promise and no state to follow. The remark is on the Feedback page, where each account sees its own.
+5. Without a connection the remark is kept on the device and sent when the connection is back; the sheet says so.
+6. The owner sees every remark on the Feedback page, is told about a new one from another account by a notification and a message on screen, and can mark a remark as handled or reopen it.
+7. The owner can send a remark to GitHub as an issue. The app first shows exactly what would be sent and warns that the repository is public. The account of the writer and the details of the device stay out unless the owner ticks them. A third tick asks the agent on GitHub to look at it.
+
 ## Using it as an app
 
 ### UC-14 Install on the phone

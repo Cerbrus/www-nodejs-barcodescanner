@@ -227,6 +227,8 @@ interface ProductSuggestion {
 | `PUT /api/v1/feedback/settings/:event` | Choose the sound for an event, or `none` |
 | `POST /api/v1/feedback/test` | Play one sound from the library at the scanner |
 | `GET /api/v1/logs`, `POST` | The latest log lines; the hardware agent and the phone post their own |
+| `POST /api/v1/remarks`, `GET` | Write a remark; read the own ones, or all for the owner, with whether sending to GitHub is set up |
+| `PATCH /api/v1/remarks/:id`, `POST .../issue-draft`, `POST .../issue` | Owner only: mark as handled or reopen, see the issue that would be made, make it on GitHub |
 | `POST /api/v1/csp-reports` | Public. What a browser blocked, or would block, under the content security policy; written to the log |
 | `GET /api/v1/push/key` | Public key a browser needs to subscribe to notifications |
 | `POST /api/v1/push/subscriptions`, `DELETE` | Store or remove this device's subscription |
@@ -297,6 +299,21 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 - Sounds play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
 - `python3 agent.py --test-feedback` plays the sound of every event once.
 - `test_agent.py` tests the agent without hardware: key events become scans, sound steps drive a fake GPIO line, settings and scans go to a fake API.
+
+## Remarks
+
+Feedback from inside the app. The code says "remark" because "feedback" is the name of the sounds at the scanner.
+
+- **Rules** (`core/rules/remarks.ts`, no framework): the kinds (bug, wish, note), which facts about the pointed-at part and the device are kept and how long each may be, the limit of thirty remarks an hour per account, and how an issue is made from a remark: the first line as title, sections "What happened" or "What is wished", "Where in the app", "Version", and only on request "Device" and "Sent by".
+- **`RemarkService`** owns the `remark` table. Writing is open to every account, also with login off, where the one account is called `local` and counts as owner. Reading gives the owner all remarks and anyone else their own. A remark written without a connection carries the time it was written; a time in the future is replaced by now.
+- **`GitHubService`** makes the issue with `GITHUB_ISSUES_TOKEN` on `GITHUB_REPOSITORY`. It is the only code that talks to GitHub. When GitHub refuses or cannot be reached the route answers 502 and the remark stays as it was. A remark goes to GitHub once; a second try answers 409.
+- **Who is asking**: the login guard puts the account (address, owner or not) on the request; `@CurrentAccount()` hands it to a controller.
+- **Telling the owner**: a push subscription records the account that made it. A remark from another account goes as a notification to the owner's devices only (subscriptions from before this, without an account, count as the owner's), and as a `remark` event on the event stream that carries the number, the kind and whether it came from the owner, never the text. The web app of the owner shows a message for a remark that is not his own.
+- **Web app**: `RemarkService` holds the draft, the pointing mode and the queue of remarks that wait for a connection (in the browser's storage, sent in order on reconnect). `remark-target.ts` describes the part of the page that was picked: the nearest tile, button, row or field, the component it sits in, its label or text and a short path; for a field the placeholder, never the value. `RemarkPointerDirective` on the shell's content area listens for the tap while pointing, the right click and the two-finger tap. The sheet and the Feedback page complete it.
+
+### The agent on GitHub
+
+`.github/workflows/issue-investigator.yml` starts when an issue gets the label `investigate`, and only when the owner's account set the label and wrote the issue; issues from the app are written with the owner's token, so they qualify, and an issue or a label from anyone else starts nothing. The agent follows `.github/issue-investigator.md`: it always answers in one comment (what is asked, the size, whether it can be done, where in the code), and for something small and clear it opens a draft pull request with the change and its tests. It never merges. A pull request opened by a workflow does not start the build checks; they start when the owner marks the draft as ready for review.
 
 ## Backup
 

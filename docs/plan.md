@@ -20,7 +20,7 @@ In this order, agreed with the owner on 2026-11-13:
 2. **The remaining package families** (see "Package upgrades"), one at a time, after the web app has tests to catch what breaks. Dependabot proposes the small ones weekly and its reviewer comments on them.
 3. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); two weeks of daily use (milestone 6); the choices for other accounts and the invite system (milestone 10); Tera's answer on the beeper.
 4. **Operations never tested** (list at the end). The rollback with `IMAGE_TAG` is the cheap one: two minutes on the Pi, and it proves the way back.
-5. **Remarks from inside the app** (milestone 11): planned in [remarks-plan.md](remarks-plan.md); all choices made, ready to build.
+5. **Remarks from inside the app** (milestone 11): built, waits for release and for the owner's tries on the iPhone and on GitHub.
 6. **Small leftovers**: mark scans whose lookup failed on the history page; guess the section from the connector's categories; the eight products without an emoji; remove the unused `source` field from the hardware agent, due since version 1.1.0.
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
@@ -140,11 +140,16 @@ Requested by the owner on 2026-11-13.
 - Not decided, on purpose: whether other accounts get their own list, and what they may do with products and the inbox. For now those stay shared.
 - Later, said by the owner on 2026-11-13: the `ALLOWED_EMAILS` setting is to become an invite system. Not planned in detail yet.
 
-### 11. Remarks from inside the app: planned
+### 11. Remarks from inside the app: built
 
-- Asked by the owner on 2026-11-14: give feedback from inside the app, as a bug report or a wish, from an element or from the settings page.
-- Worked out in [remarks-plan.md](remarks-plan.md). Decided on 2026-11-15: stored on the Pi with "send to GitHub" for the owner only, for every account, kinds bug, wish and note, pointing mode and a two-finger tap on the phone in place of touch and hold, no screenshots, also without a connection, a thank-you and no promise, the owner is told, issue templates on GitHub, and an agent that investigates what is sent to GitHub.
-- The agent may open draft pull requests for small things. The token for issues is on the Pi. Nothing is open; not built yet.
+Plan and decisions in [remarks-plan.md](remarks-plan.md). On branch `feature/remarks`, not released.
+
+- Done 2026-11-15 00:35: remarks on the server: the table, the rules, routes for every account and for the owner, the limit per hour, a notification to the owner only, sending to GitHub tested against a stand-in server.
+- Done 2026-11-15 00:57: the web app: the remark sheet, the row on the System page, pointing mode, right click and two-finger tap, the queue for remarks without a connection, the Feedback page with "send to GitHub" and its preview, the message to the owner.
+- Done 2026-11-15 01:05: issue forms on GitHub, the settings, the agent's workflow and instructions, the label `investigate`.
+- Tests: 7 for the rules, 12 route tests, 46 in the web app, 3 in the browser (right click, pointing mode, without a connection).
+- Open, only the owner can do these: the two-finger tap on the iPhone; pointing mode on the iPhone; the first real "send to GitHub"; the first run of the agent, best on a small wish.
+- Not built: a way for the writer to see an answer. Decided against.
 
 ### Smaller changes outside the milestones
 

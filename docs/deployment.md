@@ -113,6 +113,10 @@ Dependabot (`.github/dependabot.yml`) opens pull requests every Monday. Packages
 
 Limits on what it can use: at most 3 pull requests per run, at most 3 reviews per pull request, 60 steps and 30 minutes per review, and the smaller Claude model. The numbers are at the top of the workflow file. To review right away, start the workflow by hand with the age set to 0 or with one pull request number. It uses the repository secret `CLAUDE_CODE_OAUTH_TOKEN`, a subscription token made with `claude setup-token` that is valid for a year, so runs count against the owner's Claude plan. The Claude GitHub App must be installed on the repository. GitHub pauses scheduled workflows of a public repository after 60 days without activity; the Actions page shows a button to switch them on again.
 
+### Issue investigator
+
+An issue with the label `investigate`, written and labelled by the owner's account, starts `.github/workflows/issue-investigator.yml`: an agent reads the issue and the code and answers in a comment; for something small it opens a draft pull request. Its instructions are in `.github/issue-investigator.md`. It uses the same subscription token as the Dependabot reviewer, so each run counts against the owner's Claude plan; it runs at most 45 minutes and 80 steps, once per time the label is set. The checks of a pull request it opens start when the owner marks the draft as ready for review. The repository also has issue forms for a bug report and a feature request under `.github/ISSUE_TEMPLATE/`, with the same headings the app uses.
+
 ## Settings (`.env`)
 
 `install.sh` copies `deployment/env.template` to `.env` once; updates never overwrite it. Both containers read the whole file.
@@ -130,6 +134,8 @@ The least that must be set: `SCANNER_DEVICE`. For login also `GOOGLE_CLIENT_ID`,
 | `PUBLIC_URL` | Address the site is reached at, such as `https://shopping.example.com`, without a slash at the end |
 | `ALLOWED_EMAILS` | Google accounts that may log in, comma-separated |
 | `OWNER_EMAIL` | The account that also gets the system parts (log, history, scanner status, sounds, test notification). Empty: the first address of `ALLOWED_EMAILS` |
+| `GITHUB_ISSUES_TOKEN` | Lets the owner send feedback from the app to GitHub as an issue. A fine-grained personal access token for the one repository, with read and write on issues only. Empty: the button is not shown |
+| `GITHUB_REPOSITORY` | The repository the issues go to, as `owner/name`. Default: this project's |
 | `AGENT_TOKEN` | Secret the hardware agent uses instead of a login; `install.sh` creates it |
 | `CSP_MODE` | Content security policy: `report` (default) writes to the system log what the policy would block, `enforce` blocks it, `off` sends no policy. Restart the app after changing it |
 | `FEEDBACK_OUTPUT` | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below |

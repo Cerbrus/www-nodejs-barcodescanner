@@ -1,0 +1,28 @@
+name: Bug report
+description: Something in the app does not work as it should
+labels: [bug]
+body:
+    -   type: textarea
+        id: what
+        attributes:
+            label: What happened
+            description: What you did, what you expected, and what happened instead.
+        validations:
+            required: true
+    -   type: textarea
+        id: where
+        attributes:
+            label: Where in the app
+            description: The page, and the button, tile or field it is about.
+            placeholder: 'Page: #/list, the count on a product tile'
+    -   type: input
+        id: version
+        attributes:
+            label: Version
+            description: At the bottom of the System page.
+            placeholder: 1.1.40
+    -   type: textarea
+        id: device
+        attributes:
+            label: Device
+            description: Phone or computer, browser, installed as an app or in a tab.
