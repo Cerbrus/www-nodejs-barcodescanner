@@ -45,7 +45,9 @@ For the phone, in place of touch and hold, three candidates were weighed.
 | b | **Two-finger tap** anywhere: opens the sheet for what lies under the fingers. | One gesture, on the spot. The app has no other two-finger gesture; zooming is already off. | Nothing shows that it exists. Needs trying on the iPhone |
 | c | **A small button on every page**, in the corner or next to the page title, that starts pointing mode. | Always in sight, one tap to start | Takes room on a small screen, on every page, for something used rarely |
 
-Decided 2026-11-15: **a and b together**. Pointing mode is the way everyone can find; the two-finger tap is the shortcut for the owner, and it simply starts the same sheet. If the two-finger tap misbehaves on the iPhone it is dropped and nothing else changes.
+Decided 2026-11-15: **a and b together**. Changed 2026-11-15 (issue #10): b is removed, it did not work for the owner; a stays.
+
+Originally the plan was: pointing mode is the way everyone can find; the two-finger tap is the shortcut for the owner, and it simply starts the same sheet. If the two-finger tap misbehaves on the iPhone it is dropped and nothing else changes.
 
 ## Where remarks go
 
@@ -99,7 +101,7 @@ What it costs: each run counts against the owner's Claude plan, like the Dependa
 In this order, each step usable by itself:
 
 1. **Remarks on the Pi.** The `remark` table (kind, text, state, page, target, context, account, created, closed, issue address) with a migration; `RemarkService` and `RemarkController`: `POST /remarks` for every account, `GET /remarks` gives the owner all and others their own, `PATCH /remarks/:id` owner only. Limits on text length, context size and remarks per account per hour. The remark sheet, the settings row, right click, and the Remarks page. Thank-you message. Push notification and on-screen message to the owner.
-2. **Pointing on the phone**: pointing mode, and the two-finger tap if chosen.
+2. **Pointing on the phone**: pointing mode, (the two-finger tap was dropped, issue #10).
 3. **Without a connection**: the remark queue in the browser.
 4. **GitHub**: issue forms in the repository, the token setting, the preview and "send to GitHub" for the owner.
 5. **The agent**: the workflow and its instructions file, tried first on one hand-made issue.
