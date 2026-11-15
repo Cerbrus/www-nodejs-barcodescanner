@@ -16,6 +16,7 @@ import {
     LogLine,
     PushResult,
     PushSubscriptionInput,
+    Release,
     Remark,
     RemarkInput,
     RemarkList,
@@ -45,6 +46,10 @@ export class ApiService {
 
     public getAgentStatus(): Observable<AgentStatus> {
         return this.http.get<AgentStatus>(`${this.baseUrl}/agent/status`);
+    }
+
+    public getChangelog(): Observable<Array<Release>> {
+        return this.http.get<Array<Release>>('assets/changelog.json');
     }
 
     public getHealth(): Observable<Health> {

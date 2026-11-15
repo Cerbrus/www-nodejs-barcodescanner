@@ -1,0 +1,287 @@
+[
+    {
+        "version": "1.1.60",
+        "released": "2026-11-15T02:35:08+01:00",
+        "summary": "Review fixes for the device hint: wording on a computer, and test clean-up",
+        "notes": [
+            "Review fixes for the device hint: wording on a computer, and test clean-up",
+            "Clip the row highlight on the System tab to the rounded corners of its card",
+            "Show the Feedback hint that fits the device: touch screen or computer"
+        ]
+    },
+    {
+        "version": "1.1.57",
+        "released": "2026-11-15T02:28:18+01:00",
+        "summary": "Take a shared lock around pulling, restarting and pruning on the Pi",
+        "notes": [
+            "Take a shared lock around pulling, restarting and pruning on the Pi"
+        ]
+    },
+    {
+        "version": "1.1.56",
+        "released": "2026-11-15T02:11:36+01:00",
+        "summary": "Record the four agent pull requests in the plan",
+        "notes": [
+            "Record the four agent pull requests in the plan",
+            "Let feedback be rejected: it leaves the list, the row is kept",
+            "Show a number for open feedback on the System tab and the Feedback row",
+            "Let a remark be written about the bottom menu: right click a tab, or tap the active tab while pointing",
+            "Remove the two-finger tap for writing a remark; pointing mode and right click stay",
+            "Assign to the owner whatever waits for him: issue or pull request"
+        ]
+    },
+    {
+        "version": "1.1.50",
+        "released": "2026-11-15T01:52:36+01:00",
+        "summary": "Let the agent open pull requests ready for review, start their checks, and name the owner as code owner",
+        "notes": [
+            "Let the agent open pull requests ready for review, start their checks, and name the owner as code owner"
+        ]
+    },
+    {
+        "version": "1.1.49",
+        "released": "2026-11-15T01:40:36+01:00",
+        "summary": "Give the owner's issues authority, and have the agent label its verdict",
+        "notes": [
+            "Give the owner's issues authority, and have the agent label its verdict"
+        ]
+    },
+    {
+        "version": "1.1.48",
+        "released": "2026-11-15T01:09:53+01:00",
+        "summary": "Wait for the list before counting its tiles in the pointing test",
+        "notes": [
+            "Wait for the list before counting its tiles in the pointing test",
+            "Add issue forms, the GitHub settings and an agent that investigates labelled issues",
+            "Write remarks in the app: from the settings, by pointing, by right click or a two-finger tap",
+            "Keep remarks from any account, and let the owner send one to GitHub",
+            "Ignore key and token files, and record the last choices for remarks",
+            "Settle pointing on the phone and drop screenshots from the remarks plan",
+            "Record the owner's answers on remarks, and plan screenshots, offline use and the agent",
+            "Register the idea of remarks from inside the app, with a plan and questions"
+        ]
+    },
+    {
+        "version": "1.1.40",
+        "released": "2026-11-14T10:37:17+01:00",
+        "summary": "Wait out the repeat pause before scanning the same code again in the browser test",
+        "notes": [
+            "Wait out the repeat pause before scanning the same code again in the browser test",
+            "Report the server's answers when the repeated scan test fails",
+            "Print the page of a failed browser test in the build log",
+            "Test every page and component of the web app",
+            "Run the built app in a headless browser as part of the build checks",
+            "Test the login guard, push, the service worker and the camera page",
+            "Test the web app's logic with Vitest, as part of the build checks",
+            "Bring the plan up to date with what is released, and say what comes next"
+        ]
+    },
+    {
+        "version": "1.1.32",
+        "released": "2026-11-13T22:28:45+01:00",
+        "summary": "Format messages with FormatJS instead of an own compiler",
+        "notes": [
+            "Format messages with FormatJS instead of an own compiler",
+            "Add a content security policy in report-only mode"
+        ]
+    },
+    {
+        "version": "1.1.30",
+        "released": "2026-11-13T21:46:05+01:00",
+        "summary": "Stack the language and appearance rows on narrow screens",
+        "notes": [
+            "Stack the language and appearance rows on narrow screens"
+        ]
+    },
+    {
+        "version": "1.1.29",
+        "released": "2026-11-13T21:40:24+01:00",
+        "summary": "Reload the open app when a newer web app is published",
+        "notes": [
+            "Reload the open app when a newer web app is published"
+        ]
+    },
+    {
+        "version": "1.1.28",
+        "released": "2026-11-13T21:19:24+01:00",
+        "summary": "Group the System page and give the sounds their own page",
+        "notes": [
+            "Group the System page and give the sounds their own page"
+        ]
+    },
+    {
+        "version": "1.1.27",
+        "released": "2026-11-13T21:02:09+01:00",
+        "summary": "Show products already on the list in the search results as +1",
+        "notes": [
+            "Show products already on the list in the search results as +1"
+        ]
+    },
+    {
+        "version": "1.1.26",
+        "released": "2026-11-13T20:50:55+01:00",
+        "summary": "Bring the settings template and documentation up to date",
+        "notes": [
+            "Bring the settings template and documentation up to date",
+            "Keep the system parts of the System page for the owner account",
+            "Upgrade to Nx 24, Angular 22 and TypeScript 6",
+            "Run the images and the build on Node 25",
+            "Update all packages within their major version, and Yarn to 4.18",
+            "Remove forty packages that nothing uses, and plan tests for the web app"
+        ]
+    },
+    {
+        "version": "1.1.20",
+        "released": "2026-11-13T19:50:45+01:00",
+        "summary": "Bump the actions group across 1 directory with 5 updates",
+        "notes": [
+            "Bump the actions group across 1 directory with 5 updates",
+            "Let Dependabot propose major versions, grouped by family",
+            "Let the reviewer use the pull request checks as evidence, and skip builds for documentation-only pushes"
+        ]
+    },
+    {
+        "version": "1.1.17",
+        "released": "2026-11-13T19:35:39+01:00",
+        "summary": "Keep every app file after one visit, and judge offline changes against the state before the batch",
+        "notes": [
+            "Keep every app file after one visit, and judge offline changes against the state before the batch",
+            "Change the list without a connection and send the changes later",
+            "Extend the night report with the three later branches",
+            "Start without a connection and show the list as last loaded",
+            "Review every Dependabot pull request for its effect on the product",
+            "Stop tracking the Python cache of the hardware agent"
+        ]
+    },
+    {
+        "version": "1.1.11",
+        "released": "2026-11-13T19:12:07+01:00",
+        "summary": "Add a daily helper for Dependabot pull requests that are stuck",
+        "notes": [
+            "Add a daily helper for Dependabot pull requests that are stuck",
+            "Hold scans while the app is unreachable and deliver them later",
+            "Show on the System page whether the scanner is connected",
+            "Show which lookup source gave no answer, and let the user ask again",
+            "Add weekly Dependabot updates and a GitHub release per version"
+        ]
+    },
+    {
+        "version": "1.1.6",
+        "released": "2026-11-13T01:47:56+01:00",
+        "summary": "Correct the times in the plan and reports to the real ones",
+        "notes": [
+            "Correct the times in the plan and reports to the real ones",
+            "Add the report of the night of 2026-11-13",
+            "Send safe security headers and report backups in the system log",
+            "Test the hardware agent and check the shell scripts in the build",
+            "Report failed changes, announce handheld scans and offer undo for a check-off",
+            "Add a review of the whole product and a plan for offline shopping",
+            "Document the layered API and set the version to 1.1.0",
+            "Test the data routes over HTTP and fence the layers with lint rules",
+            "Tell the hardware agent and a logged-in browser apart",
+            "Give the barcode table one owner and run each scan action in one transaction",
+            "Read every setting through one config class",
+            "Move the API into api, core, data and config layers",
+            "Add the plan to restructure and harden the API"
+        ]
+    },
+    {
+        "version": "1.0.16",
+        "released": "2026-11-13T00:49:24+01:00",
+        "summary": "Bring test descriptions, the Pi folder tree, restore notes and the untested list up to date",
+        "notes": [
+            "Bring test descriptions, the Pi folder tree, restore notes and the untested list up to date",
+            "Show the version in the workflow's job names and run summary",
+            "Record the login as live and note the consent screen trap",
+            "Make the logout button red and ask before logging out",
+            "Take a product off the list with minus at quantity 1, and remove it from recent"
+        ]
+    },
+    {
+        "version": "1.0.11",
+        "released": "2026-11-13T00:23:55+01:00",
+        "summary": "Keep express out of the image's package list",
+        "notes": [
+            "Keep express out of the image's package list",
+            "Add login with Google for an allowlist of accounts"
+        ]
+    },
+    {
+        "version": "1.0.9",
+        "released": "2026-11-13T00:11:27+01:00",
+        "summary": "Stop the sound buttons from dimming while a sound is sent",
+        "notes": [
+            "Stop the sound buttons from dimming while a sound is sent"
+        ]
+    },
+    {
+        "version": "1.0.8",
+        "released": "2026-11-13T00:09:47+01:00",
+        "summary": "Put the event sounds in two columns and make the list of all sounds collapsible",
+        "notes": [
+            "Put the event sounds in two columns and make the list of all sounds collapsible"
+        ]
+    },
+    {
+        "version": "1.0.7",
+        "released": "2026-11-12T23:40:59+01:00",
+        "summary": "Make the buzzer sound per scan result a setting",
+        "notes": [
+            "Make the buzzer sound per scan result a setting",
+            "Add sound test buttons on the System page and gated buzzer sounds",
+            "Beep a GPIO buzzer for each scan result"
+        ]
+    },
+    {
+        "version": "1.0.4",
+        "released": "2026-11-12T20:18:05+01:00",
+        "summary": "Give every done mark in the plan its date and time",
+        "notes": [
+            "Give every done mark in the plan its date and time"
+        ]
+    },
+    {
+        "version": "1.0.3",
+        "released": "2026-11-12T20:05:21+01:00",
+        "summary": "Record the confirmed notification behaviour and why addresses use a hash",
+        "notes": [
+            "Record the confirmed notification behaviour and why addresses use a hash"
+        ]
+    },
+    {
+        "version": "1.0.2",
+        "released": "2026-11-12T20:00:22+01:00",
+        "summary": "Use hash addresses so a notification tap does not reload the app",
+        "notes": [
+            "Use hash addresses so a notification tap does not reload the app",
+            "Paint the theme background and navigation outline before the app starts"
+        ]
+    },
+    {
+        "version": "1.0.0",
+        "released": "2026-11-12T19:50:02+01:00",
+        "summary": "Version 1.0: readable version numbers, declarative push, source logos",
+        "notes": [
+            "Version 1.0: readable version numbers, declarative push, source logos",
+            "Lower the scan debounce to 1 second and make the notification tap independent of messages",
+            "Open the inbox from a notification when the app is already open",
+            "Bring the documentation up to date and give the section dropdown a proper arrow",
+            "Add push notifications for unknown scans, a database backup to a private repository, and reconnecting",
+            "Second round of phone feedback: create products from the list, theme switch, smaller log files",
+            "Add an app icon and manifest, a console banner, and keep the autocomplete list in flow",
+            "Rework the pages after the first look on phone and desktop",
+            "Clear lint errors, gate image builds on lint and tests, quiet the log",
+            "Replace the frontend with the shopping list app and add a system log",
+            "Describe the log page and record the milestone 3 check on the Pi",
+            "Make the hardware agent tolerant of scans without an Enter key",
+            "Add the scan, catalog, list, connector and event modules",
+            "Describe the per-item management page with drawn barcodes",
+            "Limit the app port to the reverse proxy",
+            "Record milestone 2 status in the plan",
+            "Add pull-based deployment and trim the API to a SQLite skeleton",
+            "Add hardware agent and record the scanner spike",
+            "Remove push-based deploy workflow",
+            "Add barcode scanner prototype and rebuild plan"
+        ]
+    }
+]

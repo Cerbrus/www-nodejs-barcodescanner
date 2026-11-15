@@ -117,6 +117,10 @@ Decided 2026-11-13:
 - Every version gets a GitHub release with the commit subjects since the previous version.
 - A Claude agent reviews every Dependabot pull request once it is a day old: not only whether the checks pass, but whether the update changes or breaks what the product does. It repairs small things and leaves a verdict, so the owner only has to merge or not. It has no right to merge, a short list of tools, and treats changelogs as outside text.
 
+## Changelog in the app
+
+Decided 2026-11-15, on the owner's issue #23: the app shows a changelog to every logged-in account, a summary line per version with date and time, expanding into its notes. The data is a committed file in the web app, built from the git tags by `yarn changelog`, notes in English. Chosen over an API route and a table (nothing to store), and over generating it in the image build (the Dockerfile and workflows stay as they are; the owner can add the step later).
+
 ## Node version
 
 Decided 2026-11-13 by the owner: the images and the build follow the newest Node release, 25 at the time, also when it is not a long-term one. The build's tests run on the same version as the image. Local development works on 24 or newer.

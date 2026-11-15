@@ -125,7 +125,7 @@ describe('routes, settings and the console banner', () => {
     it('can load every page', async () => {
         const pages = await Promise.all([...appRoutes, ...(shell.children ?? [])].filter((route) => route.loadComponent).map((route) => route.loadComponent?.()));
 
-        expect(pages.length).toBe(11);
+        expect(pages.length).toBe(12);
         expect(pages.every((page) => typeof page === 'function')).toBe(true);
     });
 

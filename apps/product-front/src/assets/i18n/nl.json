@@ -119,6 +119,10 @@
         "en": "Engels",
         "nl": "Nederlands"
     },
+    "changelog": {
+        "title": "Wat is er nieuw",
+        "empty": "Nog geen versies"
+    },
     "system": {
         "language": "Taal",
         "connection": "Verbinding",

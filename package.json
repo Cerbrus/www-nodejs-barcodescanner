@@ -12,6 +12,7 @@
         "product-front:build": "nx run product-front:build",
         "product-front:test": "nx run product-front:test",
         "product-front:test:coverage": "nx run product-front:test --coverage --coverageReporters=text --skip-nx-cache",
+        "changelog": "node tools/changelog.mjs",
         "e2e": "yarn product-api:build && yarn product-front:build && playwright test -c e2e/playwright.config.ts",
         "hardware-agent:test": "python -m unittest discover -s apps/hardware-agent -p \"test_*.py\"",
         "product-front:serve": "nx run product-front:serve",

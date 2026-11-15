@@ -130,7 +130,7 @@ Angular with standalone components and signals; no state library. `apps/product-
 
 | Folder | Content |
 |---|---|
-| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `catalog` (products), `item` (one product with its barcodes), `history`, `log`, `system` |
+| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `catalog` (products), `item` (one product with its barcodes), `history`, `log`, `system`, `changelog` |
 | `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode` |
 | `services/` | `auth.service` (login state, route guard), `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
 
@@ -300,6 +300,10 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 - Sounds play on their own thread, so a beep never delays reading the next scan. A buzzer that cannot be opened is logged once and the agent carries on without sound.
 - `python3 agent.py --test-feedback` plays the sound of every event once.
 - `test_agent.py` tests the agent without hardware: key events become scans, sound steps drive a fake GPIO line, settings and scans go to a fake API.
+
+## Changelog
+
+`apps/product-front/src/assets/changelog.json` holds one entry per published version: `version`, `released` (ISO time of the tagged commit), `summary` (the newest commit subject) and `notes` (every commit subject since the previous version). `tools/changelog.mjs` (`yarn changelog`) writes it from the git tags, which also backfills every version so far. The file ships inside the web app, so it needs no API route; `ChangelogPage` (`/changelog`, open to every logged-in account) fetches it through `ApiService.getChangelog()` and shows a summary line per release that expands into its notes. New versions appear after the script is run again and the file is committed.
 
 ## Remarks
 

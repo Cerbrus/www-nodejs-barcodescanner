@@ -76,7 +76,7 @@ describe('SystemPage', () => {
         await open(OWNER);
 
         expect(groups()).toEqual(['system.device', 'login.account', 'system.management']);
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks', '/sounds', '/history', '/log']);
+        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks', '/changelog', '/sounds', '/history', '/log']);
         expect(texts(page, '.version')[0]).toContain('1.1.32 (c96a5b5)');
     });
 
@@ -94,7 +94,7 @@ describe('SystemPage', () => {
 
         expect(groups()).toEqual(['system.device', 'login.account']);
         expect(page.querySelector('.version')).toBeNull();
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks']);
+        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual(['/remarks', '/changelog']);
         expect(api.getAgentStatus).not.toHaveBeenCalled();
         expect(texts(page, '.row .truncate')).toEqual(['guest@example.com']);
     });
@@ -186,7 +186,7 @@ describe('SystemPage', () => {
     it('lets every account write a remark, point at a part, and open its remarks', async () => {
         await open(GUEST);
         expect(texts(row('remark.title'), 'button')).toEqual(['ads_click remark.point', 'add_comment remark.write']);
-        expect(texts(page, 'a.row.link .label')).toEqual(['remark.mine']);
+        expect(texts(page, 'a.row.link .label')).toEqual(['remark.mine', 'changelog.title']);
 
         click(row('remark.title'), 'button', 1);
         expect(remarks.draft()).toEqual({ target: undefined });

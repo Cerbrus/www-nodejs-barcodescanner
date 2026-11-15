@@ -76,6 +76,13 @@ export interface LogLine {
     message: string;
 }
 
+export interface Release {
+    version: string;
+    released: string;
+    summary: string;
+    notes: Array<string>;
+}
+
 export interface Health {
     status: string;
     version: string;

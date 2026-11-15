@@ -124,6 +124,13 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 8. The owner can send a remark to GitHub as an issue. The app first shows exactly what would be sent and warns that the repository is public. The account of the writer and the details of the device stay out unless the owner ticks them. A third tick asks the agent on GitHub to handle it: the issue says it comes from the owner, the agent implements it in a pull request unless a question is open, and labels the issue with its verdict.
 9. The owner sees how many remarks are still open and not on GitHub yet, as a number on the Feedback row of the System page and on the System tab. Other accounts see no number.
 
+### UC-19 See what changed in each version
+
+1. Every account that is logged in finds "What's new" in the "This device" group of the System page.
+2. The page lists the releases, newest first. Each shows a summary line, the version and the date and time it was released.
+3. A tap on a release opens its individual notes; a second tap closes them, and opening another closes the first.
+4. The notes are the commit subjects between a version and the one before it, in English. Versions from the first one onward are filled in. After new versions are published, `yarn changelog` rebuilds the file from the git tags, and the result is committed.
+
 ## Using it as an app
 
 ### UC-14 Install on the phone
@@ -139,4 +146,4 @@ The user adds the site to the home screen from the browser's share menu. It then
 
 ### UC-15 Language and appearance
 
-The System page has three groups. "This device", for every account: Dutch or English, automatic, light or dark appearance (both remembered per device), and notifications for this device on or off. "Account": the address that is logged in and the logout button. "Management", for the owner only: whether the live connection is up, whether the handheld scanner is connected and when it last scanned, and rows that open the sounds at the scanner, the scan history and the system log. The running version stands below it. The owner also gets the test notification button. Other accounts do not see the management group, and the server refuses them the data behind it.
+The System page has three groups. "This device", for every account: Dutch or English, automatic, light or dark appearance (both remembered per device), notifications for this device on or off, feedback and the changelog (UC-19). "Account": the address that is logged in and the logout button. "Management", for the owner only: whether the live connection is up, whether the handheld scanner is connected and when it last scanned, and rows that open the sounds at the scanner, the scan history and the system log. The running version stands below it. The owner also gets the test notification button. Other accounts do not see the management group, and the server refuses them the data behind it.

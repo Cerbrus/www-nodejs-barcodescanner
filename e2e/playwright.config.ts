@@ -31,7 +31,7 @@ export default defineConfig({
     projects: [
         {
             name: 'app',
-            testMatch: ['shopping.e2e.ts', 'remarks.e2e.ts'],
+            testMatch: ['shopping.e2e.ts', 'remarks.e2e.ts', 'changelog.e2e.ts'],
             use: { launchOptions: { args: FAKE_CAMERA } }
         },
         {

@@ -119,6 +119,10 @@
         "en": "English",
         "nl": "Dutch"
     },
+    "changelog": {
+        "title": "What's new",
+        "empty": "No releases yet"
+    },
     "system": {
         "language": "Language",
         "connection": "Connection",
