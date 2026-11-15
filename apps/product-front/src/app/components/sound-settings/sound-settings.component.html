@@ -16,7 +16,7 @@
                     }
                 </span>
                 @if (soundOf(row.soundId); as sound) {
-                    <app-sound-timeline [blocks]="sound.blocks" />
+                    <app-sound-timeline [compact]="true" [blocks]="sound.blocks" />
                 }
                 <i class="material-symbols-outlined muted">chevron_right</i>
             </button>
@@ -28,7 +28,7 @@
                 <span class="min-w-0 grow truncate font-semibold">
                     {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
                 </span>
-                <app-sound-timeline [blocks]="sound.blocks" />
+                <app-sound-timeline [compact]="true" [blocks]="sound.blocks" />
                 <button
                     type="button"
                     class="icon"
@@ -66,9 +66,12 @@
             (click)="choose(event, noSound)"
         >
             <span class="grow font-semibold">{{ 'sound.none' | translate }}</span>
-            @if (chosenFor(event) === noSound) {
-                <i class="material-symbols-outlined">check</i>
-            }
+            <i
+                class="material-symbols-outlined check"
+                aria-hidden="true"
+                [class.invisible]="chosenFor(event) !== noSound"
+                >check</i
+            >
         </button>
         @for (sound of settings()?.sounds ?? []; track sound.id) {
             <button
@@ -80,10 +83,13 @@
                 <span class="min-w-0 grow truncate font-semibold">
                     {{ sound.name ?? ('sound.name.' + sound.id | translate) }}
                 </span>
-                <app-sound-timeline [blocks]="sound.blocks" />
-                @if (chosenFor(event) === sound.id) {
-                    <i class="material-symbols-outlined">check</i>
-                }
+                <app-sound-timeline [compact]="true" [blocks]="sound.blocks" />
+                <i
+                    class="material-symbols-outlined check"
+                    aria-hidden="true"
+                    [class.invisible]="chosenFor(event) !== sound.id"
+                    >check</i
+                >
             </button>
         }
         <button type="button" class="btn new mt-3 w-full" (click)="startNew(event)">

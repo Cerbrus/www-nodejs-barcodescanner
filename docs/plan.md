@@ -199,10 +199,11 @@ Not chosen: "due again" suggestions, a "done shopping" action with trimming of r
 The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instead of picking from a fixed list, a sound is a sequence of blocks, edited in a popup from the sounds page, named and reused as a preset for any event.
 
 - Done 2026-11-15 18:45, released in 1.1.93: presets in a `sound` table, eleven starting ones that sound exactly like the old sounds of the same name, the soft and other unused sounds gone; routes to make, change, delete and try sounds; on the sounds page a row per event with a timeline and a popup to pick, a list of sounds to play and edit, and the editor popup. The duration slider moves in steps, fine for short beeps and coarse for long ones, so it works on a phone.
+- Done 2026-11-15 19:20, on branch `feature/sound-waves`, not released: owner's changes after trying it: a sound lasts at most 1 second, the timeline draws each kind of block differently (sine, bursts, sawtooth, flat line), coarser in the small timelines, and the picker keeps room for its check mark so the timelines line up.
 
 - For the active buzzer on the Pi (decided by the owner on 2026-11-15: no speaker for now), which has one fixed pitch. The blocks are therefore timing and texture: beep (duration), trill (rate, duration), buzz (roughness, duration) and pause (duration).
 - Presets move from code to a table; the setting per event points to a preset. A handful of today's sounds become ready-made presets, the rest go, and current choices move to the nearest preset. A preset in use cannot be deleted.
-- A limit on length, about 2 seconds and 12 blocks, checked by the server, because sounds play one after another and a long one would delay the next scan's beep.
+- A limit on length, 1 second (first 2) and 12 blocks, checked by the server, because sounds play one after another and a long one would delay the next scan's beep.
 - A simple timeline as picture: blocks, gaps, and stripes for trills and buzzes, with a time scale. The play button sends the sound to the buzzer, as now.
 - Steps of 10 to 20 ms on the sliders, so it works on a phone.
 - Shelved: a passive buzzer or a small speaker behind a transistor would allow real tones; the hardware agent already supports a passive buzzer.

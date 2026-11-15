@@ -220,7 +220,7 @@
         "duration": "{ms} ms",
         "rate": "{rate} per second",
         "total": "{ms} of {max} ms",
-        "tooLong": "Too long: a sound lasts at most 2 seconds and has at most 12 blocks.",
+        "tooLong": "Too long: a sound lasts at most 1 second and has at most 12 blocks.",
         "needsSound": "Add at least one block that makes sound.",
         "save": "Save",
         "saveAsNew": "Save as new",

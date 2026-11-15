@@ -143,7 +143,7 @@ export interface FeedbackSettings {
 }
 
 export const MAX_SOUND_BLOCKS = 12;
-export const MAX_SOUND_MILLISECONDS = 2000;
+export const MAX_SOUND_MILLISECONDS = 1000;
 export const SOUND_RATES = { trill: { min: 4, max: 40, step: 1 }, buzz: { min: 100, max: 1000, step: 50 } };
 
 export interface AuthState {

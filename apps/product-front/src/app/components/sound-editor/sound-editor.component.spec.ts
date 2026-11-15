@@ -98,7 +98,7 @@ describe('SoundEditorComponent', () => {
 
     it('refuses a sound that is too long or makes no sound, and says why', async () => {
         await open(DOUBLE, 'Twee tikken');
-        await slide(0, 30);
+        await slide(0, 25);
 
         expect(texts(page, 'p.problem')).toEqual(['sound.tooLong']);
         expect(button('button.save').disabled).toBe(true);

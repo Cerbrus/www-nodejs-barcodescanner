@@ -71,6 +71,8 @@ describe('SoundSettingsComponent', () => {
         await settle();
         expect(texts(page, 'app-sheet .page-title')).toEqual(['sound.choose']);
         expect(texts(page, 'app-sheet .row.chosen .font-semibold')).toEqual(['sound.none']);
+        expect(page.querySelectorAll('app-sheet .row.option .check').length).toBe(3);
+        expect(page.querySelectorAll('app-sheet .row.option .check:not(.invisible)').length).toBe(1);
 
         click(page, 'app-sheet .row.option', 2);
         await settle();

@@ -31,7 +31,7 @@ export interface SoundSaved {
 
 const DURATIONS = [
     10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900,
-    1000, 1200, 1400, 1600, 1800, 2000
+    1000
 ];
 
 const NEW_BLOCK: Record<SoundBlock['kind'], SoundBlock> = {

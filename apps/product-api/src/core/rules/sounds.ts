@@ -21,7 +21,7 @@ export type FeedbackEvent = (typeof FEEDBACK_EVENTS)[number];
 
 export const NO_SOUND = 'none';
 export const MAX_BLOCKS = 12;
-export const MAX_MILLISECONDS = 2000;
+export const MAX_MILLISECONDS = 1000;
 export const MIN_BLOCK_MILLISECONDS = 10;
 export const MAX_NAME_LENGTH = 40;
 export const RATES: Record<'trill' | 'buzz', { min: number; max: number }> = {
