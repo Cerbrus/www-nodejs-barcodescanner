@@ -272,9 +272,9 @@
         "publicWarning": "The repository is public: anyone can read what is below.",
         "preview": "This will be sent",
         "option": {
+            "investigate": "Let the agent look at it",
             "includeDevice": "Include details about the device",
-            "includeAccount": "Include the writer's account",
-            "investigate": "Let the agent look at it"
+            "includeAccount": "Include the writer's account"
         },
         "newFromOther": "There is new feedback",
         "open": "Open"

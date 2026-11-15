@@ -272,9 +272,9 @@
         "publicWarning": "De repository is openbaar: wat hieronder staat kan iedereen lezen.",
         "preview": "Dit wordt verstuurd",
         "option": {
+            "investigate": "Laat de agent ernaar kijken",
             "includeDevice": "Gegevens over het apparaat meesturen",
-            "includeAccount": "Het account van de schrijver meesturen",
-            "investigate": "Laat de agent ernaar kijken"
+            "includeAccount": "Het account van de schrijver meesturen"
         },
         "newFromOther": "Er is nieuwe feedback",
         "open": "Bekijken"
