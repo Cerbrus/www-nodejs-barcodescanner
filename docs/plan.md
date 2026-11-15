@@ -6,13 +6,13 @@ How the prototype became the product, and what is left. Decisions behind this pl
 
 In daily-use shape and running on the Pi:
 
-- Handheld and camera scanning, the scan rules, inbox and naming, the list, product management, history with undo, the system log.
+- Handheld and camera scanning, the scan rules, inbox and naming with a proposed product and variant, the list with several lines per product told apart by their note, sections from the shop's category, product management, history with undo, the system log.
 - Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app reloads itself after an update. The Pi also runs the card scanner; the two updaters share a lock.
 - Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans, shopping without a connection.
 - Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner.
 - Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request, which is reviewed and landed locally. A "What's new" page built from the releases.
-- Tests: API rules and routes, 263 web app tests, 11 browser tests, the hardware agent; all run before any image is published.
-- Packages: Node 25, Nx 24, Angular 22, TypeScript 6. A content security policy in report-only mode.
+- Tests: API rules and routes, the web app, 12 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag is tested.
+- Packages: Node 25, Nx 24, Angular 22, TypeScript 6, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, ESLint 10. A content security policy in report-only mode.
 
 ## What comes next
 
