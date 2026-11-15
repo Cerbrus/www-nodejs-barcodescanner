@@ -2,9 +2,6 @@ import { ConflictException, HttpException, HttpStatus, Injectable, Logger, NotFo
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Not, Repository } from 'typeorm';
 
-import { EventsService } from './events.service';
-import { GitHubService } from './github.service';
-import { PushService } from './push.service';
 import { RemarkEntity } from '../../data/entities';
 import {
     IssueDraft,
@@ -17,6 +14,9 @@ import {
     issueFromRemark,
     tooManyRemarks
 } from '../rules/remarks';
+import { EventsService } from './events.service';
+import { GitHubService } from './github.service';
+import { PushService } from './push.service';
 
 export interface RemarkInput {
     kind: RemarkKind;

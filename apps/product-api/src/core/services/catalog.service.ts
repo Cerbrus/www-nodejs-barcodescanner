@@ -5,9 +5,9 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 
-import { EventsService } from './events.service';
 import { AppConfig } from '../../config/app.config';
 import { CatalogItemEntity, SectionEntity } from '../../data/entities';
+import { EventsService } from './events.service';
 
 export interface CatalogItemInput {
     name?: string;

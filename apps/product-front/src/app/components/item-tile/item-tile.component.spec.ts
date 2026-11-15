@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ItemTileComponent } from './item-tile.component';
 import { click, item, texts } from '../../../testing/fakes';
 import { ApiService } from '../../services/api.service';
 import { ItemIconComponent } from '../item-icon/item-icon.component';
+import { ItemTileComponent } from './item-tile.component';
 
 describe('ItemTileComponent and ItemIconComponent', () => {
     let fixture: ComponentFixture<ItemTileComponent>;

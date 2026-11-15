@@ -2,15 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 
+import { BarcodeEntity, ProductSuggestion, ScanEntity, ScanResult, ScanSource } from '../../data/entities';
+import { TransactionRunner } from '../../data/transaction.runner';
+import { addOneToEntry, decideScan } from '../rules/scan-rules';
 import { BarcodeService } from './barcode.service';
 import { CatalogService } from './catalog.service';
 import { ConnectorService } from './connector.service';
 import { EventsService } from './events.service';
 import { ListService, cleanNote } from './list.service';
 import { PushService } from './push.service';
-import { BarcodeEntity, ProductSuggestion, ScanEntity, ScanResult, ScanSource } from '../../data/entities';
-import { TransactionRunner } from '../../data/transaction.runner';
-import { addOneToEntry, decideScan } from '../rules/scan-rules';
 
 export interface ScanOutcome {
     scanId: number;

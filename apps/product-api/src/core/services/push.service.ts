@@ -6,9 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WebPushError, generateVAPIDKeys, sendNotification } from 'web-push';
 
-import { BarcodeService } from './barcode.service';
 import { AppConfig } from '../../config/app.config';
 import { PushSubscriptionEntity } from '../../data/entities';
+import { BarcodeService } from './barcode.service';
 
 interface VapidKeys {
     publicKey: string;

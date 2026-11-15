@@ -9,9 +9,9 @@ import { after, before, describe, it } from 'node:test';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-import { testFolder } from './test-env';
 import { configureApi } from '../api/configure-api';
 import { AppModule } from '../app.module';
+import { testFolder } from './test-env';
 
 const frontend = join(testFolder, 'public');
 

@@ -4,12 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 
+import { AuthState } from '../models';
 import { AuthService, redirectOnUnauthorized, requireLogin, requireOwner } from './auth.service';
 import { EventsService } from './events.service';
 import { loadOutbox, saveOutbox } from './outbox';
 import { SettingsService } from './settings/settings.service';
 import { loadSnapshot, saveSnapshot } from './snapshot';
-import { AuthState } from '../models';
 
 type GuardResult = boolean | { redirect: string };
 

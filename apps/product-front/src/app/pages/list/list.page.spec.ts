@@ -3,11 +3,11 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { ListPage } from './list.page';
 import { FakeStore, click, entry, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
+import { ListPage } from './list.page';
 
 const milk = item(1, 'Melk');
 const bread = item(2, 'Brood', 'brood-gebak');

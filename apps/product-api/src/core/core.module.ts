@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { DataModule } from '../data/data.module';
 import { AHConnector } from './connectors/ah.connector';
 import { OpenFoodFactsConnector } from './connectors/off.connector';
 import { AgentStatusService } from './services/agent-status.service';
@@ -18,7 +19,6 @@ import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
 import { SeedService } from './services/seed.service';
 import { SessionService } from './services/session.service';
-import { DataModule } from '../data/data.module';
 
 const services = [
     AgentStatusService,

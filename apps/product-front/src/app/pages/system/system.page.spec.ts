@@ -4,7 +4,6 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { SystemPage } from './system.page';
 import { FakeEvents, FakeRemarks, click, fakeEvents, fakeRemarks, texts } from '../../../testing/fakes';
 import { AgentStatus, AuthState } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -13,6 +12,7 @@ import { EventsService } from '../../services/events.service';
 import { PushService, PushStatus } from '../../services/push.service';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
+import { SystemPage } from './system.page';
 
 const OWNER: AuthState = { enabled: true, authenticated: true, owner: true, email: 'owner@example.com' };
 const GUEST: AuthState = { enabled: true, authenticated: true, owner: false, email: 'guest@example.com' };

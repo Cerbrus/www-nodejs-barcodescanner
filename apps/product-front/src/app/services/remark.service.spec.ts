@@ -4,6 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
+import { FakeEvents, fakeEvents } from '../../testing/fakes';
+import { RemarkInput } from '../models';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { EventsService } from './events.service';
@@ -11,8 +13,6 @@ import { describeElement, isTextField } from './remark-target';
 import { RemarkDelivery, RemarkService } from './remark.service';
 import { ShoppingStore } from './shopping.store';
 import { ToastService } from './toast.service';
-import { FakeEvents, fakeEvents } from '../../testing/fakes';
-import { RemarkInput } from '../models';
 
 const noConnection = (): HttpErrorResponse => new HttpErrorResponse({ status: 0 });
 

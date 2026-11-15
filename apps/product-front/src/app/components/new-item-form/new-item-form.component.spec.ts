@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
 
-import { NewItemFormComponent } from './new-item-form.component';
 import { FakeStore, click, fakeStore, item, type } from '../../../testing/fakes';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
+import { NewItemFormComponent } from './new-item-form.component';
 
 describe('NewItemFormComponent', () => {
     let fixture: ComponentFixture<NewItemFormComponent>;

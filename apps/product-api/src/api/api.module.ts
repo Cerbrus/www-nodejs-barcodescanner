@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 
+import { CoreModule } from '../core/core.module';
 import { AgentController } from './controllers/agent.controller';
 import { AuthController } from './controllers/auth.controller';
 import { BarcodeController } from './controllers/barcode.controller';
@@ -17,7 +18,6 @@ import { RemarkController } from './controllers/remark.controller';
 import { ScanController } from './controllers/scan.controller';
 import { SectionController } from './controllers/section.controller';
 import { AuthGuard } from './guards/auth.guard';
-import { CoreModule } from '../core/core.module';
 
 @Module({
     imports: [CoreModule],

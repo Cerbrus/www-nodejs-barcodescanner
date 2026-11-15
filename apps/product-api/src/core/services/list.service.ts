@@ -4,9 +4,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { EventsService } from './events.service';
 import { CatalogItemEntity, ListEntryEntity, ListState } from '../../data/entities';
 import { EntrySnapshot } from '../rules/scan-rules';
+import { EventsService } from './events.service';
 
 export interface ListEntryChange {
     catalogItemId?: number;

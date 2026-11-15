@@ -2,10 +2,10 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ItemAutocompleteComponent } from './item-autocomplete.component';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
+import { ItemAutocompleteComponent } from './item-autocomplete.component';
 
 const item = (id: number, name: string): CatalogItem => ({ id, name, sectionId: 'x', custom: false });
 const CATALOG = [

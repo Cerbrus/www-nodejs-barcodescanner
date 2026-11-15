@@ -3,11 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 
-import { RemarkPointerDirective } from './remark-pointer.directive';
-import { RemarkSheetComponent } from './remark-sheet.component';
 import { FakeRemarks, click, fakeRemarks, texts, type } from '../../../testing/fakes';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
+import { RemarkPointerDirective } from './remark-pointer.directive';
+import { RemarkSheetComponent } from './remark-sheet.component';
 
 @Component({
     standalone: true,

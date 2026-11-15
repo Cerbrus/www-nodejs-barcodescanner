@@ -3,10 +3,10 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { ChangelogPage } from './changelog.page';
 import { click, texts } from '../../../testing/fakes';
 import { Release } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { ChangelogPage } from './changelog.page';
 
 const RELEASES: Array<Release> = [
     {

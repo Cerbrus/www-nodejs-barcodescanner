@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
-import { BarcodeService } from './barcode.service';
-import { CatalogService } from './catalog.service';
 import { BarcodeEntity } from '../../data/entities';
 import { NameProposal, proposeFromShops } from '../rules/naming';
+import { BarcodeService } from './barcode.service';
+import { CatalogService } from './catalog.service';
 
 export interface BarcodeWithProposal extends BarcodeEntity {
     proposal?: NameProposal;

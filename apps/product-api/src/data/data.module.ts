@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AppConfig } from '../config/app.config';
 import { databaseOptions } from './database';
 import { Entities } from './entities';
 import { TransactionRunner } from './transaction.runner';
-import { AppConfig } from '../config/app.config';
 
 @Module({
     imports: [

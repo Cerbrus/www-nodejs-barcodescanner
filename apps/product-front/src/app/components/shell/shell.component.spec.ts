@@ -4,7 +4,6 @@ import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { ShellComponent } from './shell.component';
 import {
     FakeEvents,
     FakeRemarks,
@@ -21,6 +20,7 @@ import { EventsService } from '../../services/events.service';
 import { RemarkService } from '../../services/remark.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
+import { ShellComponent } from './shell.component';
 
 describe('ShellComponent', () => {
     let fixture: ComponentFixture<ShellComponent>;

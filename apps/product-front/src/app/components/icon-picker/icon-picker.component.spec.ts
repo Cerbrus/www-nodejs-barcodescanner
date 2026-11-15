@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { IconPickerComponent } from './icon-picker.component';
 import { click, texts, type } from '../../../testing/fakes';
 import { ApiService } from '../../services/api.service';
+import { IconPickerComponent } from './icon-picker.component';
 
 describe('IconPickerComponent', () => {
     let fixture: ComponentFixture<IconPickerComponent>;

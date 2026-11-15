@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { ScanPage } from './scan.page';
 import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
+import { ScanPage } from './scan.page';
 
 const camera = vi.hoisted(() => ({
     decoded: undefined as ((result?: { getText(): string }) => void) | undefined,

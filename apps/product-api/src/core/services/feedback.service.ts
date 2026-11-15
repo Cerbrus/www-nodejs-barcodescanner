@@ -2,9 +2,9 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { EventsService } from './events.service';
 import { FeedbackSettingEntity } from '../../data/entities';
 import { DEFAULT_SOUND_IDS, FEEDBACK_EVENTS, FeedbackEvent, NO_SOUND, SOUNDS, Sound, SoundStep } from '../rules/sounds';
+import { EventsService } from './events.service';
 
 export interface FeedbackSettings {
     events: Array<{ event: FeedbackEvent; soundId: string; steps: Array<SoundStep> }>;

@@ -1,6 +1,6 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config({
@@ -8,7 +8,7 @@ export default tseslint.config({
     extends: [js.configs.recommended, ...tseslint.configs.recommended, prettier],
     plugins: { import: importPlugin },
     settings: {
-        'import/resolver': {
+        'import-x/resolver': {
             node: true,
             typescript: { project: `${import.meta.dirname}/tsconfig.base.json` }
         }

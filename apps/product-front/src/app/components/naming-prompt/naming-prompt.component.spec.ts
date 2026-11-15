@@ -2,12 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
-import { NamingOutcome, NamingPromptComponent } from './naming-prompt.component';
 import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { Barcode } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
 import { ShoppingStore } from '../../services/shopping.store';
+import { NamingOutcome, NamingPromptComponent } from './naming-prompt.component';
 
 const CODE = '8710400000001';
 const known = (extra: Partial<Barcode> = {}): Barcode => ({ code: CODE, scanCount: 1, suggestions: [], ...extra });

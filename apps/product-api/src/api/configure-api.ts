@@ -1,8 +1,8 @@
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-import { setSecurityHeaders, useContentPolicyHeaders } from './security-headers';
 import { ContentPolicyService } from '../core/services/content-policy.service';
+import { setSecurityHeaders, useContentPolicyHeaders } from './security-headers';
 
 export const API_PREFIX = 'api';
 

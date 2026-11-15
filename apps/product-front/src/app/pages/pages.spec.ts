@@ -3,18 +3,18 @@ import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
+import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../testing/fakes';
 import { Scan } from '../models';
+import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
+import { EventsService } from '../services/events.service';
+import { ShoppingStore } from '../services/shopping.store';
 import { CatalogPage } from './catalog/catalog.page';
 import { HistoryPage } from './history/history.page';
 import { InboxPage } from './inbox/inbox.page';
 import { LogPage } from './log/log.page';
 import { LoginPage } from './login/login.page';
 import { SoundsPage } from './sounds/sounds.page';
-import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../testing/fakes';
-import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
-import { EventsService } from '../services/events.service';
-import { ShoppingStore } from '../services/shopping.store';
 
 const scan = (id: number, result: Scan['result'], extra: Partial<Scan> = {}): Scan => ({
     id,

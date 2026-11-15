@@ -11,13 +11,13 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DataSource } from 'typeorm';
 
-import { testFolder } from './test-env';
 import { ApiModule } from '../api/api.module';
 import { configureApi } from '../api/configure-api';
 import { AppConfigModule } from '../config/config.module';
 import { SESSION_COOKIE } from '../core/rules/session';
 import { SessionService } from '../core/services/session.service';
 import { RemarkEntity } from '../data/entities';
+import { testFolder } from './test-env';
 
 const SITE = 'https://shopping.example.com';
 const OWNER = 'owner@example.com';

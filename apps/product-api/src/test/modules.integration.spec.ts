@@ -9,7 +9,6 @@ import { setTimeout as wait } from 'node:timers/promises';
 import { INestApplicationContext, Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
-import { testFolder } from './test-env';
 import { AppConfigModule } from '../config/config.module';
 import { ProductConnector, ProductSuggestion } from '../core/connectors/connector.model';
 import { CoreModule } from '../core/core.module';
@@ -21,6 +20,7 @@ import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
 import { ScanService } from '../core/services/scan.service';
+import { testFolder } from './test-env';
 
 const folder = testFolder;
 const CODE = '8710400335481';
