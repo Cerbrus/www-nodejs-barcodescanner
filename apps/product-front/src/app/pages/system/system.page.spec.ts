@@ -122,7 +122,7 @@ describe('SystemPage', () => {
     it('offers to turn notifications on with an explanation, and says so when that fails', async () => {
         await open(GUEST);
         expect(texts(row('push.title'), '.hint')).toEqual(['push.state.off']);
-        expect(texts(page, '.note')).toEqual(['push.intro', 'remark.hint']);
+        expect(texts(page, '.note')).toEqual(['push.intro', 'remark.hintPointer']);
 
         push.enable.mockReturnValueOnce(Promise.reject(new Error('refused')));
         click(row('push.title'), 'button.primary');
@@ -136,20 +136,32 @@ describe('SystemPage', () => {
         push.status.set('denied');
         await open(GUEST);
 
-        expect(texts(page, '.note')).toEqual(['push.denied', 'remark.hint']);
+        expect(texts(page, '.note')).toEqual(['push.denied', 'remark.hintPointer']);
         expect(row('push.title').querySelector('button')).toBeNull();
 
         push.status.set('unsupported');
         await settle();
 
-        expect(texts(page, '.note')).toEqual(['push.unsupported', 'remark.hint']);
+        expect(texts(page, '.note')).toEqual(['push.unsupported', 'remark.hintPointer']);
+    });
+
+    it('shows the pointer hint on a computer and the touch hint on a touch screen', async () => {
+        push.status.set('on');
+        await open(GUEST);
+        expect(texts(page, '.note')).toEqual(['remark.hintPointer']);
+        fixture.destroy();
+
+        vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(pointer: coarse)' }));
+        await open(GUEST);
+        expect(texts(page, '.note')).toEqual(['remark.hintTouch']);
+        vi.unstubAllGlobals();
     });
 
     it('lets everyone turn notifications off, and only the owner send a test notification', async () => {
         push.status.set('on');
         await open(GUEST);
         expect(texts(row('push.title'), 'button')).toEqual(['notifications_off push.disable']);
-        expect(texts(page, '.note')).toEqual(['remark.hint']);
+        expect(texts(page, '.note')).toEqual(['remark.hintPointer']);
 
         click(row('push.title'), 'button');
         expect(push.disable).toHaveBeenCalledTimes(1);

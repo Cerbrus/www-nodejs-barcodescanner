@@ -118,7 +118,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
                         </button>
                     </div>
                 </div>
-                <p class="note">{{ 'remark.hint' | translate }}</p>
+                <p class="note">{{ (touch ? 'remark.hintTouch' : 'remark.hintPointer') | translate }}</p>
                 <a class="row link" routerLink="/remarks">
                     <i class="material-symbols-outlined">forum</i>
                     <span class="label">{{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}</span>
@@ -227,6 +227,7 @@ export class SystemPage {
     protected readonly push = inject(PushService);
     protected readonly auth = inject(AuthService);
     protected readonly remarks = inject(RemarkService);
+    protected readonly touch = window.matchMedia?.('(pointer: coarse)').matches === true;
     protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;
