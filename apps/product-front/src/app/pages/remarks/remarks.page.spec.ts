@@ -135,9 +135,8 @@ describe('RemarksPage', () => {
     it('shows another account its remarks without any owner buttons or account names', async () => {
         await open(GUEST, [remark(1)], false);
 
-        expect(buttons()).toEqual(['more_vert']);
-        await openMenu();
-        expect(menuItems()).toEqual(['block remark.reject']);
+        expect(buttons()).toEqual(['block remark.reject']);
+        expect(page.querySelector('.menu-anchor')).toBeNull();
         expect(texts(page, 'article .where')).toEqual(['#/list']);
     });
 
@@ -153,8 +152,10 @@ describe('RemarksPage', () => {
 
     it('lets the owner mark a remark as handled and reopen it', async () => {
         await open(OWNER, [remark(1), remark(2, { state: 'closed' })]);
+        await openMenu();
         await press('remark.close');
         await showHandled();
+        await openMenu(1);
         await press('remark.reopen');
 
         expect(api.setRemarkState.mock.calls).toEqual([
@@ -183,24 +184,26 @@ describe('RemarksPage', () => {
     it('lets a writer reject their own remark, but not one that is already on GitHub', async () => {
         await open(GUEST, [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })], false);
 
-        expect(buttons(0)).toEqual(['more_vert']);
+        expect(buttons(0)).toEqual(['block remark.reject']);
         expect(buttons(1)).toEqual([]);
 
         await open(OWNER, [remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
         expect(buttons(0)).toEqual(['check remark.close']);
+        await press('remark.close');
+        expect(api.setRemarkState).toHaveBeenCalledWith(2, 'closed');
     });
 
     it('offers "to GitHub" only when a token is set and the remark is not there yet, and links to the issue once it is', async () => {
         await open(OWNER, [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
-        expect(buttons(0)).toEqual(['check remark.close', 'more_vert']);
+        expect(buttons(0)).toEqual(['more_vert']);
         expect(buttons(1)).toEqual(['check remark.close']);
         await openMenu();
-        expect(menuItems()).toEqual(['outbox remark.toGitHub', 'block remark.reject']);
+        expect(menuItems()).toEqual(['check remark.close', 'outbox remark.toGitHub', 'block remark.reject']);
         expect(page.querySelector('a.issue')?.getAttribute('href')).toBe('https://github.example/issues/12');
 
         await open(OWNER, [remark(1)], false);
         await openMenu();
-        expect(menuItems()).toEqual(['block remark.reject']);
+        expect(menuItems()).toEqual(['check remark.close', 'block remark.reject']);
     });
 
     it('shows exactly what would be sent, warns that it is public, and asks the agent to look at it unless unticked', async () => {
@@ -215,6 +218,20 @@ describe('RemarksPage', () => {
         expect(texts(page, 'label.option span')).toEqual(['remark.option.investigate', 'remark.option.includeDevice', 'remark.option.includeAccount']);
         const boxes = Array.from(page.querySelectorAll('label.option input')) as Array<HTMLInputElement>;
         expect(boxes.map((box) => box.checked)).toEqual([true, false, false]);
+    });
+
+    it('shows a single action as a button, and two or more in the menu, which closes after a choice', async () => {
+        await open(GUEST, [remark(1)], false);
+        await press('remark.reject');
+        expect(texts(page, 'article p.text-sm')).toEqual(['remark.rejectConfirm']);
+
+        await open(OWNER, [remark(1)]);
+        expect(page.querySelector('.menu')).toBeNull();
+        await openMenu();
+        await press('remark.reject', page.querySelector('.menu') as Element);
+
+        expect(page.querySelector('.menu')).toBeNull();
+        expect(texts(page, 'article p.text-sm')).toEqual(['remark.rejectConfirm']);
     });
 
     it('closes the Actions menu again with a tap beside it', async () => {

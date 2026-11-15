@@ -43,7 +43,7 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
                     <p class="mt-3 text-sm">{{ 'remark.closeAsk' | translate }}</p>
                     <div class="mt-2 flex flex-wrap gap-2">
                         <button type="button" class="btn" (click)="asking.set(false)">
-                            <i class="material-symbols-outlined">edit</i>
+                            <i class="material-symbols-outlined">arrow_back</i>
                             {{ 'remark.keepWriting' | translate }}
                         </button>
                         <button type="button" class="btn" (click)="leave(false)">

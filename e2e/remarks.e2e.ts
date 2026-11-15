@@ -88,7 +88,8 @@ test('send with Ctrl+Enter, and choose what happens to the text when closing', a
     await page.getByRole('button', { name: 'Schrijven' }).click();
     await page.locator('app-remark-sheet textarea').fill('Half written');
     await page.locator('app-remark-sheet').getByRole('button', { name: 'Annuleren' }).click();
-    await page.locator('app-remark-sheet').getByRole('button', { name: 'Sluiten, tekst bewaren' }).click();
+    await expect(page.getByText('Weet je zeker dat je dit formulier wilt sluiten?')).toBeVisible();
+    await page.locator('app-remark-sheet').getByRole('button', { name: / Sluiten$/ }).click();
     await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
 
     await page.getByRole('button', { name: 'Schrijven' }).click();

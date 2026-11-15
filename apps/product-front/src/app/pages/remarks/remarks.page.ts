@@ -15,6 +15,11 @@ import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 
 const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
+
+type RemarkAction = 'handle' | 'reopen' | 'toGitHub' | 'reject';
+
+const ACTION_ICONS: Record<RemarkAction, string> = { handle: 'check', reopen: 'undo', toGitHub: 'outbox', reject: 'block' };
+const ACTION_TEXTS: Record<RemarkAction, string> = { handle: 'remark.close', reopen: 'remark.reopen', toGitHub: 'remark.toGitHub', reject: 'remark.reject' };
 const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: false, investigate: true };
 
 @Component({
@@ -72,13 +77,13 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                     <i class="material-symbols-outlined kind" [class]="remark.kind">{{ icon(remark.kind) }}</i>
                     <span class="font-semibold">{{ 'remark.kind.' + remark.kind | translate }}</span>
                     <span class="muted grow">{{ remark.createdAt | date: 'd MMM HH:mm' }}</span>
-                    @if (auth.owner()) {
-                        <button type="button" class="btn small" (click)="setState(remark, remark.state === 'open' ? 'closed' : 'open')">
-                            <i class="material-symbols-outlined">{{ remark.state === 'open' ? 'check' : 'undo' }}</i>
-                            {{ (remark.state === 'open' ? 'remark.close' : 'remark.reopen') | translate }}
+                    @let actions = actionsFor(remark);
+                    @if (actions.length === 1) {
+                        <button type="button" class="btn small" (click)="run(remark, actions[0])">
+                            <i class="material-symbols-outlined">{{ actionIcons[actions[0]] }}</i>
+                            {{ actionTexts[actions[0]] | translate }}
                         </button>
-                    }
-                    @if (!remark.issueUrl) {
+                    } @else if (actions.length) {
                         <div class="menu-anchor">
                             <button
                                 type="button"
@@ -91,16 +96,12 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                             @if (menu() === remark.id) {
                                 <button type="button" class="backdrop" tabindex="-1" aria-hidden="true" (click)="menu.set(undefined)"></button>
                                 <div class="menu" role="menu">
-                                    @if (canSendToGitHub() && auth.owner()) {
-                                        <button type="button" role="menuitem" (click)="prepare(remark)">
-                                            <i class="material-symbols-outlined">outbox</i>
-                                            {{ 'remark.toGitHub' | translate }}
+                                    @for (action of actions; track action) {
+                                        <button type="button" role="menuitem" (click)="run(remark, action)">
+                                            <i class="material-symbols-outlined">{{ actionIcons[action] }}</i>
+                                            {{ actionTexts[action] | translate }}
                                         </button>
                                     }
-                                    <button type="button" role="menuitem" (click)="rejecting.set(remark.id); menu.set(undefined)">
-                                        <i class="material-symbols-outlined">block</i>
-                                        {{ 'remark.reject' | translate }}
-                                    </button>
                                 </div>
                             }
                         </div>
@@ -201,6 +202,8 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 export class RemarksPage {
     protected readonly remarks = inject(RemarkService);
     protected readonly auth = inject(AuthService);
+    protected readonly actionIcons = ACTION_ICONS;
+    protected readonly actionTexts = ACTION_TEXTS;
     protected readonly optionNames: Array<keyof IssueOptions> = ['investigate', 'includeDevice', 'includeAccount'];
     protected readonly loaded = signal(false);
     protected readonly sending = signal<Remark | undefined>(undefined);
@@ -229,6 +232,35 @@ export class RemarksPage {
                 takeUntilDestroyed()
             )
             .subscribe();
+    }
+
+    protected actionsFor(remark: Remark): Array<RemarkAction> {
+        const owner = this.auth.owner();
+        const onGitHub = remark.issueUrl;
+        const actions: Array<RemarkAction> = [];
+
+        if (owner) {
+            actions.push(remark.state === 'open' ? 'handle' : 'reopen');
+        }
+        if (owner && this.canSendToGitHub() && !onGitHub) {
+            actions.push('toGitHub');
+        }
+        if (!onGitHub) {
+            actions.push('reject');
+        }
+
+        return actions;
+    }
+
+    protected run(remark: Remark, action: RemarkAction): void {
+        this.menu.set(undefined);
+        if (action === 'handle' || action === 'reopen') {
+            this.setState(remark, action === 'handle' ? 'closed' : 'open');
+        } else if (action === 'toGitHub') {
+            this.prepare(remark);
+        } else {
+            this.rejecting.set(remark.id);
+        }
     }
 
     protected icon(kind: RemarkKind): string {

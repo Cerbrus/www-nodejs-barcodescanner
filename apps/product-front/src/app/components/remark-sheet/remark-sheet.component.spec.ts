@@ -200,7 +200,7 @@ describe('RemarkSheetComponent', () => {
             click(page, 'button.btn');
             await settle();
             expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
-            expect(texts(page, 'button.btn')).toEqual(['edit remark.keepWriting', 'close remark.closeKeep', 'delete remark.closeClear']);
+            expect(texts(page, 'button.btn')).toEqual(['arrow_back remark.keepWriting', 'close remark.closeKeep', 'delete remark.closeClear']);
             expect(remarks.draft()).toBeDefined();
 
             await choose('remark.keepWriting');
