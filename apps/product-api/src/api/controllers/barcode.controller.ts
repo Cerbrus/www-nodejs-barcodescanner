@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseBoolPipe, Post, Put, Query } from '@nestjs/common';
 
 import { BarcodeService } from '../../core/services/barcode.service';
+import { BarcodeWithProposal, NamingService } from '../../core/services/naming.service';
 import { ScanService } from '../../core/services/scan.service';
 import { BarcodeEntity } from '../../data/entities';
 import { BarcodeMappingDto } from '../dto/barcode-mapping.dto';
@@ -9,6 +10,7 @@ import { BarcodeMappingDto } from '../dto/barcode-mapping.dto';
 export class BarcodeController {
     constructor(
         private readonly barcodes: BarcodeService,
+        private readonly naming: NamingService,
         private readonly scans: ScanService
     ) {}
 
@@ -20,8 +22,8 @@ export class BarcodeController {
     }
 
     @Get(':code')
-    public getBarcode(@Param('code') code: string): Promise<BarcodeEntity> {
-        return this.barcodes.get(code);
+    public getBarcode(@Param('code') code: string): Promise<BarcodeWithProposal> {
+        return this.naming.getWithProposal(code);
     }
 
     @Put(':code')

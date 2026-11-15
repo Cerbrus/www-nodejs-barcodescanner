@@ -19,6 +19,7 @@ import { CatalogService } from '../core/services/catalog.service';
 import { ConnectorService } from '../core/services/connector.service';
 import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
+import { NamingService } from '../core/services/naming.service';
 import { ScanService } from '../core/services/scan.service';
 
 const folder = testFolder;
@@ -174,6 +175,8 @@ describe('scan flow against a real database', () => {
             first.suggestions?.map((suggestion) => suggestion.connectorId),
             ['off']
         );
+        const naming = app.get(NamingService);
+        assert.deepEqual((await naming.getWithProposal('8712345678906')).proposal, { name: 'Peanut butter', note: '' });
 
         supermarketDown = false;
         const second = await scans.repeatLookup('8712345678906');
@@ -183,6 +186,8 @@ describe('scan flow against a real database', () => {
             second.suggestions?.find((suggestion) => suggestion.connectorId === 'ah')?.sectionId,
             'graanproducten'
         );
+        const proposal = (await naming.getWithProposal('8712345678906')).proposal;
+        assert.deepEqual([proposal?.name, proposal?.note, typeof proposal?.catalogItemId], ['Pindakaas', '', 'number']);
 
         connectors.connectors = [];
         await scans.discardBarcode('8712345678906');

@@ -121,6 +121,34 @@ describe('NamingPromptComponent', () => {
         expect(outcomes).toEqual([{ kind: 'linked', item: item(2, 'Karnemelk') }]);
     });
 
+    it('offers the proposed product with its note as variant, and links it with one tap', async () => {
+        await open(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } }));
+
+        expect(texts(page, '.proposal .font-semibold')).toEqual(['Melk']);
+        expect((page.querySelector('#naming-variant') as HTMLInputElement).value).toBe('Halfvolle');
+
+        type(page, '#naming-variant', 'Vol');
+        click(page, '.proposal button.primary');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 1, 'Vol');
+        expect(outcomes).toEqual([{ kind: 'linked', item: item(1, 'Melk') }]);
+    });
+
+    it('opens the new product form with a proposed new name', async () => {
+        await open(known({ proposal: { name: 'Rode linzen', note: '' } }));
+        click(page, '.proposal button.primary');
+        await settle();
+
+        expect((page.querySelector('#new-item-name') as HTMLInputElement).value).toBe('Rode linzen');
+    });
+
+    it('shows no proposal when there is none', async () => {
+        await open(known());
+
+        expect(page.querySelector('.proposal')).toBeNull();
+        expect((page.querySelector('#naming-variant') as HTMLInputElement).value).toBe('');
+    });
+
     it('links the barcode with the variant typed above the search', async () => {
         await open(known());
         type(page, '#naming-variant', ' Lactosevrij ');

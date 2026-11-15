@@ -198,6 +198,7 @@ interface ProductSuggestion {
 - The lookup runs in the background after the scan is answered, so a slow connector never delays the scanner. Results are stored on the barcode row, so a barcode is looked up once, and a `barcode` event tells open pages they arrived.
 - `CONNECTORS` in `.env` picks the enabled ones (default `ah,off`).
 - The server maps a suggestion's `category` to one of the seeded sections (`core/rules/shop-sections.ts`, Albert Heijn's main categories plus common English Open Food Facts words) and stores it on the suggestion as `sectionId`. The web app uses it only when that section exists; `category` and `title` still feed the keyword guess as fallback.
+- The naming rules (`core/rules/naming.ts`, used by `NamingService`) turn the suggestions into one proposal. Each title loses its brand, a shop name at the start (AH, Jumbo and the like) and amounts; then the existing product whose whole words appear in it wins, the one with the most words first, and the remaining words become the note. Without a match the cleaned title is proposed as a new name. Whole words only: a compound such as "Hazelnootpasta" is not taken for "Pasta". Across sources, a title that names a product exactly wins over one that needs a note.
 - Built: Albert Heijn (unofficial API, anonymous token) and Open Food Facts (official open API, with a generic User-Agent). Adding a source is one new class, plus its logo in `apps/product-front/src/assets/connectors/` and a line in the naming prompt's connector table; without a logo the prompt shows the connector's id as text.
 
 ## API
@@ -215,8 +216,8 @@ interface ProductSuggestion {
 | `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) and `defaultIcon`, the icon the seed file gives a product of that name |
 | `GET /api/v1/sections` | Shop sections in display order |
 | `GET /api/v1/barcodes?unmapped=true` | Inbox |
-| `GET /api/v1/barcodes/:code` | One barcode with its suggestions |
-| `PUT /api/v1/barcodes/:code` | Set or change the mapping |
+| `GET /api/v1/barcodes/:code` | One barcode with its suggestions and, while it is unnamed, a `proposal` (product id or new name, and note) |
+| `PUT /api/v1/barcodes/:code` | Set or change the mapping, with an optional `note` as variant |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
 | `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, `feedback_settings`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |

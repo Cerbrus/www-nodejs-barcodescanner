@@ -68,7 +68,10 @@
         "noAnswer": "No answer from {sources}",
         "tryAgain": "Try again",
         "variantLabel": "Variant (optional)",
-        "variantPlaceholder": "For example mild or lactose free"
+        "variantPlaceholder": "For example mild or lactose free",
+        "proposal": "Suggestion",
+        "link": "Link",
+        "create": "Create"
     },
     "inbox": {
         "title": "Inbox",

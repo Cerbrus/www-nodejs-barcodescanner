@@ -12,6 +12,7 @@ import { FeedbackService } from './services/feedback.service';
 import { GitHubService } from './services/github.service';
 import { ListService } from './services/list.service';
 import { LogService } from './services/log.service';
+import { NamingService } from './services/naming.service';
 import { PushService } from './services/push.service';
 import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
@@ -30,6 +31,7 @@ const services = [
     GitHubService,
     ListService,
     LogService,
+    NamingService,
     PushService,
     RemarkService,
     ScanService,

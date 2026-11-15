@@ -56,6 +56,30 @@
         </div>
     }
 
+    @if (barcode()?.proposal; as proposal) {
+        <div class="card proposal mt-3 flex items-center gap-3">
+            <i class="material-symbols-outlined" style="color: var(--accent)">lightbulb</i>
+            <span class="grow">
+                <span class="muted block text-xs">{{ 'naming.proposal' | translate }}</span>
+                <span class="font-semibold">{{ proposal.name }}</span>
+                @if (proposal.note) {
+                    <span class="muted"> · {{ proposal.note }}</span>
+                }
+            </span>
+            @if (proposedItem(); as item) {
+                <button type="button" class="btn primary" [disabled]="busy()" (click)="choose(item)">
+                    <i class="material-symbols-outlined">add_link</i>
+                    {{ 'naming.link' | translate }}
+                </button>
+            } @else if (!proposal.catalogItemId) {
+                <button type="button" class="btn primary" (click)="newName.set(proposal.name)">
+                    <i class="material-symbols-outlined">add_circle</i>
+                    {{ 'naming.create' | translate }}
+                </button>
+            }
+        </div>
+    }
+
     <label class="field-label" for="naming-variant">{{ 'naming.variantLabel' | translate }}</label>
     <input
         #variantField

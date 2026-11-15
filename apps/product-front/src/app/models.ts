@@ -31,8 +31,15 @@ export interface ProductSuggestion {
     imageUrl?: string;
 }
 
+export interface NameProposal {
+    catalogItemId?: number;
+    name: string;
+    note: string;
+}
+
 export interface Barcode {
     code: string;
+    proposal?: NameProposal;
     catalogItemId?: number;
     catalogItem?: CatalogItem;
     note?: string;

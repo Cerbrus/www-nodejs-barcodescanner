@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter, finalize, switchMap, tap } from 'rxjs';
@@ -34,7 +44,12 @@ export class NamingPromptComponent {
     protected readonly barcode = signal<Barcode | undefined>(undefined);
     protected readonly search = signal('');
     protected readonly newName = signal<string | undefined>(undefined);
-    protected readonly variant = signal('');
+    protected readonly variant = linkedSignal(() => this.barcode()?.proposal?.note ?? '');
+    protected readonly proposedItem = computed(() => {
+        const id = this.barcode()?.proposal?.catalogItemId;
+        return id ? this.store.itemById(id) : undefined;
+    });
+
     protected readonly busy = signal(false);
 
     protected readonly suggestions = computed(() => this.barcode()?.suggestions ?? []);
