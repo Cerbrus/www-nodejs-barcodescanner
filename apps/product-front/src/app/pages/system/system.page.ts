@@ -227,7 +227,7 @@ export class SystemPage {
     protected readonly push = inject(PushService);
     protected readonly auth = inject(AuthService);
     protected readonly remarks = inject(RemarkService);
-    protected readonly touch = window.matchMedia?.('(pointer: coarse)').matches === true;
+    protected readonly touch = window.matchMedia?.('(pointer: coarse)').matches ?? false;
     protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
     protected readonly themeOptions = THEME_OPTIONS;

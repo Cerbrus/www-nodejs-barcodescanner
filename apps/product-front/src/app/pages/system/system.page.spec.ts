@@ -70,6 +70,8 @@ describe('SystemPage', () => {
         });
     });
 
+    afterEach(() => vi.unstubAllGlobals());
+
     it('shows the owner three groups, with the management rows in order and the version below', async () => {
         await open(OWNER);
 
@@ -163,7 +165,6 @@ describe('SystemPage', () => {
         vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(pointer: coarse)' }));
         await open(GUEST);
         expect(texts(page, '.note')).toEqual(['remark.hintTouch']);
-        vi.unstubAllGlobals();
     });
 
     it('lets everyone turn notifications off, and only the owner send a test notification', async () => {
