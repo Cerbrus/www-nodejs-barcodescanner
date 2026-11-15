@@ -83,6 +83,21 @@ test('point at the bottom menu: the active tab is picked, another tab navigates,
     await page.locator('app-remark-sheet').getByRole('button', { name: 'Annuleren' }).click();
 });
 
+test('send with Ctrl+Enter, and choose what happens to the text when closing', async ({ page, request }) => {
+    await page.goto('/#/remarks');
+    await page.getByRole('button', { name: 'Schrijven' }).click();
+    await page.locator('app-remark-sheet textarea').fill('Half written');
+    await page.locator('app-remark-sheet').getByRole('button', { name: 'Annuleren' }).click();
+    await page.locator('app-remark-sheet').getByRole('button', { name: 'Sluiten, tekst bewaren' }).click();
+    await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
+
+    await page.getByRole('button', { name: 'Schrijven' }).click();
+    await expect(page.locator('app-remark-sheet textarea')).toHaveValue('Half written');
+    await page.locator('app-remark-sheet textarea').press('Control+Enter');
+    await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
+    expect((await remarksOf(request))[0]).toMatchObject({ text: 'Half written' });
+});
+
 test('write a note without a connection and see it arrive later', async ({ page, context, request }) => {
     await page.goto('/#/system');
     await expect(page.getByRole('button', { name: 'Schrijven' })).toBeVisible();

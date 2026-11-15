@@ -142,7 +142,7 @@ describe('RemarkSheetComponent', () => {
         remarks.send.mockReturnValue(throwError(() => new Error('429')));
     });
 
-    it('closes on cancel and on Escape', async () => {
+    it('closes on cancel and on Escape when nothing was written', async () => {
         remarks.write();
         await settle();
         click(page, 'button.btn');
@@ -154,6 +154,95 @@ describe('RemarkSheetComponent', () => {
         (page.querySelector('dialog') as HTMLDialogElement).dispatchEvent(new Event('cancel', { cancelable: true }));
         await settle();
         expect(remarks.draft()).toBeUndefined();
+    });
+
+    it('sends with Ctrl+Enter or Cmd+Enter, and not when empty or with Enter alone', async () => {
+        const press = async (init: KeyboardEventInit): Promise<void> => {
+            (page.querySelector('textarea') as HTMLTextAreaElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true, ...init }));
+            await settle();
+        };
+        remarks.write();
+        await settle();
+        await press({ ctrlKey: true });
+        expect(remarks.send).not.toHaveBeenCalled();
+
+        type(page, 'textarea', 'Via keyboard');
+        await settle();
+        await press({});
+        expect(remarks.send).not.toHaveBeenCalled();
+
+        await press({ ctrlKey: true });
+        expect(remarks.send).toHaveBeenCalledWith('bug', 'Via keyboard');
+
+        remarks.write();
+        await settle();
+        type(page, 'textarea', 'On a Mac');
+        await settle();
+        await press({ metaKey: true });
+        expect(remarks.send).toHaveBeenLastCalledWith('bug', 'On a Mac');
+    });
+
+    describe('closing what was written', () => {
+        const write = async (): Promise<void> => {
+            remarks.write();
+            await settle();
+            click(page, '.segment', 1);
+            type(page, 'textarea', 'Half a thought');
+            await settle();
+        };
+        const choose = async (label: string): Promise<void> => {
+            click(page, 'button.btn', ['remark.keepWriting', 'remark.closeKeep', 'remark.closeClear'].indexOf(label));
+            await settle();
+        };
+
+        it('asks on Cancel, on a click outside and on Escape, and goes back to writing on request', async () => {
+            await write();
+            click(page, 'button.btn');
+            await settle();
+            expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
+            expect(texts(page, 'button.btn')).toEqual(['edit remark.keepWriting', 'close remark.closeKeep', 'delete remark.closeClear']);
+            expect(remarks.draft()).toBeDefined();
+
+            await choose('remark.keepWriting');
+            expect(page.querySelector('p.text-sm')).toBeNull();
+
+            (page.querySelector('dialog') as HTMLDialogElement).click();
+            await settle();
+            expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
+            await choose('remark.keepWriting');
+
+            (page.querySelector('dialog') as HTMLDialogElement).dispatchEvent(new Event('cancel', { cancelable: true }));
+            await settle();
+            expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
+            expect(remarks.draft()).toBeDefined();
+        });
+
+        it('closes and keeps the text and kind when asked to just close', async () => {
+            await write();
+            click(page, 'button.btn');
+            await settle();
+            await choose('remark.closeKeep');
+            expect(page.querySelector('dialog')).toBeNull();
+
+            remarks.write();
+            await settle();
+            expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Half a thought');
+            expect(texts(page, '.segment.chosen')).toEqual(['lightbulb remark.kind.wish']);
+            expect(page.querySelector('p.text-sm')).toBeNull();
+        });
+
+        it('closes and clears the text and kind when asked to clear as well', async () => {
+            await write();
+            click(page, 'button.btn');
+            await settle();
+            await choose('remark.closeClear');
+            expect(page.querySelector('dialog')).toBeNull();
+
+            remarks.write();
+            await settle();
+            expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('');
+            expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
+        });
     });
 });
 

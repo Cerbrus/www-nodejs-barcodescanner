@@ -17,7 +17,7 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (remarks.draft(); as draft) {
-            <app-sheet (closed)="remarks.cancel()">
+            <app-sheet (closed)="close()">
                 <h2 class="page-title">{{ 'remark.title' | translate }}</h2>
 
                 <div class="segments wide">
@@ -37,18 +37,36 @@ const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'light
                 }
 
                 <label class="field-label" for="remark-text">{{ 'remark.text.' + kind() | translate }}</label>
-                <textarea id="remark-text" class="field" rows="5" maxlength="2000" [ngModel]="text()" (ngModelChange)="text.set($event)"></textarea>
+                <textarea id="remark-text" class="field" rows="5" maxlength="2000" [ngModel]="text()" (ngModelChange)="text.set($event)" (keydown)="onKey($event)"></textarea>
 
-                <div class="mt-3 flex gap-2">
-                    <button type="button" class="btn" (click)="remarks.cancel()">
-                        <i class="material-symbols-outlined">close</i>
-                        {{ 'common.cancel' | translate }}
-                    </button>
-                    <button type="button" class="btn primary grow" [disabled]="busy() || !text().trim()" (click)="send()">
-                        <i class="material-symbols-outlined">send</i>
-                        {{ 'remark.send' | translate }}
-                    </button>
-                </div>
+                @if (asking()) {
+                    <p class="mt-3 text-sm">{{ 'remark.closeAsk' | translate }}</p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button type="button" class="btn" (click)="asking.set(false)">
+                            <i class="material-symbols-outlined">edit</i>
+                            {{ 'remark.keepWriting' | translate }}
+                        </button>
+                        <button type="button" class="btn" (click)="leave(false)">
+                            <i class="material-symbols-outlined">close</i>
+                            {{ 'remark.closeKeep' | translate }}
+                        </button>
+                        <button type="button" class="btn danger" (click)="leave(true)">
+                            <i class="material-symbols-outlined">delete</i>
+                            {{ 'remark.closeClear' | translate }}
+                        </button>
+                    </div>
+                } @else {
+                    <div class="mt-3 flex gap-2">
+                        <button type="button" class="btn" (click)="close()">
+                            <i class="material-symbols-outlined">close</i>
+                            {{ 'common.cancel' | translate }}
+                        </button>
+                        <button type="button" class="btn primary grow" [disabled]="!canSend()" (click)="send()">
+                            <i class="material-symbols-outlined">send</i>
+                            {{ 'remark.send' | translate }}
+                        </button>
+                    </div>
+                }
             </app-sheet>
         }
     `,
@@ -66,9 +84,40 @@ export class RemarkSheetComponent {
     protected readonly kind = signal<RemarkKind>('bug');
     protected readonly text = signal('');
     protected readonly busy = signal(false);
+    protected readonly asking = signal(false);
 
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
+
+    protected canSend(): boolean {
+        return !this.busy() && !!this.text().trim();
+    }
+
+    protected onKey(event: KeyboardEvent): void {
+        if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            if (this.canSend()) {
+                this.send();
+            }
+        }
+    }
+
+    protected close(): void {
+        if (this.text().trim()) {
+            this.asking.set(true);
+        } else {
+            this.leave(true);
+        }
+    }
+
+    protected leave(clear: boolean): void {
+        if (clear) {
+            this.text.set('');
+            this.kind.set('bug');
+        }
+        this.asking.set(false);
+        this.remarks.cancel();
+    }
 
     protected send(): void {
         this.busy.set(true);
