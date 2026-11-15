@@ -2,7 +2,7 @@
 
 How the prototype became the product, and what is left. Decisions behind this plan are in [decisions.md](decisions.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
 
-## Where it stands (2026-11-15, version 1.1.67)
+## Where it stands (2026-11-15, version 1.1.87)
 
 In daily-use shape and running on the Pi:
 
@@ -18,9 +18,9 @@ In daily-use shape and running on the Pi:
 
 Agreed with the owner on 2026-11-15:
 
-1. **Names, sections and variants** (milestone 12), discussed with the owner on 2026-11-15: see [naming-plan.md](naming-plan.md). Includes the small leftovers: failed lookups on the history page, the eight emojis, the unused `source` field of the hardware agent.
-2. **Rollback test** with `IMAGE_TAG`: two minutes on the Pi, and it proves the way back.
-3. **The remaining package families** (see "Package upgrades"), one at a time, smallest first. Dependabot proposes the small ones weekly; #7 is open.
+1. **Names, sections and variants** (milestone 12): done in 1.1.77 apart from the AI suggestion, which is deferred; see [naming-plan.md](naming-plan.md).
+2. **Rollback test**: done 2026-11-15 17:00, see deployment.
+3. **Package families**: all updated in 1.1.87 except the two that are blocked (see "Package upgrades"). Dependabot proposes the small ones weekly.
 4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy, and Tera's answer on the beeper (milestone 7).
 5. **Operations never tested** (list at the end).
 
@@ -121,8 +121,8 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 20:04, released in 1.1.26: forty unused packages removed, everything updated within its major version, Yarn 4.18, Node 25 in the images and the build. The arm64 image was built and started under emulation before the release.
 - Done 2026-11-13 20:22, released in 1.1.26: Nx 21 to 24, Angular 20 to 22, TypeScript 5.9 to 6.0, typescript-eslint 6 to 8 and angular-eslint 22. The lint rules moved to `eslint.config.mjs` files, the API build to the Nx webpack plugin, and the web app runs without zone.js.
 - Done 2026-11-13 22:28, released in 1.1.32: `@messageformat/core` and its ngx-translate wrapper replaced by `intl-messageformat`.
-- Done 2026-11-15 15:54, on branch `chore/minor-updates`, not released: class-validator 0.15 and tslib 2.9 (in place of Dependabot #7, which was built on 1.1.34); web-push 4, an ES module without a default export, so the push service imports its functions by name; ESLint 10, with `eslint-plugin-import-x` in place of the unmaintained `eslint-plugin-import`, which reorders relative imports in 34 files.
-- Done 2026-11-15 16:21, same branch: ngx-translate 18 (`TranslatePipe` and `provideTranslateService` instead of `TranslateModule`, specs through a small `TranslateTesting` module); Tailwind 4 (global styles are plain CSS, as Tailwind 4 does not work with Sass, the dark theme mixin written out; the barcode component keeps Sass without `@apply`; v3 border, placeholder and button cursor kept in the base layer; checked on screenshots in light and dark); NestJS 12 without code changes; TypeORM 1, with an own snake case naming strategy in place of the unmaintained `typeorm-naming-strategies`. The image was built and started locally on Node 25: health, list, web page and push key answer.
+- Done 2026-11-15 15:54, released in 1.1.87: class-validator 0.15 and tslib 2.9 (in place of Dependabot #7, which was built on 1.1.34); web-push 4, an ES module without a default export, so the push service imports its functions by name; ESLint 10, with `eslint-plugin-import-x` in place of the unmaintained `eslint-plugin-import`, which reorders relative imports in 34 files.
+- Done 2026-11-15 16:21, released in 1.1.87: ngx-translate 18 (`TranslatePipe` and `provideTranslateService` instead of `TranslateModule`, specs through a small `TranslateTesting` module); Tailwind 4 (global styles are plain CSS, as Tailwind 4 does not work with Sass, the dark theme mixin written out; the barcode component keeps Sass without `@apply`; v3 border, placeholder and button cursor kept in the base layer; checked on screenshots in light and dark); NestJS 12 without code changes; TypeORM 1, with an own snake case naming strategy in place of the unmaintained `typeorm-naming-strategies`. The image was built and started locally on Node 25: health, list, web page and push key answer. The shared classes in `styles.css` moved into `@layer components` and the icon font's stylesheet into `@layer base`, so utilities win without `!`; twelve screens matched before and after on screenshots.
 - Blocked: TypeScript 7 (Angular 22's compiler and typescript-eslint accept TypeScript below 6.1 only), better-sqlite3 13 (TypeORM 1 still accepts up to 12).
 
 ### 9. Tests for the web app: done 2026-11-14 00:26
@@ -193,7 +193,6 @@ Plan in [naming-plan.md](naming-plan.md), agreed with the owner on 2026-11-15. F
 ## Never tested
 
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
-- Rollback with `IMAGE_TAG`.
 - A reboot with the firewall service since it was added.
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
