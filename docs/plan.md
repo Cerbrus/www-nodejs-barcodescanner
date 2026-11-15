@@ -24,7 +24,8 @@ Agreed with the owner on 2026-11-15:
 4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy, and Tera's answer on the beeper (milestone 7).
 5. **Operations never tested** (list at the end).
 6. **Milestone 13, chosen by the owner on 2026-11-15**: command barcodes for the scanner, Siri shortcut, share the list as text, merge products, alerts to the owner. Not planned in detail yet.
-7. **Later**: several accounts with working invites (milestone 10).
+7. **Milestone 14, the owner's idea of 2026-11-15**: build scanner sounds from blocks and keep them as named presets. Not planned in detail yet.
+8. **Later**: several accounts with working invites (milestone 10).
 
 Where it started: an API skeleton without a single endpoint that wrote a scan, a leftover poll app as frontend, a Python supermarket connector, PostgreSQL, and no commits.
 
@@ -192,6 +193,17 @@ Chosen by the owner on 2026-11-15 from a list of ideas; each gets its own plan b
 - **Alerts to the owner**: a push notification when the scanner has been away for a while, the hourly backup fails, or a deploy does not come up healthy.
 
 Not chosen: "due again" suggestions, a "done shopping" action with trimming of recent, section order per shop, prices from the shop, shop photos as icons, multiple lists.
+
+### 14. Scanner sounds from building blocks: idea, not planned in detail
+
+The owner's idea of 2026-11-15. Instead of picking from a fixed list, a sound is a sequence of blocks, edited in a popup from the sounds page, named and reused as a preset for any event.
+
+- For the active buzzer on the Pi (decided by the owner on 2026-11-15: no speaker for now), which has one fixed pitch. The blocks are therefore timing and texture: beep (duration), trill (rate, duration), buzz (roughness, duration) and pause (duration).
+- Presets move from code to a table; the setting per event points to a preset. A handful of today's sounds become ready-made presets, the rest go, and current choices move to the nearest preset. A preset in use cannot be deleted.
+- A limit on length, about 2 seconds and 12 blocks, checked by the server, because sounds play one after another and a long one would delay the next scan's beep.
+- A simple timeline as picture: blocks, gaps, and stripes for trills and buzzes, with a time scale. The play button sends the sound to the buzzer, as now.
+- Steps of 10 to 20 ms on the sliders, so it works on a phone.
+- Shelved: a passive buzzer or a small speaker behind a transistor would allow real tones; the hardware agent already supports a passive buzzer.
 
 ### Smaller changes outside the milestones
 
