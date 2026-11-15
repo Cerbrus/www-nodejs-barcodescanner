@@ -85,6 +85,7 @@ test('put a product on the list twice with different notes, and merge them with 
     await expect(tile(page, 'buy', product.name)).toHaveCount(1);
     await giveNote('', 'jong');
     await expect.poll(variants).toEqual([['jong', 1]]);
+    await expect(tile(page, 'buy', product.name).locator('.note')).toHaveText(['jong']);
 
     await addFromSearch();
     await expect(tile(page, 'buy', product.name)).toHaveCount(2);
