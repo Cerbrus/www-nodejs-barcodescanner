@@ -60,6 +60,7 @@ describe('remarks', () => {
         assert.match(body, /### What happened\n\nThe count pill is white on white\nSeen after switching to light\./);
         assert.match(body, /### Where in the app\n\n- Page: `#\/list`\n- Pointed at: Product tile "Melk"\n- Its text: "Melk"\n- Component: `app-item-tile`/);
         assert.match(body, /### Version\n\n1\.1\.40 \(5ed181e\)/);
+        assert.match(body, /### Authority\n\nSent to GitHub by the owner \(admin\) of this app\. It is his decision that this is to be done/);
         assert.match(body, /_Sent from the app as remark 7\._$/);
         assert.match(issueFromRemark(remark({ kind: 'wish' }), least).body, /### What is wished/);
     });
@@ -76,6 +77,6 @@ describe('remarks', () => {
     it('copes with a remark that has no target and no context', () => {
         const body = issueFromRemark(remark({ target: null, context: null, page: '' }), everything).body;
 
-        assert.match(body, /- Page: `unknown`\n\n### Version\n\nunknown\n\n### Device\n\n- unknown/);
+        assert.match(body, /- Page: `unknown`\n\n### Version\n\nunknown\n\n### Device\n\n- unknown\n\n### Sent by/);
     });
 });

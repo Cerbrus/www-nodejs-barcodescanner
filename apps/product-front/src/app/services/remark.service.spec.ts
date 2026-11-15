@@ -216,6 +216,15 @@ describe('what was pointed at', () => {
         expect(describeElement(generated)).toEqual({ path: 'div.page > span' });
     });
 
+    it('leaves the names of icons out of the text', () => {
+        const row = inside('<a class="row" id="hit"><i class="material-symbols-outlined">forum</i><span>Feedback</span><i class="material-symbols-outlined">chevron_right</i></a>', '#hit');
+        expect(describeElement(row).text).toBe('Feedback');
+
+        const icon = inside('<button aria-label="Wissen"><i id="hit" class="material-symbols-outlined">close</i></button>', '#hit');
+        expect(describeElement(icon)).toEqual(expect.objectContaining({ label: 'Wissen' }));
+        expect(describeElement(icon).text).toBeUndefined();
+    });
+
     it('knows a text field from anything else', () => {
         expect(isTextField(inside('<label><input id="hit"></label>', '#hit'))).toBe(true);
         expect(isTextField(inside('<textarea id="hit"></textarea>', '#hit'))).toBe(true);

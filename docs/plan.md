@@ -149,6 +149,7 @@ Plan and decisions in [remarks-plan.md](remarks-plan.md). On branch `feature/rem
 - Done 2026-11-15 01:05: issue forms on GitHub, the settings, the agent's workflow and instructions, the label `investigate`.
 - Tests: 7 for the rules, 12 route tests, 46 in the web app, 3 in the browser (right click, pointing mode, without a connection).
 - Open, only the owner can do these: the two-finger tap on the iPhone; pointing mode on the iPhone; the first real "send to GitHub"; the first run of the agent, best on a small wish.
+- Done 2026-11-15 02:20, on branch `feature/agent-authority`, not released: after the first four issues all ended in questions, the agent's instructions changed: an issue from the owner carries his authority and is implemented unless a real question is open, and the issue gets a verdict label. The text of the pointed-at part no longer contains icon names.
 - Not built: a way for the writer to see an answer. Decided against.
 
 ### Smaller changes outside the milestones

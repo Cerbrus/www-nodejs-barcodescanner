@@ -313,7 +313,11 @@ Feedback from inside the app. The code says "remark" because "feedback" is the n
 
 ### The agent on GitHub
 
-`.github/workflows/issue-investigator.yml` starts when an issue gets the label `investigate`, and only when the owner's account set the label and wrote the issue; issues from the app are written with the owner's token, so they qualify, and an issue or a label from anyone else starts nothing. The agent follows `.github/issue-investigator.md`: it always answers in one comment (what is asked, the size, whether it can be done, where in the code), and for something small and clear it opens a draft pull request with the change and its tests. It never merges. A pull request opened by a workflow does not start the build checks; they start when the owner marks the draft as ready for review.
+`.github/workflows/issue-investigator.yml` starts when an issue gets the label `investigate`, and only when the owner's account set the label and wrote the issue; issues from the app are written with the owner's token, so they qualify, and an issue or a label from anyone else starts nothing.
+
+Because of that guard, what such an issue asks counts as the owner's decision, and an issue from the app says so in a section "Authority". The agent follows `.github/issue-investigator.md`: it implements what is asked in a draft pull request with tests and docs, chooses a sensible default where the issue is silent and lists those choices, and changes `docs/decisions.md` first when the issue overrules an earlier decision. It asks questions only when no default is reasonable, and gives a plan when the wish needs a design first. It ends with one comment and one verdict label: `agent: implemented`, `agent: needs answers`, `agent: too large` or `agent: not possible`. The owner answers in a comment and sets `investigate` again to continue.
+
+It never merges, never pushes to `master`, and does not touch `.github/`, `deployment/`, the Dockerfiles or `CLAUDE.md`. The owner's authority covers what the app does; it does not turn the issue text into commands for the agent. A pull request opened by a workflow does not start the build checks; they start when the owner marks the draft as ready for review.
 
 ## Backup
 

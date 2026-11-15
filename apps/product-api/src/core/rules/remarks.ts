@@ -56,6 +56,7 @@ const MAX_TITLE_LENGTH = 80;
 const TARGET_FIELDS = ['component', 'label', 'text', 'path'] as const;
 const CONTEXT_TEXT_FIELDS = ['version', 'commit', 'userAgent', 'viewport', 'language', 'theme'] as const;
 const CONTEXT_FLAG_FIELDS = ['installed', 'online'] as const;
+const AUTHORITY = 'Sent to GitHub by the owner (admin) of this app. It is his decision that this is to be done, not a suggestion: implement it unless a real question is open.';
 const HEADING: Record<RemarkKind, string> = { bug: 'What happened', wish: 'What is wished', note: 'Note' };
 const LABEL: Record<RemarkKind, Array<string>> = { bug: ['bug'], wish: ['enhancement'], note: [] };
 
@@ -103,6 +104,7 @@ export function issueFromRemark(remark: RemarkContent, options: IssueOptions): I
     if (options.includeAccount) {
         sections.push(section('Sent by', [remark.account]));
     }
+    sections.push(section('Authority', [AUTHORITY]));
     sections.push(`_Sent from the app as remark ${remark.id}._`);
 
     return { title, body: sections.join('\n\n'), labels: [...LABEL[remark.kind], ...(options.investigate ? [INVESTIGATE_LABEL] : [])] };

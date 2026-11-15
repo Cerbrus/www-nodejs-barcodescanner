@@ -5,6 +5,7 @@ const TEXT_FIELD = 'input, textarea, select';
 const MAX_TEXT_LENGTH = 120;
 const MAX_PATH_STEPS = 4;
 const GENERATED_CLASS = /^(ng-|_ng|ng_)/;
+const ICON = '.material-symbols-outlined';
 
 export function isTextField(element: Element | null): boolean {
     return element?.closest(TEXT_FIELD) !== null && element !== null;
@@ -33,9 +34,18 @@ function componentOf(element: Element): string | undefined {
 }
 
 function textOf(element: Element): string | undefined {
-    const text = element.matches(TEXT_FIELD) ? (element.getAttribute('placeholder') ?? element.getAttribute('name') ?? '') : (element.textContent ?? '');
+    const text = element.matches(TEXT_FIELD) ? (element.getAttribute('placeholder') ?? element.getAttribute('name') ?? '') : readableText(element);
 
     return text.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LENGTH) || undefined;
+}
+
+function readableText(element: Element): string {
+    const copy = element.cloneNode(true) as Element;
+    for (const icon of Array.from(copy.querySelectorAll(ICON))) {
+        icon.replaceWith(' ');
+    }
+
+    return copy.matches(ICON) ? '' : (copy.textContent ?? '');
 }
 
 function pathTo(element: Element): string {
