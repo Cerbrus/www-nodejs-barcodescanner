@@ -42,6 +42,7 @@ describe('NamingPromptComponent', () => {
         fixture.detectChanges();
     };
     const search = (): HTMLInputElement => page.querySelector('app-item-autocomplete input') as HTMLInputElement;
+    const variantField = (): HTMLInputElement => page.querySelector('#naming-variant') as HTMLInputElement;
     const typeName = async (name: string): Promise<void> => {
         type(page, 'app-item-autocomplete input', name);
         search().dispatchEvent(new Event('focus'));
@@ -134,12 +135,90 @@ describe('NamingPromptComponent', () => {
         expect(outcomes).toEqual([{ kind: 'linked', item: item(1, 'Melk') }]);
     });
 
+    it('leaves the proposed variant out when another product is picked from the search', async () => {
+        await open(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } }));
+        await typeName('karne');
+
+        expect(variantField().value).toBe('');
+
+        click(page, 'app-item-autocomplete .option');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2, '');
+    });
+
+    it('shows the proposed variant again when the search is emptied', async () => {
+        await open(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } }));
+        await typeName('karne');
+        await typeName('');
+
+        expect(variantField().value).toBe('Halfvolle');
+    });
+
+    it('still links the proposed product with its variant after a search', async () => {
+        await open(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } }));
+        await typeName('karne');
+        click(page, '.proposal button.primary');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 1, 'Halfvolle');
+    });
+
+    it('keeps a typed variant for a product picked from the search, also next to a proposal', async () => {
+        await open(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } }));
+        type(page, '#naming-variant', 'Vol');
+        await typeName('karne');
+
+        expect(variantField().value).toBe('Vol');
+
+        click(page, 'app-item-autocomplete .option');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2, 'Vol');
+    });
+
+    it('keeps a variant that was emptied by hand', async () => {
+        await open(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } }));
+        type(page, '#naming-variant', '');
+        click(page, '.proposal button.primary');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 1, '');
+    });
+
+    it('does not overwrite a typed variant when the lookup answers later', async () => {
+        await open({ code: CODE, scanCount: 1 });
+        type(page, '#naming-variant', 'Lactosevrij');
+
+        api.getBarcode.mockReturnValue(of(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } })));
+        events.emit('barcode', { code: CODE });
+        await settle();
+
+        expect(variantField().value).toBe('Lactosevrij');
+    });
+
     it('opens the new product form with a proposed new name', async () => {
         await open(known({ proposal: { name: 'Rode linzen', note: '' } }));
         click(page, '.proposal button.primary');
         await settle();
 
         expect((page.querySelector('#new-item-name') as HTMLInputElement).value).toBe('Rode linzen');
+    });
+
+    it('gives a new product made from the proposal its variant, and one made from the search none', async () => {
+        await open(known({ proposal: { name: 'Linzen', note: 'Rode' } }));
+        await typeName('Cola zero');
+        click(page, '.proposal button.primary');
+        await settle();
+        click(page, 'app-new-item-form button.primary');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 50, 'Rode');
+
+        store.mapBarcode.mockClear();
+        click(page, 'app-new-item-form .mt-3 button.btn');
+        await settle();
+        await typeName('Cola zero');
+        click(page, 'app-item-autocomplete .option.create');
+        await settle();
+        click(page, 'app-new-item-form button.primary');
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 50, '');
     });
 
     it('shows no proposal when there is none', async () => {

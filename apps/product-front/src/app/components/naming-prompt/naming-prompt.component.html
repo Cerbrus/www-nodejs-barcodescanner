@@ -67,12 +67,17 @@
                 }
             </span>
             @if (proposedItem(); as item) {
-                <button type="button" class="btn primary" [disabled]="busy()" (click)="choose(item)">
+                <button
+                    type="button"
+                    class="btn primary"
+                    [disabled]="busy()"
+                    (click)="choose(item, typedVariant() ?? proposal.note)"
+                >
                     <i class="material-symbols-outlined">add_link</i>
                     {{ 'naming.link' | translate }}
                 </button>
             } @else if (!proposal.catalogItemId) {
-                <button type="button" class="btn primary" (click)="newName.set(proposal.name)">
+                <button type="button" class="btn primary" (click)="createProposed(proposal.name)">
                     <i class="material-symbols-outlined">add_circle</i>
                     {{ 'naming.create' | translate }}
                 </button>
@@ -90,7 +95,7 @@
         autocomplete="off"
         [placeholder]="'naming.variantPlaceholder' | translate"
         [value]="variant()"
-        (input)="variant.set(variantField.value)"
+        (input)="typedVariant.set(variantField.value)"
     />
 
     @if (newName(); as name) {

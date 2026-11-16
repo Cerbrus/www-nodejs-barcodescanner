@@ -1,14 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    linkedSignal,
-    output,
-    signal
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, finalize, switchMap, tap } from 'rxjs';
@@ -44,7 +34,11 @@ export class NamingPromptComponent {
     protected readonly barcode = signal<Barcode | undefined>(undefined);
     protected readonly search = signal('');
     protected readonly newName = signal<string | undefined>(undefined);
-    protected readonly variant = linkedSignal(() => this.barcode()?.proposal?.note ?? '');
+    protected readonly typedVariant = signal<string | undefined>(undefined);
+    protected readonly variant = computed(
+        () => this.typedVariant() ?? (this.search().trim() ? '' : (this.barcode()?.proposal?.note ?? ''))
+    );
+
     protected readonly proposedItem = computed(() => {
         const id = this.barcode()?.proposal?.catalogItemId;
         return id ? this.store.itemById(id) : undefined;
@@ -76,6 +70,7 @@ export class NamingPromptComponent {
         effect(() => {
             const code = this.code();
             this.barcode.set(undefined);
+            this.typedVariant.set(undefined);
             this.api
                 .getBarcode(code)
                 .pipe(tap((barcode) => this.barcode.set(barcode)))
@@ -109,10 +104,15 @@ export class NamingPromptComponent {
         this.search.set(suggestion.title);
     }
 
-    protected choose(item: CatalogItem): void {
+    protected createProposed(name: string): void {
+        this.search.set('');
+        this.newName.set(name);
+    }
+
+    protected choose(item: CatalogItem, variant = this.variant()): void {
         this.busy.set(true);
         this.store
-            .mapBarcode(this.code(), item.id, this.variant().trim())
+            .mapBarcode(this.code(), item.id, variant.trim())
             .pipe(tap(() => this.closed.emit({ kind: 'linked', item })))
             .subscribe();
     }
