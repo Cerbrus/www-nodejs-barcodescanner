@@ -212,6 +212,7 @@ The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instea
 
 ### Smaller changes outside the milestones
 
+- Done 2026-11-16 02:30, released in 1.1.102: the Pi checks for updates every minute and pulls only when the registry has new images, as the card scanner does; the installed timer on the Pi was changed by hand to match `install.sh`.
 - Done 2026-11-15 12:04, released in 1.1.63: a "What's new" page for every account, backfilled from the git tags (issue #23). The build writes the changelog, so each release lists itself.
 - Done 2026-11-13 21:02, released in 1.1.27: searching on the list page also shows products that are already on the list, as "+1".
 
