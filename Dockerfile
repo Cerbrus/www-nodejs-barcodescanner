@@ -3,6 +3,7 @@ WORKDIR /repo
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn/releases .yarn/releases
+RUN printf '#!/bin/sh\nexec node /repo/.yarn/releases/yarn-*.cjs "$@"\n' > /usr/local/bin/yarn && chmod +x /usr/local/bin/yarn
 RUN yarn install --immutable
 
 COPY . .

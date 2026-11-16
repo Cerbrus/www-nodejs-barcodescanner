@@ -12,7 +12,7 @@ In daily-use shape and running on the Pi:
 - Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner, with sounds built from blocks and one for a new version.
 - Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request, which is reviewed and landed locally. A "What's new" page built from the releases.
 - Tests: API rules and routes, the web app, 15 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag was tested on 2026-11-15 and again on 2026-11-16, after the updater that skipped rollbacks was repaired.
-- Packages: Node 25, Nx 24, Angular 22, TypeScript 6, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, ESLint 10. A content security policy in report-only mode.
+- Packages: Node 26, Nx 24, Angular 22, TypeScript 6, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, ESLint 10. A content security policy in report-only mode.
 
 ## What comes next
 
@@ -128,6 +128,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 22:28, released in 1.1.32: `@messageformat/core` and its ngx-translate wrapper replaced by `intl-messageformat`.
 - Done 2026-11-15 15:54, released in 1.1.87: class-validator 0.15 and tslib 2.9 (in place of Dependabot #7, which was built on 1.1.34); web-push 4, an ES module without a default export, so the push service imports its functions by name; ESLint 10, with `eslint-plugin-import-x` in place of the unmaintained `eslint-plugin-import`, which reorders relative imports in 34 files.
 - Done 2026-11-15 16:21, released in 1.1.87: ngx-translate 18 (`TranslatePipe` and `provideTranslateService` instead of `TranslateModule`, specs through a small `TranslateTesting` module); Tailwind 4 (global styles are plain CSS, as Tailwind 4 does not work with Sass, the dark theme mixin written out; the barcode component keeps Sass without `@apply`; v3 border, placeholder and button cursor kept in the base layer; checked on screenshots in light and dark); NestJS 12 without code changes; TypeORM 1, with an own snake case naming strategy in place of the unmaintained `typeorm-naming-strategies`. The image was built and started locally on Node 25: health, list, web page and push key answer. The shared classes in `styles.css` moved into `@layer components` and the icon font's stylesheet into `@layer base`, so utilities win without `!`; twelve screens matched before and after on screenshots.
+- Done 2026-11-16 12:59: Node 26 in the images and the build (Dependabot #29). The Node 26 image comes without Yarn, so the image build runs the Yarn release that is in the repository.
 - Blocked: TypeScript 7 (Angular 22's compiler and typescript-eslint accept TypeScript below 6.1 only), better-sqlite3 13 (TypeORM 1 still accepts up to 12).
 
 ### 9. Tests for the web app: done 2026-11-14 00:26

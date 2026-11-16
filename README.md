@@ -38,7 +38,7 @@ On the Pi two containers run: `app` (API plus the built web app, SQLite file on 
 
 ## Development
 
-Needs Node.js 24 or newer and Yarn 4. The images and the build run Node 25.
+Needs Node.js 24 or newer and Yarn 4. The images and the build run Node 26.
 
 ```bash
 yarn install
