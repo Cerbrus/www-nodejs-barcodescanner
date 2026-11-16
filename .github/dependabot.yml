@@ -7,6 +7,9 @@ updates:
             interval: weekly
             day: monday
         open-pull-requests-limit: 8
+        ignore:
+            -   dependency-name: '*'
+                update-types: [ 'version-update:semver-major' ]
         groups:
             angular:
                 patterns: [ '@angular/*', '@angular-devkit/*', '@schematics/angular', 'angular-eslint', '@angular-eslint/*' ]
