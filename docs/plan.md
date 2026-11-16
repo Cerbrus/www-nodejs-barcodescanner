@@ -46,7 +46,6 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
-- The update sound since it plays for a newer version only (1.1.115): the next release should play it once, a rollback should stay silent.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 
@@ -86,3 +85,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Only the repository's admin role may push to `master` | 2026-11-16 18:34 | |
 | The owner's checks after the review, on the iPhone: push since web-push 4, the variant in the naming prompt, a fast second tap on the list | 2026-11-16 18:48 | |
 | Finished plans, reports and reviews moved to `docs/archive/`, this plan shortened | 2026-11-16 18:48 | |
+| The update sound for a newer version only: confirmed by the owner | 2026-11-16 18:51 | 1.1.115 |
