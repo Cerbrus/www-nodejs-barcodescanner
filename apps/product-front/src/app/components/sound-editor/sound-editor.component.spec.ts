@@ -174,6 +174,15 @@ describe('SoundEditorComponent', () => {
         expect(button('button.save').disabled).toBe(false);
     });
 
+    it('needs a name for an existing sound as well, to save it or to copy it', async () => {
+        await open(DOUBLE, 'Twee tikken');
+        type(page, '#sound-name', '  ');
+        await settle();
+
+        expect(button('button.save').disabled).toBe(true);
+        expect(button('button.save-new').disabled).toBe(true);
+    });
+
     it('deletes a sound that is not in use, and cannot delete one that is', async () => {
         await open(DOUBLE, 'Twee tikken', true);
         expect(button('button.danger').disabled).toBe(true);

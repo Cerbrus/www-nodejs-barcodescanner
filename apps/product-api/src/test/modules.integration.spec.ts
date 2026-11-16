@@ -90,7 +90,7 @@ async function checkSoundPresets(feedback: FeedbackService, events: EventsServic
     feedback.testBlocks([{ kind: 'beep', ms: 100 }]);
     watch.unsubscribe();
     const changed = await feedback.getSettings();
-    assert.equal(changed.sounds.at(-1)?.name, undefined);
+    assert.equal(changed.sounds.at(-1)?.name, 'Fanfare');
     assert.equal(changed.events.find((row) => row.event === 'needs_name')?.steps[0].hz, 12);
     assert.deepEqual(emitted, ['feedback_settings', 'feedback_settings', 'feedback']);
 

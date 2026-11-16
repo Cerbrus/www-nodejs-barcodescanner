@@ -228,7 +228,7 @@ interface ProductSuggestion {
 | `GET /api/v1/feedback/settings` | The sound chosen per event, and the library of sounds |
 | `PUT /api/v1/feedback/settings/:event` | Choose the sound for an event, or `none` |
 | `POST /api/v1/feedback/sounds` | Make a sound from a name and blocks |
-| `PUT /api/v1/feedback/sounds/:id` | Change a sound's name and blocks; without a name a starting sound keeps its translated name |
+| `PUT /api/v1/feedback/sounds/:id` | Change a sound's name and blocks; without a name the sound keeps the name it has, which for a starting sound is its translated name |
 | `DELETE /api/v1/feedback/sounds/:id` | Delete a sound; 409 while an event uses it |
 | `POST /api/v1/feedback/test-blocks` | Play blocks that are not saved yet |
 | `POST /api/v1/feedback/test` | Play one sound from the library at the scanner |

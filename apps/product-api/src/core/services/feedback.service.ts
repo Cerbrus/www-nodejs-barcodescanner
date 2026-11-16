@@ -134,7 +134,10 @@ export class FeedbackService implements OnApplicationBootstrap {
         blocks: Array<SoundBlock>
     ): Promise<FeedbackSettings> {
         await this.findSound(id);
-        await this.sounds.update(id, { name: name === undefined ? null : cleanName(name), blocks: checked(blocks) });
+        await this.sounds.update(id, {
+            ...(name === undefined ? {} : { name: cleanName(name) }),
+            blocks: checked(blocks)
+        });
         this.logger.log(`sound "${id}" changed`);
         this.events.emit('feedback_settings', { soundId: id });
 

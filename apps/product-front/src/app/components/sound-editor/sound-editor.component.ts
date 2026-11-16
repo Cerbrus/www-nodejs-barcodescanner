@@ -109,7 +109,7 @@ export class SoundEditorComponent {
         return this.blocks().some((block) => block.kind !== 'pause') ? undefined : 'sound.needsSound';
     });
 
-    protected readonly canSave = computed(() => !this.problem() && (this.name().trim() || this.sound()));
+    protected readonly canSave = computed(() => !this.problem() && this.name().trim());
 
     private readonly api = inject(ApiService);
     private readonly translate = inject(TranslateService);

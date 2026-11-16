@@ -120,12 +120,7 @@
     </div>
     @if (sound()) {
         <div class="mt-2 flex flex-wrap gap-2">
-            <button
-                type="button"
-                class="btn save-new grow"
-                [disabled]="!canSave() || !name().trim() || busy()"
-                (click)="save(true)"
-            >
+            <button type="button" class="btn save-new grow" [disabled]="!canSave() || busy()" (click)="save(true)">
                 <i class="material-symbols-outlined">content_copy</i>
                 {{ 'sound.saveAsNew' | translate }}
             </button>
