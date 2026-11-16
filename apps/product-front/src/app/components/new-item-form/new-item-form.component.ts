@@ -138,7 +138,7 @@ const SECTION_KEYWORDS: Record<string, Array<string>> = {
         <div class="flex items-end gap-3">
             <div class="grow">
                 <span class="field-label">{{ 'item.icon' | translate }}</span>
-                <button type="button" class="btn w-full !justify-start" (click)="pickingIcon.set(true)">
+                <button type="button" class="btn w-full justify-start" (click)="pickingIcon.set(true)">
                     <i class="material-symbols-outlined">image</i>
                     {{ 'item.chooseIcon' | translate }}
                 </button>
