@@ -2,7 +2,7 @@
 
 How the prototype became the product, and what is left. Decisions behind this plan are in [decisions.md](decisions.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
 
-## Where it stands (2026-11-16, version 1.1.115)
+## Where it stands (2026-11-16, version 1.1.119)
 
 In daily-use shape and running on the Pi:
 
@@ -128,7 +128,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 22:28, released in 1.1.32: `@messageformat/core` and its ngx-translate wrapper replaced by `intl-messageformat`.
 - Done 2026-11-15 15:54, released in 1.1.87: class-validator 0.15 and tslib 2.9 (in place of Dependabot #7, which was built on 1.1.34); web-push 4, an ES module without a default export, so the push service imports its functions by name; ESLint 10, with `eslint-plugin-import-x` in place of the unmaintained `eslint-plugin-import`, which reorders relative imports in 34 files.
 - Done 2026-11-15 16:21, released in 1.1.87: ngx-translate 18 (`TranslatePipe` and `provideTranslateService` instead of `TranslateModule`, specs through a small `TranslateTesting` module); Tailwind 4 (global styles are plain CSS, as Tailwind 4 does not work with Sass, the dark theme mixin written out; the barcode component keeps Sass without `@apply`; v3 border, placeholder and button cursor kept in the base layer; checked on screenshots in light and dark); NestJS 12 without code changes; TypeORM 1, with an own snake case naming strategy in place of the unmaintained `typeorm-naming-strategies`. The image was built and started locally on Node 25: health, list, web page and push key answer. The shared classes in `styles.css` moved into `@layer components` and the icon font's stylesheet into `@layer base`, so utilities win without `!`; twelve screens matched before and after on screenshots.
-- Done 2026-11-16 12:59: Node 26 in the images and the build (Dependabot #29). The Node 26 image comes without Yarn, so the image build runs the Yarn release that is in the repository.
+- Done 2026-11-16 12:59, released in 1.1.119: Node 26 in the images and the build (Dependabot #29). The Node 26 image comes without Yarn, so the image build runs the Yarn release that is in the repository.
 - Blocked: TypeScript 7 (Angular 22's compiler and typescript-eslint accept TypeScript below 6.1 only), better-sqlite3 13 (TypeORM 1 still accepts up to 12).
 
 ### 9. Tests for the web app: done 2026-11-14 00:26
