@@ -39,7 +39,7 @@
         "@nx/angular": "21.5.2",
         "@zxing/browser": "~0.2.1",
         "@zxing/library": "~0.23.0",
-        "better-sqlite3": "^12.11.1",
+        "better-sqlite3": "^13.1.1",
         "class-transformer": "~0.5.1",
         "class-validator": "~0.15.1",
         "intl-messageformat": "^12.1.5",
