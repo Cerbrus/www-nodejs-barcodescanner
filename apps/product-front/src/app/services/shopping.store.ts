@@ -133,11 +133,16 @@ export class ShoppingStore {
             return this.keepForLater(id, change);
         }
 
+        const before = this.entries();
+        this.entries.update((entries) => this.withLocalChange(entries, id, change));
+
         return this.api.changeListEntry(id, change).pipe(
             switchMap(() => this.refreshListAndInbox()),
-            catchError((error: HttpErrorResponse) =>
-                error.status === NO_CONNECTION ? this.keepForLater(id, change) : throwError(() => error)
-            )
+            catchError((error: HttpErrorResponse) => {
+                this.entries.set(before);
+
+                return error.status === NO_CONNECTION ? this.keepForLater(id, change) : throwError(() => error);
+            })
         );
     }
 

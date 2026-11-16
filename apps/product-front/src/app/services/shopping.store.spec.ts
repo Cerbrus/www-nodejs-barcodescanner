@@ -136,6 +136,31 @@ describe('ShoppingStore', () => {
         expect(store.pending()).toEqual([]);
     });
 
+    it('shows a change at once, so a next tap before the server answers starts from it', () => {
+        const store = create();
+        api.changeListEntry.mockReturnValue(new Subject());
+
+        store.changeEntry('e1', { note: 'jong' }).subscribe();
+        expect(store.toBuy().map((row) => [row.id, row.note, row.quantity])).toEqual([['e1', 'jong', 2]]);
+
+        store.addItem(milk).subscribe();
+        const [id, change] = api.changeListEntry.mock.lastCall as [string, object];
+        expect(id).not.toBe('e1');
+        expect(change).toEqual({ catalogItemId: 1, note: '', state: 'to_buy', quantity: 1 });
+    });
+
+    it('puts the list back when the server refuses a change', () => {
+        const store = create();
+        api.changeListEntry.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+        const failures: Array<number> = [];
+
+        store.changeEntry('e1', { state: 'recent' }).subscribe({ error: ({ status }) => failures.push(status) });
+
+        expect(failures).toEqual([404]);
+        expect(store.toBuy().map((row) => row.id)).toEqual(['e1']);
+        expect(store.pending()).toEqual([]);
+    });
+
     it('keeps a change for later when there is no connection, and shows it at once', () => {
         const store = create();
         api.changeListEntry.mockReturnValue(throwError(noConnection));
