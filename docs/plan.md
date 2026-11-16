@@ -18,7 +18,7 @@ In daily-use shape and running on the Pi:
 
 Agreed with the owner on 2026-11-15:
 
-0. **Fix the findings of the review of 2026-11-16** ([review-2026-11-16.md](review-2026-11-16.md)), added by the owner on 2026-11-16: done 2026-11-16 18:07, in 1.1.106, 1.1.110 and 1.1.115, apart from two checks that need the owner; the review lists what was done per finding.
+0. **Fix the findings of the review of 2026-11-16** ([review-2026-11-16.md](review-2026-11-16.md)), added by the owner on 2026-11-16: done 2026-11-16 18:07, in 1.1.106, 1.1.110 and 1.1.115, the review lists what was done per finding.
 1. **Names, sections and variants** (milestone 12): done in 1.1.77 apart from the AI suggestion, which is deferred; see [naming-plan.md](naming-plan.md).
 2. **Rollback test**: done 2026-11-15 17:00, see deployment.
 3. **Package families**: all updated in 1.1.87 except the two that are blocked (see "Package upgrades"). Dependabot proposes the small ones weekly.
@@ -225,8 +225,6 @@ The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instea
 | Point | Needed by |
 |---|---|
 | Content security policy: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi | Milestone 6 |
-| One real push notification since web-push 4 (1.1.87): the owner presses the test button on the System page and sees it arrive on the iPhone | Review of 2026-11-16 |
-| The card scanner's updater has the rollback flaw this one had; the fix was handed to the session working there on 2026-11-16 | Card scanner |
 
 ## Never tested
 
@@ -235,7 +233,5 @@ The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instea
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
-- A push notification since web-push 4 (1.1.87); see [review-2026-11-16.md](review-2026-11-16.md).
-- The Tailwind 3 to 4 upgrade screen by screen: it was judged by eye on about six screens, and only the later move to style layers was compared on screenshots.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
