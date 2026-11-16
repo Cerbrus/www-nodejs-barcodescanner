@@ -15,7 +15,9 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 | [naming-plan.md](naming-plan.md) | Plan for generic names, sections from the shop's category and variants on the list (milestone 12) |
 | [remarks-plan.md](remarks-plan.md) | Plan for bug reports and wishes from inside the app (milestone 11), with open questions |
 | [night-report-2026-11-13.md](night-report-2026-11-13.md) | What was built unattended in the night of 2026-11-13, what was not, and the open questions |
-| [scanner-usb-capture.txt](scanner-usb-capture.txt) | USB capture of the scanner dongle, kept for the open question of driving its beeper |
+| [sounds-plan.md](sounds-plan.md) | Plan for scanner sounds built from blocks and kept as presets (milestone 14) |
+| [review-2026-11-16.md](review-2026-11-16.md) | Review of the work of 2026-11-15 and 16: two defects, smaller issues and what is not proven, as a list to fix |
+| [scanner-usb-capture.txt](scanner-usb-capture.txt) | USB capture of the scanner dongle. Tera answered on 2026-11-16 that the scanner cannot beep or light up on the host's command; kept as a record |
 | [../data/seed-items.json](../data/seed-items.json) | Seed data: sections and products with icon and emoji, starting list |
 
 The documents describe the product as it runs today. Where something is planned but not built, the text says so, and `plan.md` lists it.

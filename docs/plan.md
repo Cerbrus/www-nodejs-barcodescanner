@@ -2,26 +2,27 @@
 
 How the prototype became the product, and what is left. Decisions behind this plan are in [decisions.md](decisions.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
 
-## Where it stands (2026-11-15, version 1.1.87)
+## Where it stands (2026-11-16, version 1.1.102)
 
 In daily-use shape and running on the Pi:
 
 - Handheld and camera scanning, the scan rules, inbox and naming with a proposed product and variant, the list with several lines per product told apart by their note, sections from the shop's category, product management, history with undo, the system log.
 - Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app reloads itself after an update. The Pi also runs the card scanner; the two updaters share a lock.
 - Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans, shopping without a connection.
-- Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner.
+- Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner, with sounds built from blocks and one for a new version.
 - Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request, which is reviewed and landed locally. A "What's new" page built from the releases.
-- Tests: API rules and routes, the web app, 12 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag is tested.
+- Tests: API rules and routes, the web app, 12 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag was tested on 2026-11-15 and is skipped by the updater since 1.1.102; see the review of 2026-11-16.
 - Packages: Node 25, Nx 24, Angular 22, TypeScript 6, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, ESLint 10. A content security policy in report-only mode.
 
 ## What comes next
 
 Agreed with the owner on 2026-11-15:
 
+0. **Fix the findings of the review of 2026-11-16** ([review-2026-11-16.md](review-2026-11-16.md)), added by the owner on 2026-11-16: first the updater, which skips rollbacks since 1.1.102, then the variant in the naming prompt, then the smaller issues.
 1. **Names, sections and variants** (milestone 12): done in 1.1.77 apart from the AI suggestion, which is deferred; see [naming-plan.md](naming-plan.md).
 2. **Rollback test**: done 2026-11-15 17:00, see deployment.
 3. **Package families**: all updated in 1.1.87 except the two that are blocked (see "Package upgrades"). Dependabot proposes the small ones weekly.
-4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy, and Tera's answer on the beeper (milestone 7).
+4. **Waiting on time or on the owner**: switch the content security policy to enforcing after a week of clean logs (from 2026-11-20); daily use, now mostly reported through the feedback button (milestone 6); the choices for other accounts and the invite system (milestone 10); the buzzer chain after a deploy (milestone 7).
 5. **Operations never tested** (list at the end).
 6. **Milestone 13, chosen by the owner on 2026-11-15**: command barcodes for the scanner, Siri shortcut, share the list as text, merge products, alerts to the owner. Not planned in detail yet.
 7. **Milestone 14**: scanner sounds from blocks as named presets; done in 1.1.93.
@@ -108,7 +109,7 @@ Done when: naming a typical new barcode takes one or two taps.
 ### 7. Feedback at the scanner: mostly done
 
 - Done 2026-11-12 20:05: push notification on the phone for an unknown handheld scan (UC-12). Confirmed on the iPhone: the notification arrives, the app icon shows the inbox count, and a tap opens the inbox without reloading the app. It arrives seconds after the scan, so it does not replace a beep.
-- Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12; no answer yet.
+- Preferred for sound: the scanner's own beeper, triggered by the hardware agent through the dongle. The dongle has a second HID interface that accepts data from the host (report `0xBA`, 7 bytes), but its commands are undocumented; see [scanner-usb-capture.txt](scanner-usb-capture.txt). Tera support was asked for the command set on 2026-11-12 and answered on 2026-11-16: the scanner does not support beeps or lights started by the host. Closed; the GPIO buzzer is the sound output.
 - Done 2026-11-12 23:40: a buzzer on a GPIO pin (GPIO 18, an active type), driven by the hardware agent from the scan result. The sound per event is chosen on the System page from a library of sounds, with a button to hear each one (UC-16). Open: confirm the whole chain from button to buzzer after the first deploy.
 - Considered: a USB speaker of about 12 euro, or any powered speaker on the Pi's headphone jack.
 - Done 2026-11-15 17:27: the buzzer announces a new version once it is live, with a sound chosen on the sounds page like the scan sounds (owner's wish, 2026-11-15).
@@ -221,7 +222,7 @@ The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instea
 | Point | Needed by |
 |---|---|
 | Content security policy: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi | Milestone 6 |
-| Tera's answer on the beeper commands | Milestone 7 |
+| The findings of [review-2026-11-16.md](review-2026-11-16.md), the updater's rollback first | Next |
 
 ## Never tested
 
@@ -230,5 +231,6 @@ The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instea
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
+- A push notification since web-push 4 (1.1.87), and a rollback since the updater checks digests first (1.1.102); see [review-2026-11-16.md](review-2026-11-16.md).
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
