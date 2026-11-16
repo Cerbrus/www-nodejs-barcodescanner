@@ -19,7 +19,8 @@ describe('section from the shop category', () => {
         assert.equal(sectionForCategory('Frisdrank, sappen, koffie, thee'), 'dranken');
         assert.equal(sectionForCategory('Bier, wijn, aperitieven'), 'dranken');
         assert.equal(sectionForCategory('Pasta, rijst, wereldkeuken'), 'graanproducten');
-        assert.equal(sectionForCategory('Soepen, sauzen, kruiden, olie'), 'gereed-diepvries');
+        assert.equal(sectionForCategory('Soepen, sauzen, kruiden, olie'), 'ingredienten-kruiden');
+        assert.equal(sectionForCategory('Soepen'), 'gereed-diepvries');
         assert.equal(sectionForCategory('Diepvries'), 'gereed-diepvries');
         assert.equal(sectionForCategory('Drogisterij'), 'verzorging-gezondheid');
         assert.equal(sectionForCategory('Huishouden'), 'huishouden');

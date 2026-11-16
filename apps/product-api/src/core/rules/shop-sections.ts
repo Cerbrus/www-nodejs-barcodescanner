@@ -1,4 +1,5 @@
 const CATEGORY_SECTIONS: Array<[RegExp, string]> = [
+    [/soepen.*sauzen/, 'ingredienten-kruiden'],
     [/diepvries|pizza|maaltijd|salade|soep/, 'gereed-diepvries'],
     [/aardappel|groente|fruit|vegetable|fruits?\b|potato/, 'fruit-groenten'],
     [/zuivel|eieren|kaas|yoghurt|melk|milk|dair|cheese|yogurt|egg/, 'zuivel'],
