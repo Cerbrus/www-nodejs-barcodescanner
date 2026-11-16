@@ -58,7 +58,7 @@ The camera and notifications need HTTPS, so they work through the reverse proxy 
 
 ## Deployment in short
 
-A push to `master` builds two `linux/arm64` images on GitHub Actions and publishes them to `ghcr.io`. A timer on the Pi pulls them every 5 minutes. First install on a Pi:
+A push to `master` builds two `linux/arm64` images on GitHub Actions and publishes them to `ghcr.io`. A timer on the Pi checks every minute whether the registry has new images and pulls them when so. First install on a Pi:
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/Cerbrus/www-nodejs-barcodescanner/master/deployment/install.sh

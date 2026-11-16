@@ -1,14 +1,26 @@
 #!/usr/bin/env bash
 # Pulls the current compose file and images and restarts what changed.
-# Run by barcodescanner-update.timer; safe to run by hand.
+# Run by barcodescanner-update.timer every minute; safe to run by hand.
+# Each run first asks the registry for the digest of every image and stops there
+# when all services run and have those images, and the compose file is unchanged.
 set -euo pipefail
 
 APP_DIR=/opt/barcodescanner
 REPO_RAW=https://raw.githubusercontent.com/Cerbrus/www-nodejs-barcodescanner/master/deployment
+MANIFEST_TYPES=(
+    application/vnd.oci.image.index.v1+json
+    application/vnd.docker.distribution.manifest.list.v2+json
+    application/vnd.oci.image.manifest.v1+json
+    application/vnd.docker.distribution.manifest.v2+json
+)
 
 cd "$APP_DIR"
 
+compose_changed=0
 if curl -fsSL -o docker-compose.yml.new "$REPO_RAW/docker-compose.yml"; then
+    if ! cmp -s docker-compose.yml.new docker-compose.yml; then
+        compose_changed=1
+    fi
     mv docker-compose.yml.new docker-compose.yml
 else
     rm -f docker-compose.yml.new
@@ -23,6 +35,38 @@ for script in update.sh firewall.sh backup.sh; do
         rm -f "$script.new"
     fi
 done
+
+remote_digest() {
+    local image=$1 repository tag token accept=()
+    repository=${image#ghcr.io/}
+    tag=${repository##*:}
+    repository=${repository%:*}
+    token=$(curl -fsS "https://ghcr.io/token?scope=repository:$repository:pull" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+    for type in "${MANIFEST_TYPES[@]}"; do
+        accept+=(-H "Accept: $type")
+    done
+    curl -fsSI -H "Authorization: Bearer $token" "${accept[@]}" "https://ghcr.io/v2/$repository/manifests/$tag" |
+        tr -d '\r' | sed -n 's/^docker-content-digest: *//Ip'
+}
+
+images_current() {
+    local images image remote local_digests running
+    images=$(docker compose config --images 2>/dev/null) || return 1
+    running=$(docker compose ps --quiet 2>/dev/null | wc -l)
+    [ "$running" -eq "$(printf '%s\n' "$images" | wc -l)" ] || return 1
+    while read -r image; do
+        [[ "$image" == ghcr.io/* ]] || return 1
+        remote=$(remote_digest "$image" || true)
+        local_digests=$(docker image inspect --format '{{join .RepoDigests " "}}' "$image" 2>/dev/null || true)
+        if [ -z "$remote" ] || [[ " $local_digests " != *"@$remote "* ]]; then
+            return 1
+        fi
+    done <<<"$images"
+}
+
+if [ "$compose_changed" -eq 0 ] && images_current; then
+    exit 0
+fi
 
 exec 9>/run/lock/docker-update.lock
 if ! flock -w 600 9; then

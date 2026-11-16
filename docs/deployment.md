@@ -7,7 +7,7 @@ How the product runs on the Raspberry Pi. Everything here is in place on the ser
 The Pi pulls; nothing pushes to the Pi.
 
 1. A push to `master` makes GitHub Actions build the `app` and `hardware-agent` images and publish them to GitHub's container registry (`ghcr.io`), tagged `latest`, with the version number and with the commit hash.
-2. A systemd timer on the Pi runs every 5 minutes: fetch the compose file, pull images, restart what changed.
+2. A systemd timer on the Pi runs every minute: fetch the compose file and scripts, ask the registry for the digest of each image, and stop there when every service runs with those images and the compose file is unchanged. Otherwise pull the images and restart what changed.
 3. The Pi needs Docker and outbound internet, plus `git` and `sqlite3` for the backup. No inbound port for deployment, no SSH key in GitHub, no Node or Python on the Pi.
 
 The repository and the images are public, so the Pi needs no GitHub token and no registry login. Set each image package to public once on GitHub after the first build; new packages start private even in a public repository. Secrets never go into an image.
@@ -54,7 +54,7 @@ Consequences:
     `-- logs/app.log      # log file with its rotated files
 ```
 
-Systemd units: `barcodescanner-update.timer` (every 5 minutes), `barcodescanner-backup.timer` (hourly), `barcodescanner-firewall.service` (at boot).
+Systemd units: `barcodescanner-update.timer` (every minute), `barcodescanner-backup.timer` (hourly), `barcodescanner-firewall.service` (at boot).
 
 One-time install on a fresh Pi:
 
@@ -69,7 +69,7 @@ sudo bash install.sh
 2. adds the kernel parameters for container memory limits if they are missing (needs one reboot);
 3. creates `/opt/barcodescanner/` with `data/`, the three scripts and an `.env` from `deployment/env.template`, filling in the scanner device when one is plugged in;
 4. creates the backup key and prints its public half;
-5. installs and starts `barcodescanner-update.timer` (2 minutes after boot, then every 5 minutes), `barcodescanner-backup.timer` (hourly) and `barcodescanner-firewall.service`;
+5. installs and starts `barcodescanner-update.timer` (2 minutes after boot, then every minute), `barcodescanner-backup.timer` (hourly) and `barcodescanner-firewall.service`;
 6. runs the updater once.
 
 After the first install, fill in `.env` (next sections): `ALLOWED_SOURCE`, `BACKUP_REPO`, `PUSH_SUBJECT`.
@@ -171,7 +171,7 @@ When the site's public name points at the router, some routers pass requests fro
 
 ## Updates, rollback, backup
 
-- **Update**: push to `master`; the Pi follows within about 5 minutes plus build time. The barcode scanner and the card scanner share the Pi and each have an updater every 5 minutes; both take the lock `/run/lock/docker-update.lock` around pulling, restarting and pruning, so one never prunes while the other pulls. Without it, Docker's image store broke the other's pull with "lease does not exist" (seen 2026-11-15). An updater that waits more than ten minutes for the lock skips that round.
+- **Update**: push to `master`; the Pi follows within about a minute plus build time. The barcode scanner and the card scanner share the Pi and each have an updater every minute, which only pulls when the registry has a new image (changed from every 5 minutes on 2026-11-16, as in the card scanner); both take the lock `/run/lock/docker-update.lock` around pulling, restarting and pruning, so one never prunes while the other pulls. Without it, Docker's image store broke the other's pull with "lease does not exist" (seen 2026-11-15). An updater that waits more than ten minutes for the lock skips that round.
 - **Check**: the System page or `curl http://127.0.0.1:3020/api/v1/health` for the running version, `systemctl list-timers barcodescanner-update.timer`, `journalctl -u barcodescanner-update`, `docker compose ps`.
 - **Rollback**: set `IMAGE_TAG=<version>` in `.env`, for example `1.0.20`, and run the updater. Images built before version numbers existed are only tagged with their commit hash. Database migrations only go forward, so restore the database backup when rolling back past a migration. Tested 2026-11-15: from 1.1.87 to 1.1.77 and back, each updater run about 30 seconds, both containers on the pinned tag, health answering with the pinned version.
 - **Backup**: see the next section. The log files are not backed up.
