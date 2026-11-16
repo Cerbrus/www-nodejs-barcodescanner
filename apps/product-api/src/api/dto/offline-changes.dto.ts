@@ -10,6 +10,7 @@ import {
     Matches,
     MaxLength,
     Min,
+    ValidateIf,
     ValidateNested
 } from 'class-validator';
 
@@ -24,7 +25,7 @@ export class OfflineChangeDto {
     @Matches(ENTRY_ID)
     public id?: string;
 
-    @IsOptional()
+    @ValidateIf((change: OfflineChangeDto) => change.id === undefined || change.catalogItemId !== undefined)
     @IsInt()
     public catalogItemId?: number;
 

@@ -243,6 +243,11 @@ describe('data routes over HTTP', () => {
             ).status,
             400
         );
+        assert.equal(
+            (await call('POST', '/list/offline-changes', asUser, { changes: [{ quantity: 2, changedAt: at(1) }] }))
+                .status,
+            400
+        );
         assert.equal((await call('POST', '/list/offline-changes', asAgent, { changes: [] })).status, 403);
     });
 
