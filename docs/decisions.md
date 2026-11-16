@@ -140,6 +140,8 @@ Decided 2026-11-13: the policy starts in report-only mode and reports go to the 
 
 Decided 2026-11-13: light protection for `master`, as a repository ruleset: no deletion, no force-push. No required pull request or checks, because there is no second person to review and releases are direct pushes.
 
+Changed 2026-11-16, by the owner: only the repository's admin role may push to `master`; the ruleset got the rule against updates, with that role as the exception. The reason: the Dependabot reviewer installs proposed package versions while it holds a token that may write to the repository, and the Pi fetches and runs `update.sh` and `firewall.sh` from `master` every minute, so a malicious package release could otherwise reach the Pi through a push to `master`. Not decided yet: whether the reviewer should run package code at all with its tokens present.
+
 ## Remarks from inside the app
 
 Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:

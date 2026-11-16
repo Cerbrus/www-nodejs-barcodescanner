@@ -103,7 +103,7 @@ Done when: naming a typical new barcode takes one or two taps.
 - Done 2026-11-13 19:35: weekly Dependabot updates, a reviewer that judges each of them for its effect on the product, and a GitHub release per version.
 - Done 2026-11-13 21:40, released in 1.1.29: an open app reloads itself when a newer web app is published (UC-10). Confirmed by the owner on the iPhone with the release of 1.1.30.
 - Done 2026-11-13 22:28, released in 1.1.32: a content security policy in report-only mode, with reports in the system log, and FormatJS as message formatter because the former one needs `eval`. Open: read the log after a week and set `CSP_MODE=enforce`.
-- Done 2026-11-13: a ruleset on `master` that forbids deleting it and force-pushing to it. Two-factor login on the GitHub account is on, confirmed by the owner on 2026-11-14.
+- Done 2026-11-13: a ruleset on `master` that forbids deleting it and force-pushing to it. Done 2026-11-16 18:55: only the repository's admin role may push to `master`, so a workflow token cannot. Two-factor login on the GitHub account is on, confirmed by the owner on 2026-11-14.
 - Done 2026-11-15 02:28, released in 1.1.57: the card scanner now runs on the same Pi, and its updater's image prune broke this updater's pull ("lease does not exist"), which kept the Pi on 1.1.50 for an hour. Both updaters take a shared lock around pull, restart and prune; seen working both ways the same night.
 
 ### 7. Feedback at the scanner: mostly done
