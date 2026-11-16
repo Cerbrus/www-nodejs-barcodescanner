@@ -93,6 +93,8 @@ Settled on the iPhone on 2026-11-12, after three attempts:
 
 Decided 2026-11-12: the sound per scan result is a setting in the app, chosen from a fixed library, not hard-coded in the hardware agent. The user wanted to try sounds from the web page and pick per event. Free editing of own patterns was left out; new sounds are added to the library on request.
 
+Decided 2026-11-15, on the owner's wish: the buzzer announces a new version once it is live, with a sound chosen like the scan sounds. The app keeps the highest version it announced in `data/announced-version`. Changed 2026-11-16, by the owner after the review: only a version higher than that one is announced. A rollback, the way back from it and a first install stay silent; until then any version other than the last announced one played the sound.
+
 ## Login
 
 Decided 2026-11-13: login with Google inside the app, for the owner only. Considered and dropped for now: accounts for several people with their own lists and an approval step, as too complex. The allowlist can hold more addresses later; they would share the one list. No user table: the session is a signed cookie, and the hardware agent uses a shared secret.
@@ -115,6 +117,7 @@ Decided 2026-11-13:
 - No licence file. The code is public to read; reuse is not granted.
 - Dependency updates come as weekly pull requests from Dependabot: families that move together (Angular, Nx, NestJS, linting) as one pull request each; minor and patch versions of the rest grouped. Major versions of npm packages are left out and done by hand; the Docker base images and the GitHub Actions still get them, and a security fix comes whatever its version. Changed on 2026-11-16 from including majors, which was itself a change of 2026-11-13: they came as a row of separate pull requests that break the build, and a major version of Angular or Nx needs its migration tooling, which Dependabot does not run.
 - Every version gets a GitHub release with the commit subjects since the previous version.
+- Decided 2026-11-15: Prettier formats the code and `yarn lint:all` checks it. The choices: single quotes, 120 characters, 4 spaces, LF, no trailing commas, `bracketSameLine` off, and the Angular parser for HTML, so templates keep their control flow blocks readable. The one commit that reformatted everything is named in `.git-blame-ignore-revs`.
 - A Claude agent reviews every Dependabot pull request once it is a day old: not only whether the checks pass, but whether the update changes or breaks what the product does. It repairs small things and leaves a verdict, so the owner only has to merge or not. It has no right to merge, a short list of tools, and treats changelogs as outside text.
 
 ## Changelog in the app

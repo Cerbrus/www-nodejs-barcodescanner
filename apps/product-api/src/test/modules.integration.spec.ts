@@ -223,7 +223,7 @@ describe('scan flow against a real database', () => {
     it('keeps sounds as presets made of blocks, within limits, and keeps one in use', () =>
         checkSoundPresets(app.get(FeedbackService), app.get(EventsService)));
 
-    it('announces a new version once at the scanner, with the chosen sound, not after a restart', async () => {
+    it('announces a newer version once at the scanner, with the chosen sound, not after a restart, a rollback or a first install', async () => {
         const path = join(folder, 'announced-version');
         const feedback = app.get(FeedbackService);
         const service = (version: string): FeedbackService => {
@@ -239,6 +239,9 @@ describe('scan flow against a real database', () => {
         };
 
         await feedback.setSound('updated', 'trill8');
+        assert.equal(await service('1.2.2').takeUpdateAnnouncement(), undefined);
+        assert.equal(readFileSync(path, 'utf8'), '1.2.2');
+
         const first = service('1.2.3');
         const announcement = await first.takeUpdateAnnouncement();
         assert.equal(announcement?.type, 'feedback');
@@ -249,10 +252,15 @@ describe('scan flow against a real database', () => {
 
         assert.equal(await service('1.2.3').takeUpdateAnnouncement(), undefined);
         assert.equal(await service('dev').takeUpdateAnnouncement(), undefined);
+        assert.equal(await service('1.2.2').takeUpdateAnnouncement(), undefined);
+        assert.equal(await service('1.1.99').takeUpdateAnnouncement(), undefined);
+        assert.equal(readFileSync(path, 'utf8'), '1.2.3');
+        assert.notEqual(await service('1.2.10').takeUpdateAnnouncement(), undefined);
+        assert.notEqual(await service('1.10.0').takeUpdateAnnouncement(), undefined);
 
         await feedback.setSound('updated', 'none');
-        assert.equal(await service('1.2.4').takeUpdateAnnouncement(), undefined);
-        assert.equal(readFileSync(path, 'utf8'), '1.2.4');
+        assert.equal(await service('1.10.1').takeUpdateAnnouncement(), undefined);
+        assert.equal(readFileSync(path, 'utf8'), '1.10.1');
     });
 
     it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));

@@ -57,6 +57,13 @@ function cleanName(name: string): string {
     return trimmed;
 }
 
+function isNewer(version: string, than: string): boolean {
+    const [parts, others] = [version, than].map((text) => text.split('.').map(Number));
+    const at = parts.findIndex((part, index) => part !== (others[index] ?? 0));
+
+    return at >= 0 && !(parts[at] <= (others[at] ?? 0));
+}
+
 @Injectable()
 export class FeedbackService implements OnApplicationBootstrap {
     private readonly logger = new Logger('Feedback');
@@ -72,7 +79,13 @@ export class FeedbackService implements OnApplicationBootstrap {
     public onApplicationBootstrap(): void {
         const { version, announcedVersionPath } = this.config;
         const announced = existsSync(announcedVersionPath) ? readFileSync(announcedVersionPath, 'utf8').trim() : '';
-        if (version !== 'dev' && version !== announced) {
+        if (version === 'dev') {
+            return;
+        }
+
+        if (!announced) {
+            this.rememberAnnounced(version);
+        } else if (isNewer(version, announced)) {
             this.versionToAnnounce = version;
             this.logger.log(`version ${version} is new; the scanner announces it when it connects`);
         }
@@ -85,8 +98,7 @@ export class FeedbackService implements OnApplicationBootstrap {
         }
 
         this.versionToAnnounce = undefined;
-        mkdirSync(dirname(this.config.announcedVersionPath), { recursive: true });
-        writeFileSync(this.config.announcedVersionPath, version);
+        this.rememberAnnounced(version);
         const steps = (await this.getSettings()).events.find(({ event }) => event === 'updated')?.steps ?? [];
         this.logger.log(`version ${version} announced at the scanner`);
 
@@ -167,6 +179,11 @@ export class FeedbackService implements OnApplicationBootstrap {
 
     public testBlocks(blocks: Array<SoundBlock>): void {
         this.events.emit('feedback', { name: 'draft', steps: toSteps(checked(blocks)) });
+    }
+
+    private rememberAnnounced(version: string): void {
+        mkdirSync(dirname(this.config.announcedVersionPath), { recursive: true });
+        writeFileSync(this.config.announcedVersionPath, version);
     }
 
     private async findSound(id: string): Promise<Sound> {
