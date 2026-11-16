@@ -7,11 +7,12 @@ Scan an empty package's barcode (handheld scanner on a Raspberry Pi, or phone ca
 Before changing code, read:
 
 - `docs/plan.md` — what is open, what was never tested, what was done when
-- `docs/archive/` — finished plans, reports and reviews; a record of then, not of now
 - `docs/decisions.md` — settled choices; don't reopen them without the user
 - `docs/architecture.md` — modules, data model, scan rules, API, web app
 - `docs/deployment.md` — pull-based Docker deployment on the Pi, backup, notifications
 - `docs/use-cases.md` — expected behaviour
+
+`docs/archive/` holds finished plans, reports and reviews: a record of then, not of now. Read one only when the history of a choice matters.
 
 When a decision changes, update `docs/decisions.md` first, then the affected docs. When marking something done in `docs/plan.md`, add the date and time (`done 2026-11-12 19:09`). When behaviour changes, update the use case and `README.md` with it.
 
