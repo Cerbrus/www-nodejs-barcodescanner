@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Limits the app's published port to the addresses in ALLOWED_SOURCE (the reverse proxy).
 # Reads ALLOWED_SOURCE and APP_PORT from .env. An empty ALLOWED_SOURCE removes the limit.
-# Run at boot by barcodescanner-firewall.service and after every update; safe to run by hand.
+# Run at boot by barcodescanner-firewall.service and by every run of the updater; safe to run by hand.
 set -euo pipefail
 
 APP_DIR=/opt/barcodescanner

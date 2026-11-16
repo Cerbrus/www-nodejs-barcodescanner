@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Pulls the current compose file and images and restarts what changed.
 # Run by barcodescanner-update.timer every minute; safe to run by hand.
-# Each run first asks the registry for the digest of every image and asks Compose
-# what a restart would change. It stops there when the images on this machine are
-# the registry's, Compose would leave every container running, and the compose
-# file is unchanged.
+# The files it fetches go to memory and are copied to the disk only when they
+# changed. Each run asks the registry for the digest of every image and asks
+# Compose what a restart would change. It stops there, after a look at the
+# firewall rule, when the images on this machine are the registry's, Compose
+# would leave every container running, and the compose file is unchanged.
 set -euo pipefail
 
 APP_DIR=/opt/barcodescanner
@@ -18,25 +19,39 @@ MANIFEST_TYPES=(
 
 cd "$APP_DIR"
 
-compose_changed=0
-if curl -fsSL -o docker-compose.yml.new "$REPO_RAW/docker-compose.yml"; then
-    if ! cmp -s docker-compose.yml.new docker-compose.yml; then
-        compose_changed=1
+fetched=$(mktemp -d /run/barcodescanner-update.XXXXXX)
+trap 'rm -rf "$fetched"' EXIT
+
+replace_if_changed() {
+    local file=$1 mode=${2:-}
+    curl -fsSL -o "$fetched/$file" "$REPO_RAW/$file" || return 2
+    if cmp -s "$fetched/$file" "$file"; then
+        return 1
     fi
-    mv docker-compose.yml.new docker-compose.yml
-else
-    rm -f docker-compose.yml.new
-    echo "could not fetch compose file, keeping the current one" >&2
-fi
+    cp "$fetched/$file" "$file.new" || return 2
+    if [ -n "$mode" ]; then
+        chmod "$mode" "$file.new" || return 2
+    fi
+    mv "$file.new" "$file" || return 2
+}
+
+compose_changed=0
+fetch_status=0
+replace_if_changed docker-compose.yml || fetch_status=$?
+case $fetch_status in
+    0) compose_changed=1 ;;
+    2) echo "could not fetch compose file, keeping the current one" >&2 ;;
+esac
 
 for script in update.sh firewall.sh backup.sh; do
-    if curl -fsSL -o "$script.new" "$REPO_RAW/$script"; then
-        chmod +x "$script.new"
-        mv "$script.new" "$script"
-    else
-        rm -f "$script.new"
-    fi
+    replace_if_changed "$script" +x || true
 done
+
+apply_firewall() {
+    if [ -x firewall.sh ]; then
+        ./firewall.sh
+    fi
+}
 
 remote_digest() {
     local image=$1 repository tag token accept=()
@@ -73,6 +88,7 @@ containers_current() {
 }
 
 if [ "$compose_changed" -eq 0 ] && images_current && containers_current; then
+    apply_firewall
     exit 0
 fi
 
@@ -86,6 +102,4 @@ docker compose pull --quiet
 docker compose up -d --remove-orphans
 docker image prune -f >/dev/null
 
-if [ -x firewall.sh ]; then
-    ./firewall.sh
-fi
+apply_firewall
