@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Pulls the current compose file and images and restarts what changed.
 # Run by barcodescanner-update.timer every minute; safe to run by hand.
-# Each run first asks the registry for the digest of every image and stops there
-# when all services run and have those images, and the compose file is unchanged.
+# Each run first asks the registry for the digest of every image and asks Compose
+# what a restart would change. It stops there when the images on this machine are
+# the registry's, Compose would leave every container running, and the compose
+# file is unchanged.
 set -euo pipefail
 
 APP_DIR=/opt/barcodescanner
@@ -50,10 +52,9 @@ remote_digest() {
 }
 
 images_current() {
-    local images image remote local_digests running
+    local images image remote local_digests
     images=$(docker compose config --images 2>/dev/null) || return 1
-    running=$(docker compose ps --quiet 2>/dev/null | wc -l)
-    [ "$running" -eq "$(printf '%s\n' "$images" | wc -l)" ] || return 1
+    [ -n "$images" ] || return 1
     while read -r image; do
         [[ "$image" == ghcr.io/* ]] || return 1
         remote=$(remote_digest "$image" || true)
@@ -64,7 +65,14 @@ images_current() {
     done <<<"$images"
 }
 
-if [ "$compose_changed" -eq 0 ] && images_current; then
+containers_current() {
+    local plan
+    plan=$(docker compose --ansi never --progress plain --dry-run up -d --remove-orphans 2>&1) || return 1
+    [ -n "$plan" ] || return 1
+    ! grep -qv ' Running *$' <<<"$plan"
+}
+
+if [ "$compose_changed" -eq 0 ] && images_current && containers_current; then
     exit 0
 fi
 

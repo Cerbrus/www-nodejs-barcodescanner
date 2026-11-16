@@ -7,7 +7,7 @@ How the product runs on the Raspberry Pi. Everything here is in place on the ser
 The Pi pulls; nothing pushes to the Pi.
 
 1. A push to `master` makes GitHub Actions build the `app` and `hardware-agent` images and publish them to GitHub's container registry (`ghcr.io`), tagged `latest`, with the version number and with the commit hash.
-2. A systemd timer on the Pi runs every minute: fetch the compose file and scripts, ask the registry for the digest of each image, and stop there when every service runs with those images and the compose file is unchanged. Otherwise pull the images and restart what changed.
+2. A systemd timer on the Pi runs every minute: fetch the compose file and scripts, ask the registry for the digest of each image, ask Compose what a restart would change, and stop there when the images on the Pi are the registry's, Compose would leave every container as it is and the compose file is unchanged. Otherwise pull the images and restart what changed.
 3. The Pi needs Docker and outbound internet, plus `git` and `sqlite3` for the backup. No inbound port for deployment, no SSH key in GitHub, no Node or Python on the Pi.
 
 The repository and the images are public, so the Pi needs no GitHub token and no registry login. Set each image package to public once on GitHub after the first build; new packages start private even in a public repository. Secrets never go into an image.
@@ -74,7 +74,7 @@ sudo bash install.sh
 
 After the first install, fill in `.env` (next sections): `ALLOWED_SOURCE`, `BACKUP_REPO`, `PUSH_SUBJECT`.
 
-The updater, `deployment/update.sh`, fetches the current `docker-compose.yml`, its own newer version and the newer `firewall.sh` and `backup.sh` from `master`, pulls the images, runs `docker compose up -d --remove-orphans`, prunes old images and reapplies the firewall rule. `docker compose up -d` only restarts containers whose image or configuration changed. If GitHub is unreachable it keeps the files it has.
+The updater, `deployment/update.sh`, fetches the current `docker-compose.yml`, its own newer version and the newer `firewall.sh` and `backup.sh` from `master`. Then it decides whether there is anything to do, with two checks. The first compares the registry's digest of each image with the image on the Pi, which finds a new release. The second is a dry run of `docker compose up -d`, which names every container Compose would create, recreate or start: that finds a changed `IMAGE_TAG` or other setting in `.env`, a container that stopped, and images that were pulled but never started. Compose compares the content of the image a container was made from, so an image that was only rebuilt with the same content restarts nothing. When both checks find nothing and the compose file is unchanged, the run ends there. Otherwise it pulls the images, runs `docker compose up -d --remove-orphans`, prunes old images and reapplies the firewall rule. `docker compose up -d` only restarts containers whose image or configuration changed. If GitHub is unreachable it keeps the files it has.
 
 ## Compose file
 
