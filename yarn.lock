@@ -8158,7 +8158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.11.0, acorn@npm:^8.15.0, acorn@npm:^8.4.1, acorn@npm:^8.5.0, acorn@npm:^8.9.0":
+"acorn@npm:^8.11.0, acorn@npm:^8.15.0, acorn@npm:^8.4.1, acorn@npm:^8.5.0":
   version: 8.16.0
   resolution: "acorn@npm:8.16.0"
   bin:
@@ -8774,7 +8774,7 @@ __metadata:
     eslint-plugin-import-x: "npm:^4.18.1"
     happy-dom: "npm:^21.0.4"
     intl-messageformat: "npm:^12.1.5"
-    jsonc-eslint-parser: "npm:^2.4.2"
+    jsonc-eslint-parser: "npm:^3.3.0"
     nx: "npm:24.0.6"
     postcss: "npm:^8.5.32"
     prettier: "npm:^3.10.1"
@@ -10901,7 +10901,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-visitor-keys@npm:^3.0.0, eslint-visitor-keys@npm:^3.4.1, eslint-visitor-keys@npm:^3.4.3":
+"eslint-visitor-keys@npm:^3.4.3":
   version: 3.4.3
   resolution: "eslint-visitor-keys@npm:3.4.3"
   checksum: 10c0/92708e882c0a5ffd88c23c0b404ac1628cf20104a108c745f240a13c332a11aac54f49a22d5762efbffc18ecbc9a580d1b7ad034bf5f3cc3307e5cbff2ec9820
@@ -10968,17 +10968,6 @@ __metadata:
     acorn-jsx: "npm:^5.3.2"
     eslint-visitor-keys: "npm:^5.0.1"
   checksum: 10c0/cf87e18ffd9dc113eb8d16588e7757701bc10c9934a71cce8b89c2611d51672681a918307bd6b19ac3ccd0e7ba1cbccc2f815b36b52fa7e73097b251014c3d81
-  languageName: node
-  linkType: hard
-
-"espree@npm:^9.0.0":
-  version: 9.6.1
-  resolution: "espree@npm:9.6.1"
-  dependencies:
-    acorn: "npm:^8.9.0"
-    acorn-jsx: "npm:^5.3.2"
-    eslint-visitor-keys: "npm:^3.4.1"
-  checksum: 10c0/1a2e9b4699b715347f62330bcc76aee224390c28bb02b31a3752e9d07549c473f5f986720483c6469cf3cfb3c9d05df612ffc69eb1ee94b54b739e67de9bb460
   languageName: node
   linkType: hard
 
@@ -12841,15 +12830,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsonc-eslint-parser@npm:^2.4.2":
-  version: 2.4.2
-  resolution: "jsonc-eslint-parser@npm:2.4.2"
+"jsonc-eslint-parser@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "jsonc-eslint-parser@npm:3.3.0"
   dependencies:
     acorn: "npm:^8.5.0"
-    eslint-visitor-keys: "npm:^3.0.0"
-    espree: "npm:^9.0.0"
-    semver: "npm:^7.3.5"
-  checksum: 10c0/821af0231cb8eba2afde34535bd76d723ed5b4b3711fdccff3f300f32de7bbf463ceab3ce2de9e6fd78dc3b24a9c7248ca12eb43e280cfa2695f49bd16908f87
+    eslint-visitor-keys: "npm:^5.0.0"
+    verkit: "npm:^0.3.2"
+  checksum: 10c0/705c3ddd3deb7e586ce45a26398a815c18a21a13b0d3d21ceb2493d31f7c814ea260594f42eaa72e2c2588ed35999a6dc8406a03b9e4ece60294bba7b5d68db0
   languageName: node
   linkType: hard
 
