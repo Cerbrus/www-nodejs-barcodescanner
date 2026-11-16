@@ -34,7 +34,7 @@ On the Pi two containers run: `app` (API plus the built web app, SQLite file on 
 | [docs/architecture.md](docs/architecture.md) | Modules, data model, scan rules, API, web app |
 | [docs/deployment.md](docs/deployment.md) | Raspberry Pi setup, automatic updates, reverse proxy, backup and restore, notifications |
 | [docs/decisions.md](docs/decisions.md) | Feature and technology choices, with the reasoning |
-| [docs/plan.md](docs/plan.md) | Milestones, what is done and what is open |
+| [docs/plan.md](docs/plan.md) | What is left, what was never tested, what was done when |
 
 ## Development
 

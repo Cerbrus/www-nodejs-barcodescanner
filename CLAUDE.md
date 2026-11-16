@@ -6,7 +6,8 @@ Scan an empty package's barcode (handheld scanner on a Raspberry Pi, or phone ca
 
 Before changing code, read:
 
-- `docs/plan.md` — what is done, what is open, what was never tested
+- `docs/plan.md` — what is open, what was never tested, what was done when
+- `docs/archive/` — finished plans, reports and reviews; a record of then, not of now
 - `docs/decisions.md` — settled choices; don't reopen them without the user
 - `docs/architecture.md` — modules, data model, scan rules, API, web app
 - `docs/deployment.md` — pull-based Docker deployment on the Pi, backup, notifications

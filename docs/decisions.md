@@ -140,11 +140,11 @@ Decided 2026-11-13: the policy starts in report-only mode and reports go to the 
 
 Decided 2026-11-13: light protection for `master`, as a repository ruleset: no deletion, no force-push. No required pull request or checks, because there is no second person to review and releases are direct pushes.
 
-Changed 2026-11-16, by the owner: only the repository's admin role may push to `master`; the ruleset got the rule against updates, with that role as the exception. The reason: the Dependabot reviewer installs proposed package versions while it holds a token that may write to the repository, and the Pi fetches and runs `update.sh` and `firewall.sh` from `master` every minute, so a malicious package release could otherwise reach the Pi through a push to `master`. Not decided yet: whether the reviewer should run package code at all with its tokens present.
+Changed 2026-11-16, by the owner: only the repository's admin role may push to `master`; the ruleset got the rule against updates, with that role as the exception. The reason: the Dependabot reviewer installs proposed package versions while it holds a token that may write to the repository, and the Pi fetches and runs `update.sh` and `firewall.sh` from `master` every minute, so a malicious package release could otherwise reach the Pi through a push to `master`. Decided by the owner on 2026-11-16: the reviewer stays as it is and keeps running package code with its tokens present; that finding is dismissed.
 
 ## Remarks from inside the app
 
-Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
+Decided 2026-11-15, see [remarks-plan.md](archive/remarks-plan.md) for the reasoning:
 
 - Remarks are stored in the app's own database. Every account may write them and sees its own; the owner sees all.
 - Only the owner sends a remark to GitHub, after seeing what goes out; the repository is public, so this step is the privacy gate. The account and the device details stay out unless ticked.
@@ -160,13 +160,13 @@ Decided 2026-11-15, see [remarks-plan.md](remarks-plan.md) for the reasoning:
 
 ## Names, sections and variants of scanned products
 
-Decided 2026-11-15, see [naming-plan.md](naming-plan.md): naming an unknown barcode offers the most specific existing product found in the shop title, else a more generic one with the rest as note, else a new name without brand and amount; a language model would make that suggestion, the rules otherwise; that AI step is deferred (owner, 2026-11-15) until the rules prove too weak, and only a free service counts, see the options in naming-plan.md. A product can be on the list several times, told apart by its note, which is the variant; a barcode can carry that variant. The section of a new product comes from the shop's category first.
+Decided 2026-11-15, see [naming-plan.md](archive/naming-plan.md): naming an unknown barcode offers the most specific existing product found in the shop title, else a more generic one with the rest as note, else a new name without brand and amount; a language model would make that suggestion, the rules otherwise; that AI step is deferred (owner, 2026-11-15) until the rules prove too weak, and only a free service counts, see the options in naming-plan.md. A product can be on the list several times, told apart by its note, which is the variant; a barcode can carry that variant. The section of a new product comes from the shop's category first.
 
 Built 2026-11-15 (step 2): a list entry has its own id, a UUID the web app makes, so an entry added without a connection needs no answer from the server. Product plus note is unique; when a change gives an entry the note of another entry of the same product, the server merges them, quantities added when both are to buy. The search on the list page shows every line of a found product that is to buy, with its note and "+1", and a plain tile that starts a new line when the product has no line without a note (owner, 2026-11-15). A scan of a barcode with a variant adds to the entry of that product with that note.
 
 ## Scanner sounds from building blocks
 
-Decided 2026-11-15, see [sounds-plan.md](sounds-plan.md): sounds are built from beep, pause, trill and buzz blocks for the active buzzer (no pitch), at most 1 second (halved from 2 by the owner on 2026-11-15) with as many blocks as fit in it (the cap of 12 dropped by the owner on 2026-11-15), kept as named presets in the database. The fixed list of sounds goes, the soft sounds included; a preset in use cannot be deleted. A speaker or passive buzzer for real tones is shelved.
+Decided 2026-11-15, see [sounds-plan.md](archive/sounds-plan.md): sounds are built from beep, pause, trill and buzz blocks for the active buzzer (no pitch), at most 1 second (halved from 2 by the owner on 2026-11-15) with as many blocks as fit in it (the cap of 12 dropped by the owner on 2026-11-15), kept as named presets in the database. The fixed list of sounds goes, the soft sounds included; a preset in use cannot be deleted. A speaker or passive buzzer for real tones is shelved.
 
 ## Functional reference
 

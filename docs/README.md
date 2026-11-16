@@ -8,15 +8,8 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 | [architecture.md](architecture.md) | Containers, modules, data model, scan rules, API, web app, notifications |
 | [deployment.md](deployment.md) | Raspberry Pi setup, automatic updates, reverse proxy, backup and restore |
 | [decisions.md](decisions.md) | Feature and technology choices, with the reasoning |
-| [plan.md](plan.md) | Milestones: what is done, what is open, what was never tested |
-| [api-restructure-plan.md](api-restructure-plan.md) | Plan and outcome of the API restructure of 2026-11-13 |
-| [product-review-2026-11-13.md](product-review-2026-11-13.md) | Review of the whole product: findings, what was built for them, plans and open questions |
-| [offline-plan.md](offline-plan.md) | Plan for shopping without a connection (milestone 8) |
-| [naming-plan.md](naming-plan.md) | Plan for generic names, sections from the shop's category and variants on the list (milestone 12) |
-| [remarks-plan.md](remarks-plan.md) | Plan for bug reports and wishes from inside the app (milestone 11), with open questions |
-| [night-report-2026-11-13.md](night-report-2026-11-13.md) | What was built unattended in the night of 2026-11-13, what was not, and the open questions |
-| [sounds-plan.md](sounds-plan.md) | Plan for scanner sounds built from blocks and kept as presets (milestone 14) |
-| [review-2026-11-16.md](review-2026-11-16.md) | Review of the work of 2026-11-15 and 16: two defects, smaller issues and what is not proven, as a list to fix |
+| [plan.md](plan.md) | What is left, what was never tested, and what was done when |
+| [archive/](archive/) | Finished plans, reports and reviews, kept as a record: the API restructure, the product review and night report of 2026-11-13, the plans for offline shopping, naming, remarks and sounds, the review of 2026-11-16, and the plan with every step until 2026-11-16. They describe the product as it was then |
 | [scanner-usb-capture.txt](scanner-usb-capture.txt) | USB capture of the scanner dongle. Tera answered on 2026-11-16 that the scanner cannot beep or light up on the host's command; kept as a record |
 | [../data/seed-items.json](../data/seed-items.json) | Seed data: sections and products with icon and emoji, starting list |
 

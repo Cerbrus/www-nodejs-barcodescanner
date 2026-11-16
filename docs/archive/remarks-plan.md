@@ -1,6 +1,6 @@
 # Plan: remarks from inside the app (milestone 11)
 
-Status: built on 2026-11-15 on branch `feature/remarks`, as planned here. What it became is described in [use-cases.md](use-cases.md) (UC-18) and [architecture.md](architecture.md) ("Remarks"). This document stays as the record of the choices.
+Status: built on 2026-11-15 on branch `feature/remarks`, as planned here. What it became is described in [use-cases.md](../use-cases.md) (UC-18) and [architecture.md](../architecture.md) ("Remarks"). This document stays as the record of the choices.
 
 ## The idea
 
