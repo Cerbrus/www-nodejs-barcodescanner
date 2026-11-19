@@ -184,13 +184,13 @@ describe('NamingPromptComponent', () => {
 
     it('does not overwrite a typed variant when the lookup answers later', async () => {
         await open({ code: CODE, scanCount: 1 });
-        type(page, '#naming-variant', 'Lactosevrij');
+        type(page, '#naming-variant', 'Volkoren');
 
         api.getBarcode.mockReturnValue(of(known({ proposal: { catalogItemId: 1, name: 'Melk', note: 'Halfvolle' } })));
         events.emit('barcode', { code: CODE });
         await settle();
 
-        expect(variantField().value).toBe('Lactosevrij');
+        expect(variantField().value).toBe('Volkoren');
     });
 
     it('opens the new product form with a proposed new name', async () => {
@@ -230,11 +230,11 @@ describe('NamingPromptComponent', () => {
 
     it('links the barcode with the variant typed above the search', async () => {
         await open(known());
-        type(page, '#naming-variant', ' Lactosevrij ');
+        type(page, '#naming-variant', ' Volkoren ');
         await typeName('karne');
         click(page, 'app-item-autocomplete .option');
 
-        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2, 'Lactosevrij');
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 2, 'Volkoren');
     });
 
     it('creates a new product from the typed name and links it, with the section guessed from the suggestions', async () => {

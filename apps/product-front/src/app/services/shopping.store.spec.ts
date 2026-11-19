@@ -270,10 +270,10 @@ describe('ShoppingStore', () => {
             quantity: 1
         });
 
-        store.addItem(milk, ' lactosevrij ').subscribe();
+        store.addItem(milk, ' volkoren ').subscribe();
         const [id, change] = api.changeListEntry.mock.lastCall as [string, object];
         expect(id).toMatch(/^[0-9a-f-]{36}$/);
-        expect(change).toEqual({ catalogItemId: 1, note: 'lactosevrij', state: 'to_buy', quantity: 1 });
+        expect(change).toEqual({ catalogItemId: 1, note: 'volkoren', state: 'to_buy', quantity: 1 });
     });
 
     it('shows a new variant at once while offline, and merges a note that another entry already has', () => {

@@ -20,7 +20,7 @@ const MILK: CatalogItem = {
             code: '8710400335481',
             scanCount: 3,
             catalogItemId: 1,
-            note: 'Lactosevrij',
+            note: 'Volkoren',
             suggestions: [{ connectorId: 'ah', title: 'AH Melk' }]
         },
         { code: '22223333', scanCount: 1, catalogItemId: 1 }

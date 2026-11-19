@@ -308,18 +308,18 @@ describe('scan flow against a real database', () => {
     it('scans a barcode that carries a variant onto the entry with that note, and undoes it there', async () => {
         const code = '8712345678913';
         assert.equal((await scans.register(code, 'phone')).result, 'needs_name');
-        await scans.nameBarcode(code, milkId, ' Lactosevrij ');
-        assert.equal((await barcodes.get(code)).note, 'Lactosevrij');
-        assert.deepEqual(await list.getSnapshot(milkId, 'Lactosevrij'), { state: 'to_buy', quantity: 1 });
+        await scans.nameBarcode(code, milkId, ' Volkoren ');
+        assert.equal((await barcodes.get(code)).note, 'Volkoren');
+        assert.deepEqual(await list.getSnapshot(milkId, 'Volkoren'), { state: 'to_buy', quantity: 1 });
 
         await wait(DEBOUNCE_MILLISECONDS + 100);
         const again = await scans.register(code, 'phone');
-        assert.deepEqual([again.result, again.note, again.quantity], ['incremented', 'Lactosevrij', 2]);
+        assert.deepEqual([again.result, again.note, again.quantity], ['incremented', 'Volkoren', 2]);
 
         await scans.undo();
-        assert.deepEqual(await list.getSnapshot(milkId, 'Lactosevrij'), { state: 'to_buy', quantity: 1 });
+        assert.deepEqual(await list.getSnapshot(milkId, 'Volkoren'), { state: 'to_buy', quantity: 1 });
         await scans.undo();
-        assert.equal(await list.getSnapshot(milkId, 'Lactosevrij'), undefined);
+        assert.equal(await list.getSnapshot(milkId, 'Volkoren'), undefined);
         assert.equal((await list.getSnapshot(milkId, ''))?.state, 'to_buy');
     });
 
