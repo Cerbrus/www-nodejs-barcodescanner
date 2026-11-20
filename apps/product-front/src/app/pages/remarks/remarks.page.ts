@@ -28,17 +28,19 @@ const STAGE_ICONS: Record<IssueStage, string> = {
 };
 const PROGRESS_REFRESH = 60 * 1000;
 
-type RemarkAction = 'handle' | 'reopen' | 'toGitHub' | 'reject';
+type RemarkAction = 'handle' | 'reopen' | 'edit' | 'toGitHub' | 'reject';
 
 const ACTION_ICONS: Record<RemarkAction, string> = {
     handle: 'check',
     reopen: 'undo',
+    edit: 'edit',
     toGitHub: 'outbox',
     reject: 'block'
 };
 const ACTION_TEXTS: Record<RemarkAction, string> = {
     handle: 'remark.close',
     reopen: 'remark.reopen',
+    edit: 'remark.edit',
     toGitHub: 'remark.toGitHub',
     reject: 'remark.reject'
 };
@@ -141,7 +143,34 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                         </div>
                     }
                 </div>
-                <p class="text">{{ remark.text }}</p>
+                @if (editing() === remark.id) {
+                    <textarea
+                        class="field mt-2"
+                        rows="5"
+                        maxlength="2000"
+                        [attr.aria-label]="'remark.edit' | translate"
+                        [ngModel]="draftText()"
+                        (ngModelChange)="draftText.set($event)"
+                        (keydown)="onEditKey($event, remark)"
+                    ></textarea>
+                    <div class="mt-2 flex gap-2">
+                        <button type="button" class="btn" (click)="editing.set(undefined)">
+                            <i class="material-symbols-outlined">close</i>
+                            {{ 'common.cancel' | translate }}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn primary"
+                            [disabled]="busy() || !draftText().trim()"
+                            (click)="saveEdit(remark)"
+                        >
+                            <i class="material-symbols-outlined">check</i>
+                            {{ 'remark.save' | translate }}
+                        </button>
+                    </div>
+                } @else {
+                    <p class="text">{{ remark.text }}</p>
+                }
                 <p class="muted where text-xs">
                     <span class="font-mono">{{ remark.page }}</span>
                     @if (remark.target; as target) {
@@ -375,6 +404,8 @@ export class RemarksPage {
     protected readonly draft = signal<IssueDraft | undefined>(undefined);
     protected readonly busy = signal(false);
     protected readonly rejecting = signal<number | undefined>(undefined);
+    protected readonly editing = signal<number | undefined>(undefined);
+    protected readonly draftText = signal('');
     protected readonly showHandled = signal(false);
     protected readonly menu = signal<number | undefined>(undefined);
 
@@ -409,7 +440,7 @@ export class RemarksPage {
             actions.push('toGitHub');
         }
         if (!onGitHub) {
-            actions.push('reject');
+            actions.push('edit', 'reject');
         }
 
         return actions;
@@ -419,9 +450,14 @@ export class RemarksPage {
         this.menu.set(undefined);
         if (action === 'handle' || action === 'reopen') {
             this.setState(remark, action === 'handle' ? 'closed' : 'open');
+        } else if (action === 'edit') {
+            this.rejecting.set(undefined);
+            this.draftText.set(remark.text);
+            this.editing.set(remark.id);
         } else if (action === 'toGitHub') {
             this.prepare(remark);
         } else {
+            this.editing.set(undefined);
             this.rejecting.set(remark.id);
         }
     }
@@ -438,6 +474,28 @@ export class RemarksPage {
         this.api
             .setRemarkState(remark.id, state)
             .pipe(switchMap(() => this.load()))
+            .subscribe();
+    }
+
+    protected onEditKey(event: KeyboardEvent, remark: Remark): void {
+        if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            if (!this.busy() && this.draftText().trim()) {
+                this.saveEdit(remark);
+            }
+        }
+    }
+
+    protected saveEdit(remark: Remark): void {
+        this.busy.set(true);
+        this.api
+            .editRemark(remark.id, this.draftText().trim())
+            .pipe(
+                tap(() => this.editing.set(undefined)),
+                switchMap(() => this.load()),
+                catchError(() => of(undefined)),
+                finalize(() => this.busy.set(false))
+            )
             .subscribe();
     }
 

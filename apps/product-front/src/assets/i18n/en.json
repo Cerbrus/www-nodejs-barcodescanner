@@ -296,6 +296,8 @@
         "closeKeep": "Close",
         "closeClear": "Close and reset",
         "reopen": "Reopen",
+        "edit": "Edit",
+        "save": "Save",
         "reject": "Reject",
         "rejectConfirm": "Reject this feedback? It disappears from the list.",
         "toGitHub": "To GitHub",

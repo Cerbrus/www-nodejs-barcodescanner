@@ -36,6 +36,7 @@ describe('RemarksPage', () => {
     const api = {
         getRemarks: vi.fn(),
         setRemarkState: vi.fn(),
+        editRemark: vi.fn(),
         rejectRemark: vi.fn(),
         getIssueDraft: vi.fn(),
         sendRemarkToGitHub: vi.fn()
@@ -79,6 +80,7 @@ describe('RemarksPage', () => {
         events = fakeEvents();
         remarks = fakeRemarks();
         api.setRemarkState.mockReturnValue(of(remark(1, { state: 'closed' })));
+        api.editRemark.mockReturnValue(of(remark(1)));
         api.rejectRemark.mockReturnValue(of(undefined));
         api.getIssueDraft.mockReturnValue(of(DRAFT));
         api.sendRemarkToGitHub.mockReturnValue(
@@ -152,8 +154,9 @@ describe('RemarksPage', () => {
     it('shows another account its remarks without any owner buttons or account names', async () => {
         await open(GUEST, [remark(1)], false);
 
-        expect(buttons()).toEqual(['block remark.reject']);
-        expect(page.querySelector('.menu-anchor')).toBeNull();
+        expect(buttons()).toEqual(['more_vert']);
+        await openMenu();
+        expect(menuItems()).toEqual(['edit remark.edit', 'block remark.reject']);
         expect(texts(page, 'article .where')).toEqual(['#/list']);
     });
 
@@ -205,7 +208,7 @@ describe('RemarksPage', () => {
             false
         );
 
-        expect(buttons(0)).toEqual(['block remark.reject']);
+        expect(buttons(0)).toEqual(['more_vert']);
         expect(buttons(1)).toEqual([]);
 
         await open(OWNER, [remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
@@ -219,12 +222,17 @@ describe('RemarksPage', () => {
         expect(buttons(0)).toEqual(['more_vert']);
         expect(buttons(1)).toEqual(['check remark.close']);
         await openMenu();
-        expect(menuItems()).toEqual(['check remark.close', 'outbox remark.toGitHub', 'block remark.reject']);
+        expect(menuItems()).toEqual([
+            'check remark.close',
+            'outbox remark.toGitHub',
+            'edit remark.edit',
+            'block remark.reject'
+        ]);
         expect(page.querySelector('a.issue')?.getAttribute('href')).toBe('https://github.example/issues/12');
 
         await open(OWNER, [remark(1)], false);
         await openMenu();
-        expect(menuItems()).toEqual(['check remark.close', 'block remark.reject']);
+        expect(menuItems()).toEqual(['check remark.close', 'edit remark.edit', 'block remark.reject']);
     });
 
     it('shows exactly what would be sent, warns that it is public, and asks the agent to look at it unless unticked', async () => {
@@ -250,9 +258,8 @@ describe('RemarksPage', () => {
     });
 
     it('shows a single action as a button, and two or more in the menu, which closes after a choice', async () => {
-        await open(GUEST, [remark(1)], false);
-        await press('remark.reject');
-        expect(texts(page, 'article p.text-sm')).toEqual(['remark.rejectConfirm']);
+        await open(GUEST, [remark(1, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })], false);
+        expect(buttons()).toEqual([]);
 
         await open(OWNER, [remark(1)]);
         expect(page.querySelector('.menu')).toBeNull();
@@ -261,6 +268,54 @@ describe('RemarksPage', () => {
 
         expect(page.querySelector('.menu')).toBeNull();
         expect(texts(page, 'article p.text-sm')).toEqual(['remark.rejectConfirm']);
+    });
+
+    it('edits the text of a remark in place, saves it trimmed, and reloads the list', async () => {
+        await open(GUEST, [remark(1)], false);
+        await openMenu();
+        await press('remark.edit', page.querySelector('.menu') as Element);
+
+        const field = page.querySelector('article textarea') as HTMLTextAreaElement;
+        expect(field.value).toBe('Remark 1');
+        expect(page.querySelector('article .text')).toBeNull();
+
+        field.value = '  Better text  ';
+        field.dispatchEvent(new Event('input'));
+        await settle();
+        await press('remark.save');
+
+        expect(api.editRemark).toHaveBeenCalledWith(1, 'Better text');
+        expect(api.getRemarks).toHaveBeenCalledTimes(2);
+        expect(page.querySelector('article textarea')).toBeNull();
+    });
+
+    it('does not save an empty text, and leaves the text alone on cancel', async () => {
+        await open(OWNER, [remark(1)]);
+        await openMenu();
+        await press('remark.edit');
+        const field = page.querySelector('article textarea') as HTMLTextAreaElement;
+        field.value = '   ';
+        field.dispatchEvent(new Event('input'));
+        await settle();
+
+        const save = Array.from(page.querySelectorAll('button')).find((button) =>
+            (button.textContent ?? '').includes('remark.save')
+        ) as HTMLButtonElement;
+        expect(save.disabled).toBe(true);
+
+        await press('common.cancel');
+        expect(api.editRemark).not.toHaveBeenCalled();
+        expect(texts(page, 'article .text')).toEqual(['Remark 1']);
+    });
+
+    it('keeps the editor open when saving fails, for instance because the remark went to GitHub meanwhile', async () => {
+        api.editRemark.mockReturnValue(throwError(() => new Error('conflict')));
+        await open(OWNER, [remark(1)]);
+        await openMenu();
+        await press('remark.edit');
+        await press('remark.save');
+
+        expect(page.querySelector('article textarea')).not.toBeNull();
     });
 
     it('closes the Actions menu again with a tap beside it', async () => {

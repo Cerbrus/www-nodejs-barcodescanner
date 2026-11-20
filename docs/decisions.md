@@ -164,6 +164,7 @@ Decided 2026-11-15, see [remarks-plan.md](archive/remarks-plan.md) for the reaso
 - Only the owner sends a remark to GitHub, after seeing what goes out; the repository is public, so this step is the privacy gate. The account and the device details stay out unless ticked.
 - Changed 2026-11-15, on the owner's issue #26: "Let the agent look at it" is the first option when sending to GitHub and ticked by default. Each such issue starts an agent run on the owner's Claude plan unless he unticks it.
 - Rejecting a remark is a soft delete, decided 2026-11-15 on the owner's answer: state `rejected`, hidden from every list, the row kept. The owner rejects any remark, a writer only their own; a remark already on GitHub cannot be rejected.
+- Editing a remark (owner, 2026-11-20, issue #41): the text can be changed until the remark is on GitHub, after which it is locked, like rejecting. The owner edits any remark, a writer only their own. Kind, page and target stay as written.
 - Progress of a sent remark (owner, 2026-11-20, issue #38): the Feedback page shows the state of the issue on GitHub and the pull request's number and title, read from the GitHub API by the server and cached for a minute. No webhook and no table: nothing to store, and the state cannot go stale in the database.
 - Kinds: bug, wish and note. The writer gets a thank-you, no promise and no state.
 - No touch and hold: it collides with scrolling and with what the iPhone does on a long touch. Pointing mode on the phone, right click on a computer.

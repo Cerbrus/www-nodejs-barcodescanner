@@ -329,6 +329,27 @@ describe('remarks over HTTP', () => {
         assert.ok((await listed(asGuest)).some((remark) => remark.id === id));
     });
 
+    it('lets the owner edit any remark and a writer only their own, until it is on GitHub', async () => {
+        const mine = await write(asGuest, { kind: 'note', text: 'before' });
+        const others = await write(asOwner, { kind: 'note', text: 'not yours' });
+        const onGitHub = (await listed(asGuest)).find((remark) => remark.issueUrl)?.id;
+        const edit = (id: unknown, headers: Record<string, string>, text: unknown): ReturnType<typeof call> =>
+            call('PUT', `/remarks/${id}`, headers, { text });
+
+        assert.equal((await edit(mine, {}, 'x')).status, 401);
+        assert.equal((await edit(others, asGuest, 'x')).status, 404);
+        assert.equal((await edit(mine, asGuest, '   ')).status, 400);
+        assert.equal((await edit(mine, asGuest, 'a'.repeat(2001))).status, 400);
+        assert.equal((await edit(99999, asOwner, 'x')).status, 404);
+        assert.equal((await edit(mine, asGuest, '  after  ')).status, 200);
+        assert.equal((await listed(asGuest)).find((remark) => remark.id === mine)?.text, 'after');
+        assert.equal((await edit(mine, asOwner, 'by owner')).status, 200);
+        assert.equal((await listed(asOwner)).find((remark) => remark.id === mine)?.text, 'by owner');
+        assert.equal((await edit(onGitHub, asGuest, 'late')).status, 409);
+        assert.equal((await edit(onGitHub, asOwner, 'late')).status, 409);
+        assert.notEqual((await listed(asOwner)).find((remark) => remark.id === onGitHub)?.text, 'late');
+    });
+
     it('shows how far the issue on GitHub has come, and keeps the last answer when GitHub fails', async () => {
         const id = (await listed(asGuest)).find((remark) => remark.issueUrl)?.id;
         const progress = async (): Promise<Remark['progress']> =>

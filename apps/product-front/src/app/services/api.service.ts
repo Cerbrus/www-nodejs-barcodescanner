@@ -205,6 +205,10 @@ export class ApiService {
         return this.http.patch<Remark>(`${this.baseUrl}/remarks/${id}`, { state });
     }
 
+    public editRemark(id: number, text: string): Observable<Remark> {
+        return this.http.put<Remark>(`${this.baseUrl}/remarks/${id}`, { text });
+    }
+
     public rejectRemark(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/remarks/${id}`);
     }

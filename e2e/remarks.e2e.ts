@@ -37,6 +37,13 @@ test('right-click a product, write a bug, and find it on the feedback page', asy
     await page.goto('/#/system');
     await page.locator('a.row.link[href="#/remarks"]').click();
     await expect(page.locator('article .text')).toHaveText(['The count is hard to read']);
+
+    await page.locator('article .menu-anchor > button').click();
+    await page.locator('.menu button', { hasText: 'edit' }).click();
+    await page.locator('article textarea').fill('The count is hard to read in the dark');
+    await page.locator('article button.primary').click();
+    await expect(page.locator('article .text')).toHaveText(['The count is hard to read in the dark']);
+    expect((await remarksOf(request))[0].text).toBe('The count is hard to read in the dark');
 });
 
 test('point at a part of the app from the settings, and write a wish about it', async ({ page, request }) => {

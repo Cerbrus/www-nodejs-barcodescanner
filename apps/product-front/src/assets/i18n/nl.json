@@ -296,6 +296,8 @@
         "closeKeep": "Sluiten",
         "closeClear": "Sluiten en wissen",
         "reopen": "Heropenen",
+        "edit": "Bewerken",
+        "save": "Opslaan",
         "reject": "Afwijzen",
         "rejectConfirm": "Deze feedback afwijzen? Hij verdwijnt uit de lijst.",
         "toGitHub": "Naar GitHub",

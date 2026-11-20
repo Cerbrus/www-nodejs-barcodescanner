@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
 
 import { IssueDraft, IssueOptions, IssueProgress } from '../../core/rules/remarks';
 import { RemarkService } from '../../core/services/remark.service';
 import { RemarkEntity } from '../../data/entities';
-import { RemarkCreateDto, RemarkIssueDto, RemarkStateDto } from '../dto/remark.dto';
+import { RemarkCreateDto, RemarkIssueDto, RemarkStateDto, RemarkTextDto } from '../dto/remark.dto';
 import { CurrentAccount } from '../guards/account.decorator';
 import { OwnerOnly } from '../guards/owner.decorator';
 import { Account } from '../http';
@@ -43,6 +43,15 @@ export class RemarkController {
     @Patch(':id')
     public setState(@Param('id', ParseIntPipe) id: number, @Body() change: RemarkStateDto): Promise<RemarkEntity> {
         return this.remarks.setState(id, change.state);
+    }
+
+    @Put(':id')
+    public edit(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() change: RemarkTextDto,
+        @CurrentAccount() account: Account
+    ): Promise<RemarkEntity> {
+        return this.remarks.edit(account, id, change.text);
     }
 
     @Delete(':id')

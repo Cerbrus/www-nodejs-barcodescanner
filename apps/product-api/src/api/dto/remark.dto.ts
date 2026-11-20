@@ -31,6 +31,13 @@ export class RemarkCreateDto {
     public writtenAt?: Date;
 }
 
+export class RemarkTextDto {
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(MAX_REMARK_TEXT_LENGTH)
+    public text: string;
+}
+
 export class RemarkStateDto {
     @IsIn(REMARK_STATES)
     public state: RemarkState;

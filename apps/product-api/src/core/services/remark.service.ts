@@ -1,4 +1,12 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    HttpException,
+    HttpStatus,
+    Injectable,
+    Logger,
+    NotFoundException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Not, Repository } from 'typeorm';
 
@@ -114,6 +122,24 @@ export class RemarkService {
         const remark = await this.get(id);
 
         return this.remarks.save({ ...remark, state, closedAt: state === 'closed' ? new Date() : null });
+    }
+
+    public async edit(writer: RemarkWriter, id: number, text: string): Promise<RemarkEntity> {
+        if (!text.trim()) {
+            throw new BadRequestException('A remark needs text');
+        }
+        const remark = await this.get(id);
+        if (!writer.owner && remark.account !== writer.email) {
+            throw new NotFoundException(`Remark ${id} not found`);
+        }
+        if (remark.issueUrl) {
+            throw new ConflictException('This remark is already on GitHub');
+        }
+
+        const saved = await this.remarks.save({ ...remark, text: text.trim() });
+        this.logger.log(`remark ${id} edited`);
+
+        return saved;
     }
 
     public async reject(writer: RemarkWriter, id: number): Promise<void> {
