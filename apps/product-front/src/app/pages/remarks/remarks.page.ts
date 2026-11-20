@@ -98,14 +98,17 @@ export class RemarksPage {
         const onGitHub = remark.issueUrl;
         const actions: Array<RemarkAction> = [];
 
-        if (owner) {
-            actions.push(remark.state === 'open' ? 'handle' : 'reopen');
-        }
         if (owner && this.canSendToGitHub() && !onGitHub) {
             actions.push('toGitHub');
         }
         if (!onGitHub) {
-            actions.push('edit', 'reject');
+            actions.push('edit');
+        }
+        if (owner) {
+            actions.push(remark.state === 'open' ? 'handle' : 'reopen');
+        }
+        if (!onGitHub) {
+            actions.push('reject');
         }
 
         return actions;

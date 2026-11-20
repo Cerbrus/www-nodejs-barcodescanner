@@ -239,16 +239,16 @@ describe('RemarksPage', () => {
         expect(buttons(1)).toEqual(['check remark.close']);
         await openMenu();
         expect(menuItems()).toEqual([
-            'check remark.close',
             'outbox remark.toGitHub',
             'edit remark.edit',
+            'check remark.close',
             'block remark.reject'
         ]);
         expect(page.querySelector('a.issue')?.getAttribute('href')).toBe('https://github.example/issues/12');
 
         await open(OWNER, [remark(1)], false);
         await openMenu();
-        expect(menuItems()).toEqual(['check remark.close', 'edit remark.edit', 'block remark.reject']);
+        expect(menuItems()).toEqual(['edit remark.edit', 'check remark.close', 'block remark.reject']);
     });
 
     it('shows exactly what would be sent, warns that it is public, and asks the agent to look at it unless unticked', async () => {
