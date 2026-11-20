@@ -111,7 +111,7 @@ describe('RemarksPage', () => {
     it('renders the markdown in the text of a remark', async () => {
         await open(OWNER, [remark(1, { text: 'It is **broken**' })]);
 
-        expect(page.querySelector('article .text .bold')?.textContent).toBe('broken');
+        expect(page.querySelector('article .text strong')?.textContent).toBe('broken');
         expect(texts(page, 'article .text')).toEqual(['It is broken']);
     });
 

@@ -8775,6 +8775,7 @@ __metadata:
     happy-dom: "npm:^21.0.4"
     intl-messageformat: "npm:^12.1.5"
     jsonc-eslint-parser: "npm:^2.4.2"
+    marked: "npm:^18.2.1"
     nx: "npm:24.0.6"
     postcss: "npm:^8.5.32"
     prettier: "npm:^3.10.1"
@@ -13443,6 +13444,15 @@ __metadata:
     proc-log: "npm:^6.0.0"
     ssri: "npm:^13.0.0"
   checksum: 10c0/527580eb5e5476e6ad07a4e3bd017d13e935f4be815674b442081ae5a721c13d3af5715006619e6be79a85723067e047f83a0c9e699f41d8cec43609a8de4f7b
+  languageName: node
+  linkType: hard
+
+"marked@npm:^18.2.1":
+  version: 18.2.1
+  resolution: "marked@npm:18.2.1"
+  bin:
+    marked: bin/marked.js
+  checksum: 10c0/6b266b2b20b2cc7e4275087f6c32f8a1b7f9ce5e73e233a4f46614a59617b7afc8d613bbcb57bacaea5da8f6ad5a830fe10384564106d2d1afb354ba1b0bb9e0
   languageName: node
   linkType: hard
 

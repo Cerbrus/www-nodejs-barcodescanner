@@ -43,6 +43,7 @@
         "class-transformer": "~0.5.1",
         "class-validator": "~0.15.1",
         "intl-messageformat": "^12.1.5",
+        "marked": "^18.2.1",
         "reflect-metadata": "~0.2.2",
         "rxjs": "^7.8.2",
         "tslib": "^2.9.1",
