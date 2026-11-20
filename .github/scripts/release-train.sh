@@ -26,6 +26,11 @@ head_of() {
     gh api "repos/$REPO/pulls/$1" --jq .head.sha
 }
 
+own_checks() {
+    gh api "repos/$REPO/commits/$1/check-runs?per_page=100" \
+        --jq '[.check_runs[] | select(.name == "checks")] | sort_by(.started_at) | last | .conclusion // empty'
+}
+
 picture() {
     echo "<img src=\"$ART_URL/$1.svg\" alt=\"$2\" width=\"480\">"
 }
@@ -108,6 +113,10 @@ assemble() {
 
         if ! approved_at "$number" "$head"; then
             echo "- 🚫 No ticket: #$number is not approved by $OWNER at its current commit" >>"$notes"
+            continue
+        fi
+        if [ "$(own_checks "$head")" = failure ]; then
+            SUMMARY=$notes leave_out "$number" "$head" '🔥 Hot box' "fails its own checks, so it would stop the whole train. It rides again once its checks pass."
             continue
         fi
         if [ "$same_repo" != true ]; then

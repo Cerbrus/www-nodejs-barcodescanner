@@ -48,6 +48,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - The content security policy in enforcing mode.
 - The release train starting by itself from an approval, also of a Dependabot pull request: its first run was started by hand. The railway wording and pictures of its messages, the "left on the platform" and "derailed" comments, and the removal of the waiting builds: tried only on a scratch repository with a stand-in for GitHub.
 - The agent on an issue that someone else wrote.
+- The agent repairing its own pull request after failed checks, and the train leaving a pull request with failing checks behind: built on 2026-11-20, the second tried only on a scratch repository.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 
