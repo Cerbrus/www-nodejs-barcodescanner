@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
 
@@ -5,8 +6,24 @@ import { FakeRemarks, click, fakeRemarks, texts, type } from '../../../testing/f
 import { TranslateTesting } from '../../../testing/translate';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
-import { PointerHostComponent } from './pointer-host.component';
+import { RemarkPointerDirective } from './remark-pointer.directive';
 import { RemarkSheetComponent } from './remark-sheet.component';
+
+@Component({
+    standalone: true,
+    imports: [RemarkPointerDirective],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    template: `
+        <main appRemarkPointer>
+            <app-item-tile
+                ><button class="tile" id="tile"><span id="name">Melk</span></button></app-item-tile
+            >
+            <input id="field" placeholder="Zoeken" />
+        </main>
+        <button id="outside">Tab</button>
+    `
+})
+class PointerTestHostComponent {}
 
 describe('RemarkSheetComponent', () => {
     let fixture: ComponentFixture<RemarkSheetComponent>;
@@ -256,10 +273,10 @@ describe('RemarkPointerDirective', () => {
     beforeEach(() => {
         remarks = fakeRemarks();
         TestBed.configureTestingModule({
-            imports: [PointerHostComponent],
+            imports: [PointerTestHostComponent],
             providers: [{ provide: RemarkService, useValue: remarks }]
         });
-        const fixture = TestBed.createComponent(PointerHostComponent);
+        const fixture = TestBed.createComponent(PointerTestHostComponent);
         fixture.detectChanges();
         page = fixture.nativeElement as HTMLElement;
     });
