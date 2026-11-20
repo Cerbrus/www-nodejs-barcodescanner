@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Observable, Subject, filter, map } from 'rxjs';
 
 import { ApiService } from './api.service';
@@ -19,6 +19,7 @@ export class EventsService {
     public readonly connected = signal(false);
 
     private readonly api = inject(ApiService);
+    private readonly listeners = new AbortController();
     private readonly events$ = new Subject<AppEvent>();
     private readonly resumed$ = new Subject<void>();
     private source?: EventSource;
@@ -27,6 +28,10 @@ export class EventsService {
     private stopped = false;
     private openedBefore = false;
     private lastActivity = 0;
+
+    constructor() {
+        inject(DestroyRef).onDestroy(() => this.stop());
+    }
 
     public get resumed(): Observable<void> {
         this.start();
@@ -45,6 +50,7 @@ export class EventsService {
 
     public stop(): void {
         this.stopped = true;
+        this.listeners.abort();
         clearTimeout(this.retryTimer);
         this.source?.close();
         this.connected.set(false);
@@ -57,8 +63,10 @@ export class EventsService {
 
         this.started = true;
         this.connect();
-        document.addEventListener('visibilitychange', () => this.onVisibilityChange());
-        window.addEventListener('online', () => this.reconnect());
+        document.addEventListener('visibilitychange', () => this.onVisibilityChange(), {
+            signal: this.listeners.signal
+        });
+        window.addEventListener('online', () => this.reconnect(), { signal: this.listeners.signal });
     }
 
     private connect(): void {

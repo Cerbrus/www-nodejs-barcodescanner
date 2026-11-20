@@ -7,7 +7,7 @@ What is left, what was never tested, and what was done when. Decisions behind th
 In daily-use shape and running on the Pi:
 
 - Handheld and camera scanning, the scan rules, inbox and naming with a proposed product and variant, the list with several lines per product told apart by their note, sections from the shop's category, product management, history with undo, the system log.
-- Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app reloads itself after an update. The Pi also runs the card scanner; the two updaters share a lock.
+- Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app takes a new version into use by itself, without a page load. The Pi also runs the card scanner; the two updaters share a lock.
 - Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans, shopping without a connection.
 - Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner, with sounds built from blocks and one for a new version.
 - Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request; the owner's approval lands it through the release train, several at once as one version. A "What's new" page built from the releases.

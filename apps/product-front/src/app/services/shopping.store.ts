@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import {
     Observable,
@@ -68,7 +69,8 @@ export class ShoppingStore {
             .on('list', 'scan', 'barcode')
             .pipe(
                 debounceTime(REFRESH_DELAY_MILLISECONDS),
-                switchMap(() => this.refreshListAndInbox())
+                switchMap(() => this.refreshListAndInbox()),
+                takeUntilDestroyed()
             )
             .subscribe();
 
@@ -76,19 +78,29 @@ export class ShoppingStore {
             .on('catalog')
             .pipe(
                 debounceTime(REFRESH_DELAY_MILLISECONDS),
-                switchMap(() => this.refreshAll())
+                switchMap(() => this.refreshAll()),
+                takeUntilDestroyed()
             )
             .subscribe();
 
-        this.events.resumed.pipe(switchMap(() => this.refreshAll())).subscribe();
+        this.events.resumed
+            .pipe(
+                switchMap(() => this.refreshAll()),
+                takeUntilDestroyed()
+            )
+            .subscribe();
         fromEvent(window, 'online')
-            .pipe(switchMap(() => this.refreshAll()))
+            .pipe(
+                switchMap(() => this.refreshAll()),
+                takeUntilDestroyed()
+            )
             .subscribe();
 
         interval(RETRY_MILLISECONDS)
             .pipe(
                 filter(() => this.failed()),
-                switchMap(() => this.refreshAll())
+                switchMap(() => this.refreshAll()),
+                takeUntilDestroyed()
             )
             .subscribe();
     }

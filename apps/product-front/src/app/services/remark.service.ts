@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import {
     EMPTY,
@@ -42,6 +43,7 @@ export class RemarkService {
     public readonly waiting = signal(this.queued().length);
     public readonly ready = signal(0);
 
+    private readonly destroyRef = inject(DestroyRef);
     private readonly api = inject(ApiService);
     private readonly auth = inject(AuthService);
     private readonly events = inject(EventsService);
@@ -67,14 +69,18 @@ export class RemarkService {
             .subscribe();
 
         merge(of(undefined), this.events.resumed, fromEvent(window, 'online'))
-            .pipe(concatMap(() => this.sendQueued()))
+            .pipe(
+                concatMap(() => this.sendQueued()),
+                takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe();
 
         merge(of(undefined), this.events.resumed, this.events.on('remark'))
             .pipe(
                 filter(() => this.auth.owner()),
                 switchMap(() => this.api.getRemarks().pipe(catchError(() => EMPTY))),
-                tap((answer) => this.count(answer.remarks))
+                tap((answer) => this.count(answer.remarks)),
+                takeUntilDestroyed(this.destroyRef)
             )
             .subscribe();
     }

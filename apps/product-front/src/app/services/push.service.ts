@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -20,29 +20,44 @@ export class PushService {
     private readonly api = inject(ApiService);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
+    private readonly listeners = new AbortController();
     private registration?: ServiceWorkerRegistration;
+
+    constructor() {
+        inject(DestroyRef).onDestroy(() => this.listeners.abort());
+    }
 
     public async start(): Promise<void> {
         if (!('serviceWorker' in navigator)) {
             return;
         }
 
-        navigator.serviceWorker.addEventListener('message', (event: MessageEvent<{ type?: string }>) => {
-            if (event.data.type === 'navigate') {
-                void this.followPendingNavigation();
-            }
-        });
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                void this.followPendingNavigation();
-            }
-        });
-        window.addEventListener('focus', () => void this.followPendingNavigation());
-        setInterval(() => {
+        const { signal } = this.listeners;
+        navigator.serviceWorker.addEventListener(
+            'message',
+            (event: MessageEvent<{ type?: string }>) => {
+                if (event.data.type === 'navigate') {
+                    void this.followPendingNavigation();
+                }
+            },
+            { signal }
+        );
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (document.visibilityState === 'visible') {
+                    void this.followPendingNavigation();
+                }
+            },
+            { signal }
+        );
+        window.addEventListener('focus', () => void this.followPendingNavigation(), { signal });
+        const timer = setInterval(() => {
             if (document.visibilityState === 'visible') {
                 void this.followPendingNavigation();
             }
         }, PENDING_CHECK_MILLISECONDS);
+        signal.addEventListener('abort', () => clearInterval(timer));
         void this.followPendingNavigation();
 
         try {

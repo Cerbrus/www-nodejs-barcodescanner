@@ -1,8 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { EMPTY, Observable, catchError, filter, from, map, merge, switchMap, tap } from 'rxjs';
 
 import { EventsService } from './events.service';
+import { PageSwapService } from './page-swap.service';
 
 const FILE_LIST_URL = '/app-files.json';
 const RELOADED_FOR_KEY = 'reloaded-for';
@@ -16,7 +18,10 @@ const CAMERA_ROUTE = '#/scan';
 export class UpdateService {
     private readonly events = inject(EventsService);
     private readonly router = inject(Router);
+    private readonly pageSwap = inject(PageSwapService);
+    private readonly destroyRef = inject(DestroyRef);
     private waitingFor?: string;
+    private swapping = false;
     private started = false;
 
     public start(): void {
@@ -34,7 +39,10 @@ export class UpdateService {
                 switchMap(() => this.publishedFiles())
             )
         )
-            .pipe(tap((published) => this.reloadWhenOutdated(published)))
+            .pipe(
+                tap((published) => this.replaceWhenOutdated(published)),
+                takeUntilDestroyed(this.destroyRef)
+            )
             .subscribe();
     }
 
@@ -47,7 +55,7 @@ export class UpdateService {
         );
     }
 
-    private reloadWhenOutdated(published: Array<string>): void {
+    private replaceWhenOutdated(published: Array<string>): void {
         const loaded = this.loadedFiles();
         if (!published.length || !loaded.length || loaded.every((file) => published.includes(file))) {
             this.waitingFor = undefined;
@@ -56,7 +64,27 @@ export class UpdateService {
 
         const signature = [...published].sort().join();
         if (sessionStorage.getItem(RELOADED_FOR_KEY) === signature) {
-            console.warn('A newer version is published, but reloading did not load it.');
+            console.warn('A newer version is published, but it could not be taken into use.');
+            return;
+        }
+        if (this.busy()) {
+            this.waitingFor = signature;
+            return;
+        }
+        if (this.swapping) {
+            return;
+        }
+
+        this.swapping = true;
+        void this.swapTo(published, signature).finally(() => (this.swapping = false));
+    }
+
+    private async swapTo(published: Array<string>, signature: string): Promise<void> {
+        let prepared;
+        try {
+            prepared = await this.pageSwap.prepare(published);
+        } catch {
+            this.waitingFor = signature;
             return;
         }
         if (this.busy()) {
@@ -65,7 +93,17 @@ export class UpdateService {
         }
 
         sessionStorage.setItem(RELOADED_FOR_KEY, signature);
-        window.location.reload();
+        if (!prepared) {
+            window.location.reload();
+            return;
+        }
+
+        try {
+            await this.pageSwap.swap(prepared);
+        } catch (error) {
+            console.error('Taking the new version into use failed, reloading.', error);
+            window.location.reload();
+        }
     }
 
     private loadedFiles(): Array<string> {
