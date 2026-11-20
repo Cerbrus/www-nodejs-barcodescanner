@@ -9,6 +9,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 | [deployment.md](deployment.md) | Raspberry Pi setup, automatic updates, reverse proxy, backup and restore |
 | [decisions.md](decisions.md) | Feature and technology choices, with the reasoning |
 | [plan.md](plan.md) | What is left, what was never tested, and what was done when |
+| [ideas.md](ideas.md) | Ideas that are written down but not decided, each with the text to send as a remark |
 | [archive/](archive/) | Finished plans, reports and reviews, kept as a record: the API restructure, the product review and night report of 2026-11-13, the plans for offline shopping, naming, remarks and sounds, the review of 2026-11-16, and the plan with every step until 2026-11-16. They describe the product as it was then |
 | [scanner-usb-capture.txt](scanner-usb-capture.txt) | USB capture of the scanner dongle. Tera answered on 2026-11-16 that the scanner cannot beep or light up on the host's command; kept as a record |
 | [../data/seed-items.json](../data/seed-items.json) | Seed data: sections and products with icon and emoji, starting list |
