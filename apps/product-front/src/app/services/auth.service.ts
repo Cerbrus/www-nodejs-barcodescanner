@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, tap, throwError, timeout } from 'rxjs';
 
 import { AuthState } from '../models';
 import { EventsService } from './events.service';
@@ -11,6 +11,9 @@ import { clearSnapshot } from './snapshot';
 
 const UNAUTHORIZED = 401;
 const LOGIN_ROUTE = '/login';
+const AUTH_KEY = 'auth-state';
+const AUTH_TIMEOUT_MS = 5000;
+const UNREACHABLE: AuthState = { enabled: false, authenticated: true, owner: false };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -37,7 +40,9 @@ export class AuthService {
         }
 
         return this.http.get<AuthState>(`${this.baseUrl}/auth/me`).pipe(
-            catchError(() => of<AuthState>({ enabled: false, authenticated: true, owner: false })),
+            timeout(AUTH_TIMEOUT_MS),
+            tap((state) => rememberState(state)),
+            catchError(() => of(recalledState() ?? UNREACHABLE)),
             tap((state) => this.state.set(state))
         );
     }
@@ -51,11 +56,43 @@ export class AuthService {
         return this.http.post<void>(`${this.baseUrl}/auth/logout`, {}).pipe(
             tap(() => {
                 clearSnapshot();
+                forgetState();
                 saveOutbox([]);
                 window.location.hash = `#${LOGIN_ROUTE}`;
                 window.location.reload();
             })
         );
+    }
+}
+
+function rememberState(state: AuthState): void {
+    try {
+        if (state.enabled && state.authenticated) {
+            localStorage.setItem(AUTH_KEY, JSON.stringify(state));
+        } else {
+            localStorage.removeItem(AUTH_KEY);
+        }
+    } catch {
+        return;
+    }
+}
+
+function recalledState(): AuthState | undefined {
+    try {
+        const stored = localStorage.getItem(AUTH_KEY);
+        const state = stored ? (JSON.parse(stored) as AuthState) : undefined;
+
+        return state?.enabled && state.authenticated ? state : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+function forgetState(): void {
+    try {
+        localStorage.removeItem(AUTH_KEY);
+    } catch {
+        return;
     }
 }
 

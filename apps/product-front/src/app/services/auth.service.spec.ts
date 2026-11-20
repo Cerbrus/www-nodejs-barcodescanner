@@ -94,6 +94,41 @@ describe('login in the web app', () => {
         expect(run(requireOwner, 'unreachable')).toEqual({ redirect: '/system' });
     });
 
+    it('uses the last known login when the server does not answer', () => {
+        run(requireLogin, owner);
+        TestBed.inject(AuthService).state.set(undefined);
+
+        expect(run(requireOwner, 'unreachable')).toBe(true);
+        expect(TestBed.inject(AuthService).state()?.email).toBe('owner@example.com');
+    });
+
+    it('gives up waiting for the login state after five seconds', () => {
+        vi.useFakeTimers();
+        try {
+            let result: GuardResult = false;
+            (
+                TestBed.runInInjectionContext(() =>
+                    requireLogin({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
+                ) as Observable<GuardResult>
+            ).subscribe((value) => (result = value));
+
+            vi.advanceTimersByTime(5000);
+
+            expect(result).toBe(true);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('forgets the last known login when someone logs out or is not logged in', () => {
+        run(requireLogin, owner);
+        TestBed.inject(AuthService).state.set(undefined);
+        run(requireLogin, anonymous);
+        TestBed.inject(AuthService).state.set(undefined);
+
+        expect(run(requireOwner, 'unreachable')).toEqual({ redirect: '/system' });
+    });
+
     it('goes to the login page and stops the event stream when the server says the login ran out', () => {
         run(requireLogin, owner);
 
