@@ -62,21 +62,21 @@ describe('RemarkSheetComponent', () => {
         expect(page.querySelector('.about')).toBeNull();
     });
 
-    it('offers bug, wish and note, starts on bug, and asks a question that fits the kind', async () => {
+    it('offers wish, bug and note, starts on wish, and asks a question that fits the kind', async () => {
         remarks.write();
         await settle();
         expect(texts(page, '.segment')).toEqual([
-            'bug_report remark.kind.bug',
             'lightbulb remark.kind.wish',
+            'bug_report remark.kind.bug',
             'sticky_note_2 remark.kind.note'
         ]);
-        expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
-        expect(texts(page, 'label.field-label')).toEqual(['remark.text.bug']);
+        expect(texts(page, '.segment.chosen')).toEqual(['lightbulb remark.kind.wish']);
+        expect(texts(page, 'label.field-label')).toEqual(['remark.text.wish']);
 
         click(page, '.segment', 1);
         await settle();
 
-        expect(texts(page, 'label.field-label')).toEqual(['remark.text.wish']);
+        expect(texts(page, 'label.field-label')).toEqual(['remark.text.bug']);
     });
 
     it('says what the remark is about when a part was pointed at', async () => {
@@ -179,14 +179,14 @@ describe('RemarkSheetComponent', () => {
         expect(remarks.send).not.toHaveBeenCalled();
 
         await press({ ctrlKey: true });
-        expect(remarks.send).toHaveBeenCalledWith('bug', 'Via keyboard');
+        expect(remarks.send).toHaveBeenCalledWith('wish', 'Via keyboard');
 
         remarks.write();
         await settle();
         type(page, 'textarea', 'On a Mac');
         await settle();
         await press({ metaKey: true });
-        expect(remarks.send).toHaveBeenLastCalledWith('bug', 'On a Mac');
+        expect(remarks.send).toHaveBeenLastCalledWith('wish', 'On a Mac');
     });
 
     describe('closing what was written', () => {
@@ -240,7 +240,7 @@ describe('RemarkSheetComponent', () => {
             remarks.write();
             await settle();
             expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Half a thought');
-            expect(texts(page, '.segment.chosen')).toEqual(['lightbulb remark.kind.wish']);
+            expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
             expect(page.querySelector('p.text-sm')).toBeNull();
         });
 
@@ -254,7 +254,7 @@ describe('RemarkSheetComponent', () => {
             remarks.write();
             await settle();
             expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('');
-            expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
+            expect(texts(page, '.segment.chosen')).toEqual(['lightbulb remark.kind.wish']);
         });
     });
 });

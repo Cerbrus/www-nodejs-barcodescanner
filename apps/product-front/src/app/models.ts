@@ -174,7 +174,7 @@ export interface ListEntryChange {
     note?: string;
 }
 
-export const REMARK_KINDS = ['bug', 'wish', 'note'] as const;
+export const REMARK_KINDS = ['wish', 'bug', 'note'] as const;
 export type RemarkKind = (typeof REMARK_KINDS)[number];
 
 export interface RemarkTarget {

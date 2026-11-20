@@ -13,7 +13,10 @@ const remarksOf = async (request: APIRequestContext): Promise<Array<Remark>> =>
 
 test.describe.configure({ mode: 'serial' });
 
-test('right-click a product, write a bug, and find it on the feedback page', async ({ page, request }) => {
+test('right-click a product, write a remark without choosing a kind, and find it on the feedback page', async ({
+    page,
+    request
+}) => {
     await page.goto('/#/list');
     const tile = page.locator('app-item-tile:has(button.tile.buy)').first();
     await expect(tile).toBeVisible();
@@ -29,7 +32,7 @@ test('right-click a product, write a bug, and find it on the feedback page', asy
     await expect(tile.locator('button.tile.buy')).toBeVisible();
 
     const [remark] = await remarksOf(request);
-    expect([remark.kind, remark.text, remark.page]).toEqual(['bug', 'The count is hard to read', '#/list']);
+    expect([remark.kind, remark.text, remark.page]).toEqual(['wish', 'The count is hard to read', '#/list']);
     expect(remark.target?.component).toBe('app-item-tile');
     expect(remark.target?.text).toContain(name);
     expect(remark.context?.viewport).toBe('390 × 844');

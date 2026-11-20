@@ -22,7 +22,7 @@ export class RemarkSheetComponent {
     protected readonly remarks = inject(RemarkService);
     protected readonly kinds = REMARK_KINDS;
     protected readonly icons = KIND_ICONS;
-    protected readonly kind = signal<RemarkKind>('bug');
+    protected readonly kind = signal<RemarkKind>('wish');
     protected readonly text = signal('');
     protected readonly busy = signal(false);
     protected readonly asking = signal(false);
@@ -54,7 +54,7 @@ export class RemarkSheetComponent {
     protected leave(clear: boolean): void {
         if (clear) {
             this.text.set('');
-            this.kind.set('bug');
+            this.kind.set('wish');
         }
         this.asking.set(false);
         this.remarks.cancel();
