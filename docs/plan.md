@@ -10,7 +10,7 @@ In daily-use shape and running on the Pi:
 - Automatic updates from `master`, the firewall limit to the reverse proxy, an hourly database backup to a private repository. An open app reloads itself after an update. The Pi also runs the card scanner; the two updaters share a lock.
 - Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans, shopping without a connection.
 - Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner, with sounds built from blocks and one for a new version.
-- Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request, which is reviewed and landed locally. A "What's new" page built from the releases.
+- Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request; the owner's approval lands it through the release train, several at once as one version. A "What's new" page built from the releases.
 - Tests: API rules and routes, the web app, 15 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag was tested on 2026-11-15 and again on 2026-11-16, after the updater that skipped rollbacks was repaired.
 - Packages: Node 26, Nx 24, Angular 22, TypeScript 6, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, ESLint 10. A content security policy in report-only mode.
 
@@ -46,6 +46,8 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
+- The release train on GitHub: built on 2026-11-20 and tried only on a scratch repository with a stand-in for GitHub. Its first real run is the next pull request the owner approves. Open points to watch then: whether GitHub marks the pull requests as merged, whether the push starts the build, and whether an approval of a Dependabot pull request starts the train.
+- The agent on an issue that someone else wrote.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 
@@ -86,3 +88,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | The owner's checks after the review, on the iPhone: push since web-push 4, the variant in the naming prompt, a fast second tap on the list | 2026-11-16 18:48 | |
 | Finished plans, reports and reviews moved to `docs/archive/`, this plan shortened | 2026-11-16 18:48 | |
 | The update sound for a newer version only: confirmed by the owner | 2026-11-16 18:51 | 1.1.115 |
+| Release train: an approval lands a pull request, several as one version; the agent starts for any issue the owner labels | 2026-11-20 14:58 | |

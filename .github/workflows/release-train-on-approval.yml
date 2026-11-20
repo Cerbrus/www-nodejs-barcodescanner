@@ -1,0 +1,27 @@
+name: Release train on approval
+
+on:
+    pull_request_review:
+        types: [ submitted ]
+
+permissions: { }
+
+jobs:
+    start:
+        name: Start the release train
+        if: >-
+            github.event.review.state == 'approved' &&
+            github.event.review.user.login == github.repository_owner &&
+            github.event.pull_request.base.ref == github.event.repository.default_branch &&
+            github.event.pull_request.head.repo.full_name == github.repository
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            actions: write
+        steps:
+            -   name: Start the train on master
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                    GH_REPO: ${{ github.repository }}
+                    BASE: ${{ github.event.repository.default_branch }}
+                run: gh workflow run release-train.yml --ref "$BASE" -f wait_minutes=5

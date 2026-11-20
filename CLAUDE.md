@@ -25,7 +25,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 - Login with Google for an allowlist of accounts: one global guard, signed session cookie, a token for the hardware agent. New routes are for logged-in users by default; mark one `@Public()` only when it must work without login, `@Agent()` only when the hardware agent needs it, and `@OwnerOnly()` when it belongs to the system parts that only the owner account gets.
 - Feedback from inside the app is called a remark in the code (`RemarkService`, `/api/v1/remarks`, the `remark` table), because "feedback" already means the sounds at the scanner. Every account writes remarks; only the owner sends one to GitHub.
 - No Bring, no PostgreSQL, no CQRS, no user table.
-- Deployment: GitHub Actions builds images to `ghcr.io`; systemd timers on the Pi pull them and push an hourly database backup to a private repository.
+- Deployment: a pull request lands when the owner approves it, through the release train (`.github/workflows/release-train.yml`). GitHub Actions builds images to `ghcr.io`; systemd timers on the Pi pull them and push an hourly database backup to a private repository.
 
 ## Layout
 

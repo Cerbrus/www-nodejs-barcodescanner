@@ -1,0 +1,104 @@
+name: Release train
+
+on:
+    workflow_dispatch:
+        inputs:
+            pull_requests:
+                description: Pull request numbers to take along, separated by spaces. Empty takes every approved one.
+                required: false
+                default: ''
+            wait_minutes:
+                description: Minutes to wait for more approvals before the train leaves
+                required: false
+                default: '0'
+
+permissions:
+    contents: read
+
+concurrency:
+    group: release-train
+    cancel-in-progress: false
+
+jobs:
+    assemble:
+        name: Assemble the train
+        if: github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: write
+            pull-requests: write
+            issues: write
+        outputs:
+            count: ${{ steps.train.outputs.count }}
+            branch: ${{ steps.train.outputs.branch }}
+            train: ${{ steps.train.outputs.train }}
+        env:
+            GH_TOKEN: ${{ github.token }}
+        steps:
+            -   uses: actions/checkout@v7
+                with:
+                    fetch-depth: 0
+            -   name: Take the script out of the checkout
+                run: cp .github/scripts/release-train.sh "$RUNNER_TEMP/release-train.sh"
+            -   name: Wait for more approvals
+                env:
+                    WAIT_MINUTES: ${{ inputs.wait_minutes }}
+                run: bash "$RUNNER_TEMP/release-train.sh" wait "$WAIT_MINUTES"
+            -   name: Rebase the approved pull requests onto each other
+                id: train
+                env:
+                    PULL_REQUESTS: ${{ inputs.pull_requests }}
+                run: bash "$RUNNER_TEMP/release-train.sh" assemble "$PULL_REQUESTS"
+
+    checks:
+        name: Check the train
+        needs: assemble
+        if: needs.assemble.outputs.count != '0'
+        permissions:
+            contents: write
+            packages: write
+        uses: ./.github/workflows/build.yml
+        with:
+            ref: ${{ needs.assemble.outputs.branch }}
+
+    land:
+        name: Move master to the train
+        needs: [ assemble, checks ]
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        environment: release
+        permissions:
+            contents: write
+            pull-requests: write
+            issues: write
+        steps:
+            -   uses: actions/checkout@v7
+            -   name: Land the pull requests
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                    RELEASE_TRAIN_TOKEN: ${{ secrets.RELEASE_TRAIN_TOKEN }}
+                    TRAIN: ${{ needs.assemble.outputs.train }}
+                run: bash .github/scripts/release-train.sh land "$TRAIN"
+
+    clean-up:
+        name: Clean up
+        needs: [ assemble, checks, land ]
+        if: always() && needs.assemble.result == 'success' && needs.assemble.outputs.count != '0'
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            contents: write
+            pull-requests: write
+            issues: write
+        env:
+            GH_TOKEN: ${{ github.token }}
+            TRAIN: ${{ needs.assemble.outputs.train }}
+            BRANCH: ${{ needs.assemble.outputs.branch }}
+        steps:
+            -   uses: actions/checkout@v7
+            -   name: Tell the pull requests that the train stopped
+                if: needs.land.result != 'success'
+                run: bash .github/scripts/release-train.sh report-failure "$TRAIN"
+            -   name: Remove the train's branch
+                run: bash .github/scripts/release-train.sh remove-branch "$BRANCH"

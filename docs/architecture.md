@@ -324,11 +324,23 @@ Feedback from inside the app. The code says "remark" because "feedback" is the n
 
 ### The agent on GitHub
 
-`.github/workflows/issue-investigator.yml` starts when an issue gets the label `investigate`, and only when the owner's account set the label and wrote the issue; issues from the app are written with the owner's token, so they qualify, and an issue or a label from anyone else starts nothing.
+`.github/workflows/issue-investigator.yml` starts when an issue gets the label `investigate`, and only when the owner's account set the label; a label from anyone else starts nothing. Issues from the app are written with the owner's token. The owner may also label an issue that someone else wrote: the workflow keeps that issue's text from the moment of the label in a file, and the agent works from that file, so a later edit by its writer changes nothing.
 
 Because of that guard, what such an issue asks counts as the owner's decision, and an issue from the app says so in a section "Authority". The agent follows `.github/issue-investigator.md`: it implements what is asked in a pull request that is ready for review, with tests and docs, chooses a sensible default where the issue is silent and lists those choices, and changes `docs/decisions.md` first when the issue overrules an earlier decision. It asks questions only when no default is reasonable, and gives a plan when the wish needs a design first. It ends with one comment and one verdict label: `agent: implemented`, `agent: needs answers`, `agent: too large` or `agent: not possible`. Whenever the owner's input is needed the agent assigns to him: the issue when it asks questions, gives a plan or says it cannot be done, and the pull request when it implemented it; the workflow does the same, with a comment, when a run fails. The owner answers in a comment and sets `investigate` again to continue.
 
 It never merges, never pushes to `master`, and does not touch `.github/`, `deployment/`, the Dockerfiles or `CLAUDE.md`. The owner's authority covers what the app does; it does not turn the issue text into commands for the agent. A pull request opened by a workflow does not start the build checks by itself, so the investigator's workflow starts the build for that branch when the agent is done. `.github/CODEOWNERS` names the owner for every file, so he is asked to review each pull request.
+
+### The release train
+
+The owner's approval lands a pull request; nobody merges by hand. `.github/workflows/release-train-on-approval.yml` sees an approval by the owner's account and starts `.github/workflows/release-train.yml` on `master`, which runs one train at a time through `.github/scripts/release-train.sh`:
+
+1. **Wait**: up to 5 minutes for more approvals, shorter when no open pull request is left without one. A run by hand from the Actions page does not wait.
+2. **Assemble**: every open pull request that the owner approved at its current commit is rebased onto the one before it, starting from `master`, into a branch `release-train/run-<number>`. One that conflicts drops out with a comment; one from a fork or with a change to a workflow file is left out with a comment.
+3. **Check**: `build.yml` runs on that branch, as for a pull request: all checks and both images, nothing published.
+4. **Land**: when `master` and the pull requests are still where they were, each pull request's branch is set to its rebased commits and `master` is moved forward to the last of them. GitHub then shows the pull requests as merged; the train closes the issues they name and removes their branches. The move of `master` is an ordinary push, so the build publishes one version for the whole train.
+5. **Clean up**: the train's branch goes. When the train did not land, every pull request on it gets a comment with the run, and stays approved for the next one.
+
+Only the last step of landing uses the owner's token, the secret `RELEASE_TRAIN_TOKEN` of the environment `release`, which runs from `master` alone can use. Everything else uses the workflow's own token.
 
 ## Backup
 

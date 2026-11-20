@@ -142,6 +142,18 @@ Decided 2026-11-13: light protection for `master`, as a repository ruleset: no d
 
 Changed 2026-11-16, by the owner: only the repository's admin role may push to `master`; the ruleset got the rule against updates, with that role as the exception. The reason: the Dependabot reviewer installs proposed package versions while it holds a token that may write to the repository, and the Pi fetches and runs `update.sh` and `firewall.sh` from `master` every minute, so a malicious package release could otherwise reach the Pi through a push to `master`. Decided by the owner on 2026-11-16: the reviewer stays as it is and keeps running package code with its tokens present; that finding is dismissed.
 
+## Release train
+
+Decided 2026-11-20, by the owner: a pull request is no longer finished and landed by hand. The owner's approval is the manual step, and it is also the selection: every pull request he approved at its current commit rides along. The release train then rebases them onto `master` one after another, runs every check on the result and moves `master` to it, so several pull requests come out as one version.
+
+- The train leaves when no open pull request is left without his approval, and at the latest 5 minutes after the approval that started it. A run by hand from the Actions page leaves at once and can be limited to chosen pull requests; those still need his approval.
+- A pull request that conflicts with `master` or with one ahead of it drops out with a comment, and the others go on. When the checks on the whole train fail, nothing is merged and every pull request on it is told; they stay approved for the next train.
+- Left out, to land by hand: a pull request from a fork, and one that changes a workflow file.
+- The checks run twice, on the train and again in the build that follows the push. The first run keeps a failing combination off `master`; the second is the build that publishes.
+- The train moves `master` with a token of the owner's account, limited to this repository, to its contents and its pull requests, and without the right to change workflow files. It is a secret of the environment `release`, which only runs from `master` can use, so a pull request cannot reach it; the job that runs the pull requests' code never gets it. This widens what was narrowed on 2026-11-16: a stored secret can now write to `master`. Accepted, because nothing reaches `master` without the owner's approval of that exact commit.
+- GitHub's own merge queue does this, but only for a repository owned by an organisation. Moving the repository was weighed and dropped: the image names, the workflows' owner checks and the Pi's settings would all change.
+- Changes the line of 2026-11-15 that the owner lands the agent's pull requests himself. The agent still never merges.
+
 ## Remarks from inside the app
 
 Decided 2026-11-15, see [remarks-plan.md](archive/remarks-plan.md) for the reasoning:
@@ -157,6 +169,7 @@ Decided 2026-11-15, see [remarks-plan.md](archive/remarks-plan.md) for the reaso
 - No screenshots: a page cannot take a real picture of itself. The part pointed at is recorded as data.
 - Changed 2026-11-15, on the owner's issue #10: no two-finger tap. It did not work for the owner, so pointing mode is the only way on the phone.
 - An agent on GitHub handles an issue the owner labels. Changed 2026-11-15, after the first four issues all ended in questions: an issue from the owner is his decision and carries his authority, so the agent implements it in a pull request unless a real question is open, also when it overrules an earlier decision, and labels the issue with its verdict. It never merges. Changed again 2026-11-15, after its first pull request: the pull request is opened ready for review, not as a draft, and the owner is code owner of the whole repository.
+- Changed 2026-11-20, by the owner: the agent starts for any issue the owner labels, also one that someone else wrote. Setting the label is his approval of what the issue asked at that moment, so the agent works from the text as it was then, not from a later edit by its writer, and still counts only the owner's comments. Until then the issue had to be written by the owner's account too.
 
 ## Names, sections and variants of scanned products
 
