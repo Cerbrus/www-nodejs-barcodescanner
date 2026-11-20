@@ -25,3 +25,28 @@ jobs:
                     GH_REPO: ${{ github.repository }}
                     BASE: ${{ github.event.repository.default_branch }}
                 run: gh workflow run release-train.yml --ref "$BASE" -f wait_minutes=5
+
+    revise:
+        name: 🔧 Back to the workshop
+        if: >-
+            github.event.review.state == 'changes_requested' &&
+            github.event.review.user.login == github.repository_owner &&
+            github.event.pull_request.state == 'open' &&
+            github.event.pull_request.base.ref == github.event.repository.default_branch &&
+            github.event.pull_request.head.repo.full_name == github.repository &&
+            startsWith(github.event.pull_request.head.ref, 'issue/')
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            actions: write
+        steps:
+            -   name: Send the pull request back to the agent
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                    GH_REPO: ${{ github.repository }}
+                    BASE: ${{ github.event.repository.default_branch }}
+                    BRANCH: ${{ github.event.pull_request.head.ref }}
+                run: |
+                    if [[ $BRANCH =~ ^issue/([0-9]+)- ]]; then
+                        gh workflow run issue-investigator.yml --ref "$BASE" -f issue="${BASH_REMATCH[1]}" -f task=revise
+                    fi

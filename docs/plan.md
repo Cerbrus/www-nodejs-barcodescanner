@@ -50,6 +50,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - The released and live stages of a remark on the Feedback page: tested against a stand-in for GitHub only. Not seen with the real tags and compare endpoint, nor whether the merge commit of a pull request landed by the train is a commit on `master`.
 - The agent on an issue that someone else wrote.
 - The train leaving a pull request with failing checks behind, the agent rebasing a pull request that conflicted, and an approval carried over that rebase: built on 2026-11-20, tried only on a scratch repository. The repair after failed checks ran once for real, on pull request 43.
+- A request for changes sending a pull request back to the agent: built on 2026-11-20. Only the script that collects the owner's remarks was tried, with a stand-in for `gh`; the start from a review and the agent's revision have not run.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 
@@ -93,3 +94,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Release train: an approval lands a pull request, several as one version; the agent starts for any issue the owner labels | 2026-11-20 14:58 | 1.1.128 |
 | Train started by an approval: pull request 42 landed, 43 left behind on a conflict in two lines of documentation | 2026-11-20 16:42 | 1.1.134 |
 | First train, started by hand: pull requests 37 and 39 rebased, checked together and landed as one version; GitHub marked both merged and closed their issues | 2026-11-20 15:10 | 1.1.130 |
+| A review that requests changes sends a pull request back to the agent, with the owner's remarks from the pull request | 2026-11-20 17:40 | |
