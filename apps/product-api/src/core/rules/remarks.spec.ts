@@ -164,7 +164,10 @@ describe('progress of an issue', () => {
         assert.deepEqual(progressOfIssue(issue({ state: 'closed', pullRequests: [pull({ state: 'closed' })] })), {
             stage: 'closed'
         });
-        assert.deepEqual([isFinalStage('merged'), isFinalStage('closed'), isFinalStage('review')], [false, true, false]);
+        assert.deepEqual(
+            [isFinalStage('merged'), isFinalStage('closed'), isFinalStage('review')],
+            [false, true, false]
+        );
         assert.equal(isFinalStage('live'), true);
     });
 
@@ -182,7 +185,11 @@ describe('progress of an issue', () => {
         const merged = { stage: 'merged' as const, pullRequest: { number: 40, title: 'x', url: 'u' } };
 
         assert.deepEqual(withRelease(merged, undefined, '1.1.131'), merged);
-        assert.deepEqual(withRelease(merged, '1.1.132', '1.1.131'), { ...merged, stage: 'released', version: '1.1.132' });
+        assert.deepEqual(withRelease(merged, '1.1.132', '1.1.131'), {
+            ...merged,
+            stage: 'released',
+            version: '1.1.132'
+        });
         assert.equal(withRelease(merged, '1.1.131', '1.1.131').stage, 'live');
         assert.equal(withRelease(merged, '1.1.130', '1.1.131').stage, 'live');
         assert.equal(withRelease(merged, '1.1.130', 'dev').stage, 'released');
