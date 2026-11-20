@@ -287,6 +287,7 @@
         "waiting": "{count, plural, one {# waits for a connection} other {# wait for a connection}}",
         "empty": "No feedback yet",
         "closed": "handled",
+        "closeConfirm": "Mark this feedback as handled? It moves to the handled list.",
         "close": "Mark as handled",
         "expand": "Show details",
         "collapse": "Hide details",

@@ -173,7 +173,10 @@ describe('RemarksPage', () => {
     it('lets the owner mark a remark as handled and reopen it', async () => {
         await open(OWNER, [remark(1), remark(2, { state: 'closed' })]);
         await openMenu();
-        await press('remark.close');
+        await press('remark.close', page.querySelector('.menu') as Element);
+        expect(api.setRemarkState).not.toHaveBeenCalled();
+        expect(texts(page, 'article p.text-sm')).toEqual(['remark.closeConfirm']);
+        await press('remark.close', page.querySelector('article') as Element);
         await showHandled();
         await openMenu(1);
         await press('remark.reopen');
@@ -183,6 +186,16 @@ describe('RemarksPage', () => {
             [2, 'open']
         ]);
         expect(api.getRemarks).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not mark a remark as handled when the confirmation is cancelled', async () => {
+        await open(OWNER, [remark(1)]);
+        await openMenu();
+        await press('remark.close', page.querySelector('.menu') as Element);
+        await press('common.cancel');
+
+        expect(api.setRemarkState).not.toHaveBeenCalled();
+        expect(texts(page, 'article p.text-sm')).toEqual([]);
     });
 
     it('rejects a remark only after a confirmation, and reloads the list', async () => {
@@ -214,6 +227,8 @@ describe('RemarksPage', () => {
         await open(OWNER, [remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
         expect(buttons(0)).toEqual(['check remark.close']);
         await press('remark.close');
+        expect(api.setRemarkState).not.toHaveBeenCalled();
+        await press('remark.close', page.querySelector('article p.text-sm + div') as Element);
         expect(api.setRemarkState).toHaveBeenCalledWith(2, 'closed');
     });
 

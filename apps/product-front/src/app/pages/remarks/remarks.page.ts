@@ -203,6 +203,20 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                     }
                 }
 
+                @if (closing() === remark.id) {
+                    <p class="mt-2 text-sm">{{ 'remark.closeConfirm' | translate }}</p>
+                    <div class="mt-2 flex gap-2">
+                        <button type="button" class="btn primary" (click)="close(remark)">
+                            <i class="material-symbols-outlined">check</i>
+                            {{ 'remark.close' | translate }}
+                        </button>
+                        <button type="button" class="btn" (click)="closing.set(undefined)">
+                            <i class="material-symbols-outlined">close</i>
+                            {{ 'common.cancel' | translate }}
+                        </button>
+                    </div>
+                }
+
                 @if (rejecting() === remark.id) {
                     <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
                     <div class="mt-2 flex gap-2">
@@ -406,6 +420,7 @@ export class RemarksPage {
     protected readonly draft = signal<IssueDraft | undefined>(undefined);
     protected readonly busy = signal(false);
     protected readonly rejecting = signal<number | undefined>(undefined);
+    protected readonly closing = signal<number | undefined>(undefined);
     protected readonly editing = signal<number | undefined>(undefined);
     protected readonly draftText = signal('');
     protected readonly showHandled = signal(false);
@@ -450,16 +465,22 @@ export class RemarksPage {
 
     protected run(remark: Remark, action: RemarkAction): void {
         this.menu.set(undefined);
-        if (action === 'handle' || action === 'reopen') {
-            this.setState(remark, action === 'handle' ? 'closed' : 'open');
+        if (action === 'reopen') {
+            this.setState(remark, 'open');
+        } else if (action === 'handle') {
+            this.editing.set(undefined);
+            this.rejecting.set(undefined);
+            this.closing.set(remark.id);
         } else if (action === 'edit') {
             this.rejecting.set(undefined);
+            this.closing.set(undefined);
             this.draftText.set(remark.text);
             this.editing.set(remark.id);
         } else if (action === 'toGitHub') {
             this.prepare(remark);
         } else {
             this.editing.set(undefined);
+            this.closing.set(undefined);
             this.rejecting.set(remark.id);
         }
     }
@@ -499,6 +520,11 @@ export class RemarksPage {
                 finalize(() => this.busy.set(false))
             )
             .subscribe();
+    }
+
+    protected close(remark: Remark): void {
+        this.closing.set(undefined);
+        this.setState(remark, 'closed');
     }
 
     protected reject(remark: Remark): void {

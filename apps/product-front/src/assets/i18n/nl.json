@@ -287,6 +287,7 @@
         "waiting": "{count, plural, one {# wacht op verbinding} other {# wachten op verbinding}}",
         "empty": "Nog geen feedback",
         "closed": "afgehandeld",
+        "closeConfirm": "Deze feedback afhandelen? Hij verhuist naar de afgehandelde lijst.",
         "close": "Afhandelen",
         "expand": "Details tonen",
         "collapse": "Details verbergen",
