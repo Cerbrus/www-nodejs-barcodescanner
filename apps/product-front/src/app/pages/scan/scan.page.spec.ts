@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { TranslateTesting } from '../../../testing/translate';
 import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { CameraAccessService } from '../../services/camera-access.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 import { ScanPage } from './scan.page';
@@ -110,6 +111,13 @@ describe('ScanPage', () => {
         camera.refuse = true;
 
         expect((await open()).querySelector('.notice')?.textContent).toContain('scan.camera.blocked');
+        expect(TestBed.inject(CameraAccessService).granted).toBe(false);
+    });
+
+    it('notes that the camera was granted in this page load once it runs', async () => {
+        await open();
+
+        expect(TestBed.inject(CameraAccessService).granted).toBe(true);
     });
 
     it('shows the scan frame once the camera runs', async () => {

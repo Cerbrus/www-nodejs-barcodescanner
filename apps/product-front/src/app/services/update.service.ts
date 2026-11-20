@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { EMPTY, Observable, catchError, filter, from, map, merge, switchMap, tap } from 'rxjs';
 
+import { CameraAccessService } from './camera-access.service';
 import { EventsService } from './events.service';
 
 const FILE_LIST_URL = '/app-files.json';
@@ -11,11 +12,14 @@ const ENTRY_FILES = 'script[src], link[rel="stylesheet"][href]';
 const BUSY_FIELD = 'input, textarea, select';
 const OPEN_DIALOG = 'dialog[open]';
 const CAMERA_ROUTE = '#/scan';
+const CAMERA_GRANT_KEPT_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
     private readonly events = inject(EventsService);
     private readonly router = inject(Router);
+    private readonly cameraAccess = inject(CameraAccessService);
+    private readonly loadedAt = Date.now();
     private waitingFor?: string;
     private started = false;
 
@@ -59,7 +63,7 @@ export class UpdateService {
             console.warn('A newer version is published, but reloading did not load it.');
             return;
         }
-        if (this.busy()) {
+        if (this.busy() || this.keepsCameraGrant()) {
             this.waitingFor = signature;
             return;
         }
@@ -76,6 +80,10 @@ export class UpdateService {
             )
             .filter((url) => url.origin === window.location.origin && VERSIONED_FILE.test(url.pathname))
             .map((url) => url.pathname.slice(1));
+    }
+
+    private keepsCameraGrant(): boolean {
+        return this.cameraAccess.granted && Date.now() - this.loadedAt < CAMERA_GRANT_KEPT_MILLISECONDS;
     }
 
     private busy(): boolean {

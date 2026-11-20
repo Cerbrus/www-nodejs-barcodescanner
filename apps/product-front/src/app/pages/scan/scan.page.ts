@@ -18,6 +18,7 @@ import { NamingOutcome, NamingPromptComponent } from '../../components/naming-pr
 import { withNote } from '../../display-name';
 import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { CameraAccessService } from '../../services/camera-access.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
@@ -45,6 +46,7 @@ export class ScanPage {
     private readonly api = inject(ApiService);
     private readonly store = inject(ShoppingStore);
     private readonly toasts = inject(ToastService);
+    private readonly cameraAccess = inject(CameraAccessService);
     private readonly translate = inject(TranslateService);
 
     private controls?: IScannerControls;
@@ -101,6 +103,7 @@ export class ScanPage {
                     }
                 }
             );
+            this.cameraAccess.markGranted();
             this.state.set('running');
         } catch {
             this.state.set('blocked');

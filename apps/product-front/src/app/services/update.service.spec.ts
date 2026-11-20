@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
+import { CameraAccessService } from './camera-access.service';
 import { EventsService } from './events.service';
 import { UpdateService } from './update.service';
 
@@ -104,6 +105,17 @@ describe('UpdateService', () => {
         await resume();
 
         expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('keeps the old version while the camera was granted in this page load, for at most a day', async () => {
+        TestBed.inject(CameraAccessService).markGranted();
+        await resume();
+        expect(reload).not.toHaveBeenCalled();
+
+        vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 25 * 60 * 60 * 1000);
+        await changePage();
+
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('does not check on a change of page when nothing is waiting', async () => {
