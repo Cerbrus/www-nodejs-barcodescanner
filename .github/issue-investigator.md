@@ -46,6 +46,17 @@ The workflow calls you a second time when the build checks of your pull request 
 
 You get one repair. The workflow checks the result and hands the pull request to the owner when it still fails.
 
+## When the pull request must be rebased
+
+The release train leaves a pull request behind when it conflicts with `master` or with a pull request that landed just before it. The workflow then calls you to put it on top of `master`. The owner approved the pull request already, and that approval carries over your rebase: so change nothing beyond what the rebase needs.
+
+1. Check out the branch of the pull request and run `git fetch origin` and `git rebase origin/master`.
+2. Resolve each conflict so that both changes survive: what reached `master` and what this pull request adds. Most conflicts are two pull requests adding to the same list or sentence in `README.md`, `docs/` or the language files; keep both additions and renumber or reorder where needed. Never drop the other change to get rid of a conflict.
+3. When both sides changed the same code in ways that cannot both stand, stop: run `git rebase --abort`, say in a comment on the pull request what collides, and end. The workflow leaves it to the owner.
+4. Run every command of step 7 again; the tests of the other change must pass too.
+5. Push with `git push --force-with-lease`. Do not open another pull request and do not change the verdict label.
+6. Add one short comment to the pull request: what conflicted and how you resolved it.
+
 ## The verdict
 
 Label the issue with exactly one of these, and remove any other of them that is still there from an earlier run:

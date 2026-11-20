@@ -48,7 +48,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - The content security policy in enforcing mode.
 - The release train starting by itself from an approval, also of a Dependabot pull request: its first run was started by hand. The railway wording and pictures of its messages, the "left on the platform" and "derailed" comments, and the removal of the waiting builds: tried only on a scratch repository with a stand-in for GitHub.
 - The agent on an issue that someone else wrote.
-- The agent repairing its own pull request after failed checks, and the train leaving a pull request with failing checks behind: built on 2026-11-20, the second tried only on a scratch repository.
+- The train leaving a pull request with failing checks behind, the agent rebasing a pull request that conflicted, and an approval carried over that rebase: built on 2026-11-20, tried only on a scratch repository. The repair after failed checks ran once for real, on pull request 43.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 
@@ -90,4 +90,5 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Finished plans, reports and reviews moved to `docs/archive/`, this plan shortened | 2026-11-16 18:48 | |
 | The update sound for a newer version only: confirmed by the owner | 2026-11-16 18:51 | 1.1.115 |
 | Release train: an approval lands a pull request, several as one version; the agent starts for any issue the owner labels | 2026-11-20 14:58 | 1.1.128 |
+| Train started by an approval: pull request 42 landed, 43 left behind on a conflict in two lines of documentation | 2026-11-20 16:42 | 1.1.134 |
 | First train, started by hand: pull requests 37 and 39 rebased, checked together and landed as one version; GitHub marked both merged and closed their issues | 2026-11-20 15:10 | 1.1.130 |

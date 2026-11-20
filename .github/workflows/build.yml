@@ -144,7 +144,7 @@ jobs:
                     cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
     tag:
-        name: tag v${{ needs.checks.outputs.version }}
+        name: tag the release
         needs: [ checks, images ]
         if: github.event_name == 'push'
         runs-on: ubuntu-latest

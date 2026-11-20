@@ -8,6 +8,8 @@ RUN_URL="${GITHUB_SERVER_URL:-https://github.com}/$REPO/actions/runs/${GITHUB_RU
 SUMMARY=${GITHUB_STEP_SUMMARY:-/dev/null}
 ART_URL="https://raw.githubusercontent.com/$REPO/$BASE_BRANCH/.github/release-train"
 POLL_SECONDS=20
+BOT='github-actions[bot]'
+AGENT_BRANCH='^issue/([0-9]+)-'
 MERGED_ATTEMPTS=12
 
 open_pulls() {
@@ -16,10 +18,41 @@ open_pulls() {
 }
 
 approved_at() {
-    local number=$1 head=$2 verdicts
+    local number=$1 head=$2 verdicts verdict
     verdicts=$(gh api --paginate "repos/$REPO/pulls/$number/reviews?per_page=100" \
         --jq ".[] | select(.user.login == \"$OWNER\") | select(.state != \"COMMENTED\" and .state != \"PENDING\") | \"\(.state) \(.commit_id)\"")
-    [ "$(tail -n 1 <<<"$verdicts")" = "APPROVED $head" ]
+    verdict=$(tail -n 1 <<<"$verdicts")
+    if [ "$verdict" = "APPROVED $head" ]; then
+        return 0
+    fi
+    [ "${verdict%% *}" = APPROVED ] && carried_to "$number" "$head"
+}
+
+carried_marker() {
+    echo "<!-- release-train approval-carried $1 -->"
+}
+
+carried_to() {
+    local number=$1 head=$2 notes
+    notes=$(gh api --paginate "repos/$REPO/issues/$number/comments?per_page=100" \
+        --jq ".[] | select(.user.login == \"$BOT\") | .body")
+    grep -qF -- "$(carried_marker "$head")" <<<"$notes"
+}
+
+carry_approval() {
+    local number=$1 before=$2 head
+    head=$(head_of "$number")
+    if [ "$head" = "$before" ]; then
+        echo "#$number was not rebased; nothing to carry over."
+        return
+    fi
+    if ! approved_at "$number" "$before"; then
+        echo "#$number was not approved at ${before:0:7}; its rebase needs a look by $OWNER."
+        return
+    fi
+    gh api "repos/$REPO/issues/$number/comments" --silent -f body="$(carried_marker "$head")
+**🎫 Ticket still valid.** The agent rebased this pull request onto \`$BASE_BRANCH\` (\`${before:0:7}\` became \`${head:0:7}\`) and its checks pass, so the approval by $OWNER carries over. It rides the next train. ($RUN_URL)"
+    echo "carried=true" >>"${GITHUB_OUTPUT:-/dev/null}"
 }
 
 head_of() {
@@ -95,7 +128,7 @@ candidates() {
 assemble() {
     local requested=${1:-} branch="release-train/run-${GITHUB_RUN_ID:?}"
     local base tip included='[]' number pull head head_branch same_repo files fork_point rebased count train
-    local -a aboard=()
+    local -a aboard=() to_rebase=()
     local notes
 
     notes=$(mktemp)
@@ -135,7 +168,12 @@ assemble() {
             rebased=$(git rev-parse HEAD)
         else
             git rebase --abort >/dev/null 2>&1 || true
-            SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. Rebase it and approve it again."
+            if [[ $head_branch =~ $AGENT_BRANCH ]]; then
+                to_rebase+=("${BASH_REMATCH[1]}")
+                SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. The agent rebases it once this train has arrived, and it rides the next one on the same approval."
+            else
+                SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. Rebase it and approve it again."
+            fi
             continue
         fi
         if [ "$rebased" = "$tip" ]; then
@@ -176,6 +214,7 @@ assemble() {
         '{base: $base, tip: $tip, branch: $branch, pulls: $pulls}')
     {
         echo "count=$count"
+        echo "rebase=${to_rebase[*]:-}"
         echo "branch=$branch"
         echo "train=$train"
     } >>"${GITHUB_OUTPUT:?}"
@@ -286,6 +325,7 @@ main() {
         assemble) assemble "$@" ;;
         land) land "$@" ;;
         report-failure) report_failure "$@" ;;
+        carry-approval) carry_approval "$@" ;;
         remove-branch) remove_branch "$@" ;;
         *)
             echo "Unknown command: $command" >&2

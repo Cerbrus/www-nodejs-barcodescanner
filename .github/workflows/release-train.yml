@@ -31,6 +31,7 @@ jobs:
             issues: write
         outputs:
             count: ${{ steps.train.outputs.count }}
+            rebase: ${{ steps.train.outputs.rebase }}
             branch: ${{ steps.train.outputs.branch }}
             train: ${{ steps.train.outputs.train }}
         env:
@@ -81,6 +82,27 @@ jobs:
                     RELEASE_TRAIN_TOKEN: ${{ secrets.RELEASE_TRAIN_TOKEN }}
                     TRAIN: ${{ needs.assemble.outputs.train }}
                 run: bash .github/scripts/release-train.sh land "$TRAIN"
+
+    rebase:
+        name: 🔧 Send the left-behind to the workshop
+        needs: [ assemble, checks, land ]
+        if: >-
+            always() && needs.assemble.result == 'success' && needs.assemble.outputs.rebase != '' &&
+            (needs.land.result == 'success' || needs.assemble.outputs.count == '0')
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            actions: write
+        steps:
+            -   name: Ask the agent to rebase each pull request that conflicted
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                    GH_REPO: ${{ github.repository }}
+                    ISSUES: ${{ needs.assemble.outputs.rebase }}
+                run: |
+                    for issue in $ISSUES; do
+                        gh workflow run issue-investigator.yml --ref master -f issue="$issue" -f task=rebase
+                    done
 
     clean-up:
         name: 🧹 Back to the shed
