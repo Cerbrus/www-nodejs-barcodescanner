@@ -237,7 +237,10 @@ describe('ShellComponent', () => {
         expect(tapped).toHaveBeenCalledTimes(1);
         expect(remarks.pointing()).toBe(false);
         expect(remarks.draft()?.target).toEqual(
-            expect.objectContaining({ text: 'nav.list', path: 'div > nav.tabs > a.tab' })
+            expect.objectContaining({
+                text: 'nav.list',
+                path: expect.stringMatching(/^div#\d+ > nav\.tabs#\d+ > a\.tab#0$/)
+            })
         );
     });
 

@@ -58,7 +58,8 @@ function pathTo(element: Element): string {
         current = current.parentElement
     ) {
         const name = Array.from(current.classList).find((className) => !GENERATED_CLASS.test(className));
-        steps.unshift(`${current.tagName.toLowerCase()}${name ? `.${name}` : ''}`);
+        const index = current.parentElement ? Array.from(current.parentElement.children).indexOf(current) : 0;
+        steps.unshift(`${current.tagName.toLowerCase()}${name ? `.${name}` : ''}#${index}`);
     }
 
     return steps.join(' > ');
