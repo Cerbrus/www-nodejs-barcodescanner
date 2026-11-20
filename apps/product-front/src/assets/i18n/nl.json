@@ -320,7 +320,9 @@
             "tooLarge": "Te groot: de agent maakte een plan",
             "notPossible": "De agent zegt dat het niet kan",
             "review": "Klaar voor jouw review",
-            "merged": "Klaar: samengevoegd",
+            "merged": "Samengevoegd, nog niet in een release",
+            "released": "Uitgebracht in {version}, deze app draait het nog niet",
+            "live": "Live: uitgebracht in {version}",
             "closed": "Gesloten zonder aanpassing"
         }
     }

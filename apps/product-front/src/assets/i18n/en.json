@@ -320,7 +320,9 @@
             "tooLarge": "Too large: the agent made a plan",
             "notPossible": "The agent says it cannot be done",
             "review": "Ready for your review",
-            "merged": "Done: merged",
+            "merged": "Merged, not in a release yet",
+            "released": "Released in {version}, this app does not run it yet",
+            "live": "Live: released in {version}",
             "closed": "Closed without a change"
         }
     }

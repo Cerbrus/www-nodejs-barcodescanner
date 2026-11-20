@@ -6,10 +6,12 @@ import {
     RemarkContent,
     cleanContext,
     cleanTarget,
+    compareVersions,
     isFinalStage,
     issueFromRemark,
     progressOfIssue,
-    tooManyRemarks
+    tooManyRemarks,
+    withRelease
 } from './remarks';
 
 const remark = (extra: Partial<RemarkContent> = {}): RemarkContent => ({
@@ -162,10 +164,28 @@ describe('progress of an issue', () => {
         assert.deepEqual(progressOfIssue(issue({ state: 'closed', pullRequests: [pull({ state: 'closed' })] })), {
             stage: 'closed'
         });
-        assert.deepEqual([isFinalStage('merged'), isFinalStage('closed'), isFinalStage('review')], [true, true, false]);
+        assert.deepEqual([isFinalStage('merged'), isFinalStage('closed'), isFinalStage('review')], [false, true, false]);
+        assert.equal(isFinalStage('live'), true);
     });
 
     it('ignores a pull request that was closed without merging', () => {
         assert.equal(progressOfIssue(issue({ pullRequests: [pull({ state: 'closed' })] })).stage, 'sent');
+    });
+
+    it('compares versions as numbers', () => {
+        assert.ok(compareVersions('1.1.130', '1.1.99') > 0);
+        assert.ok(compareVersions('1.2.0', '1.10.0') < 0);
+        assert.equal(compareVersions('1.1.5', '1.1.5'), 0);
+    });
+
+    it('tells whether a merged fix is released and whether this app runs it', () => {
+        const merged = { stage: 'merged' as const, pullRequest: { number: 40, title: 'x', url: 'u' } };
+
+        assert.deepEqual(withRelease(merged, undefined, '1.1.131'), merged);
+        assert.deepEqual(withRelease(merged, '1.1.132', '1.1.131'), { ...merged, stage: 'released', version: '1.1.132' });
+        assert.equal(withRelease(merged, '1.1.131', '1.1.131').stage, 'live');
+        assert.equal(withRelease(merged, '1.1.130', '1.1.131').stage, 'live');
+        assert.equal(withRelease(merged, '1.1.130', 'dev').stage, 'released');
+        assert.equal(withRelease({ stage: 'review' }, '1.1.130', '1.1.131').stage, 'review');
     });
 });

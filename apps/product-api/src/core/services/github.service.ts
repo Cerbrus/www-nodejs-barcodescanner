@@ -1,7 +1,7 @@
 import { BadGatewayException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 
 import { AppConfig } from '../../config/app.config';
-import { IssueDraft, IssueSnapshot } from '../rules/remarks';
+import { IssueDraft, IssueSnapshot, compareVersions, parseVersion } from '../rules/remarks';
 
 export interface CreatedIssue {
     number: number;
@@ -21,6 +21,13 @@ interface TimelineEvent {
     };
 }
 
+interface TagRef {
+    ref: string;
+    object: { sha: string; type: string };
+}
+
+const TAG_PAGE_SIZE = 100;
+const MAX_TAG_PAGES = 10;
 const READ_TIMEOUT = 5000;
 const API_VERSION = '2022-11-28';
 const CREATED = 201;
@@ -73,6 +80,55 @@ export class GitHubService {
                     merged: Boolean(pull.pull_request?.merged_at)
                 }))
         };
+    }
+
+    public async releaseOf(pullNumber: number): Promise<string | undefined> {
+        const pull = await this.get<{ merge_commit_sha?: string | null }>(`pulls/${pullNumber}`);
+        const tags = pull?.merge_commit_sha ? await this.versionTags() : undefined;
+        if (!pull?.merge_commit_sha || !tags?.length) {
+            return undefined;
+        }
+
+        const contains = async (tag: { sha: string }): Promise<boolean | undefined> => {
+            const compared = await this.get<{ status: string }>(`compare/${pull.merge_commit_sha}...${tag.sha}`);
+
+            return compared ? compared.status === 'ahead' || compared.status === 'identical' : undefined;
+        };
+        let [low, high] = [0, tags.length - 1];
+        if (!(await contains(tags[high]))) {
+            return undefined;
+        }
+        while (low < high) {
+            const middle = Math.floor((low + high) / 2);
+            const found = await contains(tags[middle]);
+            if (found === undefined) {
+                return undefined;
+            }
+            [low, high] = found ? [low, middle] : [middle + 1, high];
+        }
+
+        return tags[low].version;
+    }
+
+    private async versionTags(): Promise<Array<{ version: string; sha: string }> | undefined> {
+        const refs: Array<TagRef> = [];
+        for (let page = 1; page <= MAX_TAG_PAGES; page++) {
+            const part = await this.get<Array<TagRef>>(
+                `git/matching-refs/tags/v?per_page=${TAG_PAGE_SIZE}&page=${page}`
+            );
+            if (!part) {
+                return undefined;
+            }
+            refs.push(...part);
+            if (part.length < TAG_PAGE_SIZE) {
+                break;
+            }
+        }
+
+        return refs
+            .filter((tag) => tag.object.type === 'commit' && parseVersion(tag.ref.replace('refs/tags/', '')))
+            .map((tag) => ({ version: tag.ref.replace('refs/tags/v', ''), sha: tag.object.sha }))
+            .sort((first, second) => compareVersions(first.version, second.version));
     }
 
     private async get<T>(path: string): Promise<T | undefined> {

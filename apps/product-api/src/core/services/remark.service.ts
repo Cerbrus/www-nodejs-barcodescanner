@@ -10,6 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Not, Repository } from 'typeorm';
 
+import { AppConfig } from '../../config/app.config';
 import { RemarkEntity } from '../../data/entities';
 import {
     IssueDraft,
@@ -23,7 +24,8 @@ import {
     isFinalStage,
     issueFromRemark,
     progressOfIssue,
-    tooManyRemarks
+    tooManyRemarks,
+    withRelease
 } from '../rules/remarks';
 import { EventsService } from './events.service';
 import { GitHubService } from './github.service';
@@ -50,13 +52,15 @@ const PROGRESS_MAX_AGE = 60 * 1000;
 @Injectable()
 export class RemarkService {
     private readonly logger = new Logger('Remarks');
+    private readonly releases = new Map<number, string>();
     private readonly progressCache = new Map<number, { progress: IssueProgress; at: number }>();
 
     constructor(
         @InjectRepository(RemarkEntity) private readonly remarks: Repository<RemarkEntity>,
         private readonly github: GitHubService,
         private readonly push: PushService,
-        private readonly events: EventsService
+        private readonly events: EventsService,
+        private readonly config: AppConfig
     ) {}
 
     public get canSendToGitHub(): boolean {
@@ -180,10 +184,23 @@ export class RemarkService {
         if (!snapshot) {
             return cached?.progress;
         }
-        const progress = progressOfIssue(snapshot);
+        const progress = await this.withRelease(progressOfIssue(snapshot));
         this.progressCache.set(number, { progress, at: now });
 
         return progress;
+    }
+
+    private async withRelease(progress: IssueProgress): Promise<IssueProgress> {
+        const pull = progress.stage === 'merged' ? progress.pullRequest?.number : undefined;
+        if (pull === undefined) {
+            return progress;
+        }
+        const version = this.releases.get(pull) ?? (await this.github.releaseOf(pull));
+        if (version) {
+            this.releases.set(pull, version);
+        }
+
+        return withRelease(progress, version, this.config.version);
     }
 
     private async get(id: number): Promise<RemarkEntity> {

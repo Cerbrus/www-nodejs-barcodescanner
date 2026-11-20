@@ -23,7 +23,9 @@ const STAGE_ICONS: Record<IssueStage, string> = {
     tooLarge: 'unfold_more',
     notPossible: 'block',
     review: 'rate_review',
-    merged: 'check_circle',
+    merged: 'inventory_2',
+    released: 'local_shipping',
+    live: 'check_circle',
     closed: 'cancel'
 };
 const PROGRESS_REFRESH = 60 * 1000;
@@ -189,9 +191,9 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                 }
 
                 @if (remark.progress; as progress) {
-                    <p class="progress" [class.done]="progress.stage === 'merged'">
+                    <p class="progress" [class.done]="progress.stage === 'live'">
                         <i class="material-symbols-outlined">{{ stageIcon(progress.stage) }}</i>
-                        <span>{{ 'remark.stage.' + progress.stage | translate }}</span>
+                        <span>{{ 'remark.stage.' + progress.stage | translate: { version: progress.version } }}</span>
                     </p>
                     @if (progress.pullRequest; as pull) {
                         <a class="issue" target="_blank" rel="noopener" [href]="pull.url">

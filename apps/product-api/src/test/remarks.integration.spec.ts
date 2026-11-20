@@ -13,6 +13,7 @@ import { DataSource } from 'typeorm';
 
 import { ApiModule } from '../api/api.module';
 import { configureApi } from '../api/configure-api';
+import { AppConfig } from '../config/app.config';
 import { AppConfigModule } from '../config/config.module';
 import { SESSION_COOKIE } from '../core/rules/session';
 import { RemarkService } from '../core/services/remark.service';
@@ -65,6 +66,8 @@ describe('remarks over HTTP', () => {
     let githubIssue: Record<string, unknown> = { state: 'open', labels: [{ name: 'investigate' }] };
     let githubTimeline: Array<unknown> = [];
     let githubReads = 0;
+    const mergeCommit = 'abc';
+    let taggedVersions: Array<string> = [];
     const received: Array<ReceivedIssue> = [];
 
     async function call<T = unknown>(
@@ -83,6 +86,29 @@ describe('remarks over HTTP', () => {
         return { status: answer.status, body: (text ? JSON.parse(text) : undefined) as T };
     }
 
+    const githubAnswer = (url: string): unknown => {
+        if (url.includes('/timeline')) {
+            return githubTimeline;
+        }
+        if (url.includes('/pulls/')) {
+            return { merge_commit_sha: mergeCommit };
+        }
+        if (url.includes('/git/matching-refs/')) {
+            return taggedVersions.map((version) => ({
+                ref: `refs/tags/v${version}`,
+                object: { sha: `sha-${version}`, type: 'commit' }
+            }));
+        }
+        if (url.includes('/compare/')) {
+            const tagged = taggedVersions.indexOf(url.split('...')[1].replace('sha-', ''));
+            const mergedIn = taggedVersions.indexOf('1.1.132');
+
+            return { status: tagged >= mergedIn ? 'ahead' : 'behind' };
+        }
+
+        return githubIssue;
+    };
+
     const write = async (headers: Record<string, string>, remark: object): Promise<number> =>
         (await call<{ id: number }>('POST', '/remarks', headers, remark)).body.id;
     const listed = async (headers: Record<string, string>): Promise<Array<Remark>> =>
@@ -98,7 +124,7 @@ describe('remarks over HTTP', () => {
                     response.writeHead(githubStatus === 201 ? 200 : githubStatus, {
                         'content-type': 'application/json'
                     });
-                    response.end(JSON.stringify(request.url?.includes('/timeline') ? githubTimeline : githubIssue));
+                    response.end(JSON.stringify(githubAnswer(request.url ?? '')));
 
                     return;
                 }
@@ -117,6 +143,7 @@ describe('remarks over HTTP', () => {
         process.env['GOOGLE_CLIENT_SECRET'] = 'test-secret';
         process.env['PUBLIC_URL'] = SITE;
         process.env['ALLOWED_EMAILS'] = `${OWNER}, ${GUEST}, ${OTHER}`;
+        process.env['APP_VERSION'] = '1.1.131';
         process.env['GITHUB_ISSUES_TOKEN'] = TOKEN;
         process.env['GITHUB_REPOSITORY'] = 'someone/shop';
         process.env['GITHUB_API_URL'] = `http://127.0.0.1:${(github.address() as AddressInfo).port}/`;
@@ -393,6 +420,18 @@ describe('remarks over HTTP', () => {
         githubTimeline = [pull('closed', '2026-11-20T12:00:00Z')];
         forget();
         assert.equal((await progress())?.stage, 'merged');
+
+        taggedVersions = ['1.1.130', '1.1.131', '1.1.132', '1.1.133'];
+        forget();
+        assert.deepEqual(await progress(), {
+            stage: 'released',
+            pullRequest: { number: 40, title: 'Show the state', url: 'https://github.example/pull/40' },
+            version: '1.1.132'
+        });
+
+        (app.get(AppConfig) as { version: string }).version = '1.1.132';
+        forget();
+        assert.equal((await progress())?.stage, 'live');
     });
 
     it('stops an account after thirty remarks in an hour, without stopping the others', async () => {

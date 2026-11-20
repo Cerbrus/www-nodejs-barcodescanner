@@ -46,7 +46,16 @@ export interface IssueOptions {
 }
 
 export type IssueStage =
-    'sent' | 'investigating' | 'needsAnswers' | 'tooLarge' | 'notPossible' | 'review' | 'merged' | 'closed';
+    | 'sent'
+    | 'investigating'
+    | 'needsAnswers'
+    | 'tooLarge'
+    | 'notPossible'
+    | 'review'
+    | 'merged'
+    | 'released'
+    | 'live'
+    | 'closed';
 
 export interface IssueSnapshot {
     state: 'open' | 'closed';
@@ -57,6 +66,7 @@ export interface IssueSnapshot {
 export interface IssueProgress {
     stage: IssueStage;
     pullRequest?: { number: number; title: string; url: string };
+    version?: string;
 }
 
 export interface IssueDraft {
@@ -151,7 +161,28 @@ export function issueFromRemark(remark: RemarkContent, options: IssueOptions): I
 }
 
 export function isFinalStage(stage: IssueStage): boolean {
-    return stage === 'merged' || stage === 'closed';
+    return stage === 'live' || stage === 'closed';
+}
+
+export function parseVersion(version: string): Array<number> | undefined {
+    const match = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(version);
+
+    return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : undefined;
+}
+
+export function compareVersions(first: string, second: string): number {
+    const [a, b] = [parseVersion(first) ?? [], parseVersion(second) ?? []];
+
+    return a.reduce((difference, part, index) => difference || part - (b[index] ?? 0), 0);
+}
+
+export function withRelease(progress: IssueProgress, version: string | undefined, running: string): IssueProgress {
+    if (progress.stage !== 'merged' || !version) {
+        return progress;
+    }
+    const live = parseVersion(running) !== undefined && compareVersions(running, version) >= 0;
+
+    return { ...progress, stage: live ? 'live' : 'released', version };
 }
 
 export function progressOfIssue(issue: IssueSnapshot): IssueProgress {

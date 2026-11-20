@@ -207,11 +207,21 @@ export interface RemarkInput {
 }
 
 export type IssueStage =
-    'sent' | 'investigating' | 'needsAnswers' | 'tooLarge' | 'notPossible' | 'review' | 'merged' | 'closed';
+    | 'sent'
+    | 'investigating'
+    | 'needsAnswers'
+    | 'tooLarge'
+    | 'notPossible'
+    | 'review'
+    | 'merged'
+    | 'released'
+    | 'live'
+    | 'closed';
 
 export interface IssueProgress {
     stage: IssueStage;
     pullRequest?: { number: number; title: string; url: string };
+    version?: string;
 }
 
 export interface Remark {

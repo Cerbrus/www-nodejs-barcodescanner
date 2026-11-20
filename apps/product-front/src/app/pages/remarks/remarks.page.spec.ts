@@ -431,6 +431,23 @@ describe('RemarksPage', () => {
         expect(page.querySelectorAll('article')[2].querySelector('.progress') as Element | null).toBeNull();
     });
 
+    it('shows whether a merged fix is released, and only marks it done when it is live', async () => {
+        await open(OWNER, [
+            remark(1, { issueNumber: 12, issueUrl: 'u', progress: { stage: 'merged' } }),
+            remark(2, { issueNumber: 13, issueUrl: 'u', progress: { stage: 'released', version: '1.1.132' } }),
+            remark(3, { issueNumber: 14, issueUrl: 'u', progress: { stage: 'live', version: '1.1.131' } })
+        ]);
+
+        expect(texts(page, 'article .progress span')).toEqual([
+            'remark.stage.merged',
+            'remark.stage.released',
+            'remark.stage.live'
+        ]);
+        expect(
+            Array.from(page.querySelectorAll('article .progress')).map((line) => line.classList.contains('done'))
+        ).toEqual([false, false, true]);
+    });
+
     it('asks for the state again every minute while the page is open', async () => {
         vi.useFakeTimers();
         try {
