@@ -11,6 +11,7 @@ on:
             - '.github/workflows/issue-investigator.yml'
             - '.github/workflows/release-train.yml'
             - '.github/workflows/release-train-on-approval.yml'
+            - '.github/release-train/**'
             - '.github/ISSUE_TEMPLATE/**'
             - '.github/CODEOWNERS'
             - '.github/issue-investigator.md'

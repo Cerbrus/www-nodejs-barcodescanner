@@ -46,7 +46,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
-- The release train on GitHub: built on 2026-11-20 and tried only on a scratch repository with a stand-in for GitHub. Its first real run is the next pull request the owner approves. Open points to watch then: whether GitHub marks the pull requests as merged, whether the push starts the build, and whether an approval of a Dependabot pull request starts the train.
+- The release train starting by itself from an approval, also of a Dependabot pull request: its first run was started by hand. The railway wording and pictures of its messages, the "left on the platform" and "derailed" comments, and the removal of the waiting builds: tried only on a scratch repository with a stand-in for GitHub.
 - The agent on an issue that someone else wrote.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
@@ -88,4 +88,5 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | The owner's checks after the review, on the iPhone: push since web-push 4, the variant in the naming prompt, a fast second tap on the list | 2026-11-16 18:48 | |
 | Finished plans, reports and reviews moved to `docs/archive/`, this plan shortened | 2026-11-16 18:48 | |
 | The update sound for a newer version only: confirmed by the owner | 2026-11-16 18:51 | 1.1.115 |
-| Release train: an approval lands a pull request, several as one version; the agent starts for any issue the owner labels | 2026-11-20 14:58 | |
+| Release train: an approval lands a pull request, several as one version; the agent starts for any issue the owner labels | 2026-11-20 14:58 | 1.1.128 |
+| First train, started by hand: pull requests 37 and 39 rebased, checked together and landed as one version; GitHub marked both merged and closed their issues | 2026-11-20 15:10 | 1.1.130 |

@@ -153,6 +153,7 @@ Decided 2026-11-20, by the owner: a pull request is no longer finished and lande
 - The train moves `master` with a token of the owner's account, limited to this repository, to its contents and its pull requests, and without the right to change workflow files. It is a secret of the environment `release`, which only runs from `master` can use, so a pull request cannot reach it; the job that runs the pull requests' code never gets it. This widens what was narrowed on 2026-11-16: a stored secret can now write to `master`. Accepted, because nothing reaches `master` without the owner's approval of that exact commit.
 - GitHub's own merge queue does this, but only for a repository owned by an organisation. Moving the repository was weighed and dropped: the image names, the workflows' owner checks and the Pi's settings would all change.
 - Changes the line of 2026-11-15 that the owner lands the agent's pull requests himself. The agent still never merges.
+- The train speaks in steam-era railway terms (owner, 2026-11-20): the workflows, jobs, run summary and comments carry punning names and emoji, a drawn picture per state, and one line that shows the train with a carriage per pull request (`🚂-🚃#37-🚃#39`). Every message still says in a plain sentence what happened and what to do. No pull request numbers in the pictures: that needs a picture per run. Period engravings were weighed and dropped for the drawn set, which covers every state and reads on a light and a dark page.
 
 ## Remarks from inside the app
 

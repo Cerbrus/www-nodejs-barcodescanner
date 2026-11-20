@@ -1,4 +1,4 @@
-name: Release train on approval
+name: 🎫 Ticket punched
 
 on:
     pull_request_review:
@@ -8,7 +8,7 @@ permissions: { }
 
 jobs:
     start:
-        name: Start the release train
+        name: 🚂 Send for the train
         if: >-
             github.event.review.state == 'approved' &&
             github.event.review.user.login == github.repository_owner &&
