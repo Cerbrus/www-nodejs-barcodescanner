@@ -51,6 +51,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - The agent on an issue that someone else wrote.
 - The train leaving a pull request with failing checks behind, the agent rebasing a pull request that conflicted, and an approval carried over that rebase: built on 2026-11-20, tried only on a scratch repository. The repair after failed checks ran once for real, on pull request 43.
 - A request for changes sending a pull request back to the agent: built on 2026-11-20. Only the script that collects the owner's remarks was tried, with a stand-in for `gh`; the start from a review and the agent's revision have not run.
+- A new version without a page load ([0100](decisions/0100-new-version-without-page-load.md)), on the iPhone: whether the camera permission stays after the swap, and a start without a connection after it. Tested in headless Chrome only, with the service worker blocked.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 

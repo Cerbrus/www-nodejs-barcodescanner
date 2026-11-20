@@ -4,7 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { EMPTY, Observable, catchError, filter, from, map, merge, switchMap, tap } from 'rxjs';
 
 import { EventsService } from './events.service';
-import { PageSwapService } from './page-swap.service';
+import { PageSwapService, PreparedPage } from './page-swap.service';
 
 const FILE_LIST_URL = '/app-files.json';
 const RELOADED_FOR_KEY = 'reloaded-for';
@@ -80,7 +80,7 @@ export class UpdateService {
     }
 
     private async swapTo(published: Array<string>, signature: string): Promise<void> {
-        let prepared;
+        let prepared: PreparedPage | undefined;
         try {
             prepared = await this.pageSwap.prepare(published);
         } catch {
@@ -99,7 +99,10 @@ export class UpdateService {
         }
 
         try {
-            await this.pageSwap.swap(prepared);
+            if (!(await this.pageSwap.swap(prepared))) {
+                sessionStorage.removeItem(RELOADED_FOR_KEY);
+                this.waitingFor = signature;
+            }
         } catch (error) {
             console.error('Taking the new version into use failed, reloading.', error);
             window.location.reload();

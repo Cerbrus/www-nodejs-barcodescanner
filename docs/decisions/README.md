@@ -123,6 +123,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0089](0089-tailwind-and-css-variables.md) | Tailwind 4 with every colour a CSS variable | accepted (found afterwards) | not recorded |
 | [0094](0094-server-sent-events.md) | Open pages follow the server through a server-sent event stream | accepted (found afterwards) | not recorded |
 | [0099](0099-templates-and-styles-in-own-files.md) | Every component keeps its template and styles in its own files | accepted | 2026-11-20 |
+| [0100](0100-new-version-without-page-load.md) | A new version is taken into use without a page load | accepted | 2026-11-20 |
 
 ## Release train
 

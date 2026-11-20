@@ -41,7 +41,7 @@ describe('UpdateService', () => {
         reload = vi.spyOn(window.location, 'reload').mockImplementation(() => undefined);
         sessionStorage.clear();
         prepare = vi.fn(() => Promise.resolve({ files: [NEWER] } as unknown as PreparedPage));
-        swap = vi.fn(() => Promise.resolve());
+        swap = vi.fn(() => Promise.resolve(true));
         document.head.innerHTML = `<script src="/${LOADED}"></script>`;
         document.body.innerHTML = '';
         vi.stubGlobal(
@@ -156,6 +156,17 @@ describe('UpdateService', () => {
 
         expect(swap).not.toHaveBeenCalled();
         expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not reload when the swap stopped before the running app was touched, and tries again later', async () => {
+        swap.mockResolvedValueOnce(false);
+        await resume();
+        expect(reload).not.toHaveBeenCalled();
+
+        await changePage();
+
+        expect(swap).toHaveBeenCalledTimes(2);
+        expect(reload).not.toHaveBeenCalled();
     });
 
     it('reloads when the swap fails halfway', async () => {
