@@ -32,6 +32,12 @@
     font-size: 0.9rem;
     text-align: right;
 }
+.head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
 .note {
     padding: 0 12px 10px;
     color: var(--text-muted);

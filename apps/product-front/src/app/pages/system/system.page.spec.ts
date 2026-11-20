@@ -269,6 +269,15 @@ describe('SystemPage', () => {
         expect(texts(row('system.scanner'), '.hint')[0]).toContain('system.lastHandheldScan');
     });
 
+    it('puts the scanner state on the title line, above the last scan', async () => {
+        await open(OWNER);
+
+        const head = row('system.scanner').querySelector('.head') as HTMLElement;
+        expect(head.textContent).toContain('system.scanner');
+        expect(texts(head, '.value')).toEqual(['system.scannerState.connected']);
+        expect(head.querySelector('.hint')).toBeNull();
+    });
+
     it('turns the dots red when the connection is down or the scanner is away', async () => {
         scanner({ agentOnline: true });
         await open(OWNER);
