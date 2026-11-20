@@ -265,7 +265,7 @@ describe('what was pointed at', () => {
         expect(describeElement(icon)).toEqual({
             component: 'app-item-tile',
             text: 'Melk halfvol',
-            path: 'app-list-page > app-item-tile > button.tile'
+            path: 'app-list-page#0 > app-item-tile#0 > button.tile#0'
         });
     });
 
@@ -286,7 +286,7 @@ describe('what was pointed at', () => {
         expect(describeElement(long).text?.length).toBe(120);
 
         const generated = inside('<div class="ng-star-inserted page"><span id="hit"></span></div>', '#hit');
-        expect(describeElement(generated)).toEqual({ path: 'div.page > span' });
+        expect(describeElement(generated)).toEqual({ path: 'div.page#0 > span#0' });
     });
 
     it('leaves the names of icons out of the text', () => {
