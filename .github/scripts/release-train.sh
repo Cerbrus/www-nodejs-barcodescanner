@@ -5,6 +5,7 @@ REPO=${GITHUB_REPOSITORY:?}
 OWNER=${GITHUB_REPOSITORY_OWNER:?}
 BASE_BRANCH=${BASE_BRANCH:-master}
 RUN_URL="${GITHUB_SERVER_URL:-https://github.com}/$REPO/actions/runs/${GITHUB_RUN_ID:-0}"
+PULLS_URL="${GITHUB_SERVER_URL:-https://github.com}/$REPO/pull"
 SUMMARY=${GITHUB_STEP_SUMMARY:-/dev/null}
 ART_URL="https://raw.githubusercontent.com/$REPO/$BASE_BRANCH/.github/release-train"
 POLL_SECONDS=20
@@ -65,6 +66,10 @@ own_checks() {
         --jq '[.check_runs[] | select(.name == "checks")] | sort_by(.started_at) | last | .conclusion // empty'
 }
 
+pull_link() {
+    echo "[#$1]($PULLS_URL/$1)"
+}
+
 picture() {
     echo "<img src=\"$ART_URL/$1.svg\" alt=\"$2\" width=\"480\">"
 }
@@ -88,8 +93,8 @@ $text" --silent
 }
 
 leave_out() {
-    local number=$1 head=$2 title=$3 reason=$4
-    echo "- $title: #$number $reason" >>"$SUMMARY"
+    local number=$1 head=$2 title=$3 reason=$4 name=$5
+    echo "- $title: $(pull_link "$number") ($name) $reason" >>"$SUMMARY"
     comment_once "$number" "<!-- release-train left-out $head -->" "$(picture left-on-the-platform 'A lone carriage left at the platform while the train leaves')
 
 **$title.** The release train left without this pull request: it $reason ($RUN_URL)"
@@ -128,7 +133,7 @@ candidates() {
 
 assemble() {
     local requested=${1:-} branch="release-train/run-${GITHUB_RUN_ID:?}"
-    local base tip included='[]' number pull head head_branch same_repo files fork_point rebased count train
+    local base tip included='[]' number pull name head head_branch same_repo files fork_point rebased count train
     local -a aboard=() to_rebase=()
     local notes
 
@@ -141,25 +146,26 @@ assemble() {
 
     for number in $(candidates "$requested"); do
         pull=$(gh api "repos/$REPO/pulls/$number")
+        name=$(jq -r .title <<<"$pull")
         head=$(jq -r .head.sha <<<"$pull")
         head_branch=$(jq -r .head.ref <<<"$pull")
         same_repo=$(jq -r '.head.repo.full_name == .base.repo.full_name' <<<"$pull")
 
         if ! approved_at "$number" "$head"; then
-            echo "- 🚫 No ticket: #$number is not approved by $OWNER at its current commit" >>"$notes"
+            echo "- 🚫 No ticket: $(pull_link "$number") ($name) is not approved by $OWNER at its current commit" >>"$notes"
             continue
         fi
         if [ "$(own_checks "$head")" = failure ]; then
-            SUMMARY=$notes leave_out "$number" "$head" '🔥 Hot box' "fails its own checks, so it would stop the whole train. It rides again once its checks pass."
+            SUMMARY=$notes leave_out "$number" "$head" '🔥 Hot box' "fails its own checks, so it would stop the whole train. It rides again once its checks pass." "$name"
             continue
         fi
         if [ "$same_repo" != true ]; then
-            SUMMARY=$notes leave_out "$number" "$head" '🛤️ Foreign rolling stock' "comes from a fork, so its branch cannot be rebased here. Land it by hand."
+            SUMMARY=$notes leave_out "$number" "$head" '🛤️ Foreign rolling stock' "comes from a fork, so its branch cannot be rebased here. Land it by hand." "$name"
             continue
         fi
         files=$(gh api --paginate "repos/$REPO/pulls/$number/files?per_page=100" --jq '.[].filename')
         if grep -q '^\.github/workflows/' <<<"$files"; then
-            SUMMARY=$notes leave_out "$number" "$head" '📏 Wrong gauge' "changes a workflow file, which the train's token may not push. Land it by hand."
+            SUMMARY=$notes leave_out "$number" "$head" '📏 Wrong gauge' "changes a workflow file, which the train's token may not push. Land it by hand." "$name"
             continue
         fi
 
@@ -171,14 +177,14 @@ assemble() {
             git rebase --abort >/dev/null 2>&1 || true
             if [[ $head_branch =~ $AGENT_BRANCH ]]; then
                 to_rebase+=("${BASH_REMATCH[1]}")
-                SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. The agent rebases it once this train has arrived, and it rides the next one on the same approval."
+                SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. Rebasing luggage for the next train." "$name"
             else
-                SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. Rebase it and approve it again."
+                SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. Rebase it and approve it again." "$name"
             fi
             continue
         fi
         if [ "$rebased" = "$tip" ]; then
-            echo "- 🧳 Travelling light: #$number adds nothing to \`$BASE_BRANCH\`" >>"$notes"
+            echo "- 🧳 Travelling light: $(pull_link "$number") ($name) adds nothing to \`$BASE_BRANCH\`" >>"$notes"
             continue
         fi
 
@@ -186,7 +192,7 @@ assemble() {
         aboard+=("$number")
         included=$(jq -c --argjson number "$number" --arg head "$head" --arg branch "$head_branch" --arg rebased "$rebased" \
             '. + [{number: $number, head: $head, branch: $branch, rebased: $rebased}]' <<<"$included")
-        echo "- 🎟️ #$number on board" >>"$notes"
+        echo "- 🎟️ $(pull_link "$number") on board: $name" >>"$notes"
     done
 
     count=$(jq length <<<"$included")
@@ -243,12 +249,12 @@ finish_pull() {
             for issue in $(issues_of "$number"); do
                 gh issue close "$issue" --repo "$REPO" >/dev/null 2>&1 || true
             done
-            echo "- 🎟️ #$number merged" >>"$SUMMARY"
+            echo "- 🎟️ $(pull_link "$number") merged" >>"$SUMMARY"
             return
         fi
         sleep 5
     done
-    echo "- ⚠️ #$number is on \`$BASE_BRANCH\`, but GitHub did not mark it as merged" >>"$SUMMARY"
+    echo "- ⚠️ $(pull_link "$number") is on \`$BASE_BRANCH\`, but GitHub did not mark it as merged" >>"$SUMMARY"
     comment_once "$number" "<!-- release-train landed -->" \
         "**🚉 Arrived, but the ticket was not stamped.** The commits of this pull request are on \`$BASE_BRANCH\` through the release train, but GitHub did not mark it as merged. Close it by hand. ($RUN_URL)"
 }
