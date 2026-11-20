@@ -307,9 +307,23 @@ describe('RemarksPage', () => {
         await settle();
         await press('remark.save');
 
-        expect(api.editRemark).toHaveBeenCalledWith(1, 'Better text');
+        expect(api.editRemark).toHaveBeenCalledWith(1, 'Better text', 'bug');
         expect(api.getRemarks).toHaveBeenCalledTimes(2);
         expect(page.querySelector('article textarea')).toBeNull();
+    });
+
+    it('changes the kind of a remark while editing and saves it with the text', async () => {
+        await open(OWNER, [remark(1)]);
+        await openMenu();
+        await press('remark.edit');
+
+        const chosen = (): Array<string> => texts(page, 'article .segment.chosen');
+        expect(chosen()).toEqual(['bug_report remark.kind.bug']);
+        await press('remark.kind.wish');
+        expect(chosen()).toEqual(['lightbulb remark.kind.wish']);
+        await press('remark.save');
+
+        expect(api.editRemark).toHaveBeenCalledWith(1, 'Remark 1', 'wish');
     });
 
     it('does not save an empty text, and leaves the text alone on cancel', async () => {

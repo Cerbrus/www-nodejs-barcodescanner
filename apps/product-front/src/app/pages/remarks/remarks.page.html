@@ -90,6 +90,20 @@
             }
         </div>
         @if (editing() === remark.id) {
+            <div class="segments wide mt-2">
+                @for (option of kinds; track option) {
+                    <button
+                        type="button"
+                        class="segment"
+                        [class.chosen]="draftKind() === option"
+                        [attr.aria-pressed]="draftKind() === option"
+                        (click)="draftKind.set(option)"
+                    >
+                        <i class="material-symbols-outlined">{{ icons[option] }}</i>
+                        {{ 'remark.kind.' + option | translate }}
+                    </button>
+                }
+            </div>
             <textarea
                 class="field mt-2"
                 rows="5"

@@ -32,6 +32,10 @@ export class RemarkCreateDto {
 }
 
 export class RemarkTextDto {
+    @IsOptional()
+    @IsIn(REMARK_KINDS)
+    public kind?: RemarkKind;
+
     @IsString()
     @IsNotEmpty()
     @MaxLength(MAX_REMARK_TEXT_LENGTH)

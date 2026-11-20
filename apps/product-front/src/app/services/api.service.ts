@@ -19,6 +19,7 @@ import {
     Release,
     Remark,
     RemarkInput,
+    RemarkKind,
     RemarkList,
     Scan,
     ScanOutcome,
@@ -205,8 +206,8 @@ export class ApiService {
         return this.http.patch<Remark>(`${this.baseUrl}/remarks/${id}`, { state });
     }
 
-    public editRemark(id: number, text: string): Observable<Remark> {
-        return this.http.put<Remark>(`${this.baseUrl}/remarks/${id}`, { text });
+    public editRemark(id: number, text: string, kind: RemarkKind): Observable<Remark> {
+        return this.http.put<Remark>(`${this.baseUrl}/remarks/${id}`, { text, kind });
     }
 
     public rejectRemark(id: number): Observable<void> {

@@ -51,7 +51,7 @@ export class RemarkController {
         @Body() change: RemarkTextDto,
         @CurrentAccount() account: Account
     ): Promise<RemarkEntity> {
-        return this.remarks.edit(account, id, change.text);
+        return this.remarks.edit(account, id, change.text, change.kind);
     }
 
     @Delete(':id')

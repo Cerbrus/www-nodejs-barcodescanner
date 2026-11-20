@@ -8,7 +8,7 @@ import { Observable, catchError, finalize, interval, merge, of, startWith, switc
 
 import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
-import { IssueDraft, IssueOptions, IssueStage, Remark, RemarkKind, RemarkList } from '../../models';
+import { IssueDraft, IssueOptions, IssueStage, REMARK_KINDS, Remark, RemarkKind, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
@@ -72,6 +72,9 @@ export class RemarksPage {
     protected readonly closing = signal<Remark | undefined>(undefined);
     protected readonly editing = signal<number | undefined>(undefined);
     protected readonly draftText = signal('');
+    protected readonly draftKind = signal<RemarkKind>('note');
+    protected readonly kinds = REMARK_KINDS;
+    protected readonly icons = KIND_ICONS;
     protected readonly showHandled = signal(false);
     protected readonly menu = signal<number | undefined>(undefined);
 
@@ -127,6 +130,7 @@ export class RemarksPage {
             this.rejecting.set(undefined);
             this.closing.set(undefined);
             this.draftText.set(remark.text);
+            this.draftKind.set(remark.kind);
             this.editing.set(remark.id);
         } else if (action === 'toGitHub') {
             this.prepare(remark);
@@ -164,7 +168,7 @@ export class RemarksPage {
     protected saveEdit(remark: Remark): void {
         this.busy.set(true);
         this.api
-            .editRemark(remark.id, this.draftText().trim())
+            .editRemark(remark.id, this.draftText().trim(), this.draftKind())
             .pipe(
                 tap(() => this.editing.set(undefined)),
                 switchMap(() => this.load()),

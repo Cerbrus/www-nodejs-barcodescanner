@@ -116,7 +116,7 @@ describe('ApiService', () => {
             ],
             [() => api.getRemarks(), 'GET', '/remarks'],
             [() => api.setRemarkState(4, 'closed'), 'PATCH', '/remarks/4', { state: 'closed' }],
-            [() => api.editRemark(4, 'New'), 'PUT', '/remarks/4', { text: 'New' }],
+            [() => api.editRemark(4, 'New', 'bug'), 'PUT', '/remarks/4', { text: 'New', kind: 'bug' }],
             [() => api.rejectRemark(4), 'DELETE', '/remarks/4'],
             [() => api.getIssueDraft(4, options), 'POST', '/remarks/4/issue-draft', options],
             [() => api.sendRemarkToGitHub(4, options), 'POST', '/remarks/4/issue', options]

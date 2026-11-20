@@ -372,6 +372,11 @@ describe('remarks over HTTP', () => {
         assert.equal((await listed(asGuest)).find((remark) => remark.id === mine)?.text, 'after');
         assert.equal((await edit(mine, asOwner, 'by owner')).status, 200);
         assert.equal((await listed(asOwner)).find((remark) => remark.id === mine)?.text, 'by owner');
+        assert.equal((await call('PUT', `/remarks/${mine}`, asGuest, { text: 'kinded', kind: 'bug' })).status, 200);
+        assert.equal((await listed(asGuest)).find((remark) => remark.id === mine)?.kind, 'bug');
+        assert.equal((await edit(mine, asGuest, 'kept')).status, 200);
+        assert.equal((await listed(asGuest)).find((remark) => remark.id === mine)?.kind, 'bug');
+        assert.equal((await call('PUT', `/remarks/${mine}`, asGuest, { text: 'x', kind: 'idea' })).status, 400);
         assert.equal((await edit(onGitHub, asGuest, 'late')).status, 409);
         assert.equal((await edit(onGitHub, asOwner, 'late')).status, 409);
         assert.notEqual((await listed(asOwner)).find((remark) => remark.id === onGitHub)?.text, 'late');

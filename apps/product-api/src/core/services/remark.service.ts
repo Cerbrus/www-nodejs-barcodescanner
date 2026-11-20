@@ -128,7 +128,7 @@ export class RemarkService {
         return this.remarks.save({ ...remark, state, closedAt: state === 'closed' ? new Date() : null });
     }
 
-    public async edit(writer: RemarkWriter, id: number, text: string): Promise<RemarkEntity> {
+    public async edit(writer: RemarkWriter, id: number, text: string, kind?: RemarkKind): Promise<RemarkEntity> {
         if (!text.trim()) {
             throw new BadRequestException('A remark needs text');
         }
@@ -140,7 +140,7 @@ export class RemarkService {
             throw new ConflictException('This remark is already on GitHub');
         }
 
-        const saved = await this.remarks.save({ ...remark, text: text.trim() });
+        const saved = await this.remarks.save({ ...remark, text: text.trim(), kind: kind ?? remark.kind });
         this.logger.log(`remark ${id} edited`);
 
         return saved;
