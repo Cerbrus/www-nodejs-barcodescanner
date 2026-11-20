@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { EventsService } from './events.service';
+import { PageLogService } from './page-log.service';
 import { PageSwapService, PreparedPage } from './page-swap.service';
 import { UpdateService } from './update.service';
 
@@ -15,6 +16,7 @@ describe('UpdateService', () => {
     let reload: ReturnType<typeof vi.spyOn>;
     let prepare: ReturnType<typeof vi.fn>;
     let swap: ReturnType<typeof vi.fn>;
+    let lines: Array<string>;
     const showAddress = (address: string): void =>
         (window as unknown as { happyDOM: { setURL(url: string): void } }).happyDOM.setURL(address);
     let published: Array<string> | undefined;
@@ -42,6 +44,7 @@ describe('UpdateService', () => {
         sessionStorage.clear();
         prepare = vi.fn(() => Promise.resolve({ files: [NEWER] } as unknown as PreparedPage));
         swap = vi.fn(() => Promise.resolve(true));
+        lines = [];
         document.head.innerHTML = `<script src="/${LOADED}"></script>`;
         document.body.innerHTML = '';
         vi.stubGlobal(
@@ -57,7 +60,8 @@ describe('UpdateService', () => {
             providers: [
                 { provide: EventsService, useValue: { resumed: resumed$ } },
                 { provide: Router, useValue: { events: routerEvents$ } },
-                { provide: PageSwapService, useValue: { prepare, swap } }
+                { provide: PageSwapService, useValue: { prepare, swap, swapped: () => false } },
+                { provide: PageLogService, useValue: { add: (line: string) => lines.push(line) } }
             ]
         });
         TestBed.inject(UpdateService).start();
@@ -74,6 +78,11 @@ describe('UpdateService', () => {
         expect(prepare).toHaveBeenCalledWith([NEWER, 'styles-CCCCCCCC.css']);
         expect(swap).toHaveBeenCalledTimes(1);
         expect(reload).not.toHaveBeenCalled();
+        expect(lines).toEqual([
+            `started by a page load (unknown), running ${LOADED}`,
+            'a newer version is published, fetching its files',
+            'swap done, no page load'
+        ]);
     });
 
     it('does nothing when the page still runs the published files', async () => {
@@ -98,7 +107,9 @@ describe('UpdateService', () => {
         document.body.innerHTML = '<input id="field" />';
         document.getElementById('field')?.focus();
         await resume();
+        await resume();
         expect(swap).not.toHaveBeenCalled();
+        expect(lines.slice(1)).toEqual(['a newer version is published, waiting because a text field has focus']);
 
         (document.activeElement as HTMLElement).blur();
         await changePage();
@@ -150,12 +161,13 @@ describe('UpdateService', () => {
     });
 
     it('reloads when the new version cannot be swapped in, once', async () => {
-        prepare.mockResolvedValue(undefined);
+        prepare.mockResolvedValue({ refused: 'the main script already ran in this page' });
         await resume();
         await resume();
 
         expect(swap).not.toHaveBeenCalled();
         expect(reload).toHaveBeenCalledTimes(1);
+        expect(lines).toContain('reloading the page instead of swapping: the main script already ran in this page');
     });
 
     it('does not reload when the swap stopped before the running app was touched, and tries again later', async () => {
@@ -175,5 +187,6 @@ describe('UpdateService', () => {
         await resume();
 
         expect(reload).toHaveBeenCalledTimes(1);
+        expect(lines).toContain('the swap failed after the old app was stopped, reloading the page: did not start');
     });
 });

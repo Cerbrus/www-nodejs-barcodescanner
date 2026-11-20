@@ -1,7 +1,7 @@
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { PageSwapService } from './page-swap.service';
+import { PageSwapService, PreparedPage } from './page-swap.service';
 
 const NEW_PAGE = `<!doctype html><html><head>
 <style>.boot{color:red}</style>
@@ -59,9 +59,9 @@ describe('PageSwapService', () => {
     afterEach(() => vi.unstubAllGlobals());
 
     it('fetches the start page and every file of the new version before anything changes', async () => {
-        const prepared = await service.prepare(published);
+        const prepared = (await service.prepare(published)) as PreparedPage;
 
-        expect(prepared?.files.sort()).toEqual([...published].sort());
+        expect(prepared.files.sort()).toEqual([...published].sort());
         expect(fetch).toHaveBeenCalledWith('/main-BBBBBBBB.js');
         expect(fetch).toHaveBeenCalledWith('/styles-BBBBBBBB.css');
         expect(fetch).toHaveBeenCalledWith('/chunk-r2_usiF-.js');
@@ -84,13 +84,13 @@ describe('PageSwapService', () => {
     });
 
     it('does not swap when the start page lists files that are not published', async () => {
-        await expect(service.prepare(['main-BBBBBBBB.js'])).resolves.toBeUndefined();
+        await expect(service.prepare(['main-BBBBBBBB.js'])).resolves.toEqual({ refused: expect.any(String) });
     });
 
     it('does not swap to a script that already ran in this page, as after a rollback', async () => {
         document.documentElement.dataset['seenScripts'] = 'main-BBBBBBBB.js';
 
-        await expect(service.prepare(published)).resolves.toBeUndefined();
+        await expect(service.prepare(published)).resolves.toEqual({ refused: expect.any(String) });
     });
 
     it('does not swap when only the style sheet is new, because the running main script cannot start twice', async () => {
@@ -98,16 +98,18 @@ describe('PageSwapService', () => {
 
         await expect(
             service.prepare(['main-AAAAAAAA.js', 'chunk-r2_usiF-.js', 'styles-BBBBBBBB.css'])
-        ).resolves.toBeUndefined();
+        ).resolves.toEqual({ refused: expect.any(String) });
     });
 
     it('does not swap when a chunk of the start page is not published', async () => {
-        await expect(service.prepare(['main-BBBBBBBB.js', 'styles-BBBBBBBB.css'])).resolves.toBeUndefined();
+        await expect(service.prepare(['main-BBBBBBBB.js', 'styles-BBBBBBBB.css'])).resolves.toEqual({
+            refused: expect.any(String)
+        });
     });
 
     it('destroys the old app, replaces files and styles, and waits until the new app has started', async () => {
-        const prepared = await service.prepare(published);
-        const swapping = service.swap(prepared!);
+        const prepared = (await service.prepare(published)) as PreparedPage;
+        const swapping = service.swap(prepared);
 
         document.head
             .querySelectorAll('link[href="/styles-BBBBBBBB.css"]')
@@ -137,8 +139,8 @@ describe('PageSwapService', () => {
     });
 
     it('does not touch the running app when a style sheet does not load', async () => {
-        const prepared = await service.prepare(published);
-        const swapping = service.swap(prepared!);
+        const prepared = (await service.prepare(published)) as PreparedPage;
+        const swapping = service.swap(prepared);
 
         document.head
             .querySelectorAll('link[href="/styles-BBBBBBBB.css"]')

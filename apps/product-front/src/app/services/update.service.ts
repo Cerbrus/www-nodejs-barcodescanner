@@ -4,7 +4,8 @@ import { NavigationEnd, Router } from '@angular/router';
 import { EMPTY, Observable, catchError, filter, from, map, merge, switchMap, tap } from 'rxjs';
 
 import { EventsService } from './events.service';
-import { PageSwapService, PreparedPage } from './page-swap.service';
+import { PageLogService } from './page-log.service';
+import { PageSwapService, PreparedPage, SwapRefusal } from './page-swap.service';
 
 const FILE_LIST_URL = '/app-files.json';
 const RELOADED_FOR_KEY = 'reloaded-for';
@@ -19,6 +20,7 @@ export class UpdateService {
     private readonly events = inject(EventsService);
     private readonly router = inject(Router);
     private readonly pageSwap = inject(PageSwapService);
+    private readonly log = inject(PageLogService);
     private readonly destroyRef = inject(DestroyRef);
     private waitingFor?: string;
     private swapping = false;
@@ -29,6 +31,7 @@ export class UpdateService {
             return;
         }
         this.started = true;
+        this.logStart();
 
         const pageChanged = this.router.events.pipe(filter((event) => event instanceof NavigationEnd));
 
@@ -67,8 +70,9 @@ export class UpdateService {
             console.warn('A newer version is published, but it could not be taken into use.');
             return;
         }
-        if (this.busy()) {
-            this.waitingFor = signature;
+        const busyWith = this.busyWith();
+        if (busyWith) {
+            this.waitFor(signature, busyWith);
             return;
         }
         if (this.swapping) {
@@ -80,33 +84,57 @@ export class UpdateService {
     }
 
     private async swapTo(published: Array<string>, signature: string): Promise<void> {
-        let prepared: PreparedPage | undefined;
+        this.log.add('a newer version is published, fetching its files');
+        let prepared: PreparedPage | SwapRefusal;
         try {
             prepared = await this.pageSwap.prepare(published);
-        } catch {
+        } catch (error) {
+            this.log.add(`the files of the newer version could not be fetched, trying again later: ${describe(error)}`);
             this.waitingFor = signature;
             return;
         }
-        if (this.busy()) {
-            this.waitingFor = signature;
+        const busyWith = this.busyWith();
+        if (busyWith) {
+            this.waitFor(signature, busyWith);
             return;
         }
 
         sessionStorage.setItem(RELOADED_FOR_KEY, signature);
-        if (!prepared) {
+        if ('refused' in prepared) {
+            this.log.add(`reloading the page instead of swapping: ${prepared.refused}`);
             window.location.reload();
             return;
         }
 
         try {
-            if (!(await this.pageSwap.swap(prepared))) {
+            if (await this.pageSwap.swap(prepared)) {
+                this.log.add('swap done, no page load');
+            } else {
                 sessionStorage.removeItem(RELOADED_FOR_KEY);
                 this.waitingFor = signature;
+                this.log.add('a style sheet of the newer version did not load, trying again later');
             }
         } catch (error) {
+            this.log.add(`the swap failed after the old app was stopped, reloading the page: ${describe(error)}`);
             console.error('Taking the new version into use failed, reloading.', error);
             window.location.reload();
         }
+    }
+
+    private logStart(): void {
+        const scripts = this.loadedFiles()
+            .filter((file) => file.endsWith('.js'))
+            .join(', ');
+        const [navigation] = performance.getEntriesByType('navigation') as Array<PerformanceNavigationTiming>;
+        const how = this.pageSwap.swapped() ? 'a swap, no page load' : `a page load (${navigation?.type ?? 'unknown'})`;
+        this.log.add(`started by ${how}, running ${scripts || 'unknown files'}`);
+    }
+
+    private waitFor(signature: string, busyWith: string): void {
+        if (this.waitingFor !== signature) {
+            this.log.add(`a newer version is published, waiting because ${busyWith}`);
+        }
+        this.waitingFor = signature;
     }
 
     private loadedFiles(): Array<string> {
@@ -119,11 +147,18 @@ export class UpdateService {
             .map((url) => url.pathname.slice(1));
     }
 
-    private busy(): boolean {
-        return (
-            document.activeElement?.matches(BUSY_FIELD) === true ||
-            document.querySelector(OPEN_DIALOG) !== null ||
-            window.location.hash.startsWith(CAMERA_ROUTE)
-        );
+    private busyWith(): string | undefined {
+        if (document.activeElement?.matches(BUSY_FIELD)) {
+            return 'a text field has focus';
+        }
+        if (document.querySelector(OPEN_DIALOG)) {
+            return 'a dialog is open';
+        }
+
+        return window.location.hash.startsWith(CAMERA_ROUTE) ? 'the scan page is shown' : undefined;
     }
+}
+
+function describe(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
 }

@@ -15,11 +15,19 @@ export interface PreparedPage {
     answer: Response;
 }
 
+export interface SwapRefusal {
+    refused: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PageSwapService {
     private readonly application = inject(ApplicationRef);
 
-    public async prepare(published: Array<string>): Promise<PreparedPage | undefined> {
+    public swapped(): boolean {
+        return this.seenScripts().length !== 0;
+    }
+
+    public async prepare(published: Array<string>): Promise<PreparedPage | SwapRefusal> {
         const response = await fetch(PAGE_URL, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error('The start page could not be fetched.');
@@ -29,8 +37,15 @@ export class PageSwapService {
         const page = new DOMParser().parseFromString(await response.text(), 'text/html');
         const main = this.filesOf(page, SCRIPTS);
         const files = [...new Set([...main, ...this.filesOf(page, PRELOADS), ...this.filesOf(page, STYLESHEETS)])];
-        if (!main.length || !files.every((file) => published.includes(file)) || this.alreadyRun(main)) {
-            return undefined;
+        const unpublished = files.filter((file) => !published.includes(file));
+        if (!main.length) {
+            return { refused: 'the start page names no main script' };
+        }
+        if (unpublished.length) {
+            return { refused: `the start page names files that are not published: ${unpublished.join(', ')}` };
+        }
+        if (this.alreadyRun(main)) {
+            return { refused: `the main script ${main.join(', ')} already ran in this page` };
         }
 
         const answers = await Promise.all(files.map((file) => fetch(`/${file}`)));

@@ -4,7 +4,7 @@ const NEW_MAIN = 'main-ZZZZZZZZ.js';
 
 test.use({ serviceWorkers: 'block' });
 
-test('a new version replaces the running app without a page load', async ({ page }) => {
+test('a new version replaces the running app without a page load', async ({ page, request }) => {
     await page.goto('/#/system');
     await expect(page.locator('app-system-page')).toBeVisible();
 
@@ -38,6 +38,19 @@ test('a new version replaces the running app without a page load', async ({ page
     expect(await page.evaluate(() => (window as unknown as { sameDocument?: boolean }).sameDocument)).toBe(true);
     expect(loads).toBe(0);
     expect(streams).toBe(1);
+    await expect
+        .poll(async () =>
+            ((await (await request.get('/api/v1/logs?limit=500')).json()) as Array<{ message: string }>)
+                .map((line) => line.message.replace(/^web app on [^:]+: /, '').replace(/, running .*$/, ''))
+                .filter((line) => /swap|page load|newer version/.test(line))
+                .slice(-4)
+        )
+        .toEqual([
+            'started by a page load (navigate)',
+            'a newer version is published, fetching its files',
+            'started by a swap, no page load',
+            'swap done, no page load'
+        ]);
 
     await page.locator('app-shell a[href$="/list"], a[href$="/list"]').first().click();
     await expect(page.locator('app-list-page')).toBeVisible();
