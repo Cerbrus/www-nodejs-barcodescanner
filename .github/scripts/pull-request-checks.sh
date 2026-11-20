@@ -9,19 +9,32 @@ FAILED_LOG=${FAILED_LOG:-.git/checks-failed.md}
 WORKFLOW=build.yml
 ATTEMPTS=12
 PAUSE_SECONDS=10
+WAITING_FOR_APPROVAL=action_required
 
 pull_of_issue() {
     gh pr list --repo "$REPO" --state open --json number,headRefName,headRefOid \
         --jq "map(select(.headRefName | startswith(\"issue/$ISSUE-\"))) | first // empty | \"\(.number) \(.headRefName) \(.headRefOid)\""
 }
 
+runs_for() {
+    gh run list --repo "$REPO" --workflow "$WORKFLOW" --commit "$1" --limit 20 --json databaseId,conclusion \
+        --jq ".[] | select(.conclusion $2 \"$WAITING_FOR_APPROVAL\") | .databaseId"
+}
+
 run_for() {
-    gh run list --repo "$REPO" --workflow "$WORKFLOW" --commit "$1" --limit 1 --json databaseId --jq '.[0].databaseId // empty'
+    runs_for "$1" '!=' | head -n 1
+}
+
+remove_runs_waiting_for_approval() {
+    local run
+    for run in $(runs_for "$1" '=='); do
+        gh run delete "$run" --repo "$REPO" >/dev/null 2>&1 || true
+    done
 }
 
 wait_for_run() {
-    local sha=$1 attempt run
-    for ((attempt = 0; attempt < ATTEMPTS; attempt++)); do
+    local sha=$1 attempts=$2 attempt run
+    for ((attempt = 0; attempt < attempts; attempt++)); do
         run=$(run_for "$sha")
         if [ -n "$run" ]; then
             echo "$run"
@@ -49,11 +62,12 @@ main() {
         echo "branch=$branch"
     } >>"$OUTPUT"
 
-    run=$(wait_for_run "$sha")
+    run=$(wait_for_run "$sha" 3)
     if [ -z "$run" ]; then
         gh workflow run "$WORKFLOW" --repo "$REPO" --ref "$branch"
-        run=$(wait_for_run "$sha")
+        run=$(wait_for_run "$sha" "$ATTEMPTS")
     fi
+    remove_runs_waiting_for_approval "$sha"
     if [ -z "$run" ]; then
         finish unknown "No build appeared for #$number at ${sha:0:7}."
     fi

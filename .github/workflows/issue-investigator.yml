@@ -101,8 +101,8 @@ jobs:
                 env:
                     GH_TOKEN: ${{ github.token }}
                 run: bash "$RUNNER_TEMP/pull-request-checks.sh" "$ISSUE"
-            -   name: Mark the pull request as implemented when the repair worked
-                if: steps.recheck.outputs.result == 'passed'
+            -   name: Mark the pull request as implemented when its checks pass
+                if: steps.checks.outputs.result == 'passed' || steps.recheck.outputs.result == 'passed'
                 env:
                     GH_TOKEN: ${{ github.token }}
                 run: |
