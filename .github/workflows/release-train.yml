@@ -59,6 +59,8 @@ jobs:
         permissions:
             contents: write
             packages: write
+            pull-requests: write
+            issues: write
         uses: ./.github/workflows/build.yml
         with:
             ref: ${{ needs.assemble.outputs.branch }}

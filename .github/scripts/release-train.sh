@@ -11,6 +11,7 @@ POLL_SECONDS=20
 BOT='github-actions[bot]'
 AGENT_BRANCH='^issue/([0-9]+)-'
 MERGED_ATTEMPTS=12
+WAITING_BUILD_ATTEMPTS=6
 
 open_pulls() {
     gh api --paginate "repos/$REPO/pulls?state=open&base=$BASE_BRANCH&per_page=100" \
@@ -231,11 +232,15 @@ restore_branches() {
     done < <(jq -r '.pulls[] | "\(.branch) \(.head)"' <<<"$train")
 }
 
+issues_of() {
+    gh pr view "$1" --repo "$REPO" --json closingIssuesReferences --jq '.closingIssuesReferences[].number'
+}
+
 finish_pull() {
     local number=$1 attempt issue
     for ((attempt = 0; attempt < MERGED_ATTEMPTS; attempt++)); do
         if [ "$(gh api "repos/$REPO/pulls/$number" --jq .merged)" = true ]; then
-            for issue in $(gh pr view "$number" --repo "$REPO" --json closingIssuesReferences --jq '.closingIssuesReferences[].number'); do
+            for issue in $(issues_of "$number"); do
                 gh issue close "$issue" --repo "$REPO" >/dev/null 2>&1 || true
             done
             echo "- 🎟️ #$number merged" >>"$SUMMARY"
@@ -249,15 +254,29 @@ finish_pull() {
 }
 
 remove_waiting_builds() {
-    local sha=$1 run
-    for run in $(gh api "repos/$REPO/actions/runs?head_sha=$sha&event=pull_request&status=action_required&per_page=100" --jq '.workflow_runs[].id'); do
-        gh api -X DELETE "repos/$REPO/actions/runs/$run" --silent || true
+    local attempt sha runs run
+    local -a left=("$@") missing
+    for ((attempt = 0; attempt < WAITING_BUILD_ATTEMPTS && ${#left[@]}; attempt++)); do
+        if [ "$attempt" -gt 0 ]; then
+            sleep 5
+        fi
+        missing=()
+        for sha in "${left[@]}"; do
+            runs=$(gh api "repos/$REPO/actions/runs?head_sha=$sha&event=pull_request&status=action_required&per_page=100" --jq '.workflow_runs[].id' || true)
+            if [ -z "$runs" ]; then
+                missing+=("$sha")
+            fi
+            for run in $runs; do
+                gh api -X DELETE "repos/$REPO/actions/runs/$run" --silent || true
+            done
+        done
+        left=("${missing[@]}")
     done
 }
 
 land() {
     local train=$1 base tip number head branch rebased
-    local -a aboard=()
+    local -a aboard=() landed=()
     base=$(jq -r .base <<<"$train")
     tip=$(jq -r .tip <<<"$train")
 
@@ -293,8 +312,9 @@ land() {
     } >>"$SUMMARY"
     while read -r number rebased; do
         finish_pull "$number"
-        remove_waiting_builds "$rebased"
+        landed+=("$rebased")
     done < <(jq -r '.pulls[] | "\(.number) \(.rebased)"' <<<"$train")
+    remove_waiting_builds "${landed[@]}"
 }
 
 report_failure() {
@@ -313,6 +333,47 @@ $line
     done
 }
 
+released_pulls() {
+    local previous=$1 sha=$2 commit
+    for commit in $(git rev-list "$previous..$sha"); do
+        gh api "repos/$REPO/commits/$commit/pulls" \
+            --jq ".[] | select(.merged_at != null and .base.ref == \"$BASE_BRANCH\") | .number" || true
+    done | sort -nu
+}
+
+tell_released() {
+    local number=$1 subject=$2 line=$3 tag=$4
+    comment_once "$number" "<!-- release-train released $tag -->" "$(picture arrived 'The train standing at the platform of master station')
+
+$line
+
+**🏁 Arrived on time.** $subject is released as version [${tag#v}](${GITHUB_SERVER_URL:-https://github.com}/$REPO/releases/tag/$tag). The images are published, and the Pi installs them by itself within a few minutes." ||
+        echo "::warning::Could not tell #$number about $tag"
+}
+
+announce() {
+    local tag=${1:?} previous=${2:-} sha=${3:-${GITHUB_SHA:?}} line number issue
+    local -a aboard=()
+    if [ -z "$previous" ]; then
+        echo "No earlier release to compare $tag with; nobody to tell."
+        return
+    fi
+    for number in $(released_pulls "$previous" "$sha"); do
+        aboard+=("$number")
+    done
+    if [ "${#aboard[@]}" -eq 0 ]; then
+        echo "No pull request arrived with $tag."
+        return
+    fi
+    line=$(train_line "${aboard[@]}")
+    for number in "${aboard[@]}"; do
+        tell_released "$number" 'This pull request' "$line" "$tag"
+        for issue in $(issues_of "$number" || true); do
+            tell_released "$issue" "Pull request #$number for this issue" "$line" "$tag"
+        done
+    done
+}
+
 remove_branch() {
     gh api -X DELETE "repos/$REPO/git/refs/heads/$1" --silent || true
 }
@@ -326,6 +387,7 @@ main() {
         land) land "$@" ;;
         report-failure) report_failure "$@" ;;
         carry-approval) carry_approval "$@" ;;
+        announce) announce "$@" ;;
         remove-branch) remove_branch "$@" ;;
         *)
             echo "Unknown command: $command" >&2

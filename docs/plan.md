@@ -46,7 +46,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
 - The content security policy in enforcing mode.
-- The release train starting by itself from an approval, also of a Dependabot pull request: its first run was started by hand. The railway wording and pictures of its messages, the "left on the platform" and "derailed" comments, and the removal of the waiting builds: tried only on a scratch repository with a stand-in for GitHub.
+- The release train starting by itself from an approval, also of a Dependabot pull request: its first run was started by hand. The railway wording and pictures of its messages, the "left on the platform" and "derailed" comments, and the removal of the waiting builds: tried only on a scratch repository with a stand-in for GitHub. The removal now waits for those builds to appear, and a release tells its pull requests and their issues in a comment: both tried only with a stand-in for `gh`.
 - The released and live stages of a remark on the Feedback page: tested against a stand-in for GitHub only. Not seen with the real tags and compare endpoint, nor whether the merge commit of a pull request landed by the train is a commit on `master`.
 - The agent on an issue that someone else wrote.
 - The train leaving a pull request with failing checks behind, the agent rebasing a pull request that conflicted, and an approval carried over that rebase: built on 2026-11-20, tried only on a scratch repository. The repair after failed checks ran once for real, on pull request 43.
