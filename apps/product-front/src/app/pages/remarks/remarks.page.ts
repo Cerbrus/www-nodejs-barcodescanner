@@ -203,20 +203,6 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                     }
                 }
 
-                @if (closing() === remark.id) {
-                    <p class="mt-2 text-sm">{{ 'remark.closeConfirm' | translate }}</p>
-                    <div class="mt-2 flex gap-2">
-                        <button type="button" class="btn primary" (click)="close(remark)">
-                            <i class="material-symbols-outlined">check</i>
-                            {{ 'remark.close' | translate }}
-                        </button>
-                        <button type="button" class="btn" (click)="closing.set(undefined)">
-                            <i class="material-symbols-outlined">close</i>
-                            {{ 'common.cancel' | translate }}
-                        </button>
-                    </div>
-                }
-
                 @if (rejecting() === remark.id) {
                     <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
                     <div class="mt-2 flex gap-2">
@@ -232,6 +218,23 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                 }
             </article>
         </ng-template>
+
+        @if (closing(); as remark) {
+            <app-sheet (closed)="closing.set(undefined)">
+                <h2 class="page-title">{{ 'remark.close' | translate }}</h2>
+                <p class="text-sm">{{ 'remark.closeConfirm' | translate }}</p>
+                <div class="mt-3 flex gap-2">
+                    <button type="button" class="btn" (click)="closing.set(undefined)">
+                        <i class="material-symbols-outlined">close</i>
+                        {{ 'common.cancel' | translate }}
+                    </button>
+                    <button type="button" class="btn primary" (click)="close(remark)">
+                        <i class="material-symbols-outlined">check</i>
+                        {{ 'remark.close' | translate }}
+                    </button>
+                </div>
+            </app-sheet>
+        }
 
         @if (sending(); as remark) {
             <app-sheet (closed)="sending.set(undefined)">
@@ -420,7 +423,7 @@ export class RemarksPage {
     protected readonly draft = signal<IssueDraft | undefined>(undefined);
     protected readonly busy = signal(false);
     protected readonly rejecting = signal<number | undefined>(undefined);
-    protected readonly closing = signal<number | undefined>(undefined);
+    protected readonly closing = signal<Remark | undefined>(undefined);
     protected readonly editing = signal<number | undefined>(undefined);
     protected readonly draftText = signal('');
     protected readonly showHandled = signal(false);
@@ -470,7 +473,7 @@ export class RemarksPage {
         } else if (action === 'handle') {
             this.editing.set(undefined);
             this.rejecting.set(undefined);
-            this.closing.set(remark.id);
+            this.closing.set(remark);
         } else if (action === 'edit') {
             this.rejecting.set(undefined);
             this.closing.set(undefined);

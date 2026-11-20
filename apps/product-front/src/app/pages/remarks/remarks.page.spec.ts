@@ -175,8 +175,9 @@ describe('RemarksPage', () => {
         await openMenu();
         await press('remark.close', page.querySelector('.menu') as Element);
         expect(api.setRemarkState).not.toHaveBeenCalled();
-        expect(texts(page, 'article p.text-sm')).toEqual(['remark.closeConfirm']);
-        await press('remark.close', page.querySelector('article') as Element);
+        expect(texts(page, 'app-sheet p.text-sm')).toEqual(['remark.closeConfirm']);
+        await press('remark.close', page.querySelector('app-sheet') as Element);
+        expect(page.querySelector('app-sheet')).toBeNull();
         await showHandled();
         await openMenu(1);
         await press('remark.reopen');
@@ -195,7 +196,7 @@ describe('RemarksPage', () => {
         await press('common.cancel');
 
         expect(api.setRemarkState).not.toHaveBeenCalled();
-        expect(texts(page, 'article p.text-sm')).toEqual([]);
+        expect(page.querySelector('app-sheet')).toBeNull();
     });
 
     it('rejects a remark only after a confirmation, and reloads the list', async () => {
@@ -211,7 +212,7 @@ describe('RemarksPage', () => {
 
         expect(api.rejectRemark).toHaveBeenCalledWith(1);
         expect(api.getRemarks).toHaveBeenCalledTimes(2);
-        expect(texts(page, 'article p.text-sm')).toEqual([]);
+        expect(page.querySelector('app-sheet')).toBeNull();
     });
 
     it('lets a writer reject their own remark, but not one that is already on GitHub', async () => {
@@ -228,7 +229,7 @@ describe('RemarksPage', () => {
         expect(buttons(0)).toEqual(['check remark.close']);
         await press('remark.close');
         expect(api.setRemarkState).not.toHaveBeenCalled();
-        await press('remark.close', page.querySelector('article p.text-sm + div') as Element);
+        await press('remark.close', page.querySelector('app-sheet') as Element);
         expect(api.setRemarkState).toHaveBeenCalledWith(2, 'closed');
     });
 
