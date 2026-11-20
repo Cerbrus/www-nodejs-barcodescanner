@@ -132,6 +132,7 @@ jobs:
                     file: ${{ matrix.file }}
                     platforms: linux/arm64
                     push: ${{ github.event_name == 'push' }}
+                    provenance: false
                     build-args: |
                         APP_VERSION=${{ needs.checks.outputs.version }}
                         APP_COMMIT=${{ github.sha }}
