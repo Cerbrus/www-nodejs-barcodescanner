@@ -138,14 +138,16 @@
             <div class="row">
                 <span class="dot" [class.bad]="scannerState() !== 'connected'"></span>
                 <span class="label">
-                    {{ 'system.scanner' | translate }}
+                    <span class="head">
+                        {{ 'system.scanner' | translate }}
+                        <span class="value">{{ 'system.scannerState.' + scannerState() | translate }}</span>
+                    </span>
                     @if (agent()?.lastHandheldScanAt; as lastScan) {
                         <span class="hint">
                             {{ 'system.lastHandheldScan' | translate }}: {{ lastScan | date: 'd MMM HH:mm' }}
                         </span>
                     }
                 </span>
-                <span class="value">{{ 'system.scannerState.' + scannerState() | translate }}</span>
             </div>
             @for (link of managementLinks; track link.path) {
                 <a class="row link" [routerLink]="link.path">
