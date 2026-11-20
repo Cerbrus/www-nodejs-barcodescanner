@@ -108,6 +108,13 @@ describe('RemarksPage', () => {
         expect(page.querySelectorAll('article.opacity-60').length).toBe(1);
     });
 
+    it('renders the markdown in the text of a remark', async () => {
+        await open(OWNER, [remark(1, { text: 'It is **broken**' })]);
+
+        expect(page.querySelector('article .text .bold')?.textContent).toBe('broken');
+        expect(texts(page, 'article .text')).toEqual(['It is broken']);
+    });
+
     it('keeps handled remarks behind a "handled" item with their number, and shows them on request', async () => {
         await open(OWNER, [
             remark(1),

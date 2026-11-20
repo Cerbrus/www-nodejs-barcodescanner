@@ -280,6 +280,7 @@
             "wish": "What would you like?",
             "note": "Note"
         },
+        "markdownHint": "Markdown works: **bold**, *italic*, `code`, lists and links.",
         "send": "Send",
         "thanks": "Thank you for your feedback!",
         "kept": "Thank you! Kept; it is sent as soon as there is a connection.",

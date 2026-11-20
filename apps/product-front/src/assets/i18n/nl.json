@@ -280,6 +280,7 @@
             "wish": "Wat zou je willen?",
             "note": "Notitie"
         },
+        "markdownHint": "Markdown werkt: **vet**, *cursief*, `code`, lijsten en links.",
         "send": "Versturen",
         "thanks": "Bedankt voor je feedback!",
         "kept": "Bedankt! Bewaard; wordt verstuurd zodra er verbinding is.",

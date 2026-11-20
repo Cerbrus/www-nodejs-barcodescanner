@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, catchError, finalize, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
+import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { IssueDraft, IssueOptions, IssueStage, Remark, RemarkKind, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -51,7 +52,7 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 @Component({
     selector: 'app-remarks-page',
     standalone: true,
-    imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, SheetComponent],
+    imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, MarkdownComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './remarks.page.html',
     styleUrl: './remarks.page.scss'

@@ -115,7 +115,7 @@
                 </button>
             </div>
         } @else {
-            <p class="text">{{ remark.text }}</p>
+            <app-markdown class="text" [text]="remark.text" />
         }
         <p class="muted where text-xs">
             <span class="font-mono">{{ remark.page }}</span>
