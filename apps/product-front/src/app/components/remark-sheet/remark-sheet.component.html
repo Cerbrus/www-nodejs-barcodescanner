@@ -37,7 +37,6 @@
             (ngModelChange)="text.set($event)"
             (keydown)="onKey($event)"
         ></textarea>
-        <p class="muted mt-1 text-xs">{{ 'remark.markdownHint' | translate }}</p>
 
         @if (asking()) {
             <p class="mt-3 text-sm">{{ 'remark.closeAsk' | translate }}</p>

@@ -62,13 +62,6 @@ describe('RemarkSheetComponent', () => {
         expect(texts(page, 'label.field-label')).toEqual(['remark.text.wish']);
     });
 
-    it('tells that markdown works in the text', async () => {
-        remarks.write();
-        await settle();
-
-        expect(texts(page, 'p.muted.text-xs')).toEqual(['remark.markdownHint']);
-    });
-
     it('says what the remark is about when a part was pointed at', async () => {
         remarks.write({ component: 'app-item-tile', text: 'Melk' });
         await settle();
