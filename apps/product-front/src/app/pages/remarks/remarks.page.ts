@@ -69,7 +69,7 @@ export class RemarksPage {
     protected readonly busy = signal(false);
     protected readonly rejecting = signal<number | undefined>(undefined);
     protected readonly closing = signal<Remark | undefined>(undefined);
-    protected readonly editing =signal<number | undefined>(undefined);
+    protected readonly editing = signal<number | undefined>(undefined);
     protected readonly draftText = signal('');
     protected readonly showHandled = signal(false);
     protected readonly menu = signal<number | undefined>(undefined);
