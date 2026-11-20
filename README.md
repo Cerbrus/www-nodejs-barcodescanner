@@ -33,7 +33,7 @@ On the Pi two containers run: `app` (API plus the built web app, SQLite file on 
 | [docs/use-cases.md](docs/use-cases.md) | What the product does, from the user's point of view |
 | [docs/architecture.md](docs/architecture.md) | Modules, data model, scan rules, API, web app |
 | [docs/deployment.md](docs/deployment.md) | Raspberry Pi setup, automatic updates, reverse proxy, backup and restore, notifications |
-| [docs/decisions.md](docs/decisions.md) | Feature and technology choices, with the reasoning |
+| [docs/decisions/](docs/decisions/README.md) | One record per feature and technology choice, with the reasoning; start at the index |
 | [docs/plan.md](docs/plan.md) | What is left, what was never tested, what was done when |
 
 ## Development

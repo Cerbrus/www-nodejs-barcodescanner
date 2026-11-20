@@ -1,6 +1,6 @@
 # Plan
 
-What is left, what was never tested, and what was done when. Decisions behind this plan are in [decisions.md](decisions.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
+What is left, what was never tested, and what was done when. Decisions behind this plan are in [decisions/](decisions/README.md); how it works is in [architecture.md](architecture.md) and [deployment.md](deployment.md).
 
 ## Where it stands (2026-11-16, version 1.1.119)
 

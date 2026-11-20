@@ -1,8 +1,8 @@
 # Ideas
 
-Three ideas from the owner, written down on 2026-11-20 to send through the feedback button as a test of that path. Nothing here is decided or built. A fourth idea, that an approval merges and merges release, was built the same day as the release train, see [decisions.md](decisions.md). Each idea has the text to paste as a remark (kind: wish; the first line becomes the issue title, at most 80 characters; the whole text at most 2000) and what was found in the code on that date.
+Two ideas from the owner, written down on 2026-11-20 to send through the feedback button as a test of that path. Nothing here is decided or built. Two other ideas were built: that an approval merges and merges release, the same day as the release train ([0059](decisions/0059-release-train.md)), and the split of the decisions into records ([index](decisions/README.md)). Each idea has the text to paste as a remark (kind: wish; the first line becomes the issue title, at most 80 characters; the whole text at most 2000) and what was found in the code on that date.
 
-When an idea is built or dropped, move its outcome to [decisions.md](decisions.md) and [plan.md](plan.md) and remove it here.
+When an idea is built or dropped, move its outcome to [decisions/](decisions/README.md) and [plan.md](plan.md) and remove it here.
 
 ## 1. A new version without a page load
 
@@ -33,38 +33,7 @@ Wish: take a new version into use without a page load, so a permission that was 
 
 This changes how updates reach an open app. The expected verdict is "too large", with a plan in steps.
 
-## 2. Decisions as separate records
-
-### Remark
-
-```
-Split docs/decisions.md into one record per decision
-
-docs/decisions.md has grown into one long page where a decision and its later changes sit in the same paragraph. Move to Architecture Decision Records in the MADR layout:
-
-- One file per decision in docs/decisions/, numbered: 0001-own-shopping-list.md.
-- Each with: status (accepted, superseded by NNNN, dropped), date, who decided, context, the options that were weighed, the decision, the consequences.
-- A changed decision is a new record that supersedes the old one; the old one stays and points to it.
-- docs/decisions/README.md is the index: number, title, status, date, grouped by subject. That page is what gets read first.
-- Keep every decision and every date that is in decisions.md now. Lose nothing.
-
-Then go through the app for choices that were made but never written down, and add a record for each, marked as found afterwards. Look in CLAUDE.md (code style, hard rules), architecture.md, deployment.md, the lint and build settings and the package list.
-
-Update every link to decisions.md.
-```
-
-### Found
-
-- The usual standard is the Architecture Decision Record (ADR): one short, numbered file per decision that is never rewritten, only superseded. Nygard's original layout has title, status, context, decision, consequences. MADR (Markdown Any Decision Records) adds the weighed options and a metadata block; it fits here because most entries already name what was chosen against.
-- `decisions.md` is 173 lines with 21 numbered decisions in two tables and about 20 sections below them. Many hold a chain: "Decided", "Changed", "Changed again". Each link of such a chain becomes a record of its own.
-- `CLAUDE.md` and `.github/issue-investigator.md` both tell the reader to read `docs/decisions.md` and to change it first. With records the instruction becomes: read the index, add a record. The whole set is larger than the page is now, so the index must be enough to work from.
-- No tool is needed. `adr-tools` and Log4brains exist; they add little for one writer.
-
-### For the test
-
-The investigator may not change `CLAUDE.md` or `.github/issue-investigator.md`, so it should do the docs and name those two edits for the owner. The search for unwritten decisions is open-ended; it may come back as "too large" or as a first part.
-
-## 3. Template and styling out of the component file
+## 2. Template and styling out of the component file
 
 ### Remark
 
