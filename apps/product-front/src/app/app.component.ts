@@ -20,7 +20,7 @@ const KEEPS_KEYBOARD = 'input, textarea, select, label';
     standalone: true,
     imports: [RouterOutlet],
     selector: 'app-root',
-    template: '<router-outlet />'
+    templateUrl: './app.component.html'
 })
 export class AppComponent {
     constructor() {

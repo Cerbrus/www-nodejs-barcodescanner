@@ -12,61 +12,7 @@ import { ShoppingStore } from '../../services/shopping.store';
     standalone: true,
     imports: [FormsModule, TranslatePipe, ItemTileComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `
-        <div class="page">
-            <h1 class="page-title">{{ 'catalog.title' | translate }}</h1>
-            <div class="clearable">
-                <input
-                    #field
-                    class="field"
-                    type="search"
-                    autocomplete="off"
-                    [placeholder]="'catalog.searchPlaceholder' | translate"
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
-                />
-                @if (search()) {
-                    <button
-                        type="button"
-                        class="clear-button"
-                        [attr.aria-label]="'common.clear' | translate"
-                        (click)="search.set(''); field.focus()"
-                    >
-                        <i class="material-symbols-outlined">close</i>
-                    </button>
-                }
-            </div>
-
-            <div class="mt-3 flex flex-col gap-2">
-                @for (group of groups(); track group.section.id) {
-                    <section class="card p-0">
-                        <button
-                            type="button"
-                            class="flex w-full items-center gap-2 p-3 text-left"
-                            [attr.aria-expanded]="isOpen(group.section.id)"
-                            (click)="toggle(group.section.id)"
-                        >
-                            <span class="text-xl">{{ group.section.emoji }}</span>
-                            <span class="grow font-semibold">{{ group.section.name }}</span>
-                            <span class="muted text-sm">{{ group.rows.length }}</span>
-                            <i class="material-symbols-outlined muted">
-                                {{ isOpen(group.section.id) ? 'expand_less' : 'expand_more' }}
-                            </i>
-                        </button>
-                        @if (isOpen(group.section.id)) {
-                            <div class="tile-grid p-3 pt-0">
-                                @for (item of group.rows; track item.id) {
-                                    <app-item-tile [item]="item" (selected)="openItem(item)" />
-                                }
-                            </div>
-                        }
-                    </section>
-                } @empty {
-                    <p class="empty">{{ (store.loaded() ? 'catalog.noResults' : 'common.loading') | translate }}</p>
-                }
-            </div>
-        </div>
-    `
+    templateUrl: './catalog.page.html'
 })
 export class CatalogPage {
     protected readonly store = inject(ShoppingStore);

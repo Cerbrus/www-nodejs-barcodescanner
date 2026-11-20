@@ -13,18 +13,7 @@ import {
     selector: 'app-sheet',
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `
-        <dialog
-            #dialog
-            class="sheet-dialog"
-            (cancel)="$event.preventDefault(); closed.emit()"
-            (click)="onClick($event)"
-        >
-            <div class="sheet">
-                <ng-content />
-            </div>
-        </dialog>
-    `
+    templateUrl: './sheet.component.html'
 })
 export class SheetComponent {
     public readonly closed = output<void>();

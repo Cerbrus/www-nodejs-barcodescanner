@@ -1,0 +1,16 @@
+.head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+}
+.notes {
+    margin: 8px 0 4px;
+    padding-left: 18px;
+    list-style: disc;
+    font-size: 0.9rem;
+}
+.notes li + li {
+    margin-top: 4px;
+}

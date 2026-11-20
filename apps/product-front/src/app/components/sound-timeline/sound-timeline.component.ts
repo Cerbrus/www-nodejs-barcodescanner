@@ -79,44 +79,8 @@ function waves(blocks: Array<SoundBlock>, density: Density): Array<Wave> {
     selector: 'app-sound-timeline',
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `
-        <svg [attr.viewBox]="'0 0 ' + scale + ' 40'" preserveAspectRatio="none" aria-hidden="true">
-            <line x1="0" y1="20" [attr.x2]="scale" y2="20" class="base" />
-            @for (wave of waves(); track $index) {
-                <path [attr.d]="wave.path" [class]="wave.kind" />
-            }
-        </svg>
-    `,
-    styles: `
-        :host {
-            display: block;
-            height: 18px;
-            overflow: hidden;
-        }
-        svg {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        path {
-            fill: none;
-            stroke: var(--accent);
-            stroke-width: 1.5;
-            stroke-linejoin: round;
-            vector-effect: non-scaling-stroke;
-        }
-        path.buzz {
-            stroke: var(--danger);
-        }
-        path.pause {
-            stroke: var(--text-muted);
-        }
-        .base {
-            stroke: var(--line);
-            stroke-width: 1;
-            vector-effect: non-scaling-stroke;
-        }
-    `
+    templateUrl: './sound-timeline.component.html',
+    styleUrl: './sound-timeline.component.scss'
 })
 export class SoundTimelineComponent {
     public readonly blocks = input.required<Array<SoundBlock>>();

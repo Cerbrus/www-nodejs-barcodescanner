@@ -1,0 +1,22 @@
+.result {
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--line);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.result.added,
+.result.incremented {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.result.needs_name {
+    background: var(--warning);
+    color: var(--warning-text);
+}
+.lookup-failed {
+    padding: 6px;
+    border-color: var(--warning);
+    background: var(--warning);
+    color: var(--warning-text);
+}

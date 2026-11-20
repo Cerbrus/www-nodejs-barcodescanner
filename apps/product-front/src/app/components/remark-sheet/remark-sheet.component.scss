@@ -1,0 +1,19 @@
+.about {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+.about i {
+    font-size: 18px;
+}
+.about span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+textarea {
+    resize: vertical;
+}

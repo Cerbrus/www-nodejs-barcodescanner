@@ -1,0 +1,63 @@
+<app-sheet (closed)="closed.emit()">
+    <h2 class="page-title">{{ 'icons.title' | translate }}</h2>
+    <div class="clearable">
+        <input
+            #field
+            class="field"
+            type="search"
+            autocomplete="off"
+            autocapitalize="off"
+            [placeholder]="'icons.search' | translate"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+        />
+        @if (search()) {
+            <button
+                type="button"
+                class="clear-button"
+                [attr.aria-label]="'common.clear' | translate"
+                (click)="search.set(''); field.focus()"
+            >
+                <i class="material-symbols-outlined">close</i>
+            </button>
+        }
+    </div>
+
+    <div class="grid">
+        <button type="button" class="icon none" [class.selected]="!selected()" (click)="picked.emit('')">
+            <i class="material-symbols-outlined">block</i>
+            <span>{{ 'icons.none' | translate }}</span>
+        </button>
+        @if (suggested(); as name) {
+            <button
+                type="button"
+                class="icon"
+                [class.selected]="name === selected()"
+                [title]="name"
+                (click)="picked.emit(name)"
+            >
+                <img alt="" [src]="iconsUrl + '/' + name + '.png'" />
+                <span>{{ 'icons.standard' | translate }}</span>
+            </button>
+        }
+        @for (name of matches(); track name) {
+            <button
+                type="button"
+                class="icon"
+                [class.selected]="name === selected()"
+                [title]="name"
+                (click)="picked.emit(name)"
+            >
+                <img loading="lazy" alt="" [src]="iconsUrl + '/' + name + '.png'" />
+                <span>{{ label(name) }}</span>
+            </button>
+        } @empty {
+            <p class="empty col-span-full">{{ 'icons.noResults' | translate }}</p>
+        }
+    </div>
+
+    <button type="button" class="btn mt-3 w-full" (click)="closed.emit()">
+        <i class="material-symbols-outlined">close</i>
+        {{ 'common.cancel' | translate }}
+    </button>
+</app-sheet>

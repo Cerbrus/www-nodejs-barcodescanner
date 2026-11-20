@@ -1,0 +1,166 @@
+<div class="page">
+    <h1 class="page-title">{{ 'nav.system' | translate }}</h1>
+
+    <h2 class="section-title">{{ 'system.device' | translate }}</h2>
+    <div class="card group">
+        <div class="row choice">
+            <span class="label">{{ 'system.language' | translate }}</span>
+            <div class="segments">
+                @for (language of languages; track language) {
+                    <button
+                        type="button"
+                        class="segment"
+                        [class.chosen]="currentLanguage() === language"
+                        (click)="useLanguage(language)"
+                    >
+                        {{ 'language.' + language | translate }}
+                    </button>
+                }
+            </div>
+        </div>
+        <div class="row choice">
+            <span class="label">{{ 'system.theme' | translate }}</span>
+            <div class="segments">
+                @for (option of themeOptions; track option.theme) {
+                    <button
+                        type="button"
+                        class="segment"
+                        [class.chosen]="theme.theme() === option.theme"
+                        (click)="theme.use(option.theme)"
+                    >
+                        <i class="material-symbols-outlined">{{ option.icon }}</i>
+                        {{ 'theme.' + option.theme | translate }}
+                    </button>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <span class="label">
+                {{ 'push.title' | translate }}
+                <span class="hint">{{ 'push.state.' + push.status() | translate }}</span>
+            </span>
+            @if (push.status() === 'off') {
+                <button type="button" class="btn primary" [disabled]="push.busy()" (click)="enablePush()">
+                    <i class="material-symbols-outlined">notifications_active</i>
+                    {{ 'push.turnOn' | translate }}
+                </button>
+            } @else if (push.status() === 'on') {
+                <div class="flex gap-2">
+                    @if (auth.owner()) {
+                        <button type="button" class="btn" (click)="testPush()">
+                            <i class="material-symbols-outlined">send</i>
+                            {{ 'push.test' | translate }}
+                        </button>
+                    }
+                    <button type="button" class="btn" (click)="push.disable()">
+                        <i class="material-symbols-outlined">notifications_off</i>
+                        {{ 'push.disable' | translate }}
+                    </button>
+                </div>
+            }
+        </div>
+        @if (push.status() !== 'on') {
+            <p class="note">
+                {{ (push.status() === 'off' ? 'push.intro' : 'push.' + push.status()) | translate }}
+            </p>
+        }
+        <div class="row">
+            <span class="label">
+                {{ 'remark.title' | translate }}
+                @if (remarks.waiting(); as count) {
+                    <span class="hint">{{ 'remark.waiting' | translate: { count } }}</span>
+                }
+            </span>
+            <div class="flex gap-2">
+                <button type="button" class="btn" (click)="remarks.startPointing()">
+                    <i class="material-symbols-outlined">ads_click</i>
+                    {{ 'remark.point' | translate }}
+                </button>
+                <button type="button" class="btn primary" (click)="remarks.write()">
+                    <i class="material-symbols-outlined">add_comment</i>
+                    {{ 'remark.write' | translate }}
+                </button>
+            </div>
+        </div>
+        <p class="note">{{ (touch ? 'remark.hintTouch' : 'remark.hintPointer') | translate }}</p>
+        <a class="row link" routerLink="/remarks">
+            <i class="material-symbols-outlined">forum</i>
+            <span class="label">{{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}</span>
+            @if (remarks.ready(); as count) {
+                <span class="count" [attr.aria-label]="'remark.ready' | translate: { count }">{{ count }}</span>
+            }
+            <i class="material-symbols-outlined muted">chevron_right</i>
+        </a>
+        <a class="row link" routerLink="/changelog">
+            <i class="material-symbols-outlined">new_releases</i>
+            <span class="label">{{ 'changelog.title' | translate }}</span>
+            <i class="material-symbols-outlined muted">chevron_right</i>
+        </a>
+    </div>
+
+    @if (auth.state()?.enabled) {
+        <h2 class="section-title">{{ 'login.account' | translate }}</h2>
+        <div class="card group">
+            <div class="row">
+                <i class="material-symbols-outlined muted">account_circle</i>
+                <span class="label truncate">{{ auth.state()?.email }}</span>
+                @if (!confirmingLogout()) {
+                    <button type="button" class="btn danger" (click)="confirmingLogout.set(true)">
+                        <i class="material-symbols-outlined">logout</i>
+                        {{ 'login.logout' | translate }}
+                    </button>
+                }
+            </div>
+            @if (confirmingLogout()) {
+                <p class="note">{{ 'login.logoutConfirm' | translate }}</p>
+                <div class="row">
+                    <button type="button" class="btn danger basis-0 grow" (click)="logout()">
+                        <i class="material-symbols-outlined">logout</i>
+                        {{ 'login.logout' | translate }}
+                    </button>
+                    <button type="button" class="btn basis-0 grow" (click)="confirmingLogout.set(false)">
+                        <i class="material-symbols-outlined">close</i>
+                        {{ 'common.cancel' | translate }}
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    @if (auth.owner()) {
+        <h2 class="section-title">{{ 'system.management' | translate }}</h2>
+        <div class="card group">
+            <div class="row">
+                <span class="dot" [class.bad]="!events.connected()"></span>
+                <span class="label">{{ 'system.connection' | translate }}</span>
+                <span class="value">{{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}</span>
+            </div>
+            <div class="row">
+                <span class="dot" [class.bad]="scannerState() !== 'connected'"></span>
+                <span class="label">
+                    {{ 'system.scanner' | translate }}
+                    @if (agent()?.lastHandheldScanAt; as lastScan) {
+                        <span class="hint">
+                            {{ 'system.lastHandheldScan' | translate }}: {{ lastScan | date: 'd MMM HH:mm' }}
+                        </span>
+                    }
+                </span>
+                <span class="value">{{ 'system.scannerState.' + scannerState() | translate }}</span>
+            </div>
+            @for (link of managementLinks; track link.path) {
+                <a class="row link" [routerLink]="link.path">
+                    <i class="material-symbols-outlined">{{ link.icon }}</i>
+                    <span class="label">{{ link.title | translate }}</span>
+                    <i class="material-symbols-outlined muted">chevron_right</i>
+                </a>
+            }
+        </div>
+
+        <p class="version">
+            {{ 'system.version' | translate }} <span class="font-mono">{{ version() }}</span>
+            @if (health()?.builtAt; as builtAt) {
+                · {{ 'system.built' | translate | lowercase }} {{ builtAt | date: 'd MMM y HH:mm' }}
+            }
+        </p>
+    }
+</div>

@@ -47,42 +47,7 @@ const NEW_BLOCK: Record<SoundBlock['kind'], SoundBlock> = {
     imports: [TranslatePipe, SheetComponent, SoundTimelineComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './sound-editor.component.html',
-    styles: `
-        .block {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 4px 8px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--line);
-        }
-        .slider {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            grid-column: 1 / -1;
-        }
-        .slider input {
-            flex: 1;
-            accent-color: var(--accent);
-        }
-        .slider span {
-            min-width: 7.5rem;
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-        .icon {
-            display: flex;
-            padding: 4px;
-            border-radius: 8px;
-            color: var(--text-muted);
-        }
-        .icon:disabled {
-            opacity: 0.35;
-        }
-        .problem {
-            color: var(--danger);
-        }
-    `
+    styleUrl: './sound-editor.component.scss'
 })
 export class SoundEditorComponent {
     public readonly sound = input<Sound>();

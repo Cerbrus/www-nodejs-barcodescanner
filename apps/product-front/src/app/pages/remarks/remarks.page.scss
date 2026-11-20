@@ -1,0 +1,127 @@
+.kind {
+    font-size: 20px;
+    color: var(--text-muted);
+}
+.kind.bug {
+    color: var(--danger);
+}
+.kind.wish {
+    color: var(--accent);
+}
+.state {
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--line);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 8px 4px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.btn.small {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+}
+.menu-anchor {
+    position: relative;
+}
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    cursor: default;
+}
+.menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 11;
+    min-width: 160px;
+    margin-top: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+.menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: left;
+}
+.menu button:hover {
+    background: var(--line);
+}
+.text {
+    margin-top: 6px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.where {
+    margin-top: 4px;
+    overflow-wrap: anywhere;
+}
+.issue {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.issue i {
+    font-size: 16px;
+}
+.progress {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+.progress i {
+    font-size: 16px;
+}
+.progress.done {
+    color: var(--accent);
+}
+.option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+.option input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+}
+.preview {
+    max-height: 36dvh;
+    padding: 10px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--page);
+}
+.preview pre {
+    margin-top: 6px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}

@@ -1,0 +1,52 @@
+<div class="page">
+    <a class="back-bar" routerLink="/system">
+        <i class="material-symbols-outlined">arrow_back</i>
+        {{ 'nav.system' | translate }}
+    </a>
+    <div class="flex items-center justify-between gap-3">
+        <h1 class="page-title">{{ 'history.title' | translate }}</h1>
+        <button type="button" class="btn" [disabled]="!canUndo()" (click)="undo()">
+            <i class="material-symbols-outlined">undo</i>
+            {{ 'history.undoLast' | translate }}
+        </button>
+    </div>
+
+    <div class="flex flex-col gap-1">
+        @for (scan of scans(); track scan.id) {
+            <div class="card flex items-center gap-3 py-2" [class.opacity-50]="scan.undoneAt">
+                <i class="material-symbols-outlined muted">
+                    {{ scan.source === 'phone' ? 'smartphone' : 'barcode_reader' }}
+                </i>
+                <span class="grow">
+                    <span class="block font-semibold">
+                        {{ itemName(scan) ?? ('inbox.unknownProduct' | translate) }}
+                    </span>
+                    <span class="muted block text-xs">
+                        <span class="font-mono">{{ scan.code }}</span>
+                        · {{ scan.createdAt | date: 'd MMM HH:mm:ss' }}
+                    </span>
+                </span>
+                @if (failedSources(scan); as sources) {
+                    <button
+                        type="button"
+                        class="btn lookup-failed"
+                        [title]="'history.lookupFailed' | translate: { sources }"
+                        [attr.aria-label]="'history.lookupFailed' | translate: { sources }"
+                        (click)="namingCode.set(scan.code)"
+                    >
+                        <i class="material-symbols-outlined">cloud_off</i>
+                    </button>
+                }
+                <span class="result" [class]="scan.result">
+                    {{ 'history.result.' + (scan.undoneAt ? 'undone' : scan.result) | translate }}
+                </span>
+            </div>
+        } @empty {
+            <p class="empty">{{ (loaded() ? 'history.empty' : 'common.loading') | translate }}</p>
+        }
+    </div>
+</div>
+
+@if (namingCode(); as code) {
+    <app-naming-prompt [code]="code" (closed)="namingCode.set(undefined)" />
+}

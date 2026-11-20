@@ -1,0 +1,5 @@
+<dialog #dialog class="sheet-dialog" (cancel)="$event.preventDefault(); closed.emit()" (click)="onClick($event)">
+    <div class="sheet">
+        <ng-content />
+    </div>
+</dialog>

@@ -1,0 +1,28 @@
+:host {
+    display: block;
+    height: 18px;
+    overflow: hidden;
+}
+svg {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+path.buzz {
+    stroke: var(--danger);
+}
+path.pause {
+    stroke: var(--text-muted);
+}
+.base {
+    stroke: var(--line);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}

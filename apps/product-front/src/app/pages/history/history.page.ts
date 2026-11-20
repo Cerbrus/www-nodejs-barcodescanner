@@ -19,84 +19,8 @@ const REFRESH_DELAY_MILLISECONDS = 200;
     standalone: true,
     imports: [DatePipe, NamingPromptComponent, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `
-        <div class="page">
-            <a class="back-bar" routerLink="/system">
-                <i class="material-symbols-outlined">arrow_back</i>
-                {{ 'nav.system' | translate }}
-            </a>
-            <div class="flex items-center justify-between gap-3">
-                <h1 class="page-title">{{ 'history.title' | translate }}</h1>
-                <button type="button" class="btn" [disabled]="!canUndo()" (click)="undo()">
-                    <i class="material-symbols-outlined">undo</i>
-                    {{ 'history.undoLast' | translate }}
-                </button>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                @for (scan of scans(); track scan.id) {
-                    <div class="card flex items-center gap-3 py-2" [class.opacity-50]="scan.undoneAt">
-                        <i class="material-symbols-outlined muted">
-                            {{ scan.source === 'phone' ? 'smartphone' : 'barcode_reader' }}
-                        </i>
-                        <span class="grow">
-                            <span class="block font-semibold">
-                                {{ itemName(scan) ?? ('inbox.unknownProduct' | translate) }}
-                            </span>
-                            <span class="muted block text-xs">
-                                <span class="font-mono">{{ scan.code }}</span>
-                                · {{ scan.createdAt | date: 'd MMM HH:mm:ss' }}
-                            </span>
-                        </span>
-                        @if (failedSources(scan); as sources) {
-                            <button
-                                type="button"
-                                class="btn lookup-failed"
-                                [title]="'history.lookupFailed' | translate: { sources }"
-                                [attr.aria-label]="'history.lookupFailed' | translate: { sources }"
-                                (click)="namingCode.set(scan.code)"
-                            >
-                                <i class="material-symbols-outlined">cloud_off</i>
-                            </button>
-                        }
-                        <span class="result" [class]="scan.result">
-                            {{ 'history.result.' + (scan.undoneAt ? 'undone' : scan.result) | translate }}
-                        </span>
-                    </div>
-                } @empty {
-                    <p class="empty">{{ (loaded() ? 'history.empty' : 'common.loading') | translate }}</p>
-                }
-            </div>
-        </div>
-
-        @if (namingCode(); as code) {
-            <app-naming-prompt [code]="code" (closed)="namingCode.set(undefined)" />
-        }
-    `,
-    styles: `
-        .result {
-            padding: 2px 8px;
-            border-radius: 8px;
-            background: var(--line);
-            font-size: 0.75rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-        .result.added,
-        .result.incremented {
-            background: color-mix(in srgb, var(--accent) 22%, transparent);
-        }
-        .result.needs_name {
-            background: var(--warning);
-            color: var(--warning-text);
-        }
-        .lookup-failed {
-            padding: 6px;
-            border-color: var(--warning);
-            background: var(--warning);
-            color: var(--warning-text);
-        }
-    `
+    templateUrl: './history.page.html',
+    styleUrl: './history.page.scss'
 })
 export class HistoryPage {
     protected readonly scans = signal<Array<Scan>>([]);

@@ -22,40 +22,7 @@ interface Editing {
     imports: [TranslatePipe, SheetComponent, SoundEditorComponent, SoundTimelineComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './sound-settings.component.html',
-    styles: `
-        .row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--line);
-            text-align: left;
-        }
-        .row:last-of-type {
-            border-bottom: 0;
-        }
-        .row app-sound-timeline {
-            flex: 0 0 6rem;
-        }
-        .pick {
-            display: flex;
-            flex: 1;
-            align-items: center;
-            gap: 10px;
-            min-width: 0;
-            text-align: left;
-        }
-        .row.chosen {
-            color: var(--accent);
-        }
-        .icon {
-            display: flex;
-            padding: 4px;
-            border-radius: 8px;
-            color: var(--accent);
-        }
-    `
+    styleUrl: './sound-settings.component.scss'
 })
 export class SoundSettingsComponent {
     protected readonly noSound = NO_SOUND;

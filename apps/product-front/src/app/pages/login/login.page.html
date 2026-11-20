@@ -1,0 +1,14 @@
+<main class="login">
+    <img class="logo" src="assets/icons/icon-192.png" alt="" />
+    <h1 class="page-title m-0">{{ 'common.appName' | translate }}</h1>
+    <p class="muted text-center">{{ 'login.intro' | translate }}</p>
+
+    @if (errorKey(); as key) {
+        <p class="error" role="alert">{{ key | translate }}</p>
+    }
+
+    <a class="btn primary w-full" [href]="auth.loginUrl">
+        <i class="material-symbols-outlined">login</i>
+        {{ 'login.google' | translate }}
+    </a>
+</main>

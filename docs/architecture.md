@@ -126,7 +126,7 @@ The app also serves the icon files under `/icons` and the built web app for ever
 
 ## Web app
 
-Angular with standalone components and signals; no state library. `apps/product-front/src/app/`:
+Angular with standalone components and signals; no state library. Every component keeps its template and styles in `.html` and `.scss` files next to it, not inline; lint enforces it. `apps/product-front/src/app/`:
 
 | Folder | Content |
 |---|---|

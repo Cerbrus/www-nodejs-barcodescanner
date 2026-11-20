@@ -1,0 +1,20 @@
+<button type="button" class="tile" [class]="tone()" (click)="selected.emit()">
+    @if (badge() || quantity() > 1) {
+        <span class="quantity">{{ badge() || quantity() }}</span>
+    }
+    <span class="icon"><app-item-icon [item]="item()" /></span>
+    <span class="text">
+        <span class="name">{{ item().name }}</span>
+        @if (note()) {
+            <span class="note">{{ note() }}</span>
+        }
+    </span>
+</button>
+@if (pending()) {
+    <i class="material-symbols-outlined waiting" aria-hidden="true">schedule</i>
+}
+@if (showDetails()) {
+    <button type="button" class="details" [attr.aria-label]="detailsLabel()" (click)="details.emit()">
+        <i class="material-symbols-outlined">more_horiz</i>
+    </button>
+}

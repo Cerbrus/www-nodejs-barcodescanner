@@ -1,0 +1,222 @@
+<div class="page">
+    <a class="back-bar" routerLink="/system">
+        <i class="material-symbols-outlined">arrow_back</i>
+        {{ 'nav.system' | translate }}
+    </a>
+    <div class="flex items-center justify-between gap-3">
+        <h1 class="page-title">{{ 'remark.listTitle' | translate }}</h1>
+        <button type="button" class="btn" (click)="remarks.write()">
+            <i class="material-symbols-outlined">add_comment</i>
+            {{ 'remark.write' | translate }}
+        </button>
+    </div>
+
+    @if (remarks.waiting(); as count) {
+        <p class="muted mb-2 text-sm">{{ 'remark.waiting' | translate: { count } }}</p>
+    }
+
+    <div class="flex flex-col gap-2">
+        @for (remark of unhandled(); track remark.id) {
+            <ng-container [ngTemplateOutlet]="card" [ngTemplateOutletContext]="{ $implicit: remark }" />
+        } @empty {
+            @if (!handled().length) {
+                <p class="empty">{{ (loaded() ? 'remark.empty' : 'common.loading') | translate }}</p>
+            }
+        }
+    </div>
+
+    @if (handled().length) {
+        <button
+            type="button"
+            class="group"
+            [attr.aria-expanded]="showHandled()"
+            (click)="showHandled.set(!showHandled())"
+        >
+            <i class="material-symbols-outlined">{{ showHandled() ? 'expand_less' : 'expand_more' }}</i>
+            <span class="grow text-left">{{ 'remark.closed' | translate }}</span>
+            <span class="state">{{ handled().length }}</span>
+        </button>
+        @if (showHandled()) {
+            <div class="flex flex-col gap-2">
+                @for (remark of handled(); track remark.id) {
+                    <ng-container [ngTemplateOutlet]="card" [ngTemplateOutletContext]="{ $implicit: remark }" />
+                }
+            </div>
+        }
+    }
+</div>
+
+<ng-template #card let-remark>
+    <article class="card" [class.opacity-60]="remark.state === 'closed'">
+        <div class="flex items-center gap-2 text-sm">
+            <i class="material-symbols-outlined kind" [class]="remark.kind">{{ icon(remark.kind) }}</i>
+            <span class="font-semibold">{{ 'remark.kind.' + remark.kind | translate }}</span>
+            <span class="muted grow">{{ remark.createdAt | date: 'd MMM HH:mm' }}</span>
+            @let actions = actionsFor(remark);
+            @if (actions.length === 1) {
+                <button type="button" class="btn small" (click)="run(remark, actions[0])">
+                    <i class="material-symbols-outlined">{{ actionIcons[actions[0]] }}</i>
+                    {{ actionTexts[actions[0]] | translate }}
+                </button>
+            } @else if (actions.length) {
+                <div class="menu-anchor">
+                    <button
+                        type="button"
+                        class="btn small"
+                        [attr.aria-expanded]="menu() === remark.id"
+                        [attr.aria-label]="'remark.actions' | translate"
+                        (click)="menu.set(menu() === remark.id ? undefined : remark.id)"
+                    >
+                        <i class="material-symbols-outlined">more_vert</i>
+                    </button>
+                    @if (menu() === remark.id) {
+                        <button
+                            type="button"
+                            class="backdrop"
+                            tabindex="-1"
+                            aria-hidden="true"
+                            (click)="menu.set(undefined)"
+                        ></button>
+                        <div class="menu" role="menu">
+                            @for (action of actions; track action) {
+                                <button type="button" role="menuitem" (click)="run(remark, action)">
+                                    <i class="material-symbols-outlined">{{ actionIcons[action] }}</i>
+                                    {{ actionTexts[action] | translate }}
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        @if (editing() === remark.id) {
+            <textarea
+                class="field mt-2"
+                rows="5"
+                maxlength="2000"
+                [attr.aria-label]="'remark.edit' | translate"
+                [ngModel]="draftText()"
+                (ngModelChange)="draftText.set($event)"
+                (keydown)="onEditKey($event, remark)"
+            ></textarea>
+            <div class="mt-2 flex gap-2">
+                <button type="button" class="btn" (click)="editing.set(undefined)">
+                    <i class="material-symbols-outlined">close</i>
+                    {{ 'common.cancel' | translate }}
+                </button>
+                <button
+                    type="button"
+                    class="btn primary"
+                    [disabled]="busy() || !draftText().trim()"
+                    (click)="saveEdit(remark)"
+                >
+                    <i class="material-symbols-outlined">check</i>
+                    {{ 'remark.save' | translate }}
+                </button>
+            </div>
+        } @else {
+            <p class="text">{{ remark.text }}</p>
+        }
+        <p class="muted where text-xs">
+            <span class="font-mono">{{ remark.page }}</span>
+            @if (remark.target; as target) {
+                · {{ target.label || target.text || target.component }}
+            }
+            @if (auth.owner() && auth.state()?.enabled) {
+                · {{ remark.account }}
+            }
+        </p>
+
+        @if (remark.issueUrl) {
+            <a class="issue" target="_blank" rel="noopener" [href]="remark.issueUrl">
+                <i class="material-symbols-outlined">open_in_new</i>
+                {{ 'remark.onGitHub' | translate: { number: remark.issueNumber } }}
+            </a>
+        }
+
+        @if (remark.progress; as progress) {
+            <p class="progress" [class.done]="progress.stage === 'live'">
+                <i class="material-symbols-outlined">{{ stageIcon(progress.stage) }}</i>
+                <span>{{ 'remark.stage.' + progress.stage | translate: { version: progress.version } }}</span>
+            </p>
+            @if (progress.pullRequest; as pull) {
+                <a class="issue" target="_blank" rel="noopener" [href]="pull.url">
+                    <i class="material-symbols-outlined">merge_type</i>
+                    #{{ pull.number }} {{ pull.title }}
+                </a>
+            }
+        }
+
+        @if (rejecting() === remark.id) {
+            <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
+            <div class="mt-2 flex gap-2">
+                <button type="button" class="btn danger" (click)="reject(remark)">
+                    <i class="material-symbols-outlined">block</i>
+                    {{ 'remark.reject' | translate }}
+                </button>
+                <button type="button" class="btn" (click)="rejecting.set(undefined)">
+                    <i class="material-symbols-outlined">close</i>
+                    {{ 'common.cancel' | translate }}
+                </button>
+            </div>
+        }
+    </article>
+</ng-template>
+
+@if (closing(); as remark) {
+    <app-sheet (closed)="closing.set(undefined)">
+        <h2 class="page-title">{{ 'remark.close' | translate }}</h2>
+        <p class="text-sm">{{ 'remark.closeConfirm' | translate }}</p>
+        <div class="mt-3 flex gap-2">
+            <button type="button" class="btn" (click)="closing.set(undefined)">
+                <i class="material-symbols-outlined">close</i>
+                {{ 'common.cancel' | translate }}
+            </button>
+            <button type="button" class="btn primary" (click)="close(remark)">
+                <i class="material-symbols-outlined">check</i>
+                {{ 'remark.close' | translate }}
+            </button>
+        </div>
+    </app-sheet>
+}
+
+@if (sending(); as remark) {
+    <app-sheet (closed)="sending.set(undefined)">
+        <h2 class="page-title">{{ 'remark.toGitHub' | translate }}</h2>
+        <p class="muted text-sm">{{ 'remark.publicWarning' | translate }}</p>
+
+        @for (option of optionNames; track option) {
+            <label class="option">
+                <input type="checkbox" [ngModel]="options()[option]" (ngModelChange)="choose(remark, option, $event)" />
+                <span>{{ 'remark.option.' + option | translate }}</span>
+            </label>
+        }
+
+        @if (draft(); as issue) {
+            <span class="field-label">{{ 'remark.preview' | translate }}</span>
+            <div class="preview">
+                <p class="font-semibold">{{ issue.title }}</p>
+                @if (issue.labels.length) {
+                    <p class="muted text-xs">{{ issue.labels.join(', ') }}</p>
+                }
+                <pre>{{ issue.body }}</pre>
+            </div>
+        }
+
+        <div class="mt-3 flex gap-2">
+            <button type="button" class="btn" (click)="sending.set(undefined)">
+                <i class="material-symbols-outlined">close</i>
+                {{ 'common.cancel' | translate }}
+            </button>
+            <button
+                type="button"
+                class="btn primary grow"
+                [disabled]="busy() || !draft()"
+                (click)="sendToGitHub(remark)"
+            >
+                <i class="material-symbols-outlined">send</i>
+                {{ 'remark.sendToGitHub' | translate }}
+            </button>
+        </div>
+    </app-sheet>
+}

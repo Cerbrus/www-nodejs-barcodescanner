@@ -1,0 +1,6 @@
+<svg [attr.viewBox]="'0 0 ' + scale + ' 40'" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="0" y1="20" [attr.x2]="scale" y2="20" class="base" />
+    @for (wave of waves(); track $index) {
+        <path [attr.d]="wave.path" [class]="wave.kind" />
+    }
+</svg>

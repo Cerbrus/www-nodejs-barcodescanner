@@ -17,36 +17,7 @@ const STICK_TO_BOTTOM_PIXELS = 40;
     standalone: true,
     imports: [DatePipe, RouterLink, TranslatePipe],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: `
-        <div class="terminal">
-            <header class="bar">
-                <a class="back" routerLink="/system" [attr.aria-label]="'nav.system' | translate">
-                    <i class="material-symbols-outlined">arrow_back</i>
-                </a>
-                <span class="dot red"></span>
-                <span class="dot amber"></span>
-                <span class="dot green"></span>
-                <span class="title">barcodescanner — log</span>
-                <span class="status" [class.live]="events.connected()">
-                    {{ (events.connected() ? 'log.live' : 'log.disconnected') | translate }}
-                </span>
-            </header>
-            <div #screen class="screen" (scroll)="onScroll()">
-                @for (line of lines(); track line.id) {
-                    <div class="line" [class]="line.level">
-                        <span class="time">{{ line.time | date: 'HH:mm:ss' }}</span>
-                        <span class="source" [class]="line.source">{{ line.source }}</span>
-                        <span class="message">{{ line.message }}</span>
-                    </div>
-                } @empty {
-                    <div class="line">
-                        <span class="message dim">{{ 'log.empty' | translate }}</span>
-                    </div>
-                }
-                <div class="line"><span class="prompt">$</span><span class="cursor"></span></div>
-            </div>
-        </div>
-    `,
+    templateUrl: './log.page.html',
     styleUrl: './log.page.scss'
 })
 export class LogPage {
