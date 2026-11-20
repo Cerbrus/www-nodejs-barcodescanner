@@ -52,6 +52,7 @@ describe('RemarksPage', () => {
         api.getRemarks.mockReturnValue(of({ remarks: list, canSendToGitHub }));
         fixture = TestBed.createComponent(RemarksPage);
         page = fixture.nativeElement as HTMLElement;
+        document.body.appendChild(page);
         await settle();
     };
     const buttons = (index = 0): Array<string> =>
@@ -74,6 +75,8 @@ describe('RemarksPage', () => {
         (page.querySelector('button.group') as HTMLElement).click();
         await settle();
     };
+
+    afterEach(() => page?.remove());
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -194,6 +197,20 @@ describe('RemarksPage', () => {
             [2, 'open']
         ]);
         expect(api.getRemarks).toHaveBeenCalledTimes(3);
+    });
+
+    it('focuses the confirm button of the handled and reject confirmations, so Enter confirms', async () => {
+        await open(OWNER, [remark(1)]);
+        await openMenu();
+        await press('remark.close', page.querySelector('.menu') as Element);
+        expect(document.activeElement?.textContent).toContain('remark.close');
+        expect(document.activeElement?.closest('app-sheet')).not.toBeNull();
+
+        await press('common.cancel');
+        await openMenu();
+        await press('remark.reject');
+        expect(document.activeElement?.textContent).toContain('remark.reject');
+        expect(document.activeElement?.closest('article')).not.toBeNull();
     });
 
     it('does not mark a remark as handled when the confirmation is cancelled', async () => {

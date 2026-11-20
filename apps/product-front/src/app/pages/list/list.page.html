@@ -152,7 +152,7 @@
         } @else if (confirmingRemove()) {
             <p>{{ 'list.removeConfirm' | translate: { name: nameOf(entry) } }}</p>
             <div class="mt-4 flex gap-2">
-                <button type="button" class="btn danger basis-0 grow" (click)="remove(entry)">
+                <button type="button" class="btn danger basis-0 grow" appFocusOnShow (click)="remove(entry)">
                     <i class="material-symbols-outlined">delete</i>
                     {{ 'list.remove' | translate }}
                 </button>

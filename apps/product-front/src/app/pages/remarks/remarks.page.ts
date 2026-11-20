@@ -8,6 +8,7 @@ import { Observable, catchError, finalize, interval, merge, of, startWith, switc
 
 import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
+import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { IssueDraft, IssueOptions, IssueStage, REMARK_KINDS, Remark, RemarkKind, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -52,7 +53,16 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
 @Component({
     selector: 'app-remarks-page',
     standalone: true,
-    imports: [DatePipe, FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, MarkdownComponent, SheetComponent],
+    imports: [
+        DatePipe,
+        FormsModule,
+        NgTemplateOutlet,
+        RouterLink,
+        TranslatePipe,
+        MarkdownComponent,
+        SheetComponent,
+        FocusOnShowDirective
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './remarks.page.html',
     styleUrl: './remarks.page.scss'

@@ -114,7 +114,7 @@
             @if (confirmingLogout()) {
                 <p class="note">{{ 'login.logoutConfirm' | translate }}</p>
                 <div class="row">
-                    <button type="button" class="btn danger basis-0 grow" (click)="logout()">
+                    <button type="button" class="btn danger basis-0 grow" appFocusOnShow (click)="logout()">
                         <i class="material-symbols-outlined">logout</i>
                         {{ 'login.logout' | translate }}
                     </button>

@@ -18,6 +18,7 @@ import { BarcodeComponent } from '../../components/barcode';
 import { IconPickerComponent } from '../../components/icon-picker/icon-picker.component';
 import { ItemAutocompleteComponent } from '../../components/item-autocomplete/item-autocomplete.component';
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
+import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { Barcode, CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -34,7 +35,8 @@ import { ToastService } from '../../services/toast.service';
         BarcodeComponent,
         ItemIconComponent,
         IconPickerComponent,
-        ItemAutocompleteComponent
+        ItemAutocompleteComponent,
+        FocusOnShowDirective
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './item.page.html'

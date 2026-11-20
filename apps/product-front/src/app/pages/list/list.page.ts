@@ -7,6 +7,7 @@ import { tap } from 'rxjs';
 import { ItemTileComponent } from '../../components/item-tile/item-tile.component';
 import { NewItemFormComponent } from '../../components/new-item-form/new-item-form.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
+import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { withNote } from '../../display-name';
 import { CatalogItem, ListEntry } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -23,7 +24,15 @@ interface SearchResult {
 @Component({
     selector: 'app-list-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, TranslatePipe, ItemTileComponent, NewItemFormComponent, SheetComponent],
+    imports: [
+        FormsModule,
+        RouterLink,
+        TranslatePipe,
+        ItemTileComponent,
+        NewItemFormComponent,
+        SheetComponent,
+        FocusOnShowDirective
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './list.page.html'
 })
