@@ -310,6 +310,16 @@
             "includeAccount": "Het account van de schrijver meesturen"
         },
         "newFromOther": "Er is nieuwe feedback",
-        "open": "Bekijken"
+        "open": "Bekijken",
+        "stage": {
+            "sent": "Naar GitHub gestuurd, nog niet opgepakt",
+            "investigating": "De agent kijkt ernaar",
+            "needsAnswers": "De agent heeft vragen voor je",
+            "tooLarge": "Te groot: de agent maakte een plan",
+            "notPossible": "De agent zegt dat het niet kan",
+            "review": "Klaar voor jouw review",
+            "merged": "Klaar: samengevoegd",
+            "closed": "Gesloten zonder aanpassing"
+        }
     }
 }

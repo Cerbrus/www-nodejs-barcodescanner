@@ -15,6 +15,7 @@ import { ApiModule } from '../api/api.module';
 import { configureApi } from '../api/configure-api';
 import { AppConfigModule } from '../config/config.module';
 import { SESSION_COOKIE } from '../core/rules/session';
+import { RemarkService } from '../core/services/remark.service';
 import { SessionService } from '../core/services/session.service';
 import { RemarkEntity } from '../data/entities';
 import { testFolder } from './test-env';
@@ -41,6 +42,7 @@ interface Remark {
     context?: Record<string, unknown>;
     issueNumber?: number;
     issueUrl?: string;
+    progress?: { stage: string; pullRequest?: { number: number; title: string; url: string } };
 }
 
 interface ReceivedIssue {
@@ -60,6 +62,9 @@ describe('remarks over HTTP', () => {
     let asGuest: Record<string, string>;
     let asOther: Record<string, string>;
     let githubStatus = 201;
+    let githubIssue: Record<string, unknown> = { state: 'open', labels: [{ name: 'investigate' }] };
+    let githubTimeline: Array<unknown> = [];
+    let githubReads = 0;
     const received: Array<ReceivedIssue> = [];
 
     async function call<T = unknown>(
@@ -88,6 +93,15 @@ describe('remarks over HTTP', () => {
             let text = '';
             request.on('data', (part) => (text += part));
             request.on('end', () => {
+                if (request.method === 'GET') {
+                    githubReads++;
+                    response.writeHead(githubStatus === 201 ? 200 : githubStatus, {
+                        'content-type': 'application/json'
+                    });
+                    response.end(JSON.stringify(request.url?.includes('/timeline') ? githubTimeline : githubIssue));
+
+                    return;
+                }
                 received.push({
                     path: request.url ?? '',
                     authorization: request.headers.authorization,
@@ -313,6 +327,51 @@ describe('remarks over HTTP', () => {
         assert.equal((await call('DELETE', `/remarks/${id}`, asGuest)).status, 409);
         assert.equal((await call('DELETE', `/remarks/${id}`, asOwner)).status, 409);
         assert.ok((await listed(asGuest)).some((remark) => remark.id === id));
+    });
+
+    it('shows how far the issue on GitHub has come, and keeps the last answer when GitHub fails', async () => {
+        const id = (await listed(asGuest)).find((remark) => remark.issueUrl)?.id;
+        const progress = async (): Promise<Remark['progress']> =>
+            (await listed(asGuest)).find((remark) => remark.id === id)?.progress;
+        const pull = (state: string, mergedAt: string | null): unknown => ({
+            event: 'cross-referenced',
+            source: {
+                issue: {
+                    number: 40,
+                    title: 'Show the state',
+                    html_url: 'https://github.example/pull/40',
+                    state,
+                    pull_request: { merged_at: mergedAt }
+                }
+            }
+        });
+
+        assert.deepEqual(await progress(), { stage: 'investigating' });
+
+        const reads = githubReads;
+        await progress();
+        assert.equal(githubReads, reads);
+
+        const remark = app.get(RemarkService) as unknown as { progressCache: Map<number, { at: number }> };
+        const forget = (): void => remark.progressCache.forEach((entry) => (entry.at = 0));
+
+        githubIssue = { state: 'open', labels: [{ name: 'agent: implemented' }] };
+        githubTimeline = [{ event: 'labeled' }, pull('open', null)];
+        forget();
+        assert.deepEqual(await progress(), {
+            stage: 'review',
+            pullRequest: { number: 40, title: 'Show the state', url: 'https://github.example/pull/40' }
+        });
+
+        githubStatus = 500;
+        forget();
+        assert.equal((await progress())?.stage, 'review');
+        githubStatus = 201;
+
+        githubIssue = { state: 'closed', labels: [] };
+        githubTimeline = [pull('closed', '2026-11-20T12:00:00Z')];
+        forget();
+        assert.equal((await progress())?.stage, 'merged');
     });
 
     it('stops an account after thirty remarks in an hour, without stopping the others', async () => {

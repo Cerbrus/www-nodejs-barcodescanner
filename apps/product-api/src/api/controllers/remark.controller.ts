@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 
-import { IssueDraft, IssueOptions } from '../../core/rules/remarks';
+import { IssueDraft, IssueOptions, IssueProgress } from '../../core/rules/remarks';
 import { RemarkService } from '../../core/services/remark.service';
 import { RemarkEntity } from '../../data/entities';
 import { RemarkCreateDto, RemarkIssueDto, RemarkStateDto } from '../dto/remark.dto';
@@ -9,7 +9,7 @@ import { OwnerOnly } from '../guards/owner.decorator';
 import { Account } from '../http';
 
 interface RemarkList {
-    remarks: Array<RemarkEntity>;
+    remarks: Array<RemarkEntity & { progress?: IssueProgress }>;
     canSendToGitHub: boolean;
 }
 
@@ -30,8 +30,11 @@ export class RemarkController {
 
     @Get()
     public async list(@CurrentAccount() account: Account): Promise<RemarkList> {
+        const remarks = await this.remarks.list(account);
+        const progress = await this.remarks.progressOf(remarks);
+
         return {
-            remarks: await this.remarks.list(account),
+            remarks: remarks.map((remark) => ({ ...remark, progress: progress.get(remark.id) })),
             canSendToGitHub: account.owner && this.remarks.canSendToGitHub
         };
     }

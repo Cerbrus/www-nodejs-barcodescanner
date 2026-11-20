@@ -353,4 +353,45 @@ describe('RemarksPage', () => {
         expect(api.getRemarks).toHaveBeenCalledTimes(2);
         expect(texts(page, 'article .text')).toEqual(['Remark 1']);
     });
+
+    it('shows how far a remark on GitHub has come, with the pull request when there is one', async () => {
+        const url = 'https://github.example/issues/12';
+        await open(OWNER, [
+            remark(1, { issueNumber: 12, issueUrl: url, progress: { stage: 'investigating' } }),
+            remark(2, {
+                issueNumber: 13,
+                issueUrl: url,
+                progress: {
+                    stage: 'review',
+                    pullRequest: { number: 40, title: 'Show the state', url: 'https://github.example/pull/40' }
+                }
+            }),
+            remark(3)
+        ]);
+
+        expect(texts(page, 'article .progress span')).toEqual(['remark.stage.investigating', 'remark.stage.review']);
+        expect(page.querySelector('a[href="https://github.example/pull/40"]')?.textContent).toContain(
+            '#40 Show the state'
+        );
+        expect(page.querySelectorAll('article')[2].querySelector('.progress') as Element | null).toBeNull();
+    });
+
+    it('asks for the state again every minute while the page is open', async () => {
+        vi.useFakeTimers();
+        try {
+            await open(OWNER, [remark(1, { issueNumber: 12, issueUrl: 'u', progress: { stage: 'sent' } })]);
+            api.getRemarks.mockReturnValue(
+                of({
+                    remarks: [remark(1, { issueNumber: 12, issueUrl: 'u', progress: { stage: 'merged' } })],
+                    canSendToGitHub: true
+                })
+            );
+            await vi.advanceTimersByTimeAsync(60 * 1000);
+            fixture.detectChanges();
+
+            expect(texts(page, 'article .progress span')).toEqual(['remark.stage.merged']);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });

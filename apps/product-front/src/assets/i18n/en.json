@@ -310,6 +310,16 @@
             "includeAccount": "Include the writer's account"
         },
         "newFromOther": "There is new feedback",
-        "open": "Open"
+        "open": "Open",
+        "stage": {
+            "sent": "Sent to GitHub, not picked up yet",
+            "investigating": "The agent is looking at it",
+            "needsAnswers": "The agent has questions for you",
+            "tooLarge": "Too large: the agent made a plan",
+            "notPossible": "The agent says it cannot be done",
+            "review": "Ready for your review",
+            "merged": "Done: merged",
+            "closed": "Closed without a change"
+        }
     }
 }

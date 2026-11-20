@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { RemarkContent, cleanContext, cleanTarget, issueFromRemark, tooManyRemarks } from './remarks';
+import {
+    IssueSnapshot,
+    RemarkContent,
+    cleanContext,
+    cleanTarget,
+    isFinalStage,
+    issueFromRemark,
+    progressOfIssue,
+    tooManyRemarks
+} from './remarks';
 
 const remark = (extra: Partial<RemarkContent> = {}): RemarkContent => ({
     id: 7,
@@ -104,5 +113,59 @@ describe('remarks', () => {
         const body = issueFromRemark(remark({ target: null, context: null, page: '' }), everything).body;
 
         assert.match(body, /- Page: `unknown`\n\n### Version\n\nunknown\n\n### Device\n\n- unknown\n\n### Sent by/);
+    });
+});
+
+describe('progress of an issue', () => {
+    const pull = (
+        extra: Partial<IssueSnapshot['pullRequests'][number]> = {}
+    ): IssueSnapshot['pullRequests'][number] => ({
+        number: 40,
+        title: 'Show the state',
+        url: 'https://github.example/pull/40',
+        state: 'open',
+        merged: false,
+        ...extra
+    });
+    const issue = (extra: Partial<IssueSnapshot> = {}): IssueSnapshot => ({
+        state: 'open',
+        labels: [],
+        pullRequests: [],
+        ...extra
+    });
+
+    it('is only sent while nothing has happened', () => {
+        assert.deepEqual(progressOfIssue(issue({ labels: ['bug'] })), { stage: 'sent' });
+    });
+
+    it('follows the labels of the agent', () => {
+        assert.equal(progressOfIssue(issue({ labels: ['investigate'] })).stage, 'investigating');
+        assert.equal(progressOfIssue(issue({ labels: ['agent: needs answers'] })).stage, 'needsAnswers');
+        assert.equal(progressOfIssue(issue({ labels: ['agent: too large'] })).stage, 'tooLarge');
+        assert.equal(progressOfIssue(issue({ labels: ['agent: not possible'] })).stage, 'notPossible');
+    });
+
+    it('waits for review while a pull request is open, and names it', () => {
+        assert.deepEqual(progressOfIssue(issue({ labels: ['agent: implemented'], pullRequests: [pull()] })), {
+            stage: 'review',
+            pullRequest: { number: 40, title: 'Show the state', url: 'https://github.example/pull/40' }
+        });
+    });
+
+    it('is done when the issue is closed with a merged pull request, and closed without one', () => {
+        const done = progressOfIssue(
+            issue({ state: 'closed', pullRequests: [pull({ state: 'closed', merged: true })] })
+        );
+
+        assert.equal(done.stage, 'merged');
+        assert.equal(done.pullRequest?.number, 40);
+        assert.deepEqual(progressOfIssue(issue({ state: 'closed', pullRequests: [pull({ state: 'closed' })] })), {
+            stage: 'closed'
+        });
+        assert.deepEqual([isFinalStage('merged'), isFinalStage('closed'), isFinalStage('review')], [true, true, false]);
+    });
+
+    it('ignores a pull request that was closed without merging', () => {
+        assert.equal(progressOfIssue(issue({ pullRequests: [pull({ state: 'closed' })] })).stage, 'sent');
     });
 });

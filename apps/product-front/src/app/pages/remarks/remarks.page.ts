@@ -4,10 +4,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Observable, catchError, finalize, of, startWith, switchMap, tap } from 'rxjs';
+import { Observable, catchError, finalize, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
 import { SheetComponent } from '../../components/sheet/sheet.component';
-import { IssueDraft, IssueOptions, Remark, RemarkKind, RemarkList } from '../../models';
+import { IssueDraft, IssueOptions, IssueStage, Remark, RemarkKind, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
@@ -15,6 +15,18 @@ import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 
 const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
+
+const STAGE_ICONS: Record<IssueStage, string> = {
+    sent: 'outbox',
+    investigating: 'manage_search',
+    needsAnswers: 'help',
+    tooLarge: 'unfold_more',
+    notPossible: 'block',
+    review: 'rate_review',
+    merged: 'check_circle',
+    closed: 'cancel'
+};
+const PROGRESS_REFRESH = 60 * 1000;
 
 type RemarkAction = 'handle' | 'reopen' | 'toGitHub' | 'reject';
 
@@ -145,6 +157,19 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
                         <i class="material-symbols-outlined">open_in_new</i>
                         {{ 'remark.onGitHub' | translate: { number: remark.issueNumber } }}
                     </a>
+                }
+
+                @if (remark.progress; as progress) {
+                    <p class="progress" [class.done]="progress.stage === 'merged'">
+                        <i class="material-symbols-outlined">{{ stageIcon(progress.stage) }}</i>
+                        <span>{{ 'remark.stage.' + progress.stage | translate }}</span>
+                    </p>
+                    @if (progress.pullRequest; as pull) {
+                        <a class="issue" target="_blank" rel="noopener" [href]="pull.url">
+                            <i class="material-symbols-outlined">merge_type</i>
+                            #{{ pull.number }} {{ pull.title }}
+                        </a>
+                    }
                 }
 
                 @if (rejecting() === remark.id) {
@@ -295,6 +320,20 @@ const DEFAULT_OPTIONS: IssueOptions = { includeDevice: false, includeAccount: fa
         .issue i {
             font-size: 16px;
         }
+        .progress {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .progress i {
+            font-size: 16px;
+        }
+        .progress.done {
+            color: var(--accent);
+        }
         .option {
             display: flex;
             align-items: center;
@@ -349,8 +388,7 @@ export class RemarksPage {
     protected readonly canSendToGitHub = computed(() => this.answer().canSendToGitHub);
 
     constructor() {
-        inject(EventsService)
-            .on('remark')
+        merge(inject(EventsService).on('remark'), interval(PROGRESS_REFRESH))
             .pipe(
                 startWith(undefined),
                 switchMap(() => this.load()),
@@ -386,6 +424,10 @@ export class RemarksPage {
         } else {
             this.rejecting.set(remark.id);
         }
+    }
+
+    protected stageIcon(stage: IssueStage): string {
+        return STAGE_ICONS[stage];
     }
 
     protected icon(kind: RemarkKind): string {

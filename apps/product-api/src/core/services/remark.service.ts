@@ -6,12 +6,15 @@ import { RemarkEntity } from '../../data/entities';
 import {
     IssueDraft,
     IssueOptions,
+    IssueProgress,
     REJECTED_STATE,
     RemarkKind,
     RemarkState,
     cleanContext,
     cleanTarget,
+    isFinalStage,
     issueFromRemark,
+    progressOfIssue,
     tooManyRemarks
 } from '../rules/remarks';
 import { EventsService } from './events.service';
@@ -34,10 +37,12 @@ export interface RemarkWriter {
 
 const HOUR_MILLISECONDS = 60 * 60 * 1000;
 const MAX_PAGE_LENGTH = 200;
+const PROGRESS_MAX_AGE = 60 * 1000;
 
 @Injectable()
 export class RemarkService {
     private readonly logger = new Logger('Remarks');
+    private readonly progressCache = new Map<number, { progress: IssueProgress; at: number }>();
 
     constructor(
         @InjectRepository(RemarkEntity) private readonly remarks: Repository<RemarkEntity>,
@@ -85,6 +90,26 @@ export class RemarkService {
         });
     }
 
+    public async progressOf(remarks: Array<RemarkEntity>, now = Date.now()): Promise<Map<number, IssueProgress>> {
+        const known = new Map<number, IssueProgress>();
+        if (!this.github.enabled) {
+            return known;
+        }
+
+        await Promise.all(
+            remarks
+                .filter((remark) => remark.issueNumber)
+                .map(async (remark) => {
+                    const progress = await this.progressOfIssue(remark.issueNumber as number, now);
+                    if (progress) {
+                        known.set(remark.id, progress);
+                    }
+                })
+        );
+
+        return known;
+    }
+
     public async setState(id: number, state: RemarkState): Promise<RemarkEntity> {
         const remark = await this.get(id);
 
@@ -117,6 +142,22 @@ export class RemarkService {
         const issue = await this.github.createIssue(issueFromRemark(remark, options));
 
         return this.remarks.save({ ...remark, issueNumber: issue.number, issueUrl: issue.url });
+    }
+
+    private async progressOfIssue(number: number, now: number): Promise<IssueProgress | undefined> {
+        const cached = this.progressCache.get(number);
+        if (cached && (isFinalStage(cached.progress.stage) || now - cached.at < PROGRESS_MAX_AGE)) {
+            return cached.progress;
+        }
+
+        const snapshot = await this.github.issueSnapshot(number);
+        if (!snapshot) {
+            return cached?.progress;
+        }
+        const progress = progressOfIssue(snapshot);
+        this.progressCache.set(number, { progress, at: now });
+
+        return progress;
     }
 
     private async get(id: number): Promise<RemarkEntity> {

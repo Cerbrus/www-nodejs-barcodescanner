@@ -206,6 +206,14 @@ export interface RemarkInput {
     writtenAt?: string;
 }
 
+export type IssueStage =
+    'sent' | 'investigating' | 'needsAnswers' | 'tooLarge' | 'notPossible' | 'review' | 'merged' | 'closed';
+
+export interface IssueProgress {
+    stage: IssueStage;
+    pullRequest?: { number: number; title: string; url: string };
+}
+
 export interface Remark {
     id: number;
     kind: RemarkKind;
@@ -219,6 +227,7 @@ export interface Remark {
     closedAt?: string | null;
     issueNumber?: number | null;
     issueUrl?: string | null;
+    progress?: IssueProgress;
 }
 
 export interface RemarkList {

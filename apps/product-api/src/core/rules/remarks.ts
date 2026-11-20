@@ -45,6 +45,20 @@ export interface IssueOptions {
     investigate: boolean;
 }
 
+export type IssueStage =
+    'sent' | 'investigating' | 'needsAnswers' | 'tooLarge' | 'notPossible' | 'review' | 'merged' | 'closed';
+
+export interface IssueSnapshot {
+    state: 'open' | 'closed';
+    labels: Array<string>;
+    pullRequests: Array<{ number: number; title: string; url: string; state: 'open' | 'closed'; merged: boolean }>;
+}
+
+export interface IssueProgress {
+    stage: IssueStage;
+    pullRequest?: { number: number; title: string; url: string };
+}
+
 export interface IssueDraft {
     title: string;
     body: string;
@@ -61,6 +75,13 @@ const AUTHORITY =
     'Sent to GitHub by the owner (admin) of this app. It is his decision that this is to be done, not a suggestion: implement it unless a real question is open.';
 const HEADING: Record<RemarkKind, string> = { bug: 'What happened', wish: 'What is wished', note: 'Note' };
 const LABEL: Record<RemarkKind, Array<string>> = { bug: ['bug'], wish: ['enhancement'], note: [] };
+
+const VERDICT_STAGES: Record<string, IssueStage> = {
+    'agent: needs answers': 'needsAnswers',
+    'agent: too large': 'tooLarge',
+    'agent: not possible': 'notPossible',
+    [INVESTIGATE_LABEL]: 'investigating'
+};
 
 const cut = (value: unknown): string | undefined =>
     typeof value === 'string' && value.trim()
@@ -127,6 +148,27 @@ export function issueFromRemark(remark: RemarkContent, options: IssueOptions): I
         body: sections.join('\n\n'),
         labels: [...LABEL[remark.kind], ...(options.investigate ? [INVESTIGATE_LABEL] : [])]
     };
+}
+
+export function isFinalStage(stage: IssueStage): boolean {
+    return stage === 'merged' || stage === 'closed';
+}
+
+export function progressOfIssue(issue: IssueSnapshot): IssueProgress {
+    const merged = issue.pullRequests.filter((pull) => pull.merged).at(-1);
+    const open = issue.pullRequests.filter((pull) => pull.state === 'open').at(-1);
+    const shown = (pull?: IssueSnapshot['pullRequests'][number]): IssueProgress['pullRequest'] =>
+        pull ? { number: pull.number, title: pull.title, url: pull.url } : undefined;
+
+    if (issue.state === 'closed') {
+        return withoutEmpty({ stage: merged ? 'merged' : 'closed', pullRequest: shown(merged) });
+    }
+    if (open) {
+        return { stage: 'review', pullRequest: shown(open) };
+    }
+    const verdict = issue.labels.map((label) => VERDICT_STAGES[label]).find(Boolean);
+
+    return { stage: verdict ?? 'sent' };
 }
 
 function section(heading: string, lines: Array<string>): string {
