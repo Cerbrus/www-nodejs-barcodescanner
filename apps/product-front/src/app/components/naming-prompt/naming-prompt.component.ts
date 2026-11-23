@@ -29,6 +29,7 @@ export type NamingOutcome = { kind: 'linked'; item: CatalogItem } | { kind: 'lat
 })
 export class NamingPromptComponent {
     public readonly code = input.required<string>();
+    public readonly collecting = input(false);
     public readonly closed = output<NamingOutcome>();
 
     protected readonly store = inject(ShoppingStore);

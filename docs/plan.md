@@ -111,3 +111,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Recipes, part 2: the hardware agent rebuilds the typed text, posts barcodes and recipe codes and refuses the rest | 2026-11-23 13:12 | 1.2.30 |
 | Recipes, part 3: the Recipes tab and pages, recipes kept by the API, a recipe on the list at once or through a tick sheet, one history line and one undo | 2026-11-23 13:47 | 1.2.33 |
 | Recipes, part 4: a recipe shows its QR code, and the codes of chosen recipes print on A4, twelve to a page | 2026-11-23 15:53 | |
+| A toggle on the scan page makes a phone scan collect the product from the list instead of adding it (issue 71) | 2026-11-23 16:26 | |

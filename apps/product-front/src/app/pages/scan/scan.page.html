@@ -12,6 +12,18 @@
         </div>
     }
 
+    <button
+        type="button"
+        class="collect"
+        [class.on]="collecting()"
+        [attr.aria-pressed]="collecting()"
+        [attr.aria-label]="'scan.collect' | translate"
+        [title]="'scan.collect' | translate"
+        (click)="collecting.set(!collecting())"
+    >
+        <i class="material-symbols-outlined">{{ collecting() ? 'checklist' : 'add_shopping_cart' }}</i>
+    </button>
+
     @if (lastOutcome(); as outcome) {
         <div class="last">
             <span class="font-mono">{{ outcome.code }}</span>
@@ -44,5 +56,5 @@
 </form>
 
 @if (namingCode(); as code) {
-    <app-naming-prompt [code]="code" (closed)="onNamed($event)" />
+    <app-naming-prompt [code]="code" [collecting]="collecting()" (closed)="onNamed($event)" />
 }

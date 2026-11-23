@@ -85,6 +85,20 @@
         </div>
     }
 
+    @if (collecting() && store.toBuy().length) {
+        <span class="field-label">{{ 'naming.onList' | translate }}</span>
+        <div class="flex flex-wrap gap-2">
+            @for (row of store.toBuy(); track row.id) {
+                <button type="button" class="btn" [disabled]="busy()" (click)="choose(row.catalogItem, row.note)">
+                    {{ row.catalogItem.name }}
+                    @if (row.note) {
+                        <span class="muted">· {{ row.note }}</span>
+                    }
+                </button>
+            }
+        </div>
+    }
+
     <label class="field-label" for="naming-variant">{{ 'naming.variantLabel' | translate }}</label>
     <input
         #variantField

@@ -48,14 +48,18 @@
         "manualSubmit": "Add",
         "added": "{name} is on the list",
         "incremented": "{name}: now {quantity}",
+        "collected": "{name} is collected",
+        "not_on_list": "{name} is not on the list",
         "linked": "Linked to {name}",
         "failed": "Scan not processed: no connection",
         "discarded": "Scan cancelled",
         "unknownHandheld": "Unknown product scanned",
+        "collect": "Scans collect products from the list",
         "nameIt": "Name it"
     },
     "naming": {
         "title": "Which product is this?",
+        "onList": "On your list",
         "lookingUp": "Looking up product details…",
         "noSuggestions": "No product details found for this barcode.",
         "searchLabel": "Pick the product for the list",
@@ -145,6 +149,8 @@
         "result": {
             "added": "added",
             "incremented": "count +1",
+            "collected": "collected",
+            "not_on_list": "not on list",
             "needs_name": "needs name",
             "ignored": "ignored",
             "undone": "undone",

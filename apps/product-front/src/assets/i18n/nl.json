@@ -48,14 +48,18 @@
         "manualSubmit": "Toevoegen",
         "added": "{name} staat op de lijst",
         "incremented": "{name}: nu {quantity}",
+        "collected": "{name} is gepakt",
+        "not_on_list": "{name} staat niet op de lijst",
         "linked": "Gekoppeld aan {name}",
         "failed": "Scan niet verwerkt: geen verbinding",
         "discarded": "Scan geannuleerd",
         "unknownHandheld": "Onbekend product gescand",
+        "collect": "Scans pakken producten van de lijst",
         "nameIt": "Naam geven"
     },
     "naming": {
         "title": "Welk product is dit?",
+        "onList": "Op je lijst",
         "lookingUp": "Productgegevens opzoeken…",
         "noSuggestions": "Geen productgegevens gevonden voor deze barcode.",
         "searchLabel": "Kies het product voor op de lijst",
@@ -145,6 +149,8 @@
         "result": {
             "added": "toegevoegd",
             "incremented": "aantal +1",
+            "collected": "gepakt",
+            "not_on_list": "niet op lijst",
             "needs_name": "naam nodig",
             "ignored": "genegeerd",
             "undone": "ongedaan",

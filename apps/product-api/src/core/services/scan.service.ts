@@ -13,7 +13,7 @@ import {
 
 import { BarcodeEntity, ScanChangeEntity, ScanEntity } from '../../data/entities';
 import { TransactionRunner } from '../../data/transaction.runner';
-import { EntrySnapshot, addOneToEntry, addToEntry, decideScan, takeBack } from '../rules/scan-rules';
+import { EntrySnapshot, addOneToEntry, addToEntry, collectEntry, decideScan, takeBack } from '../rules/scan-rules';
 import { BarcodeService } from './barcode.service';
 import { CatalogService } from './catalog.service';
 import { ConnectorService } from './connector.service';
@@ -37,6 +37,18 @@ export interface ScanOutcome {
 const MAX_HELD_MILLISECONDS = 60 * 60 * 1000;
 const RECIPE_RESULTS: Array<ScanResult> = ['recipe', 'recipe_partial'];
 
+export interface ScanOptions {
+    scannedAt?: Date;
+    collecting?: boolean;
+}
+
+interface NewScan {
+    code: string;
+    source: ScanSource;
+    now: Date;
+    collecting: boolean;
+}
+
 interface RegisteredScan {
     outcome: ScanOutcome;
     suggestions?: Array<ProductSuggestion>;
@@ -57,10 +69,14 @@ export class ScanService {
         private readonly push: PushService
     ) {}
 
-    public async register(code: string, source: ScanSource, scannedAt?: Date): Promise<ScanOutcome> {
+    public async register(
+        code: string,
+        source: ScanSource,
+        { scannedAt, collecting = false }: ScanOptions = {}
+    ): Promise<ScanOutcome> {
         const at = this.acceptedTime(scannedAt);
         const { outcome, suggestions } = await this.transactions.run((manager) =>
-            this.write(code, source, at, manager)
+            this.write({ code, source, now: at, collecting }, manager)
         );
 
         const name = outcome.note ? `${outcome.itemName}, ${outcome.note}` : outcome.itemName;
@@ -132,7 +148,7 @@ export class ScanService {
             if (RECIPE_RESULTS.includes(scan.result)) {
                 await this.undoRecipe(scan.id, manager);
             } else {
-                if (scan.catalogItemId && scan.result !== 'needs_name') {
+                if (scan.catalogItemId && scan.result !== 'needs_name' && scan.result !== 'not_on_list') {
                     await this.undoListChange(scan, manager);
                 }
                 await this.barcodes.uncountScan(scan.code, manager);
@@ -218,7 +234,7 @@ export class ScanService {
         }
     }
 
-    private async write(code: string, source: ScanSource, now: Date, manager: EntityManager): Promise<RegisteredScan> {
+    private async write({ code, source, now, collecting }: NewScan, manager: EntityManager): Promise<RegisteredScan> {
         const scans = manager.getRepository(ScanEntity);
         const previous = await scans.findOne({
             where: { code, result: Not('ignored') },
@@ -228,13 +244,20 @@ export class ScanService {
         const catalogItemId = barcode.catalogItemId ?? undefined;
         const note = catalogItemId ? cleanNote(barcode.note) : '';
         const entry = catalogItemId ? await this.list.getSnapshot(catalogItemId, note, manager) : undefined;
-        const decision = decideScan({ now, previousScanOfCodeAt: previous?.createdAt, catalogItemId, entry });
+        const decision = decideScan({
+            now,
+            previousScanOfCodeAt: previous?.createdAt,
+            catalogItemId,
+            entry,
+            collecting
+        });
 
         const scan = await scans.save({
             code,
             source,
             result: decision.result,
             createdAt: now,
+            collecting,
             catalogItemId: catalogItemId ?? null,
             note: catalogItemId ? note : null,
             previousState: entry?.state ?? null,
@@ -282,7 +305,7 @@ export class ScanService {
 
         for (const scan of pending) {
             const snapshot = await this.list.getSnapshot(catalogItemId, note, manager);
-            const { result, entry } = addOneToEntry(snapshot);
+            const { result, entry } = scan.collecting ? collectEntry(snapshot) : addOneToEntry(snapshot);
             await scans.update(scan.id, {
                 result,
                 catalogItemId,
@@ -290,7 +313,9 @@ export class ScanService {
                 previousState: snapshot?.state ?? null,
                 previousQuantity: snapshot?.quantity ?? null
             });
-            await this.list.writeSnapshot(catalogItemId, note, entry, manager);
+            if (entry) {
+                await this.list.writeSnapshot(catalogItemId, note, entry, manager);
+            }
         }
 
         return pending.length;

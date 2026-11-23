@@ -167,7 +167,7 @@ Angular with standalone components and signals; no state library. Every componen
 | `catalog_item` | `id`, `name` (unique), `section_id`, `icon`, `emoji`, `custom` | `icon` is a file name in the icon folder, served under `/icons/<icon>.png` |
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `note`, `suggestions` (JSON), `lookup_failed` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox. `note` is the variant its scans go to (empty for none). `lookup_failed` lists the connectors that gave no answer |
 | `list_entry` | `id` (key, UUID), `catalog_item_id`, `note`, `state` (`to_buy`, `recent`), `quantity`, `updated_at` | Catalog item plus note is unique: the note is the variant. The web app makes the id, so an entry can be added offline |
-| `scan` | `id`, `code`, `source` (`handheld`, `phone`, `app`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity`, `title` | History and undo; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan. A recipe is one row with the result `recipe` or `recipe_partial`, its name in `title` and its recipe code in `code` |
+| `scan` | `id`, `code`, `source` (`handheld`, `phone`, `app`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity`, `title`, `collecting` | History and undo; `collecting` marks a scan made with the collect toggle of the scan page on, so naming it later collects instead of adds; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan. A recipe is one row with the result `recipe` or `recipe_partial`, its name in `title` and its recipe code in `code` |
 | `scan_change` | `id`, `scan_id`, `catalog_item_id`, `note`, `quantity`, `previous_state`, `previous_quantity` | One row per list entry a recipe touched: what was added and what the entry was before, for undo |
 | `recipe` | `id`, `name` (unique), `description` (markdown), `created_at`, `updated_at` | |
 | `recipe_ingredient` | `id`, `recipe_id`, `catalog_item_id`, `quantity`, `note`, `position` | Product plus note is unique within a recipe; `position` keeps the order. Deleting a product removes its rows |
@@ -178,7 +178,7 @@ On first start with an empty database, the app imports sections, items and the c
 
 ## Scan rules
 
-On `POST /api/v1/scans` with `{ code }`. The source is not sent: a scan posted with the agent's token is `handheld`, one posted by a logged-in browser is `phone`.
+On `POST /api/v1/scans` with `{ code }`, and `collecting` from the scan page when its toggle is on. The source is not sent: a scan posted with the agent's token is `handheld`, one posted by a logged-in browser is `phone`.
 
 1. Same code within 1 second of the previous scan: result `ignored`. The camera page has its own, longer pause of 3 seconds for a code that stays in view.
 2. Barcode has a catalog item; the entry is the one of that item with the barcode's note:
@@ -190,6 +190,8 @@ On `POST /api/v1/scans` with `{ code }`. The source is not sent: a scan posted w
 When a barcode gets its mapping, its waiting `needs_name` scans are applied by rule 2.
 
 Checking off an entry sets state `recent` and quantity 0. Undo reverses the list change of the latest scan that is not undone.
+
+**A collecting scan** (decision 0108). A scan posted by a browser with `collecting: true` reads rule 2 differently: an entry that is `to_buy` becomes `recent` with quantity 0 (result `collected`); any other entry, or none, is left alone (result `not_on_list`). Rules 1, 3 and 4 do not change. The scan stores `collecting`, so a `needs_name` scan that is named later is applied with the same collect rule. Undo of `collected` restores the entry; `not_on_list` has no list change to undo. A scan from the agent never collects.
 
 **A recipe on the list** (`POST /api/v1/recipes/additions`). The same product with the same note is added up first. Each product that exists goes to its entry with that note: quantity plus the recipe's quantity when the entry is to buy, otherwise to buy with that quantity. A product id that does not exist is left out and the result is `recipe_partial` instead of `recipe`. Undo takes the whole recipe back: an entry that still holds more than the recipe added loses that quantity, otherwise it returns to what it was before, and an entry that was checked off or removed since is left alone.
 
@@ -221,7 +223,7 @@ interface ProductSuggestion {
 
 | Method and path | Purpose |
 |---|---|
-| `POST /api/v1/scans` | Register a scan; open to the agent |
+| `POST /api/v1/scans` | Register a scan; open to the agent. A browser may send `collecting` |
 | `POST /api/v1/scans/undo` | Undo the latest scan |
 | `GET /api/v1/scans` | History; a recipe comes with the list entries it touched |
 | `GET /api/v1/recipes`, `POST`, `GET /:id`, `PATCH /:id`, `DELETE /:id` | Recipes with their ingredients; a change replaces the name, the description and all ingredients |

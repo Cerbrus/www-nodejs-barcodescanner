@@ -48,6 +48,25 @@
     }
 }
 
+.collect {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 65%);
+    color: #fff;
+
+    &.on {
+        background: var(--accent);
+        color: var(--accent-text);
+    }
+}
+
 .last {
     position: absolute;
     right: 12px;

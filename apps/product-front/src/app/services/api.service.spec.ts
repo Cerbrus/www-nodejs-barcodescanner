@@ -68,7 +68,7 @@ describe('ApiService', () => {
             [() => api.unmapBarcode('871'), 'DELETE', '/barcodes/871'],
             [() => api.discardBarcode('871'), 'POST', '/barcodes/871/discard', {}],
             [() => api.getIcons(), 'GET', '/icons'],
-            [() => api.scan('871'), 'POST', '/scans', { code: '871' }],
+            [() => api.scan('871'), 'POST', '/scans', { code: '871', collecting: false }],
             [() => api.undoScan(), 'POST', '/scans/undo', {}],
             [() => api.getScans(), 'GET', '/scans?limit=100'],
             [() => api.getLogs(), 'GET', '/logs?limit=300'],

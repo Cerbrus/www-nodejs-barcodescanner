@@ -24,6 +24,7 @@ import { ToastService } from '../../services/toast.service';
 const SAME_CODE_PAUSE_MILLISECONDS = 3000;
 const SCAN_INTERVAL_MILLISECONDS = 150;
 const CODE_PATTERN = /^\d{8,14}$/;
+const ATTENTION_RESULTS: Array<ScanOutcome['result']> = ['needs_name', 'not_on_list'];
 
 type CameraState = 'starting' | 'running' | 'blocked' | 'unsupported';
 
@@ -46,6 +47,8 @@ export class ScanPage {
     private readonly store = inject(ShoppingStore);
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
+
+    protected readonly collecting = this.store.collecting;
 
     private controls?: IScannerControls;
     private lastCode = '';
@@ -121,7 +124,7 @@ export class ScanPage {
 
     private register(code: string): void {
         this.api
-            .scan(code)
+            .scan(code, this.collecting())
             .pipe(
                 tap((outcome) => this.showOutcome(outcome)),
                 switchMap(() => this.store.refreshListAndInbox()),
@@ -135,7 +138,7 @@ export class ScanPage {
 
     private showOutcome(outcome: ScanOutcome): void {
         this.lastOutcome.set(outcome);
-        navigator.vibrate?.(outcome.result === 'needs_name' ? [60, 60, 60] : 60);
+        navigator.vibrate?.(ATTENTION_RESULTS.includes(outcome.result) ? [60, 60, 60] : 60);
 
         if (outcome.result === 'needs_name') {
             this.controls?.stop();
@@ -147,12 +150,18 @@ export class ScanPage {
             return;
         }
 
+        const text = this.translate.instant(`scan.${outcome.result}`, {
+            name: withNote(outcome.itemName, outcome.note),
+            quantity: outcome.quantity
+        });
+        if (outcome.result === 'not_on_list') {
+            this.toasts.show({ kind: 'attention', text });
+            return;
+        }
+
         this.toasts.show({
             kind: 'ok',
-            text: this.translate.instant(`scan.${outcome.result}`, {
-                name: withNote(outcome.itemName, outcome.note),
-                quantity: outcome.quantity
-            }),
+            text,
             actionLabel: this.translate.instant('history.undo'),
             action: () => this.undo()
         });

@@ -8,10 +8,12 @@
 }
 .result.added,
 .result.incremented,
+.result.collected,
 .result.recipe {
     background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .result.needs_name,
+.result.not_on_list,
 .result.recipe_partial {
     background: var(--warning);
     color: var(--warning-text);

@@ -54,6 +54,7 @@ export class ShoppingStore {
     public readonly entries = signal<Array<ListEntry>>([]);
     public readonly inbox = signal<Array<Barcode>>([]);
     public readonly recipes = signal<Array<Recipe>>([]);
+    public readonly collecting = signal(false);
     public readonly loaded = signal(false);
     public readonly failed = signal(false);
     public readonly settled = signal(false);

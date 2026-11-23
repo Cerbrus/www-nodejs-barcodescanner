@@ -18,8 +18,10 @@ export class ScanController {
     @Post()
     public register(@Body() scan: ScanDto, @CalledBy() caller: Caller): Promise<ScanOutcome> {
         return caller === 'agent'
-            ? this.scans.register(scan.code, 'handheld', scan.scannedAt ? new Date(scan.scannedAt) : undefined)
-            : this.scans.register(scan.code, 'phone');
+            ? this.scans.register(scan.code, 'handheld', {
+                  scannedAt: scan.scannedAt ? new Date(scan.scannedAt) : undefined
+              })
+            : this.scans.register(scan.code, 'phone', { collecting: scan.collecting });
     }
 
     @Post('undo')

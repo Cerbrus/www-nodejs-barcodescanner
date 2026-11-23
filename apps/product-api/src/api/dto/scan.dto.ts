@@ -1,4 +1,4 @@
-import { IsISO8601, IsOptional, IsString, Matches } from 'class-validator';
+import { IsBoolean, IsISO8601, IsOptional, IsString, Matches } from 'class-validator';
 
 export class ScanDto {
     @IsString()
@@ -8,4 +8,8 @@ export class ScanDto {
     @IsOptional()
     @IsISO8601()
     public scannedAt?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    public collecting?: boolean;
 }

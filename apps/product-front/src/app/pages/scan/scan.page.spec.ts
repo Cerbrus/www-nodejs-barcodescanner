@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -49,7 +49,7 @@ const outcome = (code: string, result: ScanOutcome['result']): ScanOutcome => ({
 describe('ScanPage', () => {
     let fixture: ComponentFixture<ScanPage>;
     const api = { scan: vi.fn(), undoScan: vi.fn() };
-    const store = { refreshListAndInbox: vi.fn() };
+    const store = { refreshListAndInbox: vi.fn(), collecting: signal(false) };
 
     const open = async (): Promise<HTMLElement> => {
         fixture = TestBed.createComponent(ScanPage);
@@ -77,6 +77,7 @@ describe('ScanPage', () => {
         camera.decoded = undefined;
         camera.refuse = false;
         camera.starts = 0;
+        store.collecting.set(false);
         api.scan.mockImplementation((code: string) => of(outcome(code, 'added')));
         api.undoScan.mockReturnValue(of({}));
         store.refreshListAndInbox.mockReturnValue(of(undefined));
@@ -123,7 +124,7 @@ describe('ScanPage', () => {
         const page = await open();
         see(MILK);
 
-        expect(api.scan).toHaveBeenCalledWith(MILK);
+        expect(api.scan).toHaveBeenCalledWith(MILK, false);
         expect(store.refreshListAndInbox).toHaveBeenCalledTimes(1);
         expect(toasts()).toEqual(['ok: scan.added']);
         expect(page.querySelector('.last')?.textContent).toContain(MILK);
@@ -131,6 +132,44 @@ describe('ScanPage', () => {
         TestBed.inject(ToastService).toasts()[0].action?.();
 
         expect(api.undoScan).toHaveBeenCalledTimes(1);
+    });
+
+    it('collects from the list once the toggle is on, and keeps it on for the next visit', async () => {
+        api.scan.mockImplementation((code: string) => of(outcome(code, 'collected')));
+        const page = await open();
+        const toggle = page.querySelector('.collect') as HTMLButtonElement;
+        expect(toggle.getAttribute('aria-pressed')).toBe('false');
+
+        toggle.click();
+        fixture.detectChanges();
+        see(MILK);
+
+        expect(toggle.getAttribute('aria-pressed')).toBe('true');
+        expect(api.scan).toHaveBeenCalledWith(MILK, true);
+        expect(toasts()).toEqual(['ok: scan.collected']);
+        expect(TestBed.inject(ToastService).toasts()[0].action).toBeDefined();
+
+        fixture.destroy();
+        expect((await open()).querySelector('.collect')?.getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('says so, without undo, when a collected product is not on the list', async () => {
+        store.collecting.set(true);
+        api.scan.mockImplementation((code: string) => of(outcome(code, 'not_on_list')));
+        await open();
+        see(MILK);
+
+        expect(toasts()).toEqual(['attention: scan.not_on_list']);
+        expect(TestBed.inject(ToastService).toasts()[0].action).toBeUndefined();
+    });
+
+    it('lets the naming prompt offer the list while collecting', async () => {
+        store.collecting.set(true);
+        api.scan.mockImplementation((code: string) => of(outcome(code, 'needs_name')));
+        const page = await open();
+        see(MILK);
+
+        expect((page.querySelector('app-naming-prompt') as unknown as { collecting: boolean }).collecting).toBe(true);
     });
 
     it('ignores the same code for three seconds, but not another code', async () => {

@@ -152,8 +152,8 @@ export class ApiService {
         return this.http.get<Array<string>>(`${this.baseUrl}/icons`);
     }
 
-    public scan(code: string): Observable<ScanOutcome> {
-        return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code }, { context: QUIET });
+    public scan(code: string, collecting = false): Observable<ScanOutcome> {
+        return this.http.post<ScanOutcome>(`${this.baseUrl}/scans`, { code, collecting }, { context: QUIET });
     }
 
     public undoScan(): Observable<{ undone?: Scan }> {
