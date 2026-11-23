@@ -24,7 +24,12 @@ In daily-use shape and running on the Pi:
     - **Share as text**: copy the products to buy as plain text, with notes and quantities.
     - **Merge products**: fold a duplicate product into another; its barcodes, list lines and history move along.
     - **Alerts to the owner**: a push notification when the scanner has been away for a while, the hourly backup fails, or a deploy does not come up healthy.
-4. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
+4. **Recipes**, asked for by the owner on 2026-11-23; the code format is decided in [0100](decisions/0100-recipes-as-qr-codes.md), the rest gets its own plan before it is built:
+    - **Hardware agent**: read letters and punctuation with Shift, stop counting a shifted digit key as a digit, and pass a recipe code on to the API.
+    - **API**: a way in for a recipe code next to the scan route, the recipe table with its service, and the rule that adds the ingredients to the list and reports an unknown product.
+    - **Web app**: a Recipes tab where recipes are made from products with a quantity and a note, each with its code drawn by `qrcode-generator`; the Products tab moves to Settings. The camera page reads recipe codes too.
+    - **Not decided yet**: how a recipe scan shows in the history and is undone, how a scanned code of an unknown recipe is offered in the inbox, and what the scanner sounds like for a recipe.
+5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
 Deferred or blocked:
 

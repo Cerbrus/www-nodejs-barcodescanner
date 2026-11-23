@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0099 or higher: the highest number plus one.
+- Number the next record 0101 or higher: the highest number plus one.
 
 ## Product
 
@@ -35,6 +35,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0058](0058-bring-as-reference.md) | Bring's web app is a functional reference | accepted | not recorded |
 | [0080](0080-failures-never-fail-a-scan.md) | A connector failure or a failed push never fails a scan | accepted (found afterwards) | not recorded |
 | [0090](0090-lookup-in-background.md) | The product lookup runs in the background after the scan is answered | accepted (found afterwards) | not recorded |
+| [0100](0100-recipes-as-qr-codes.md) | A recipe is a QR code that carries its whole ingredient list | accepted | 2026-11-23 |
 
 ## Scanner and sounds
 
