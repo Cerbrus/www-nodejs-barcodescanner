@@ -41,7 +41,6 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 
 ## Never tested
 
-- Compression and the cache header on versioned files through the reverse proxy: seen on the Pi itself on 2026-11-23, straight at the app.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - A reboot with the firewall service since it was added.
 - Push notifications in a desktop browser, which takes the service worker path.
