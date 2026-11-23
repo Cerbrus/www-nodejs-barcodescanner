@@ -1,8 +1,22 @@
-import { expect, test } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 
 import { TYPED_CODE, listOf, nameInPrompt, pastTheRepeatPause, productOffTheList, tile } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
+
+const SLOW_PAGE_MILLISECONDS = 12_000;
+
+async function appKept(page: Page): Promise<void> {
+    await page.waitForFunction(async () => {
+        const kept = await (await caches.open('app-files-v1')).keys();
+
+        return (
+            navigator.serviceWorker.controller !== null &&
+            kept.some((file) => /main-.*\.js$/.test(file.url)) &&
+            kept.some((file) => new URL(file.url).pathname === '/')
+        );
+    });
+}
 
 test('type a code, name it, check it off and undo', async ({ page, request }) => {
     const product = await productOffTheList(request);
@@ -102,15 +116,7 @@ test('put a product on the list twice with different notes, and merge them with 
 test('shop without a connection and send the change later', async ({ page, context, request }) => {
     await page.goto('/#/list');
     const name = (await page.locator('app-item-tile:has(button.tile.buy) .name').first().innerText()).trim();
-    await page.waitForFunction(async () => {
-        const kept = await (await caches.open('app-files-v1')).keys();
-
-        return (
-            navigator.serviceWorker.controller !== null &&
-            kept.some((file) => /main-.*\.js$/.test(file.url)) &&
-            kept.some((file) => new URL(file.url).pathname === '/')
-        );
-    });
+    await appKept(page);
 
     await context.setOffline(true);
     await page.reload();
@@ -126,6 +132,29 @@ test('shop without a connection and send the change later', async ({ page, conte
     await expect
         .poll(async () => (await listOf(request)).find((entry) => entry.catalogItem.name === name)?.state)
         .toBe('recent');
+});
+
+test('open from the kept page when the network is slow to answer', async ({ page, context }) => {
+    await page.goto('/#/list');
+    const name = (await page.locator('app-item-tile:has(button.tile.buy) .name').first().innerText()).trim();
+    await appKept(page);
+
+    let held = 0;
+    await context.route(
+        (url) => url.pathname === '/',
+        async (route) => {
+            held++;
+            await new Promise((resolve) => setTimeout(resolve, SLOW_PAGE_MILLISECONDS));
+            await route.continue().catch(() => undefined);
+        }
+    );
+
+    const started = Date.now();
+    await page.reload();
+    await expect(tile(page, 'buy', name)).toBeVisible();
+
+    expect(held).toBe(1);
+    expect(Date.now() - started).toBeLessThan(SLOW_PAGE_MILLISECONDS / 2);
 });
 
 test('other pages open, and the browser reported nothing the content policy would block', async ({ page, request }) => {

@@ -32,6 +32,7 @@ describe('service worker', () => {
     let handlers: Map<string, Handler>;
     let caches: Map<string, FakeCache>;
     let online: boolean;
+    let stalled: boolean;
     let windows: Array<{ postMessage: ReturnType<typeof vi.fn>; focus: ReturnType<typeof vi.fn> }>;
     const fetched: Array<string> = [];
     const showNotification = vi.fn(() => Promise.resolve());
@@ -72,10 +73,12 @@ describe('service worker', () => {
     const textOf = async (response?: Response): Promise<string | undefined> => response?.text();
 
     beforeEach(() => {
+        vi.useRealTimers();
         vi.clearAllMocks();
         handlers = new Map();
         caches = new Map();
         online = true;
+        stalled = false;
         windows = [];
         fetched.length = 0;
 
@@ -94,6 +97,9 @@ describe('service worker', () => {
             fetch: (target: CacheKey) => {
                 const address = new URL(nameOf(target), SITE);
                 fetched.push(address.pathname);
+                if (stalled) {
+                    return new Promise<Response>(() => undefined);
+                }
                 if (!online) {
                     return Promise.reject(new Error('offline'));
                 }
@@ -148,6 +154,35 @@ describe('service worker', () => {
         online = false;
 
         expect((await request('/', { mode: 'navigate' }))?.type).toBe('error');
+    });
+
+    it('shows the kept page when the network has not answered after two seconds', async () => {
+        await request('/', { mode: 'navigate' });
+        vi.useFakeTimers();
+        stalled = true;
+        let shown: string | undefined;
+
+        void request('/', { mode: 'navigate' })
+            .then(textOf)
+            .then((text) => (shown = text));
+        await vi.advanceTimersByTimeAsync(1999);
+
+        expect(shown).toBeUndefined();
+
+        await vi.advanceTimersByTimeAsync(1);
+
+        expect(shown).toBe('fresh /');
+    });
+
+    it('keeps waiting for a slow network when there is no kept page', async () => {
+        vi.useFakeTimers();
+        stalled = true;
+        let answered = false;
+
+        void request('/', { mode: 'navigate' }).then(() => (answered = true));
+        await vi.advanceTimersByTimeAsync(10_000);
+
+        expect(answered).toBe(false);
     });
 
     it('serves a file with a version in its name from the cache after the first time', async () => {

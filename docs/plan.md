@@ -11,7 +11,7 @@ In daily-use shape and running on the Pi:
 - Installable on the phone, Dutch and English, light and dark, push notifications for unknown handheld scans, shopping without a connection.
 - Login with Google for an allowlist, with one owner account for the system parts. A buzzer at the scanner, with sounds built from blocks and one for a new version.
 - Feedback from inside the app; the owner sends it to GitHub, where an agent implements it in a pull request; the owner's approval lands it through the release train, several at once as one version. A "What's new" page built from the releases.
-- Tests: API rules and routes, the web app, 15 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag was tested on 2026-11-15 and again on 2026-11-16, after the updater that skipped rollbacks was repaired.
+- Tests: API rules and routes, the web app, 16 browser tests, the hardware agent, Prettier; all run before any image is published. Rollback by image tag was tested on 2026-11-15 and again on 2026-11-16, after the updater that skipped rollbacks was repaired.
 - Packages: Node 26, Nx 24, Angular 22, TypeScript 6, NestJS 12, TypeORM 1, Tailwind 4, ngx-translate 18, ESLint 10. A content security policy in report-only mode.
 
 ## What comes next

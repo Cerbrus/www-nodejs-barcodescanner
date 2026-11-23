@@ -4,6 +4,7 @@ const STATE_CACHE = 'notification-state';
 const PENDING_KEY = '/pending-navigation';
 const APP_CACHE = 'app-files-v1';
 const PAGE_KEY = '/';
+const PAGE_WAIT_MILLISECONDS = 2000;
 const KEPT_CACHES = [STATE_CACHE, APP_CACHE];
 const CACHEABLE_FILE = /\.(?:js|css|png|svg|ico|woff2?|otf|json|webmanifest)$/;
 const VERSIONED_FILE = /-[A-Z0-9]{8}\.[a-z0-9]+$/;
@@ -139,15 +140,14 @@ function keep(key, response) {
 }
 
 function pageFromNetworkOrCache(request) {
-    return self
+    const kept = self.caches.open(APP_CACHE).then((cache) => cache.match(PAGE_KEY));
+    const answer = self
         .fetch(request)
         .then((response) => keep(PAGE_KEY, response))
-        .catch(() =>
-            self.caches
-                .open(APP_CACHE)
-                .then((cache) => cache.match(PAGE_KEY))
-                .then((cached) => cached || Response.error())
-        );
+        .catch(() => kept.then((cached) => cached || Response.error()));
+    const waited = new Promise((resolve) => setTimeout(resolve, PAGE_WAIT_MILLISECONDS));
+
+    return Promise.race([answer, waited.then(() => kept).then((cached) => cached || answer)]);
 }
 
 function cacheFirst(request) {
