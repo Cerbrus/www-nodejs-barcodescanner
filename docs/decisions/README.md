@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0104 or higher: the highest number plus one.
+- Number the next record 0108 or higher: the highest number plus one.
 
 ## Product
 
@@ -49,6 +49,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0019](0019-announce-only-higher-version.md) | Only a version higher than the last announced one is announced | accepted | 2026-11-16 |
 | [0020](0020-sounds-from-building-blocks.md) | Sounds are built from blocks and kept as presets | accepted | 2026-11-15 |
 | [0021](0021-agent-holds-offline-scans.md) | The agent holds a scan made while the app is unreachable | accepted | 2026-11-13 |
+| [0106](0106-agent-posts-barcodes-and-recipe-codes.md) | The hardware agent rebuilds the typed text and posts only barcodes and recipe codes | accepted | 2026-11-23 |
 
 ## Notifications
 
@@ -70,6 +71,8 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0078](0078-migrations-only.md) | Schema changes only through migrations, synchronize off | accepted (found afterwards) | not recorded |
 | [0079](0079-one-thing-per-file-and-table-owner.md) | One thing per file, one owning service per table, transactions through TransactionRunner | accepted (found afterwards) | not recorded |
 | [0083](0083-yarn-nx-monorepo.md) | Yarn and Nx for the monorepo | accepted (found afterwards) | not recorded |
+| [0104](0104-shared-library.md) | Code that the API and the web app both need lives in `libs/shared` | accepted | 2026-11-23 |
+| [0105](0105-recipe-tables-and-routes.md) | Recipe tables, routes, and how a recipe is kept in the scan history | accepted | 2026-11-23 |
 | [0084](0084-build-gates.md) | The build runs lint, all tests and the end-to-end test first | accepted (found afterwards) | not recorded |
 | [0085](0085-strict-lint-rules.md) | Strict lint rules | accepted (found afterwards) | not recorded |
 | [0086](0086-no-explanatory-comments.md) | No explanatory comments in the code | accepted (found afterwards) | not recorded |
@@ -121,6 +124,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0054](0054-log-rotation.md) | Log files rotate at 256 KB, three old files kept | accepted | 2026-11-12 |
 | [0055](0055-changelog-in-app.md) | A changelog in the app, written from the git history | accepted | 2026-11-15 |
 | [0081](0081-offline-snapshot-and-outbox.md) | Offline list: a snapshot and an outbox, the server wins on conflict | accepted (found afterwards) | not recorded |
+| [0107](0107-recipe-additions-wait-in-the-outbox.md) | Without a connection, a recipe addition waits in the outbox | accepted | 2026-11-23 |
 | [0088](0088-angular-signals-translations.md) | Angular with standalone components, signals, Dutch and English texts | accepted (found afterwards) | not recorded |
 | [0089](0089-tailwind-and-css-variables.md) | Tailwind 4 with every colour a CSS variable | accepted (found afterwards) | not recorded |
 | [0094](0094-server-sent-events.md) | Open pages follow the server through a server-sent event stream | accepted (found afterwards) | not recorded |

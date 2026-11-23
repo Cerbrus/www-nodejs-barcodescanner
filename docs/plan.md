@@ -24,12 +24,13 @@ In daily-use shape and running on the Pi:
     - **Share as text**: copy the products to buy as plain text, with notes and quantities.
     - **Merge products**: fold a duplicate product into another; its barcodes, list lines and history move along.
     - **Alerts to the owner**: a push notification when the scanner has been away for a while, the hourly backup fails, or a deploy does not come up healthy.
-4. **Recipes**, asked for by the owner on 2026-11-23; the code format is decided in [0100](decisions/0100-recipes-as-qr-codes.md), the rest gets its own plan before it is built:
-    - **Hardware agent**: read letters and punctuation with Shift, stop counting a shifted digit key as a digit, and pass a recipe code on to the API.
-    - **API**: a way in for a recipe code next to the scan route, the recipe table with its service, and the rule that adds the ingredients to the list and reports an unknown product.
-    - **Web app**: a Recipes tab with a page per recipe in a read view and an edit mode, a description in markdown, the code drawn by `qrcode-generator`, and a select mode that prints codes on A4 ([0101](decisions/0101-recipes-tab-and-pages.md), [0103](decisions/0103-recipe-codes-printed-on-a4.md)); the Products page moves to the owner's Management group. The camera page reads recipe codes and gets a square frame.
-    - **On the list**: every product at once from the handheld scanner and the row button, a tick sheet from the recipe page and the camera, one history line and one undo per recipe, the sounds `recipe` and `recipe_partial`, a push notification for a product the app does not know, and an unknown recipe offered in the inbox ([0102](decisions/0102-putting-a-recipe-on-the-list.md)).
-    - **Not decided yet**: the recipe tables, the route a recipe code comes in through, and the order to build it in.
+4. **Recipes**, asked for by the owner on 2026-11-23 and decided in [0100](decisions/0100-recipes-as-qr-codes.md) to [0107](decisions/0107-recipe-additions-wait-in-the-outbox.md). Built in six parts, each its own pull request that leaves the app working, in this order:
+    1. **`libs/shared`**: the library is set up and what the API and the web app both write today moves there ([0104](decisions/0104-shared-library.md)). Nothing behaves differently.
+    2. **Hardware agent**: it rebuilds the typed text, posts barcodes and recipe codes and refuses the rest ([0106](decisions/0106-agent-posts-barcodes-and-recipe-codes.md)). Until part 5 the API refuses a recipe code.
+    3. **Recipes in the app**: the tables and routes ([0105](decisions/0105-recipe-tables-and-routes.md)), the Recipes tab and pages with the Products page moved to the owner's Management group ([0101](decisions/0101-recipes-tab-and-pages.md)), and adding from the app with the tick sheet, the history line and undo ([0102](decisions/0102-putting-a-recipe-on-the-list.md)).
+    4. **Codes**: the code on the recipe page, drawn by `qrcode-generator`, the select mode and the A4 sheet ([0103](decisions/0103-recipe-codes-printed-on-a4.md)).
+    5. **Scanning codes**: the recipe rule behind `/scans`, the sounds `recipe` and `recipe_partial`, the push notification for a product the app does not know, the camera's tick sheet with a square frame, and recipe offers in the inbox.
+    6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md)).
 5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
 Deferred or blocked:
