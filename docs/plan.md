@@ -30,6 +30,7 @@ Deferred or blocked:
 
 - The AI suggestion for names (milestone 12, step 4): no paid API; the free options are in [archive/naming-plan.md](archive/naming-plan.md).
 - TypeScript 7 (Angular 22's compiler and typescript-eslint accept TypeScript below 6.1 only) and better-sqlite3 13 (TypeORM 1 accepts up to 12).
+- Angular's build tools 22.3 (`@angular/build`, `@angular/cli`, `@angular-devkit/build-angular`): they stay at 22.2 while the rest of Angular is at 22.3. Nx 24.0.6, the newest, loads `@angular-devkit/architect/node/index.js`, a path that architect 0.2203 no longer exposes, so every Angular target fails before it starts. Dependabot skips 22.3 and up for these three (`.github/dependabot.yml`); remove that when an Nx release loads `@angular-devkit/architect/node` (seen 2026-11-23).
 - Real tones at the scanner: a passive buzzer or a small speaker; the hardware agent already supports a passive buzzer. No speaker for now (owner, 2026-11-15).
 
 Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" action with trimming of recent, section order per shop, prices from the shop, shop photos as icons, multiple lists.

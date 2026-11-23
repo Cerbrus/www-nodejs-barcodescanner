@@ -10,6 +10,12 @@ updates:
         ignore:
             -   dependency-name: '*'
                 update-types: [ 'version-update:semver-major' ]
+            -   dependency-name: '@angular/build'
+                versions: [ '>=22.3.0' ]
+            -   dependency-name: '@angular/cli'
+                versions: [ '>=22.3.0' ]
+            -   dependency-name: '@angular-devkit/build-angular'
+                versions: [ '>=22.3.0' ]
         groups:
             angular:
                 patterns: [ '@angular/*', '@angular-devkit/*', '@schematics/angular', 'angular-eslint', '@angular-eslint/*' ]
