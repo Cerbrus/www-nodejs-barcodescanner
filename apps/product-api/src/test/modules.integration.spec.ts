@@ -25,6 +25,7 @@ import { EventsService } from '../core/services/events.service';
 import { FeedbackService } from '../core/services/feedback.service';
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
+import { RecipeService } from '../core/services/recipe.service';
 import { ScanService } from '../core/services/scan.service';
 import { FeedbackSettingEntity, SoundEntity } from '../data/entities';
 import { testFolder } from './test-env';
@@ -143,11 +144,19 @@ describe('scan flow against a real database', () => {
     let catalog: CatalogService;
     let barcodes: BarcodeService;
     let list: ListService;
+    let recipes: RecipeService;
     let milkId: number;
+
+    const otherProducts = async (): Promise<Array<number>> => {
+        const items = await catalog.getItems();
+
+        return ['Boter', 'Eieren'].map((name) => items.find((item) => item.name === name)?.id as number);
+    };
 
     before(async () => {
         app = await NestFactory.createApplicationContext(TestModule, { logger: false });
         await app.init();
+        recipes = app.get(RecipeService);
         scans = app.get(ScanService);
         catalog = app.get(CatalogService);
         barcodes = app.get(BarcodeService);
@@ -343,6 +352,124 @@ describe('scan flow against a real database', () => {
         assert.equal((await scans.history(100)).length, before.scans);
         assert.deepEqual(await list.getSnapshot(milkId, ''), mapped.entry);
         assert.equal((await barcodes.get(CODE)).scanCount, mapped.count);
+    });
+
+    it('keeps a recipe with its ingredients in order, and refuses a second of that name or an unknown product', async () => {
+        const [butterId, eggsId] = await otherProducts();
+        const made = await recipes.create({
+            name: ' Pannenkoeken ',
+            description: ' **Beslag** een uur laten rusten ',
+            ingredients: [
+                { catalogItemId: eggsId, quantity: 2, note: ' scharrel ' },
+                { catalogItemId: milkId, quantity: 1, note: '' },
+                { catalogItemId: eggsId, quantity: 1, note: 'scharrel' }
+            ]
+        });
+
+        assert.deepEqual([made.name, made.description], ['Pannenkoeken', '**Beslag** een uur laten rusten']);
+        assert.deepEqual(
+            made.ingredients?.map(({ catalogItemId, quantity, note }) => [catalogItemId, quantity, note]),
+            [
+                [eggsId, 3, 'scharrel'],
+                [milkId, 1, '']
+            ]
+        );
+        await assert.rejects(recipes.create({ name: 'Pannenkoeken', ingredients: [] }), /already exists/);
+        await assert.rejects(
+            recipes.create({ name: 'Lucht', ingredients: [{ catalogItemId: 999999, quantity: 1, note: '' }] }),
+            /999999 does not exist/
+        );
+
+        const changed = await recipes.update(made.id, {
+            name: 'Pannenkoeken',
+            ingredients: [
+                { catalogItemId: butterId, quantity: 1, note: '' },
+                { catalogItemId: milkId, quantity: 2, note: '' }
+            ]
+        });
+        assert.deepEqual(
+            changed.ingredients?.map(({ catalogItemId, quantity }) => [catalogItemId, quantity]),
+            [
+                [butterId, 1],
+                [milkId, 2]
+            ]
+        );
+        assert.equal(changed.description, '');
+        assert.equal((await recipes.getAll()).length, 1);
+        assert.equal(await recipes.countUsing(milkId), 1);
+    });
+
+    it('puts a recipe on the list as one scan and takes it back in one undo', async () => {
+        const [butterId] = await otherProducts();
+        await list.writeSnapshot(butterId, '', undefined);
+        await list.writeSnapshot(milkId, '', { state: 'to_buy', quantity: 1 });
+
+        const outcome = await scans.addRecipe(
+            {
+                name: 'Pannenkoeken',
+                ingredients: [
+                    { catalogItemId: butterId, quantity: 1, note: '' },
+                    { catalogItemId: milkId, quantity: 2, note: '' }
+                ]
+            },
+            'app'
+        );
+        assert.deepEqual(
+            [outcome.result, outcome.title, outcome.added, outcome.unknown, outcome.code],
+            ['recipe', 'Pannenkoeken', 2, [], `R1;Pannenkoeken;${butterId};${milkId}*2`]
+        );
+        assert.deepEqual(await list.getSnapshot(butterId, ''), { state: 'to_buy', quantity: 1 });
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 3 });
+
+        const [latest] = await scans.history(1);
+        assert.deepEqual([latest.source, latest.title, latest.changes?.length], ['app', 'Pannenkoeken', 2]);
+
+        await list.writeSnapshot(milkId, '', { state: 'to_buy', quantity: 4 });
+        const undone = await scans.undo();
+        assert.equal(undone?.id, outcome.scanId);
+        assert.equal(await list.getSnapshot(butterId, ''), undefined);
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 2 });
+        await list.writeSnapshot(milkId, '', { state: 'to_buy', quantity: 1 });
+    });
+
+    it('adds what it knows of a recipe that holds an unknown product', async () => {
+        const [butterId] = await otherProducts();
+        const outcome = await scans.addRecipe(
+            {
+                name: 'Half',
+                ingredients: [
+                    { catalogItemId: 999999, quantity: 1, note: 'weg' },
+                    { catalogItemId: butterId, quantity: 2, note: 'roomboter' }
+                ]
+            },
+            'app'
+        );
+
+        assert.deepEqual([outcome.result, outcome.added, outcome.unknown], ['recipe_partial', 1, [999999]]);
+        assert.deepEqual(await list.getSnapshot(butterId, 'roomboter'), { state: 'to_buy', quantity: 2 });
+        await scans.undo();
+        assert.equal(await list.getSnapshot(butterId, 'roomboter'), undefined);
+    });
+
+    it('takes a deleted product out of the recipes that use it', async () => {
+        const made = await catalog.createItem({ name: 'Vanillestokje', sectionId: 'zuivel' });
+        const [recipe] = await recipes.getAll();
+        await recipes.update(recipe.id, {
+            name: recipe.name,
+            ingredients: [
+                { catalogItemId: made.id, quantity: 1, note: '' },
+                { catalogItemId: milkId, quantity: 1, note: '' }
+            ]
+        });
+        assert.equal(await recipes.countUsing(made.id), 1);
+
+        await catalog.deleteItem(made.id);
+        assert.deepEqual(
+            (await recipes.get(recipe.id)).ingredients?.map(({ catalogItemId }) => catalogItemId),
+            [milkId]
+        );
+        await recipes.delete(recipe.id);
+        assert.equal((await recipes.getAll()).length, 0);
     });
 
     it('handles scans that arrive at the same moment one after the other', async () => {

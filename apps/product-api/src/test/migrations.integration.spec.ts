@@ -12,6 +12,7 @@ import { databaseOptions } from '../data/database';
 import { MissingEmojis1763300000000 } from '../data/migrations/1763300000000-missing-emojis';
 import { ListVariants1763400000000 } from '../data/migrations/1763400000000-list-variants';
 import { SoundPresets1763500000000 } from '../data/migrations/1763500000000-sound-presets';
+import { Recipes1763600000000 } from '../data/migrations/1763600000000-recipes';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -118,5 +119,35 @@ describe('migrations', () => {
             { event: 'error', sound_id: 'trill8' },
             { event: 'ignored', sound_id: 'none' }
         ]);
+    });
+
+    it('adds the recipe tables and the title of a scan, and takes them away again', async () => {
+        const tables = (): Promise<Array<{ name: string }>> =>
+            database.query(
+                `SELECT "name" FROM "sqlite_master" WHERE "type" = 'table' AND "name" IN ('recipe', 'recipe_ingredient', 'scan_change') ORDER BY "name"`
+            );
+        const insertRecipe = `INSERT INTO "recipe" ("name", "created_at", "updated_at") VALUES ('Soep', '2026-11-23 12:00:00', '2026-11-23 12:00:00')`;
+        const runner = database.createQueryRunner();
+        await new Recipes1763600000000().down(runner);
+        assert.deepEqual(await tables(), []);
+        await new Recipes1763600000000().up(runner);
+        await runner.release();
+        assert.deepEqual(await tables(), [{ name: 'recipe' }, { name: 'recipe_ingredient' }, { name: 'scan_change' }]);
+
+        await database.query(insertRecipe);
+        await assert.rejects(database.query(insertRecipe));
+        await database.query(
+            `INSERT INTO "recipe_ingredient" ("recipe_id", "catalog_item_id", "position")
+            SELECT "recipe"."id", "catalog_item"."id", 0 FROM "recipe", "catalog_item" WHERE "catalog_item"."name" = 'Kaneel'`
+        );
+        assert.deepEqual(await database.query('SELECT "quantity", "note" FROM "recipe_ingredient"'), [
+            { quantity: 1, note: '' }
+        ]);
+        await database.query(`DELETE FROM "catalog_item" WHERE "name" = 'Kaneel'`);
+        assert.deepEqual(await database.query('SELECT "id" FROM "recipe_ingredient"'), []);
+        await database.query(
+            `INSERT INTO "scan" ("code", "source", "result", "created_at", "title") VALUES ('R1;Soep', 'app', 'recipe', '2026-11-23 12:00:00', 'Soep')`
+        );
+        assert.deepEqual(await database.query('SELECT "title" FROM "scan"'), [{ title: 'Soep' }]);
     });
 });

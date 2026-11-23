@@ -9,7 +9,7 @@
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
         "lib": ["es2023"],
-        "types": [],
+        "types": ["node"],
         "noEmit": true
     },
     "include": ["src/**/*.ts"]

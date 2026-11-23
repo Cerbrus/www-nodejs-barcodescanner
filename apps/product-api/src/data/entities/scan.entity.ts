@@ -1,6 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { ListState, ScanResult, ScanSource } from '@barcodescanner/shared';
+
+import { ScanChangeEntity } from './scan-change.entity';
 
 @Entity('scan')
 export class ScanEntity {
@@ -33,4 +35,10 @@ export class ScanEntity {
 
     @Column({ type: 'integer', nullable: true })
     public previousQuantity?: number | null;
+
+    @Column({ type: 'text', nullable: true })
+    public title?: string | null;
+
+    @OneToMany(() => ScanChangeEntity, (change) => change.scan)
+    public changes?: Array<ScanChangeEntity>;
 }

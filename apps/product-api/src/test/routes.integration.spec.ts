@@ -271,6 +271,80 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('GET', `/catalog/${created.body.id}`, asUser)).status, 404);
     });
 
+    it('checks recipes and puts one on the list', async () => {
+        const ingredient = { catalogItemId: milkId, quantity: 2, note: 'vol' };
+        for (const refused of [
+            { ingredients: [ingredient] },
+            { name: '   ', ingredients: [ingredient] },
+            { name: 'x'.repeat(81), ingredients: [ingredient] },
+            { name: 'Vla' },
+            { name: 'Vla', ingredients: [{ ...ingredient, quantity: 0 }] },
+            { name: 'Vla', ingredients: [{ ...ingredient, quantity: 100 }] },
+            { name: 'Vla', ingredients: [{ catalogItemId: milkId, quantity: 1 }] },
+            { name: 'Vla', ingredients: Array.from({ length: 61 }, () => ingredient) }
+        ]) {
+            assert.equal((await call('POST', '/recipes', asUser, refused)).status, 400, JSON.stringify(refused));
+        }
+        assert.equal(
+            (
+                await call('POST', '/recipes', asUser, {
+                    name: 'Vla',
+                    ingredients: [{ catalogItemId: 999999, quantity: 1, note: '' }]
+                })
+            ).status,
+            404
+        );
+
+        const made = await call<{ id: number; ingredients: Array<{ quantity: number; note: string }> }>(
+            'POST',
+            '/recipes',
+            asGuest,
+            { name: 'Vla', description: 'Roeren.', ingredients: [ingredient] }
+        );
+        assert.equal(made.status, 201);
+        assert.deepEqual(
+            made.body.ingredients.map(({ quantity, note }) => [quantity, note]),
+            [[2, 'vol']]
+        );
+        assert.equal((await call('POST', '/recipes', asUser, { name: 'Vla', ingredients: [] })).status, 409);
+        assert.equal((await call<{ recipeCount: number }>('GET', `/catalog/${milkId}`, asUser)).body.recipeCount, 1);
+
+        assert.equal((await call('POST', '/recipes/additions', asUser, { name: 'Vla', ingredients: [] })).status, 400);
+        const added = await call<{ result: string; added: number; scanId: number }>(
+            'POST',
+            '/recipes/additions',
+            asGuest,
+            { name: 'Vla', ingredients: [ingredient] }
+        );
+        assert.deepEqual([added.status, added.body.result, added.body.added], [201, 'recipe', 1]);
+        const entries = await call<Array<{ catalogItemId: number; note: string; quantity: number }>>(
+            'GET',
+            '/list',
+            asUser
+        );
+        assert.equal(entries.body.find((entry) => entry.catalogItemId === milkId && entry.note === 'vol')?.quantity, 2);
+        const history = await call<Array<{ id: number; title: string; source: string; changes: Array<unknown> }>>(
+            'GET',
+            '/scans?limit=1',
+            asUser
+        );
+        assert.deepEqual(
+            [history.body[0].id, history.body[0].title, history.body[0].source, history.body[0].changes.length],
+            [added.body.scanId, 'Vla', 'app', 1]
+        );
+        assert.equal((await call('POST', '/scans/undo', asUser)).status, 201);
+
+        assert.equal((await call('PATCH', '/recipes/999999', asUser, { name: 'Niets', ingredients: [] })).status, 404);
+        assert.equal(
+            (await call('PATCH', `/recipes/${made.body.id}`, asUser, { name: 'Vanillevla', ingredients: [] })).status,
+            200
+        );
+        assert.equal((await call('GET', '/recipes', asAgent)).status, 403);
+        assert.equal((await call('DELETE', `/recipes/${made.body.id}`, asUser)).status, 204);
+        assert.equal((await call('GET', `/recipes/${made.body.id}`, asUser)).status, 404);
+        assert.deepEqual((await call('GET', '/recipes', asUser)).body, []);
+    });
+
     it('answers 404 for a barcode it has never seen', async () => {
         assert.equal((await call('GET', '/barcodes/00000000', asUser)).status, 404);
     });

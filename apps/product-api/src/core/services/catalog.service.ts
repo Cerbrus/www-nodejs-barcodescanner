@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { EntityManager, In, Like, Repository } from 'typeorm';
 
 import { AppConfig } from '../../config/app.config';
 import { CatalogItemEntity, SectionEntity } from '../../data/entities';
@@ -45,6 +45,13 @@ export class CatalogService {
         }
 
         return item;
+    }
+
+    public async unknownIds(ids: Array<number>, manager?: EntityManager): Promise<Array<number>> {
+        const items = manager ? manager.getRepository(CatalogItemEntity) : this.items;
+        const known = new Set((await items.find({ where: { id: In(ids) }, select: { id: true } })).map(({ id }) => id));
+
+        return [...new Set(ids)].filter((id) => !known.has(id));
     }
 
     public async createItem(

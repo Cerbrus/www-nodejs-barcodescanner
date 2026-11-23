@@ -1,12 +1,16 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 
 import { CatalogService } from '../../core/services/catalog.service';
+import { RecipeService } from '../../core/services/recipe.service';
 import { CatalogItemEntity } from '../../data/entities';
 import { CatalogItemCreateDto, CatalogItemUpdateDto } from '../dto/catalog-item.dto';
 
 @Controller({ path: 'catalog', version: '1' })
 export class CatalogController {
-    constructor(private readonly catalog: CatalogService) {}
+    constructor(
+        private readonly catalog: CatalogService,
+        private readonly recipes: RecipeService
+    ) {}
 
     @Get()
     public getItems(@Query('search') search?: string): Promise<Array<CatalogItemEntity>> {
@@ -14,9 +18,16 @@ export class CatalogController {
     }
 
     @Get(':id')
-    public async getItem(@Param('id', ParseIntPipe) id: number): Promise<CatalogItemEntity & { defaultIcon?: string }> {
+    public async getItem(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<CatalogItemEntity & { defaultIcon?: string; recipeCount: number }> {
         const item = await this.catalog.getItem(id);
-        return { ...item, defaultIcon: this.catalog.defaultIcon(item.name) };
+
+        return {
+            ...item,
+            defaultIcon: this.catalog.defaultIcon(item.name),
+            recipeCount: await this.recipes.countUsing(id)
+        };
     }
 
     @Post()

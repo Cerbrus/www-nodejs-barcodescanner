@@ -2,11 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 
-import { ProductSuggestion, ScanResult, ScanSource } from '@barcodescanner/shared';
+import {
+    ProductSuggestion,
+    RecipeContent,
+    ScanResult,
+    ScanSource,
+    cleanIngredients,
+    writeRecipeCode
+} from '@barcodescanner/shared';
 
-import { BarcodeEntity, ScanEntity } from '../../data/entities';
+import { BarcodeEntity, ScanChangeEntity, ScanEntity } from '../../data/entities';
 import { TransactionRunner } from '../../data/transaction.runner';
-import { addOneToEntry, decideScan } from '../rules/scan-rules';
+import { EntrySnapshot, addOneToEntry, addToEntry, decideScan, takeBack } from '../rules/scan-rules';
 import { BarcodeService } from './barcode.service';
 import { CatalogService } from './catalog.service';
 import { ConnectorService } from './connector.service';
@@ -22,9 +29,13 @@ export interface ScanOutcome {
     itemName?: string;
     note?: string;
     quantity?: number;
+    title?: string;
+    added?: number;
+    unknown?: Array<number>;
 }
 
 const MAX_HELD_MILLISECONDS = 60 * 60 * 1000;
+const RECIPE_RESULTS: Array<ScanResult> = ['recipe', 'recipe_partial'];
 
 interface RegisteredScan {
     outcome: ScanOutcome;
@@ -61,6 +72,17 @@ export class ScanService {
         if (outcome.result === 'needs_name') {
             void this.followUpUnknown(code, source, suggestions);
         }
+        this.events.emit('scan', { ...outcome, source });
+
+        return outcome;
+    }
+
+    public async addRecipe(recipe: RecipeContent, source: ScanSource): Promise<ScanOutcome> {
+        const outcome = await this.transactions.run((manager) => this.writeRecipe(recipe, source, manager));
+
+        this.logger.log(
+            `recipe "${outcome.title}" from ${source}: ${outcome.added} added${outcome.unknown?.length ? `, unknown product ${outcome.unknown.join(', ')}` : ''}`
+        );
         this.events.emit('scan', { ...outcome, source });
 
         return outcome;
@@ -107,17 +129,27 @@ export class ScanService {
                 return undefined;
             }
 
-            if (scan.catalogItemId && scan.result !== 'needs_name') {
-                await this.undoListChange(scan, manager);
+            if (RECIPE_RESULTS.includes(scan.result)) {
+                await this.undoRecipe(scan.id, manager);
+            } else {
+                if (scan.catalogItemId && scan.result !== 'needs_name') {
+                    await this.undoListChange(scan, manager);
+                }
+                await this.barcodes.uncountScan(scan.code, manager);
             }
-            await this.barcodes.uncountScan(scan.code, manager);
             scan.undoneAt = new Date();
 
             return scans.save(scan);
         });
 
         if (undone) {
-            this.events.emit('scan', { scanId: undone.id, code: undone.code, result: undone.result, undone: true });
+            this.events.emit('scan', {
+                scanId: undone.id,
+                code: undone.code,
+                result: undone.result,
+                title: undone.title ?? undefined,
+                undone: true
+            });
         }
 
         return undone;
@@ -137,7 +169,53 @@ export class ScanService {
     }
 
     public history(limit: number): Promise<Array<ScanEntity>> {
-        return this.scans.find({ order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
+        return this.scans.find({ relations: { changes: true }, order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
+    }
+
+    private async writeRecipe(recipe: RecipeContent, source: ScanSource, manager: EntityManager): Promise<ScanOutcome> {
+        const ingredients = cleanIngredients(recipe.ingredients);
+        const unknown = await this.catalog.unknownIds(
+            ingredients.map(({ catalogItemId }) => catalogItemId),
+            manager
+        );
+        const known = ingredients.filter(({ catalogItemId }) => !unknown.includes(catalogItemId));
+        const title = recipe.name.trim();
+        const scan = await manager.getRepository(ScanEntity).save({
+            code: writeRecipeCode({ name: title, ingredients }),
+            source,
+            result: unknown.length ? ('recipe_partial' as const) : ('recipe' as const),
+            createdAt: new Date(),
+            title
+        });
+
+        for (const { catalogItemId, quantity, note } of known) {
+            const previous = await this.list.getSnapshot(catalogItemId, note, manager);
+            await this.list.writeSnapshot(catalogItemId, note, addToEntry(previous, quantity), manager);
+            await manager.getRepository(ScanChangeEntity).insert({
+                scanId: scan.id,
+                catalogItemId,
+                note,
+                quantity,
+                previousState: previous?.state ?? null,
+                previousQuantity: previous?.quantity ?? null
+            });
+        }
+
+        return { scanId: scan.id, code: scan.code, result: scan.result, title, added: known.length, unknown };
+    }
+
+    private async undoRecipe(scanId: number, manager: EntityManager): Promise<void> {
+        const changes = await manager.getRepository(ScanChangeEntity).find({ where: { scanId }, order: { id: 'ASC' } });
+
+        for (const { catalogItemId, note, quantity, previousState, previousQuantity } of changes) {
+            const previous: EntrySnapshot | undefined = previousState
+                ? { state: previousState, quantity: previousQuantity ?? 0 }
+                : undefined;
+            const current = await this.list.getSnapshot(catalogItemId, note, manager);
+            if (current) {
+                await this.list.writeSnapshot(catalogItemId, note, takeBack({ quantity, previous }, current), manager);
+            }
+        }
     }
 
     private async write(code: string, source: ScanSource, now: Date, manager: EntityManager): Promise<RegisteredScan> {

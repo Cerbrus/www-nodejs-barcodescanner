@@ -27,6 +27,23 @@ export function addOneToEntry(entry?: EntrySnapshot): { result: 'added' | 'incre
     return { result: 'added', entry: { state: 'to_buy', quantity: 1 } };
 }
 
+export function addToEntry(entry: EntrySnapshot | undefined, quantity: number): EntrySnapshot {
+    return { state: 'to_buy', quantity: (entry?.state === 'to_buy' ? entry.quantity : 0) + quantity };
+}
+
+export function takeBack(
+    addition: { quantity: number; previous?: EntrySnapshot },
+    current?: EntrySnapshot
+): EntrySnapshot | undefined {
+    if (current?.state !== 'to_buy') {
+        return current;
+    }
+
+    return current.quantity > addition.quantity
+        ? { state: 'to_buy', quantity: current.quantity - addition.quantity }
+        : addition.previous;
+}
+
 export function decideScan(context: ScanContext): ScanDecision {
     const { now, previousScanOfCodeAt, catalogItemId, entry } = context;
 

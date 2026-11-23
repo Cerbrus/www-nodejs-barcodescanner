@@ -15,6 +15,7 @@ import { ListService } from './services/list.service';
 import { LogService } from './services/log.service';
 import { NamingService } from './services/naming.service';
 import { PushService } from './services/push.service';
+import { RecipeService } from './services/recipe.service';
 import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
 import { SeedService } from './services/seed.service';
@@ -33,6 +34,7 @@ const services = [
     LogService,
     NamingService,
     PushService,
+    RecipeService,
     RemarkService,
     ScanService,
     SeedService,
