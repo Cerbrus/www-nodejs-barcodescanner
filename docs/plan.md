@@ -30,8 +30,8 @@ In daily-use shape and running on the Pi:
     3. **Recipes in the app**: the tables and routes ([0105](decisions/0105-recipe-tables-and-routes.md)), the Recipes tab and pages with the Products page moved to the owner's Management group ([0101](decisions/0101-recipes-tab-and-pages.md)), and adding from the app with the tick sheet, the history line and undo ([0102](decisions/0102-putting-a-recipe-on-the-list.md)). Done 2026-11-23 13:47.
     4. **Codes**: the code on the recipe page, drawn by `qrcode-generator`, the select mode and the A4 sheet ([0103](decisions/0103-recipe-codes-printed-on-a4.md)). Done 2026-11-23 15:53.
     5. **Scanning codes**, in two steps:
-        - **With the handheld scanner**: the recipe rule behind `/scans`, the sounds `recipe` and `recipe_partial`, the push notification for a product the app does not know, and recipe offers in the inbox.
-        - **With the phone camera**: the camera reads recipe codes, opens the tick sheet with a box to save an unknown recipe, and gets a square frame.
+        - **With the handheld scanner**: the recipe rule behind `/scans`, the sounds `recipe` and `recipe_partial`, the push notification for a product the app does not know, and recipe offers in the inbox. Done 2026-11-23 18:18.
+        - **With the phone camera**: the camera reads recipe codes, opens the tick sheet with a box to save an unknown recipe, and gets a square frame. Done 2026-11-23 18:18.
     6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md)).
 5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
