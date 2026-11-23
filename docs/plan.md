@@ -24,7 +24,12 @@ In daily-use shape and running on the Pi:
     - **Share as text**: copy the products to buy as plain text, with notes and quantities.
     - **Merge products**: fold a duplicate product into another; its barcodes, list lines and history move along.
     - **Alerts to the owner**: a push notification when the scanner has been away for a while, the hourly backup fails, or a deploy does not come up healthy.
-4. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
+4. **Loading over a weak connection**, found on 2026-11-23 and not decided yet:
+    - JavaScript and CSS go out uncompressed: the start set is 461 KB and would be 140 KB with gzip.
+    - The service worker's pattern for versioned files misses file names with lower-case letters in the hash, 25 of the 27 files, so those are not taken from the device first.
+    - Versioned files are served with `max-age=0`.
+    - The Material Symbols font is 4.0 MB and holds back the icons until it is loaded.
+5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
 Deferred or blocked:
 
@@ -95,3 +100,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Train started by an approval: pull request 42 landed, 43 left behind on a conflict in two lines of documentation | 2026-11-20 16:42 | 1.1.134 |
 | First train, started by hand: pull requests 37 and 39 rebased, checked together and landed as one version; GitHub marked both merged and closed their issues | 2026-11-20 15:10 | 1.1.130 |
 | A review that requests changes sends a pull request back to the agent, with the owner's remarks from the pull request | 2026-11-20 17:40 | |
+| Slow start in the shop: the app opens from the kept page and the remembered login without waiting for the network, the iPhone shows a launch image, and a server that does not answer within 5 seconds counts as no connection. Checked by the owner on the iPhone with the Pi's port blocked | 2026-11-23 11:17 | 1.2.16 |
