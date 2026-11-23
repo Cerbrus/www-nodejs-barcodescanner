@@ -1,0 +1,8 @@
+<div class="pages">
+    @for (recipe of printing.recipes(); track recipe.id) {
+        <div class="cell">
+            <app-recipe-code class="cell-code" [recipe]="recipe" />
+            <span class="cell-name">{{ recipe.name }}</span>
+        </div>
+    }
+</div>

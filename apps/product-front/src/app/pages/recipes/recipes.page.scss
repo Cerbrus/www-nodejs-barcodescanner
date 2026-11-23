@@ -4,6 +4,17 @@
     gap: 12px;
     padding-block: 8px;
 }
+.recipe.choosing {
+    min-height: 62px;
+    cursor: pointer;
+}
+.recipe.choosing input {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    margin-right: 10px;
+    accent-color: var(--accent);
+}
 .recipe-link {
     flex: 1 1 auto;
     min-width: 0;

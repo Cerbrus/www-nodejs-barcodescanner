@@ -15,6 +15,7 @@ import { EventsService } from '../../services/events.service';
 import { RemarkService } from '../../services/remark.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
+import { RecipePrintComponent } from '../recipe-print/recipe-print.component';
 import { RemarkPointerDirective } from '../remark-sheet/remark-pointer.directive';
 import { RemarkSheetComponent } from '../remark-sheet/remark-sheet.component';
 
@@ -35,6 +36,7 @@ interface NavLink {
         RouterLink,
         RouterLinkActive,
         TranslatePipe,
+        RecipePrintComponent,
         RemarkPointerDirective,
         RemarkSheetComponent
     ],

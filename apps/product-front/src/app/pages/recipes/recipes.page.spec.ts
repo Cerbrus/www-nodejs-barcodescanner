@@ -5,6 +5,7 @@ import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing
 import { TranslateTesting } from '../../../testing/translate';
 import { Recipe } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { RecipesPage } from './recipes.page';
 
@@ -29,6 +30,7 @@ describe('RecipesPage', () => {
     let fixture: ComponentFixture<RecipesPage>;
     let page: HTMLElement;
     let store: FakeStore;
+    const printing = { print: vi.fn() };
 
     const open = async (): Promise<void> => {
         fixture = TestBed.createComponent(RecipesPage);
@@ -43,6 +45,7 @@ describe('RecipesPage', () => {
     const addButtons = (): Array<HTMLButtonElement> => Array.from(page.querySelectorAll('.recipe button'));
 
     beforeEach(() => {
+        vi.clearAllMocks();
         store = fakeStore([item(1, 'Melk'), item(2, 'Eieren')]);
         store.recipes.set([SOUP, PANCAKES, NOTHING]);
         TestBed.configureTestingModule({
@@ -50,7 +53,8 @@ describe('RecipesPage', () => {
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },
-                { provide: ApiService, useValue: { iconsUrl: '/icons' } }
+                { provide: ApiService, useValue: { iconsUrl: '/icons' } },
+                { provide: RecipePrintService, useValue: printing }
             ]
         });
     });
@@ -99,6 +103,56 @@ describe('RecipesPage', () => {
         click(page, '.recipe button', 2);
 
         expect(store.putRecipeOnList).toHaveBeenCalledWith({ name: 'Soep', ingredients: SOUP.ingredients });
+    });
+
+    it('turns the rows into tick boxes for choosing, and prints the codes of the chosen recipes by name', async () => {
+        await open();
+        click(page, 'button[aria-label="recipe.select"]');
+        await settle();
+        const printButton = (): HTMLButtonElement =>
+            page.querySelector('button[aria-label="recipe.print"]') as HTMLButtonElement;
+
+        expect(page.querySelectorAll('a.recipe-link').length).toBe(0);
+        expect(page.querySelectorAll('.recipe input[type=checkbox]').length).toBe(3);
+        expect(page.querySelector('a.btn.primary')).toBeNull();
+        expect(printButton().disabled).toBe(true);
+
+        click(page, '.recipe input', 2);
+        click(page, '.recipe input', 1);
+        await settle();
+
+        expect(texts(page, 'button[aria-label="recipe.print"]')).toEqual(['print 2']);
+
+        printButton().click();
+
+        expect(printing.print).toHaveBeenCalledWith([PANCAKES, SOUP]);
+    });
+
+    it('leaves choosing with nothing ticked, and offers no choosing while there are no recipes', async () => {
+        await open();
+        click(page, 'button[aria-label="recipe.select"]');
+        await settle();
+        click(page, '.recipe input', 0);
+        await settle();
+        click(page, 'button[aria-label="common.cancel"]');
+        await settle();
+
+        expect(page.querySelectorAll('a.recipe-link').length).toBe(3);
+
+        click(page, 'button[aria-label="recipe.select"]');
+        await settle();
+
+        expect(Array.from(page.querySelectorAll('.recipe input'), (box) => (box as HTMLInputElement).checked)).toEqual([
+            false,
+            false,
+            false
+        ]);
+
+        click(page, 'button[aria-label="common.cancel"]');
+        store.recipes.set([]);
+        await settle();
+
+        expect((page.querySelector('button[aria-label="recipe.select"]') as HTMLButtonElement).disabled).toBe(true);
     });
 
     it('offers nothing to add for a recipe without products, or without a connection', async () => {

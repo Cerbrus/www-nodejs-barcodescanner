@@ -148,7 +148,15 @@
         }
     } @else if (recipe(); as recipe) {
         <div class="flex items-start justify-between gap-3">
-            <h1 class="page-title">{{ recipe.name }}</h1>
+            <h1 class="page-title grow">{{ recipe.name }}</h1>
+            <button
+                type="button"
+                class="btn"
+                [attr.aria-label]="'recipe.print' | translate"
+                (click)="printing.print([recipe])"
+            >
+                <i class="material-symbols-outlined">print</i>
+            </button>
             <button type="button" class="btn" [attr.aria-label]="'recipe.edit' | translate" (click)="startEdit()">
                 <i class="material-symbols-outlined">edit</i>
             </button>
@@ -193,6 +201,8 @@
             <i class="material-symbols-outlined">add_shopping_cart</i>
             {{ 'recipe.toList' | translate }}
         </button>
+
+        <app-recipe-code class="code" [recipe]="recipe" />
     } @else {
         <p class="empty">{{ (store.loaded() ? 'recipe.notFound' : 'common.loading') | translate }}</p>
     }

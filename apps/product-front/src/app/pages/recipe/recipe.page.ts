@@ -28,10 +28,12 @@ import { ItemAutocompleteComponent } from '../../components/item-autocomplete/it
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
 import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { NewItemFormComponent } from '../../components/new-item-form/new-item-form.component';
+import { RecipeCodeComponent } from '../../components/recipe-code/recipe-code.component';
 import { RecipeSheetComponent } from '../../components/recipe-sheet/recipe-sheet.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { CatalogItem } from '../../models';
+import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
@@ -58,6 +60,7 @@ const plain = ({ catalogItemId, quantity, note }: RecipeIngredient): RecipeIngre
         ItemIconComponent,
         MarkdownComponent,
         NewItemFormComponent,
+        RecipeCodeComponent,
         RecipeSheetComponent,
         SheetComponent,
         FocusOnShowDirective
@@ -72,6 +75,7 @@ export class RecipePage {
     });
 
     protected readonly store = inject(ShoppingStore);
+    protected readonly printing = inject(RecipePrintService);
     protected readonly limits = {
         name: MAX_RECIPE_NAME_LENGTH,
         description: MAX_RECIPE_DESCRIPTION_LENGTH,

@@ -45,3 +45,31 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     await page.goto('/#/history');
     await expect(page.locator('.recipe-line', { hasText: NAME }).first()).toBeVisible();
 });
+
+test('show the code of a recipe, and lay out the codes of chosen recipes for printing', async ({ page }) => {
+    await page.addInitScript(() => {
+        window.print = (): void => {
+            document.body.dataset['printed'] = String(Number(document.body.dataset['printed'] ?? 0) + 1);
+        };
+    });
+    await page.goto('/#/recipes');
+    await page.locator('a.recipe-link', { hasText: NAME }).click();
+    await expect(page.locator('app-recipe-code svg path')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Codes afdrukken' }).click();
+    await expect(page.locator('body')).toHaveAttribute('data-printed', '1');
+    await expect(page.locator('app-recipe-print .cell-name')).toHaveText([NAME]);
+    await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+    await expect(page.locator('app-recipe-print .cell')).toHaveCount(0);
+
+    await page.goto('/#/recipes');
+    await page.getByRole('button', { name: 'Recepten kiezen' }).click();
+    await expect(page.getByRole('button', { name: 'Codes afdrukken' })).toBeDisabled();
+    await page.locator('.recipe input[type=checkbox]').first().check();
+    await page.getByRole('button', { name: 'Codes afdrukken' }).click();
+
+    await expect(page.locator('app-recipe-print .cell')).toHaveCount(1);
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('app-recipe-print .cell-code')).toBeVisible();
+    await expect(page.locator('nav.tabs')).toBeHidden();
+});

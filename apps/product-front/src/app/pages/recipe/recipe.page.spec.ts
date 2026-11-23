@@ -8,6 +8,7 @@ import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing
 import { TranslateTesting } from '../../../testing/translate';
 import { Recipe } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 import { RecipePage } from './recipe.page';
@@ -26,6 +27,7 @@ describe('RecipePage', () => {
     let fixture: ComponentFixture<RecipePage>;
     let page: HTMLElement;
     let store: FakeStore;
+    const printing = { print: vi.fn() };
     let navigate: ReturnType<typeof vi.spyOn>;
 
     const settle = async (): Promise<void> => {
@@ -60,7 +62,8 @@ describe('RecipePage', () => {
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },
-                { provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of([]) } }
+                { provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of([]) } },
+                { provide: RecipePrintService, useValue: printing }
             ]
         });
     });
@@ -73,6 +76,21 @@ describe('RecipePage', () => {
         expect(texts(page, '.ingredient')).toEqual(['MMelkvol× 2', 'EEieren']);
         expect(page.querySelector('#recipe-name')).toBeNull();
         expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/recipes');
+    });
+
+    it('shows the code of the saved recipe while reading, not in the form, and prints it from the button', async () => {
+        await open('7');
+
+        expect(page.querySelectorAll('app-recipe-code svg').length).toBe(1);
+
+        click(page, 'button[aria-label="recipe.print"]');
+
+        expect(printing.print).toHaveBeenCalledWith([PANCAKES]);
+
+        await edit();
+
+        expect(page.querySelector('app-recipe-code')).toBeNull();
+        expect(page.querySelector('button[aria-label="recipe.print"]')).toBeNull();
     });
 
     it('says so when the recipe does not exist, and that it is loading before that', async () => {

@@ -111,7 +111,10 @@
         "deleteConfirm": "\"{name}\" verwijderen? De producten zelf blijven bestaan.",
         "notFound": "Dit recept bestaat niet (meer)",
         "unknownProduct": "Onbekend product (#{id})",
-        "createAndAdd": "Aanmaken en toevoegen"
+        "createAndAdd": "Aanmaken en toevoegen",
+        "print": "Codes afdrukken",
+        "select": "Recepten kiezen",
+        "code": "Code van {name}"
     },
     "item": {
         "name": "Naam",

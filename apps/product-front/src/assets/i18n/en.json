@@ -111,7 +111,10 @@
         "deleteConfirm": "Delete \"{name}\"? The products themselves stay.",
         "notFound": "This recipe does not exist (anymore)",
         "unknownProduct": "Unknown product (#{id})",
-        "createAndAdd": "Create and add"
+        "createAndAdd": "Create and add",
+        "print": "Print codes",
+        "select": "Choose recipes",
+        "code": "Code of {name}"
     },
     "item": {
         "name": "Name",

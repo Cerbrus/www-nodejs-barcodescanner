@@ -9056,6 +9056,7 @@ __metadata:
     nx: "npm:24.0.6"
     postcss: "npm:^8.5.33"
     prettier: "npm:^3.10.1"
+    qrcode-generator: "npm:^2.0.4"
     reflect-metadata: "npm:~0.2.2"
     rxjs: "npm:^7.8.2"
     tailwindcss: "npm:^4.3.5"
@@ -16044,6 +16045,13 @@ __metadata:
   dependencies:
     hookified: "npm:^2.1.1"
   checksum: 10c0/4a39d45492c65a4b9795381acede1bd566028ce9764ead5b41d776b391a898bf0855dd2b59d724a6711fe253ba3cacf7c9a8832887cf9dc6d48a2c5e4997c82d
+  languageName: node
+  linkType: hard
+
+"qrcode-generator@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "qrcode-generator@npm:2.0.4"
+  checksum: 10c0/52dc3894bda6afecf09cb36aba9c181f3c4641fcbeac40c2af05d68da1383e3a1c7354bd3dc8c5e2a199d2e62314bbdec8cb4fbbd00bcfda40de56bb36bfdb17
   languageName: node
   linkType: hard
 

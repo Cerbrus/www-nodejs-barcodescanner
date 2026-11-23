@@ -47,6 +47,7 @@
         "compression": "^1.8.2",
         "intl-messageformat": "^12.2.0",
         "marked": "^18.2.1",
+        "qrcode-generator": "^2.0.4",
         "reflect-metadata": "~0.2.2",
         "rxjs": "^7.8.2",
         "tslib": "^2.9.1",

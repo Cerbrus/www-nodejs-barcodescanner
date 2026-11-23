@@ -86,7 +86,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 1. The Recipes tab lists the recipes by name, each with its number of products and the icons of the first few, and a search field that filters on the name.
 2. "New recipe" opens an empty form: a name, a description and the products. A product is picked with the product search, where a product that does not exist can be made; each is one line with its note and its quantity. Picking a product that is already in the recipe without a note counts it up; the minus of a product that is down to one is a bin that takes it out. The products are dragged by their row into the order they are saved and shown in.
-3. A recipe opens to read: its name, the description shown as markdown, and its products with quantity and note. The pencil at the top right turns it into the form; Save and Cancel go back to reading. Delete is in the form, behind a confirmation.
+3. A recipe opens to read: its name, the description shown as markdown, its products with quantity and note, and its code. The pencil at the top right turns it into the form; Save and Cancel go back to reading. Delete is in the form, behind a confirmation.
 4. Recipes are shared by every account.
 
 ### UC-21 Put a recipe on the list
@@ -95,6 +95,13 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 2. The button on the recipe's own page opens a sheet with every product ticked. The user unticks what is in the house and confirms; only the ticked products go on the list.
 3. A message names the recipe and how many products went on the list, with an undo that takes the whole recipe back in one step.
 4. Without a connection the buttons are off.
+
+### UC-22 Print recipe codes
+
+1. The print button on a recipe's page prints its code.
+2. On the Recipes tab, the choose button turns the rows into tick boxes. The print button, which shows how many are ticked, prints the codes of the ticked recipes; the cross leaves choosing.
+3. The sheet is A4 with three codes across and four down, each 50 mm wide with the recipe's name below it and dashed lines to cut along. More than twelve go on to the next page.
+4. A code holds the recipe as it was saved. After a change to the recipe it has to be printed again.
 
 ## Oversight
 

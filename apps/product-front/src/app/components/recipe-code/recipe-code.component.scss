@@ -1,0 +1,14 @@
+:host {
+    display: block;
+}
+.code {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.paper {
+    fill: var(--print-paper);
+}
+.ink {
+    fill: var(--print-ink);
+}

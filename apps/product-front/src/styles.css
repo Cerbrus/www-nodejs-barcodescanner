@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block&icon_names=account_circle,add,add_circle,add_comment,add_link,add_shopping_cart,ads_click,arrow_back,arrow_downward,arrow_upward,barcode_reader,barcode_scanner,block,brightness_auto,bug_report,cancel,category,check,check_circle,chevron_right,close,cloud_off,content_copy,dark_mode,delete,edit,expand_less,expand_more,forum,help,history,image,inbox,inventory_2,light_mode,lightbulb,link_off,local_shipping,login,logout,manage_search,menu_book,merge_type,more_horiz,more_vert,new_releases,no_photography,notifications_active,notifications_off,open_in_new,outbox,photo_camera,rate_review,refresh,remove,remove_shopping_cart,save,schedule,send,settings,shopping_cart,smartphone,sticky_note_2,swap_horiz,terminal,undo,unfold_more,volume_up')
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block&icon_names=account_circle,add,add_circle,add_comment,add_link,add_shopping_cart,ads_click,arrow_back,arrow_downward,arrow_upward,barcode_reader,barcode_scanner,block,brightness_auto,bug_report,cancel,category,check,check_circle,checklist,chevron_right,close,cloud_off,content_copy,dark_mode,delete,edit,expand_less,expand_more,forum,help,history,image,inbox,inventory_2,light_mode,lightbulb,link_off,local_shipping,login,logout,manage_search,menu_book,merge_type,more_horiz,more_vert,new_releases,no_photography,notifications_active,notifications_off,open_in_new,outbox,photo_camera,print,rate_review,refresh,remove,remove_shopping_cart,save,schedule,send,settings,shopping_cart,smartphone,sticky_note_2,swap_horiz,terminal,undo,unfold_more,volume_up')
 layer(base);
 @import 'tailwindcss' source('../');
 
@@ -28,6 +28,8 @@ layer(base);
 }
 
 :root {
+    --print-paper: #ffffff;
+    --print-ink: #000000;
     --page: #f3f4f6;
     --surface: #fff;
     --text: #1c2330;
@@ -93,6 +95,40 @@ layer(base);
 
     input[type='search']::-webkit-search-cancel-button {
         display: none;
+    }
+}
+
+app-recipe-print {
+    display: none;
+}
+
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    body.printing-recipes,
+    body.printing-recipes app-root,
+    body.printing-recipes app-shell {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        background: var(--print-paper) !important;
+    }
+
+    body.printing-recipes app-shell > :not(app-recipe-print) {
+        display: none !important;
+    }
+
+    html:has(body.printing-recipes) {
+        height: auto !important;
+        background: var(--print-paper) !important;
+    }
+
+    body.printing-recipes app-recipe-print {
+        display: block !important;
     }
 }
 
