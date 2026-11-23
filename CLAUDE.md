@@ -21,7 +21,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 - One `app` container: NestJS serves `/api/v1/...` and the built Angular app. SQLite at `/data/app.db`.
 - One `hardware-agent` container: Python `evdev`, reads the scanner, posts scans and its log lines to the API.
 - Product lookup through `ProductConnector` classes, all queried in parallel; results are suggestions, the user names each barcode once.
-- Web push for unknown handheld scans; the service worker (`src/sw.js`) caches nothing.
+- Web push for unknown handheld scans; the service worker (`src/sw.js`) keeps the web app's files so it starts from the device, and never touches API calls.
 - Login with Google for an allowlist of accounts: one global guard, signed session cookie, a token for the hardware agent. New routes are for logged-in users by default; mark one `@Public()` only when it must work without login, `@Agent()` only when the hardware agent needs it, and `@OwnerOnly()` when it belongs to the system parts that only the owner account gets.
 - Feedback from inside the app is called a remark in the code (`RemarkService`, `/api/v1/remarks`, the `remark` table), because "feedback" already means the sounds at the scanner. Every account writes remarks; only the owner sends one to GitHub.
 - No Bring, no PostgreSQL, no CQRS, no user table.

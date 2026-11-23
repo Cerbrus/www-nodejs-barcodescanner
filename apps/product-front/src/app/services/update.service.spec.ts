@@ -15,9 +15,10 @@ describe('UpdateService', () => {
     const showAddress = (address: string): void =>
         (window as unknown as { happyDOM: { setURL(url: string): void } }).happyDOM.setURL(address);
     let published: Array<string> | undefined;
+    const keptPages: Array<unknown> = [];
 
     const settle = async (): Promise<void> => {
-        for (let round = 0; round < 5; round++) {
+        for (let round = 0; round < 30; round++) {
             await Promise.resolve();
         }
     };
@@ -30,8 +31,22 @@ describe('UpdateService', () => {
         await settle();
     };
 
-    beforeEach(() => {
-        published = [NEWER, 'styles-CCCCCCCC.css'];
+    const provide = (): void => {
+        TestBed.configureTestingModule({
+            providers: [
+                { provide: EventsService, useValue: { resumed: resumed$ } },
+                { provide: Router, useValue: { events: routerEvents$ } }
+            ]
+        });
+    };
+    const start = async (): Promise<void> => {
+        TestBed.inject(UpdateService).start();
+        await settle();
+    };
+
+    beforeEach(async () => {
+        published = [LOADED];
+        keptPages.length = 0;
         resumed$ = new Subject<void>();
         routerEvents$ = new Subject<unknown>();
         showAddress('http://localhost/#/list');
@@ -48,18 +63,35 @@ describe('UpdateService', () => {
             )
         );
 
-        TestBed.configureTestingModule({
-            providers: [
-                { provide: EventsService, useValue: { resumed: resumed$ } },
-                { provide: Router, useValue: { events: routerEvents$ } }
-            ]
+        vi.stubGlobal('caches', {
+            open: () => Promise.resolve({ put: (_key: string, page: unknown) => Promise.resolve(keptPages.push(page)) })
         });
-        TestBed.inject(UpdateService).start();
+        provide();
+        await start();
+        vi.mocked(fetch).mockClear();
+        published = [NEWER, 'styles-CCCCCCCC.css'];
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
+    });
+
+    it('checks at the start, and reloads when the page it was started with is older than the published one', async () => {
+        TestBed.resetTestingModule();
+        provide();
+
+        await start();
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the published page before it reloads, so the reload shows the newer one', async () => {
+        await resume();
+
+        expect(vi.mocked(fetch).mock.calls.map(([address]) => address)).toEqual(['/app-files.json', '/']);
+        expect(keptPages).toHaveLength(1);
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('reloads when the script the page started with is no longer published', async () => {

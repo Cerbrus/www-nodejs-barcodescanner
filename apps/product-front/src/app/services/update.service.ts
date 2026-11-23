@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { EMPTY, Observable, catchError, filter, from, map, merge, switchMap, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, filter, from, map, merge, of, startWith, switchMap, tap } from 'rxjs';
 
 import { EventsService } from './events.service';
 
 const FILE_LIST_URL = '/app-files.json';
+const PAGE_URL = '/';
+const APP_CACHE = 'app-files-v1';
 const RELOADED_FOR_KEY = 'reloaded-for';
 const VERSIONED_FILE = /-[A-Z0-9]{8}\.(?:js|css)$/;
 const ENTRY_FILES = 'script[src], link[rel="stylesheet"][href]';
@@ -28,13 +30,16 @@ export class UpdateService {
         const pageChanged = this.router.events.pipe(filter((event) => event instanceof NavigationEnd));
 
         merge(
-            this.events.resumed.pipe(switchMap(() => this.publishedFiles())),
+            this.events.resumed.pipe(
+                startWith(undefined),
+                switchMap(() => this.publishedFiles())
+            ),
             pageChanged.pipe(
                 filter(() => this.waitingFor !== undefined),
                 switchMap(() => this.publishedFiles())
             )
         )
-            .pipe(tap((published) => this.reloadWhenOutdated(published)))
+            .pipe(switchMap((published) => this.reloadWhenOutdated(published)))
             .subscribe();
     }
 
@@ -47,25 +52,40 @@ export class UpdateService {
         );
     }
 
-    private reloadWhenOutdated(published: Array<string>): void {
+    private reloadWhenOutdated(published: Array<string>): Observable<void> {
         const loaded = this.loadedFiles();
         if (!published.length || !loaded.length || loaded.every((file) => published.includes(file))) {
             this.waitingFor = undefined;
-            return;
+
+            return EMPTY;
         }
 
         const signature = [...published].sort().join();
         if (sessionStorage.getItem(RELOADED_FOR_KEY) === signature) {
             console.warn('A newer version is published, but reloading did not load it.');
-            return;
+
+            return EMPTY;
         }
         if (this.busy()) {
             this.waitingFor = signature;
-            return;
+
+            return EMPTY;
         }
 
         sessionStorage.setItem(RELOADED_FOR_KEY, signature);
-        window.location.reload();
+
+        return this.keepPublishedPage().pipe(tap(() => window.location.reload()));
+    }
+
+    private keepPublishedPage(): Observable<void> {
+        return from(fetch(PAGE_URL, { cache: 'no-store' })).pipe(
+            switchMap((page) =>
+                page.ok
+                    ? from(caches.open(APP_CACHE)).pipe(switchMap((cache) => cache.put(PAGE_URL, page)))
+                    : of(undefined)
+            ),
+            catchError(() => of(undefined))
+        );
     }
 
     private loadedFiles(): Array<string> {

@@ -4,7 +4,6 @@ const STATE_CACHE = 'notification-state';
 const PENDING_KEY = '/pending-navigation';
 const APP_CACHE = 'app-files-v1';
 const PAGE_KEY = '/';
-const PAGE_WAIT_MILLISECONDS = 2000;
 const KEPT_CACHES = [STATE_CACHE, APP_CACHE];
 const CACHEABLE_FILE = /\.(?:js|css|png|svg|ico|woff2?|otf|json|webmanifest)$/;
 const VERSIONED_FILE = /-[A-Z0-9]{8}\.[a-z0-9]+$/;
@@ -32,7 +31,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (request.mode === 'navigate') {
-        event.respondWith(pageFromNetworkOrCache(request));
+        event.respondWith(pageFromCacheThenRefresh(request));
     } else if (VERSIONED_FILE.test(url.pathname)) {
         event.respondWith(cacheFirst(request));
     } else if (CACHEABLE_FILE.test(url.pathname)) {
@@ -139,15 +138,20 @@ function keep(key, response) {
     return response;
 }
 
-function pageFromNetworkOrCache(request) {
-    const kept = self.caches.open(APP_CACHE).then((cache) => cache.match(PAGE_KEY));
-    const answer = self
-        .fetch(request)
-        .then((response) => keep(PAGE_KEY, response))
-        .catch(() => kept.then((cached) => cached || Response.error()));
-    const waited = new Promise((resolve) => setTimeout(resolve, PAGE_WAIT_MILLISECONDS));
+function pageFromCacheThenRefresh(request) {
+    return self.caches
+        .open(APP_CACHE)
+        .then((cache) => cache.match(PAGE_KEY))
+        .then((cached) => {
+            const fresh = self.fetch(request).then((response) => keep(PAGE_KEY, response));
+            if (!cached) {
+                return fresh.catch(() => Response.error());
+            }
 
-    return Promise.race([answer, waited.then(() => kept).then((cached) => cached || answer)]);
+            fresh.catch(() => undefined);
+
+            return cached;
+        });
 }
 
 function cacheFirst(request) {
