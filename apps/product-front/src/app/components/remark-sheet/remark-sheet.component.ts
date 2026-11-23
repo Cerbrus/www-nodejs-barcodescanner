@@ -3,12 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, finalize, of, tap } from 'rxjs';
 
+import { IconName } from '../../icon-names';
 import { REMARK_KINDS, RemarkKind } from '../../models';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 import { SheetComponent } from '../sheet/sheet.component';
 
-const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
+const KIND_ICONS: Record<RemarkKind, IconName> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
 
 @Component({
     selector: 'app-remark-sheet',

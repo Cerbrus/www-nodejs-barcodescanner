@@ -6,7 +6,7 @@ const APP_CACHE = 'app-files-v1';
 const PAGE_KEY = '/';
 const KEPT_CACHES = [STATE_CACHE, APP_CACHE];
 const CACHEABLE_FILE = /\.(?:js|css|png|svg|ico|woff2?|otf|json|webmanifest)$/;
-const VERSIONED_FILE = /-[A-Z0-9]{8}\.[a-z0-9]+$/;
+const VERSIONED_FILE = /^\/(?:media\/)?[^/]+-[A-Za-z0-9_-]{8}\.[a-z0-9]+$/;
 const FONT_HOST = 'fonts.gstatic.com';
 const FILE_LIST = '/app-files.json';
 

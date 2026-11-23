@@ -9,6 +9,7 @@ import { Observable, catchError, finalize, interval, merge, of, startWith, switc
 import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
+import { IconName } from '../../icon-names';
 import { IssueDraft, IssueOptions, IssueStage, REMARK_KINDS, Remark, RemarkKind, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -16,9 +17,9 @@ import { EventsService } from '../../services/events.service';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 
-const KIND_ICONS: Record<RemarkKind, string> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
+const KIND_ICONS: Record<RemarkKind, IconName> = { bug: 'bug_report', wish: 'lightbulb', note: 'sticky_note_2' };
 
-const STAGE_ICONS: Record<IssueStage, string> = {
+const STAGE_ICONS: Record<IssueStage, IconName> = {
     sent: 'outbox',
     investigating: 'manage_search',
     needsAnswers: 'help',
@@ -34,7 +35,7 @@ const PROGRESS_REFRESH = 60 * 1000;
 
 type RemarkAction = 'handle' | 'reopen' | 'edit' | 'toGitHub' | 'reject';
 
-const ACTION_ICONS: Record<RemarkAction, string> = {
+const ACTION_ICONS: Record<RemarkAction, IconName> = {
     handle: 'check',
     reopen: 'undo',
     edit: 'edit',
@@ -151,11 +152,11 @@ export class RemarksPage {
         }
     }
 
-    protected stageIcon(stage: IssueStage): string {
+    protected stageIcon(stage: IssueStage): IconName {
         return STAGE_ICONS[stage];
     }
 
-    protected icon(kind: RemarkKind): string {
+    protected icon(kind: RemarkKind): IconName {
         return KIND_ICONS[kind];
     }
 

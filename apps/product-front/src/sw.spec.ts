@@ -179,6 +179,29 @@ describe('service worker', () => {
         expect(fetched).toEqual(['/main-AAAAAAAA.js']);
     });
 
+    it('knows a version with lower case, an underscore or a hyphen, also for a font in the media folder', async () => {
+        const files = [
+            '/chunk-BdeX1MsP.js',
+            '/chunk-BJIikpn_.js',
+            '/chunk-DWXInOv-.js',
+            '/media/OCRB%20Regular-SXUUEP2X.otf'
+        ];
+
+        for (const file of files) {
+            await request(file);
+            await request(file);
+        }
+
+        expect(fetched).toEqual(files);
+    });
+
+    it('keeps refreshing a file in the assets folder whose name only looks like it has a version', async () => {
+        await request('/assets/icons/icon-maskable.png');
+        await request('/assets/icons/icon-maskable.png');
+
+        expect(fetched).toEqual(['/assets/icons/icon-maskable.png', '/assets/icons/icon-maskable.png']);
+    });
+
     it('serves other files from the cache and refreshes them in the background', async () => {
         await request('/assets/i18n/nl.json');
         appFiles().entries.set(`${SITE}/assets/i18n/nl.json`, new Response('older'));

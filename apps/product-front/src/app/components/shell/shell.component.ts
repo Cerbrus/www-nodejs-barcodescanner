@@ -6,6 +6,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap, tap } from 'rxjs';
 
 import { withNote } from '../../display-name';
+import { IconName } from '../../icon-names';
 import { ScanOutcome, ScanSource } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -21,7 +22,7 @@ type ScanEvent = ScanOutcome & { source?: ScanSource; undone?: boolean };
 interface NavLink {
     route: string;
     label: string;
-    icon: string;
+    icon: IconName;
 }
 
 @Component({

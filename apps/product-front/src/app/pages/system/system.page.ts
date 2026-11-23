@@ -6,6 +6,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
+import { IconName } from '../../icon-names';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
@@ -18,12 +19,12 @@ const LANGUAGES = ['nl', 'en'] as const;
 const LANGUAGE_STORAGE_KEY = 'language';
 const COMMIT_LENGTH = 7;
 const AGENT_REFRESH_MILLISECONDS = 60 * 1000;
-const MANAGEMENT_LINKS = [
+const MANAGEMENT_LINKS: Array<{ path: string; icon: IconName; title: string }> = [
     { path: '/sounds', icon: 'volume_up', title: 'sound.title' },
     { path: '/history', icon: 'history', title: 'history.title' },
     { path: '/log', icon: 'terminal', title: 'log.title' }
 ];
-const THEME_OPTIONS: Array<{ theme: Theme; icon: string }> = [
+const THEME_OPTIONS: Array<{ theme: Theme; icon: IconName }> = [
     { theme: 'auto', icon: 'brightness_auto' },
     { theme: 'light', icon: 'light_mode' },
     { theme: 'dark', icon: 'dark_mode' }

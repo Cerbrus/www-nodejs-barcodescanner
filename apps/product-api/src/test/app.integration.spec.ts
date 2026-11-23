@@ -14,8 +14,10 @@ import { AppModule } from '../app.module';
 import { testFolder } from './test-env';
 
 const frontend = join(testFolder, 'public');
+const SCRIPT = 'start();\n'.repeat(500);
 
 mkdirSync(frontend, { recursive: true });
+writeFileSync(join(frontend, 'main-ABCD1234.js'), SCRIPT);
 writeFileSync(join(frontend, 'index.html'), '<title>Boodschappen</title><script>start()</script>');
 process.env['FRONTEND_PATH'] = frontend;
 process.env['ICONS_PATH'] = join(process.cwd(), 'data', 'icons');
@@ -99,6 +101,32 @@ describe('the whole app module', () => {
         assert.equal(reported.length, 1);
         assert.equal(reported[0].level, 'warning');
         assert.match(reported[0].message, /would block http:\/\/x\.example\/a\.png \(img-src\)/);
+    });
+
+    it('compresses scripts and API answers, and leaves small files and the event stream alone', async () => {
+        const script = await fetch(`${site}/main-ABCD1234.js`);
+        const catalog = await fetch(`${site}/api/v1/catalog`);
+        const page = await fetch(`${site}/`);
+        const stop = new AbortController();
+        const events = await fetch(`${site}/api/v1/events`, { signal: stop.signal });
+
+        assert.equal(script.headers.get('content-encoding'), 'gzip');
+        assert.equal(await script.text(), SCRIPT);
+        assert.equal(catalog.status, 200);
+        assert.equal(catalog.headers.get('content-encoding'), 'gzip');
+        assert.equal(page.headers.get('content-encoding'), null);
+        assert.match(events.headers.get('content-type') ?? '', /^text\/event-stream/);
+        assert.equal(events.headers.get('content-encoding'), null);
+        stop.abort();
+    });
+
+    it('lets the browser keep a file with a version in its name, and asks again for the page', async () => {
+        const caching = async (path: string): Promise<string | null> =>
+            (await fetch(`${site}${path}`)).headers.get('cache-control');
+
+        assert.equal(await caching('/main-ABCD1234.js'), 'public, max-age=31536000, immutable');
+        assert.equal(await caching('/'), 'public, max-age=0');
+        assert.equal(await caching('/list'), 'public, max-age=0');
     });
 
     it('keeps API paths out of the web app fallback', async () => {

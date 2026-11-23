@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { finalize, tap } from 'rxjs';
 
+import { IconName } from '../../icon-names';
 import { CatalogItem } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
 import { IconPickerComponent } from '../icon-picker/icon-picker.component';
@@ -114,7 +115,7 @@ export class NewItemFormComponent {
     public readonly hint = input('');
     public readonly shopSectionId = input<string>();
     public readonly submitLabel = input.required<string>();
-    public readonly submitIcon = input('add');
+    public readonly submitIcon = input<IconName>('add');
 
     public readonly created = output<CatalogItem>();
     public readonly cancelled = output<void>();
