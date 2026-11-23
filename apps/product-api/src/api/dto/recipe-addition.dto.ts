@@ -4,6 +4,7 @@ import {
     ArrayMinSize,
     IsArray,
     IsBoolean,
+    IsISO8601,
     IsOptional,
     IsString,
     Matches,
@@ -36,4 +37,8 @@ export class RecipeAdditionDto {
     @IsOptional()
     @IsBoolean()
     public save?: boolean;
+
+    @IsOptional()
+    @IsISO8601()
+    public addedAt?: string;
 }

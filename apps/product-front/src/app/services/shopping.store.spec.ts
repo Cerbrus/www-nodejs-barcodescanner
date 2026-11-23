@@ -176,7 +176,7 @@ describe('ShoppingStore', () => {
 
         store.putRecipeOnList(recipe).subscribe();
 
-        expect(api.addRecipe).toHaveBeenCalledWith(recipe, undefined);
+        expect(api.addRecipe).toHaveBeenCalledWith(recipe, undefined, expect.any(String));
         expect(toasts.toasts().map(({ kind, text }) => [kind, text])).toEqual([['ok', 'recipe.added']]);
         expect(api.getList).toHaveBeenCalledTimes(2);
 
@@ -190,7 +190,11 @@ describe('ShoppingStore', () => {
         expect(toasts.toasts().at(-1)?.text).toBe('recipe.addedPartly');
 
         store.putRecipeOnList(recipe, { code: 'R1;Pannenkoeken;1', save: true }).subscribe();
-        expect(api.addRecipe).toHaveBeenLastCalledWith(recipe, { code: 'R1;Pannenkoeken;1', save: true });
+        expect(api.addRecipe).toHaveBeenLastCalledWith(
+            recipe,
+            { code: 'R1;Pannenkoeken;1', save: true },
+            expect.any(String)
+        );
     });
 
     it('groups by section in the order of the sections and leaves out empty ones', () => {
@@ -312,6 +316,74 @@ describe('ShoppingStore', () => {
         expect(store.pending()).toEqual([]);
         expect(loadOutbox()).toEqual([]);
         expect(store.online()).toBe(true);
+    });
+
+    it('keeps a recipe for later when there is no connection, shows it on the list, and sends it in order with its time', () => {
+        const store = create();
+        const recipe = {
+            name: 'Pannenkoeken',
+            ingredients: [...pancakes.ingredients, { catalogItemId: 2, quantity: 1, note: 'wit' }]
+        };
+        const scanned = { code: 'R1;Pannenkoeken;1*2;2:wit', save: false };
+        api.addRecipe.mockReturnValue(throwError(noConnection));
+
+        store.putRecipeOnList(recipe, scanned).subscribe();
+
+        expect(store.pending().map((change) => change.recipe?.name)).toEqual(['Pannenkoeken']);
+        expect(loadOutbox().length).toBe(1);
+        expect(store.toBuy().map((row) => [row.catalogItem.name, row.note, row.quantity])).toEqual(
+            expect.arrayContaining([
+                ['Melk', '', 4],
+                ['Brood', 'wit', 1]
+            ])
+        );
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map(({ text, action }) => [text, action])
+        ).toEqual([['recipe.added', undefined]]);
+
+        api.changeListEntry.mockClear();
+        api.addRecipe.mockClear();
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
+        store.putRecipeOnList(recipe).subscribe();
+        expect(api.changeListEntry).not.toHaveBeenCalled();
+        expect(api.addRecipe).not.toHaveBeenCalled();
+
+        const order: Array<string> = [];
+        api.addRecipe.mockImplementation((sent: { name: string }, code?: object, addedAt?: string) => {
+            order.push(`recipe ${code ? 'scanned' : 'plain'} ${addedAt === store.pending()[0].changedAt}`);
+            return of({ title: sent.name, added: 2, unknown: [] });
+        });
+        api.sendOfflineChanges.mockImplementation((changes: Array<object>) => {
+            order.push(`changes ${changes.length}`);
+            return of({ applied: 1, skipped: [] });
+        });
+
+        resumed$.next();
+
+        expect(order).toEqual(['recipe scanned true', 'changes 1', 'recipe plain true']);
+        expect(store.pending()).toEqual([]);
+        expect(loadOutbox()).toEqual([]);
+    });
+
+    it('drops a waiting recipe the server refuses, and keeps it when the server is away', () => {
+        const store = create();
+        api.addRecipe.mockReturnValue(throwError(noConnection));
+        store.putRecipeOnList({ name: 'Pannenkoeken', ingredients: pancakes.ingredients }).subscribe();
+
+        resumed$.next();
+        expect(store.pending().length).toBe(1);
+
+        api.addRecipe.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
+        resumed$.next();
+
+        expect(store.pending()).toEqual([]);
+        expect(
+            TestBed.inject(ToastService)
+                .toasts()
+                .map((toast) => toast.text)
+        ).toContain('offline.serverWon');
     });
 
     it('tells the user when the server kept its own state over a waiting change', () => {

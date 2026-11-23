@@ -155,12 +155,12 @@ describe('RecipesPage', () => {
         expect((page.querySelector('button[aria-label="recipe.select"]') as HTMLButtonElement).disabled).toBe(true);
     });
 
-    it('offers nothing to add for a recipe without products, or without a connection', async () => {
+    it('offers nothing to add for a recipe without products, and still adds without a connection', async () => {
         await open();
         expect(addButtons().map((button) => button.disabled)).toEqual([true, false, false]);
 
         store.online.set(false);
         await settle();
-        expect(addButtons().map((button) => button.disabled)).toEqual([true, true, true]);
+        expect(addButtons().map((button) => button.disabled)).toEqual([true, false, false]);
     });
 });

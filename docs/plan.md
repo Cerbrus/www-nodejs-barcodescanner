@@ -32,7 +32,7 @@ In daily-use shape and running on the Pi:
     5. **Scanning codes**, in two steps:
         - **With the handheld scanner**: the recipe rule behind `/scans`, the sounds `recipe` and `recipe_partial`, the push notification for a product the app does not know, and recipe offers in the inbox. Done 2026-11-23 18:18.
         - **With the phone camera**: the camera reads recipe codes, opens the tick sheet with a box to save an unknown recipe, and gets a square frame. Done 2026-11-23 18:18.
-    6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md)).
+    6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md), [0110](decisions/0110-offline-recipe-addition-is-always-applied.md)).
 5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
 After the recipes (owner, 2026-11-23): go through every button in the app with the owner. Many need no text, only their icon.

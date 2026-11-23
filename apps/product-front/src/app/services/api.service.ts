@@ -134,8 +134,8 @@ export class ApiService {
         return this.http.delete<void>(`${this.baseUrl}/recipes/offers/${id}`);
     }
 
-    public addRecipe(recipe: RecipeContent, scanned?: ScannedRecipeCode): Observable<ScanOutcome> {
-        return this.http.post<ScanOutcome>(`${this.baseUrl}/recipes/additions`, { ...recipe, ...scanned });
+    public addRecipe(recipe: RecipeContent, scanned?: ScannedRecipeCode, addedAt?: string): Observable<ScanOutcome> {
+        return this.http.post<ScanOutcome>(`${this.baseUrl}/recipes/additions`, { ...recipe, ...scanned, addedAt });
     }
 
     public getInbox(): Observable<Array<Barcode>> {

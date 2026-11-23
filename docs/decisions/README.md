@@ -115,24 +115,25 @@ One record per decision, in the MADR layout. Read this page first; open a record
 
 ## Web app
 
-| Number                                              | Title                                                                                | Status                      | Date         |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------- | ------------ |
-| [0049](0049-colours-carry-meaning.md)               | Colours carry meaning on the list                                                    | accepted                    | 2026-11-12   |
-| [0050](0050-appearance-follows-device.md)           | Appearance follows the device, with a switch                                         | accepted                    | 2026-11-12   |
-| [0051](0051-create-products-anywhere.md)            | New products can be created wherever a product is searched                           | accepted                    | 2026-11-12   |
-| [0052](0052-zxing-camera-decoder.md)                | The camera decoder is @zxing/browser                                                 | accepted                    | 2026-11-12   |
-| [0053](0053-source-logos.md)                        | Each lookup result shows the logo of its source                                      | accepted                    | 2026-11-12   |
-| [0054](0054-log-rotation.md)                        | Log files rotate at 256 KB, three old files kept                                     | accepted                    | 2026-11-12   |
-| [0055](0055-changelog-in-app.md)                    | A changelog in the app, written from the git history                                 | accepted                    | 2026-11-15   |
-| [0081](0081-offline-snapshot-and-outbox.md)         | Offline list: a snapshot and an outbox, the server wins on conflict                  | accepted (found afterwards) | not recorded |
-| [0107](0107-recipe-additions-wait-in-the-outbox.md) | Without a connection, a recipe addition waits in the outbox                          | accepted                    | 2026-11-23   |
-| [0088](0088-angular-signals-translations.md)        | Angular with standalone components, signals, Dutch and English texts                 | accepted (found afterwards) | not recorded |
-| [0089](0089-tailwind-and-css-variables.md)          | Tailwind 4 with every colour a CSS variable                                          | accepted (found afterwards) | not recorded |
-| [0094](0094-server-sent-events.md)                  | Open pages follow the server through a server-sent event stream                      | accepted (found afterwards) | not recorded |
-| [0099](0099-templates-and-styles-in-own-files.md)   | Every component keeps its template and styles in its own files                       | accepted                    | 2026-11-20   |
-| [0101](0101-recipes-tab-and-pages.md)               | Recipes get their own tab; the Products page moves to the owner's part of System     | accepted                    | 2026-11-23   |
-| [0103](0103-recipe-codes-printed-on-a4.md)          | Recipe codes are printed on A4, twelve to a page                                     | superseded by 0109          | 2026-11-23   |
-| [0109](0109-cut-marks-at-the-page-edge.md)          | The sheet of recipe codes has cut marks at the page edge, no lines between the codes | accepted                    | 2026-11-23   |
+| Number                                                    | Title                                                                                    | Status                      | Date         |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------- | ------------ |
+| [0049](0049-colours-carry-meaning.md)                     | Colours carry meaning on the list                                                        | accepted                    | 2026-11-12   |
+| [0050](0050-appearance-follows-device.md)                 | Appearance follows the device, with a switch                                             | accepted                    | 2026-11-12   |
+| [0051](0051-create-products-anywhere.md)                  | New products can be created wherever a product is searched                               | accepted                    | 2026-11-12   |
+| [0052](0052-zxing-camera-decoder.md)                      | The camera decoder is @zxing/browser                                                     | accepted                    | 2026-11-12   |
+| [0053](0053-source-logos.md)                              | Each lookup result shows the logo of its source                                          | accepted                    | 2026-11-12   |
+| [0054](0054-log-rotation.md)                              | Log files rotate at 256 KB, three old files kept                                         | accepted                    | 2026-11-12   |
+| [0055](0055-changelog-in-app.md)                          | A changelog in the app, written from the git history                                     | accepted                    | 2026-11-15   |
+| [0081](0081-offline-snapshot-and-outbox.md)               | Offline list: a snapshot and an outbox, the server wins on conflict                      | accepted (found afterwards) | not recorded |
+| [0107](0107-recipe-additions-wait-in-the-outbox.md)       | Without a connection, a recipe addition waits in the outbox                              | accepted                    | 2026-11-23   |
+| [0088](0088-angular-signals-translations.md)              | Angular with standalone components, signals, Dutch and English texts                     | accepted (found afterwards) | not recorded |
+| [0089](0089-tailwind-and-css-variables.md)                | Tailwind 4 with every colour a CSS variable                                              | accepted (found afterwards) | not recorded |
+| [0094](0094-server-sent-events.md)                        | Open pages follow the server through a server-sent event stream                          | accepted (found afterwards) | not recorded |
+| [0099](0099-templates-and-styles-in-own-files.md)         | Every component keeps its template and styles in its own files                           | accepted                    | 2026-11-20   |
+| [0101](0101-recipes-tab-and-pages.md)                     | Recipes get their own tab; the Products page moves to the owner's part of System         | accepted                    | 2026-11-23   |
+| [0103](0103-recipe-codes-printed-on-a4.md)                | Recipe codes are printed on A4, twelve to a page                                         | superseded by 0109          | 2026-11-23   |
+| [0109](0109-cut-marks-at-the-page-edge.md)                | The sheet of recipe codes has cut marks at the page edge, no lines between the codes     | accepted                    | 2026-11-23   |
+| [0110](0110-offline-recipe-addition-is-always-applied.md) | A recipe addition made without a connection is always applied, at the moment it was made | accepted                    | 2026-11-23   |
 
 ## Release train
 

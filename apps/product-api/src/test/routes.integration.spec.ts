@@ -470,6 +470,42 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('DELETE', `/recipes/${kept?.id}`, asUser)).status, 204);
     });
 
+    it('takes a recipe addition made without a connection at its own time, and only once when it is sent twice', async () => {
+        const addedAt = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const addition = {
+            name: 'Offline recept',
+            ingredients: [{ catalogItemId: milkId, quantity: 3, note: 'later' }],
+            addedAt
+        };
+        const quantity = async (): Promise<number | undefined> =>
+            (
+                await call<Array<{ catalogItemId: number; note: string; quantity: number }>>('GET', '/list', asUser)
+            ).body.find((entry) => entry.catalogItemId === milkId && entry.note === 'later')?.quantity;
+        assert.equal(
+            (await call('POST', '/recipes/additions', asUser, { ...addition, addedAt: 'gisteren' })).status,
+            400
+        );
+
+        const first = await call<{ scanId: number; added: number }>('POST', '/recipes/additions', asUser, addition);
+        const second = await call<{ scanId: number; added: number }>('POST', '/recipes/additions', asUser, addition);
+        assert.deepEqual([first.status, second.status, second.body.added], [201, 201, 1]);
+        assert.equal(second.body.scanId, first.body.scanId);
+        assert.equal(await quantity(), 3);
+        const history = await call<Array<{ id: number; createdAt: string }>>('GET', '/scans?limit=50', asUser);
+        assert.equal(history.body.find(({ id }) => id === first.body.scanId)?.createdAt, addedAt);
+
+        const later = await call<{ scanId: number }>('POST', '/recipes/additions', asUser, {
+            ...addition,
+            addedAt: new Date(Date.now() - 60 * 1000).toISOString()
+        });
+        assert.notEqual(later.body.scanId, first.body.scanId);
+        assert.equal(await quantity(), 6);
+
+        for (let scan = 0; scan < 2; scan++) {
+            assert.equal((await call('POST', '/scans/undo', asUser)).status, 201);
+        }
+    });
+
     it('answers 404 for a barcode it has never seen', async () => {
         assert.equal((await call('GET', '/barcodes/00000000', asUser)).status, 404);
     });

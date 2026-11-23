@@ -103,7 +103,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 1. The button on a recipe's row puts every product on the list at once. A product that is already to buy goes up by the recipe's quantity.
 2. The button on the recipe's own page opens a sheet with every product ticked. The user unticks what is in the house and confirms; only the ticked products go on the list.
 3. A message names the recipe and how many products went on the list, with an undo that takes the whole recipe back in one step.
-4. Without a connection the buttons are off.
+4. Without a connection both buttons work: the products show on the list at once, the banner counts one waiting change, and the recipe is sent when the connection is back, with the moment of the tap in the history. The message then has no undo.
 
 ### UC-24 Scan a recipe code with the handheld scanner
 
@@ -121,6 +121,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 4. For a recipe whose name the app does not have, the sheet has a box to keep the recipe. Ticked, the recipe is stored at once with the products that exist. Unticked, the recipe is offered in the inbox as in UC-24.
 5. Closing the sheet adds nothing. The camera goes on either way, and reads the same code again only after three seconds.
 6. A recipe code that cannot be read gives a message and nothing else.
+7. Without a connection the sheet works the same; the addition waits as in UC-21.
 
 ### UC-22 Print recipe codes
 

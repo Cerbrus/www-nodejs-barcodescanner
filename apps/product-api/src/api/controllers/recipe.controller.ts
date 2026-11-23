@@ -19,8 +19,8 @@ export class RecipeController {
     }
 
     @Post('additions')
-    public add(@Body() addition: RecipeAdditionDto): Promise<ScanOutcome> {
-        return this.scans.addChosen(addition);
+    public add(@Body() { addedAt, ...addition }: RecipeAdditionDto): Promise<ScanOutcome> {
+        return this.scans.addChosen({ ...addition, addedAt: addedAt ? new Date(addedAt) : undefined });
     }
 
     @Get('offers')

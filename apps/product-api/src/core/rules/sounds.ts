@@ -31,6 +31,11 @@ export const DEFAULT_SOUND_IDS: Record<FeedbackEvent, string> = {
     updated: 'shortShortLong'
 };
 
+export const FALLBACK_EVENTS: Partial<Record<FeedbackEvent, FeedbackEvent>> = {
+    recipe: 'added',
+    recipe_partial: 'needs_name'
+};
+
 function blockProblem(block: SoundBlock, index: number): string | undefined {
     const at = `block ${index + 1}`;
     if (!BLOCK_KINDS.includes(block.kind)) {

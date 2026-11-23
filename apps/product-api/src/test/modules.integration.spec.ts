@@ -10,6 +10,7 @@ import { setTimeout as wait } from 'node:timers/promises';
 import { INestApplicationContext, Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { ProductSuggestion } from '@barcodescanner/shared';
 
@@ -302,6 +303,20 @@ describe('scan flow against a real database', () => {
         await feedback.setSound('updated', 'none');
         assert.equal(await service('1.10.1').takeUpdateAnnouncement(), undefined);
         assert.equal(readFileSync(path, 'utf8'), '1.10.1');
+    });
+
+    it('plays the sound of an added product for a recipe whose own default sound is gone, until one is chosen', async () => {
+        const feedback = app.get(FeedbackService);
+        const soundOf = async (name: string): Promise<string | undefined> =>
+            (await feedback.getSettings()).events.find(({ event }) => event === name)?.soundId;
+        assert.equal(await soundOf('recipe'), 'trill8');
+
+        await feedback.setSound('added', 'beep');
+        await app.get<Repository<SoundEntity>>(getRepositoryToken(SoundEntity)).delete('trill8');
+        assert.equal(await soundOf('recipe'), 'beep');
+
+        await feedback.setSound('recipe', 'none');
+        assert.equal(await soundOf('recipe'), 'none');
     });
 
     it('removes an entry from the list altogether', () => checkRemoveFromList(list, milkId));

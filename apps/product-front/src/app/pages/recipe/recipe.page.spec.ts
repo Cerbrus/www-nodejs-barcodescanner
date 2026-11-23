@@ -273,10 +273,10 @@ describe('RecipePage', () => {
         expect(page.querySelector('app-recipe-sheet')).toBeNull();
     });
 
-    it('offers nothing to put on the list without a connection', async () => {
+    it('still offers to put the recipe on the list without a connection', async () => {
         store.online.set(false);
         await open('7');
 
-        expect(button('recipe.toList').disabled).toBe(true);
+        expect(button('recipe.toList').disabled).toBe(false);
     });
 });

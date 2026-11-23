@@ -1,8 +1,12 @@
-import { ListEntryChange } from '../models';
+import { RecipeContent } from '@barcodescanner/shared';
+
+import { ListEntryChange, ScannedRecipeCode } from '../models';
 
 export interface PendingChange extends ListEntryChange {
     id?: string;
     changedAt: string;
+    recipe?: RecipeContent;
+    scanned?: ScannedRecipeCode;
 }
 
 const OUTBOX_KEY = 'outbox';

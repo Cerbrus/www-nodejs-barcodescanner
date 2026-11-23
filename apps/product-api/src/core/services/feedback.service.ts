@@ -19,6 +19,7 @@ import { AppConfig } from '../../config/app.config';
 import { FeedbackSettingEntity, SoundEntity } from '../../data/entities';
 import {
     DEFAULT_SOUND_IDS,
+    FALLBACK_EVENTS,
     FEEDBACK_EVENTS,
     FeedbackEvent,
     MAX_NAME_LENGTH,
@@ -110,8 +111,9 @@ export class FeedbackService implements OnApplicationBootstrap {
 
         return {
             events: FEEDBACK_EVENTS.map((event) => {
-                const chosen = stored.get(event) ?? DEFAULT_SOUND_IDS[event];
-                const sound = sounds.find(({ id }) => id === chosen);
+                const soundOf = (of?: FeedbackEvent): Sound | undefined =>
+                    of && sounds.find(({ id }) => id === (stored.get(of) ?? DEFAULT_SOUND_IDS[of]));
+                const sound = soundOf(event) ?? (stored.has(event) ? undefined : soundOf(FALLBACK_EVENTS[event]));
 
                 return { event, soundId: sound?.id ?? NO_SOUND, steps: sound?.steps ?? [] };
             }),

@@ -84,7 +84,7 @@
                     <button
                         type="button"
                         class="btn"
-                        [disabled]="!row.recipe.ingredients.length || !store.online()"
+                        [disabled]="!row.recipe.ingredients.length"
                         [attr.aria-label]="'recipe.addAll' | translate: { name: row.recipe.name }"
                         (click)="add(row.recipe)"
                     >

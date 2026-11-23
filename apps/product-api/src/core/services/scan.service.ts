@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, IsNull, Not, Repository } from 'typeorm';
+import { EntityManager, In, IsNull, Not, Repository } from 'typeorm';
 
 import {
     ProductSuggestion,
@@ -39,6 +39,7 @@ export interface ScanOutcome {
 export interface ChosenRecipe extends RecipeContent {
     code?: string;
     save?: boolean;
+    addedAt?: Date;
 }
 
 const MAX_HELD_MILLISECONDS = 60 * 60 * 1000;
@@ -116,13 +117,18 @@ export class ScanService {
         return outcome;
     }
 
-    public async addChosen({ code, save, ...chosen }: ChosenRecipe): Promise<ScanOutcome> {
+    public async addChosen({ code, save, addedAt, ...chosen }: ChosenRecipe): Promise<ScanOutcome> {
         const scanned = code ? readRecipeCode(code) : undefined;
         if (code && !scanned?.name.trim()) {
             throw new BadRequestException('This is not a recipe code the app can read');
         }
 
-        const outcome = await this.addRecipe(chosen, scanned ? 'phone' : 'app');
+        const sentBefore = addedAt && (await this.recipeAddedAt(chosen, addedAt));
+        if (sentBefore) {
+            return sentBefore;
+        }
+
+        const outcome = await this.addRecipe(chosen, scanned ? 'phone' : 'app', addedAt);
         if (scanned) {
             await (save ? this.recipes.keepIfUnknown(scanned) : this.recipes.offerIfUnknown(scanned));
         }
@@ -325,6 +331,25 @@ export class ScanService {
             },
             suggestions: barcode.suggestions
         };
+    }
+
+    private async recipeAddedAt(recipe: RecipeContent, addedAt: Date): Promise<ScanOutcome | undefined> {
+        const code = writeRecipeCode({ name: recipe.name.trim(), ingredients: cleanIngredients(recipe.ingredients) });
+        const scan = await this.scans.findOne({
+            where: { code, createdAt: addedAt, result: In(RECIPE_RESULTS) },
+            relations: { changes: true }
+        });
+
+        return (
+            scan && {
+                scanId: scan.id,
+                code,
+                result: scan.result,
+                title: scan.title ?? undefined,
+                added: scan.changes?.length ?? 0,
+                unknown: []
+            }
+        );
     }
 
     private acceptedTime(scannedAt?: Date): Date {

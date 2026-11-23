@@ -74,6 +74,31 @@ test('show the code of a recipe, and lay out the codes of chosen recipes for pri
     await expect(page.locator('nav.tabs')).toBeHidden();
 });
 
+test('put a recipe on the list without a connection: it waits and arrives later', async ({
+    page,
+    context,
+    request
+}) => {
+    const total = async (): Promise<number> =>
+        (await listOf(request))
+            .filter((entry) => entry.state === 'to_buy')
+            .reduce((sum, entry) => sum + entry.quantity, 0);
+    await page.goto('/#/recipes');
+    const add = page.getByRole('button', { name: `Alles van ${NAME} op de lijst zetten` });
+    await expect(add).toBeVisible();
+    const before = await total();
+
+    await context.setOffline(true);
+    await add.click();
+    await expect(page.getByText(`${NAME}: 1 product op de lijst`)).toBeVisible();
+    await expect(page.getByText('1 wijziging wacht')).toBeVisible();
+    expect(await total()).toBe(before);
+
+    await context.setOffline(false);
+    await expect(page.getByText('1 wijziging wacht')).toBeHidden({ timeout: 20_000 });
+    await expect.poll(total).toBe(before + 2);
+});
+
 test('scan a recipe code the app does not have: it lands on the list and is offered in the inbox', async ({
     page,
     request

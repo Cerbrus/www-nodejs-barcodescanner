@@ -19,7 +19,7 @@ import {
     timeout
 } from 'rxjs';
 
-import { RecipeContent } from '@barcodescanner/shared';
+import { RecipeContent, RecipeIngredient } from '@barcodescanner/shared';
 
 import {
     Barcode,
@@ -237,7 +237,13 @@ export class ShoppingStore {
     }
 
     public putRecipeOnList(recipe: RecipeContent, scanned?: ScannedRecipeCode): Observable<void> {
-        return this.api.addRecipe(recipe, scanned).pipe(
+        const addedAt = new Date().toISOString();
+        if (this.pending().length || !navigator.onLine || !this.online()) {
+            return this.keepRecipeForLater(recipe, scanned, addedAt);
+        }
+
+        return this.api.addRecipe(recipe, scanned, addedAt).pipe(
+            timeout(ANSWER_WAIT_MILLISECONDS),
             tap((outcome) =>
                 this.toasts.show({
                     kind: outcome.unknown?.length ? 'attention' : 'ok',
@@ -250,7 +256,12 @@ export class ShoppingStore {
                     action: () => this.undoLastScan()
                 })
             ),
-            switchMap(() => this.refreshListAndInbox())
+            switchMap(() => this.refreshListAndInbox()),
+            catchError((error: HttpErrorResponse | TimeoutError) => {
+                const unanswered = error instanceof TimeoutError || error.status === NO_CONNECTION;
+
+                return unanswered ? this.keepRecipeForLater(recipe, scanned, addedAt) : throwError(() => error);
+            })
         );
     }
 
@@ -288,6 +299,44 @@ export class ShoppingStore {
         return of(undefined);
     }
 
+    private keepRecipeForLater(
+        recipe: RecipeContent,
+        scanned: ScannedRecipeCode | undefined,
+        changedAt: string
+    ): Observable<void> {
+        this.pending.update((pending) => [...pending, { recipe, scanned, changedAt }]);
+        saveOutbox(this.pending());
+        this.entries.update((entries) =>
+            recipe.ingredients.reduce((rows, ingredient) => this.withIngredient(rows, ingredient), entries)
+        );
+        this.saveSnapshotNow(this.updatedAt() ?? new Date().toISOString());
+        this.failed.set(true);
+        this.settled.set(true);
+        this.toasts.show({
+            kind: 'ok',
+            text: this.translate.instant('recipe.added', {
+                name: recipe.name,
+                count: recipe.ingredients.filter(({ catalogItemId }) => this.itemById(catalogItemId)).length
+            })
+        });
+
+        return of(undefined);
+    }
+
+    private withIngredient(
+        entries: Array<ListEntry>,
+        { catalogItemId, quantity, note }: RecipeIngredient
+    ): Array<ListEntry> {
+        const entry = entries.find((row) => row.catalogItemId === catalogItemId && row.note === note.trim());
+
+        return this.withLocalChange(entries, entry?.id ?? crypto.randomUUID(), {
+            catalogItemId,
+            note: note.trim(),
+            state: 'to_buy',
+            quantity: (entry?.state === 'to_buy' ? entry.quantity : 0) + quantity
+        });
+    }
+
     private withLocalChange(entries: Array<ListEntry>, id: string, change: ListEntryChange): Array<ListEntry> {
         const current = entries.find((entry) => entry.id === id);
         const catalogItem = current?.catalogItem ?? this.itemById(change.catalogItemId ?? -1);
@@ -317,22 +366,52 @@ export class ShoppingStore {
 
     private sendPending(): Observable<void> {
         return defer(() => {
-            const changes = this.pending();
-            if (!changes.length) {
+            const pending = this.pending();
+            const [first] = pending;
+            if (!first) {
                 return of(undefined);
             }
 
-            return this.api.sendOfflineChanges(changes).pipe(
-                tap((result) => {
-                    this.pending.update((pending) => pending.slice(changes.length));
+            const nextRecipe = pending.findIndex(({ recipe }) => recipe);
+            const changes = first.recipe ? [first] : pending.slice(0, nextRecipe < 0 ? pending.length : nextRecipe);
+
+            return (first.recipe ? this.sendRecipe(first) : this.sendChanges(changes)).pipe(
+                tap(() => {
+                    this.pending.update((waiting) => waiting.slice(changes.length));
                     saveOutbox(this.pending());
-                    if (result.skipped.length) {
-                        this.toasts.show({ kind: 'attention', text: this.translate.instant('offline.serverWon') });
-                    }
                 }),
-                map(() => undefined)
+                switchMap(() => this.sendPending())
             );
         });
+    }
+
+    private sendChanges(changes: Array<PendingChange>): Observable<void> {
+        return this.api.sendOfflineChanges(changes).pipe(
+            tap((result) => {
+                if (result.skipped.length) {
+                    this.toasts.show({ kind: 'attention', text: this.translate.instant('offline.serverWon') });
+                }
+            }),
+            map(() => undefined)
+        );
+    }
+
+    private sendRecipe({ recipe, scanned, changedAt }: PendingChange): Observable<void> {
+        if (!recipe) {
+            return of(undefined);
+        }
+
+        return this.api.addRecipe(recipe, scanned, changedAt).pipe(
+            map(() => undefined),
+            catchError((error: HttpErrorResponse) => {
+                if (!(error.status >= 400 && error.status < 500)) {
+                    return throwError(() => error);
+                }
+                this.toasts.show({ kind: 'attention', text: this.translate.instant('offline.serverWon') });
+
+                return of(undefined);
+            })
+        );
     }
 
     private saveSnapshotNow(savedAt: string): void {
