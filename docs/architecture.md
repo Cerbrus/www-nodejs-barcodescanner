@@ -135,7 +135,7 @@ Angular with standalone components and signals; no state library. Every componen
 
 | Folder | Content |
 |---|---|
-| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `recipes` (the Recipes tab), `recipe` (one recipe: a read view, and an edit mode behind the pencil), `catalog` (products, for the owner, reached from the System page), `item` (one product with its barcodes), `history`, `log`, `system`, `changelog` |
+| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `recipes` (the Recipes tab), `recipe` (one recipe: a read view, and an edit mode behind the pencil, where the products are reordered with the drag and drop of `@angular/cdk`), `catalog` (products, for the owner, reached from the System page), `item` (one product with its barcodes), `history`, `log`, `system`, `changelog` |
 | `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog; Escape closes it), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode`, `recipe-sheet` (the products of a recipe with a tick box each, before they go on the list) |
 | `services/` | `auth.service` (login state, route guard), `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
 

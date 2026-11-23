@@ -5,9 +5,14 @@
     </a>
     <div class="flex items-center justify-between gap-3">
         <h1 class="page-title">{{ 'history.title' | translate }}</h1>
-        <button type="button" class="btn" [disabled]="!canUndo()" (click)="undo()">
+        <button
+            type="button"
+            class="btn"
+            [disabled]="!canUndo()"
+            [attr.aria-label]="'history.undoLast' | translate"
+            (click)="undo()"
+        >
             <i class="material-symbols-outlined">undo</i>
-            {{ 'history.undoLast' | translate }}
         </button>
     </div>
 

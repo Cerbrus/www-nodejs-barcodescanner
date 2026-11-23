@@ -111,7 +111,8 @@
         "deleteConfirm": "Delete \"{name}\"? The products themselves stay.",
         "notFound": "This recipe does not exist (anymore)",
         "unknownProduct": "Unknown product (#{id})",
-        "createAndAdd": "Create and add"
+        "createAndAdd": "Create and add",
+        "drag": "Drag to change the order"
     },
     "item": {
         "name": "Name",
@@ -136,7 +137,7 @@
     "history": {
         "title": "Scan history",
         "undo": "Undo",
-        "undoLast": "Undo",
+        "undoLast": "Undo last",
         "lookupFailed": "Lookup failed at {sources}. Name it or try again",
         "empty": "No scans yet",
         "result": {

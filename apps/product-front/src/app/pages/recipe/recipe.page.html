@@ -32,9 +32,22 @@
 
         <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>
         @if (shown().length) {
-            <div class="card ingredients">
+            <div
+                class="card ingredients"
+                cdkDropList
+                cdkDropListLockAxis="y"
+                (cdkDropListDropped)="moveIngredient($event)"
+            >
                 @for (row of shown(); track $index) {
-                    <div class="ingredient">
+                    <div class="ingredient" cdkDrag>
+                        <button
+                            type="button"
+                            class="handle"
+                            cdkDragHandle
+                            [attr.aria-label]="'recipe.drag' | translate"
+                        >
+                            <i class="material-symbols-outlined">drag_indicator</i>
+                        </button>
                         <span class="ingredient-icon">
                             @if (row.item; as item) {
                                 <app-item-icon [item]="item" />

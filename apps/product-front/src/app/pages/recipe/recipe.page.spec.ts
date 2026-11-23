@@ -1,4 +1,6 @@
+import { CdkDropList } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -138,7 +140,11 @@ describe('RecipePage', () => {
         click(page, 'app-item-autocomplete .option');
         await settle();
         expect(texts(page, '.ingredient .quantity')).toEqual(['2', '2', '1']);
-        expect(texts(page, '.ingredient .step:first-of-type')).toEqual(['remove', 'remove', 'delete']);
+        expect(texts(page, '.ingredient .step:not([aria-label="recipe.more"])')).toEqual([
+            'remove',
+            'remove',
+            'delete'
+        ]);
 
         click(page, 'button[aria-label="recipe.removeProduct"]', 0);
         await settle();
@@ -147,6 +153,24 @@ describe('RecipePage', () => {
         expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
             { catalogItemId: 1, quantity: 2, note: 'vol' },
             { catalogItemId: 2, quantity: 2, note: '' }
+        ]);
+    });
+
+    it('saves the products in the order they were dragged into', async () => {
+        await open('7');
+        await edit();
+
+        expect(page.querySelectorAll('.ingredient button.handle').length).toBe(2);
+
+        fixture.debugElement
+            .query(By.directive(CdkDropList))
+            .triggerEventHandler('cdkDropListDropped', { previousIndex: 0, currentIndex: 1 });
+        await settle();
+        button('common.save').click();
+
+        expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
+            { catalogItemId: 2, quantity: 1, note: '' },
+            { catalogItemId: 1, quantity: 2, note: 'vol' }
         ]);
     });
 

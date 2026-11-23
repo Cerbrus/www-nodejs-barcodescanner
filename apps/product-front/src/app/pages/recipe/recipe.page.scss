@@ -12,6 +12,29 @@
 .ingredient + .ingredient {
     border-top: 1px solid var(--line);
 }
+.handle {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    width: 20px;
+    height: 32px;
+    margin-left: -6px;
+    color: var(--text-muted);
+    cursor: grab;
+    touch-action: none;
+}
+.ingredient.cdk-drag-preview {
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--text) 25%, transparent);
+}
+.ingredient.cdk-drag-placeholder {
+    opacity: 0.3;
+}
+.ingredient.cdk-drag-animating,
+.ingredients.cdk-drop-list-dragging .ingredient:not(.cdk-drag-placeholder) {
+    transition: transform 150ms ease;
+}
 .ingredient-icon {
     width: 28px;
     height: 28px;

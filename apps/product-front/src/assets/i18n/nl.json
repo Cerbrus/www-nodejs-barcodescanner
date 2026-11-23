@@ -111,7 +111,8 @@
         "deleteConfirm": "\"{name}\" verwijderen? De producten zelf blijven bestaan.",
         "notFound": "Dit recept bestaat niet (meer)",
         "unknownProduct": "Onbekend product (#{id})",
-        "createAndAdd": "Aanmaken en toevoegen"
+        "createAndAdd": "Aanmaken en toevoegen",
+        "drag": "Verslepen om de volgorde te wijzigen"
     },
     "item": {
         "name": "Naam",
@@ -136,7 +137,7 @@
     "history": {
         "title": "Scangeschiedenis",
         "undo": "Ongedaan maken",
-        "undoLast": "Wissen",
+        "undoLast": "Laatste ongedaan maken",
         "lookupFailed": "Opzoeken mislukt bij {sources}. Benoemen of opnieuw proberen",
         "empty": "Nog geen scans",
         "result": {

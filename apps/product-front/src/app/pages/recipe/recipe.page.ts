@@ -1,3 +1,4 @@
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -44,6 +45,9 @@ const plain = ({ catalogItemId, quantity, note }: RecipeIngredient): RecipeIngre
     selector: 'app-recipe-page',
     standalone: true,
     imports: [
+        CdkDrag,
+        CdkDragHandle,
+        CdkDropList,
         FormsModule,
         RouterLink,
         TranslatePipe,
@@ -188,6 +192,15 @@ export class RecipePage {
 
     protected setNote(index: number, note: string): void {
         this.change(index, (row) => ({ ...row, note: note.trim() }));
+    }
+
+    protected moveIngredient({ previousIndex, currentIndex }: CdkDragDrop<unknown>): void {
+        this.ingredients.update((rows) => {
+            const moved = [...rows];
+            moveItemInArray(moved, previousIndex, currentIndex);
+
+            return moved;
+        });
     }
 
     protected removeIngredient(index: number): void {
