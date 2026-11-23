@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0109 or higher: the highest number plus one.
+- Number the next record 0110 or higher: the highest number plus one.
 
 ## Product
 
@@ -131,7 +131,8 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0094](0094-server-sent-events.md) | Open pages follow the server through a server-sent event stream | accepted (found afterwards) | not recorded |
 | [0099](0099-templates-and-styles-in-own-files.md) | Every component keeps its template and styles in its own files | accepted | 2026-11-20 |
 | [0101](0101-recipes-tab-and-pages.md) | Recipes get their own tab; the Products page moves to the owner's part of System | accepted | 2026-11-23 |
-| [0103](0103-recipe-codes-printed-on-a4.md) | Recipe codes are printed on A4, twelve to a page | accepted | 2026-11-23 |
+| [0103](0103-recipe-codes-printed-on-a4.md) | Recipe codes are printed on A4, twelve to a page | superseded by 0109 | 2026-11-23 |
+| [0109](0109-cut-marks-at-the-page-edge.md) | The sheet of recipe codes has cut marks at the page edge, no lines between the codes | accepted | 2026-11-23 |
 
 ## Release train
 

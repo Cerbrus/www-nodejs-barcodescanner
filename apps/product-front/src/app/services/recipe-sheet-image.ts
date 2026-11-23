@@ -12,13 +12,15 @@ export const SHEET = {
     code: 50,
     nameWidth: 56,
     nameSize: 3.6,
-    nameLines: 2
+    nameLines: 2,
+    edge: 5,
+    markLength: 3.5,
+    markGap: 1,
+    markWidth: 0.2
 };
 
 const DOTS_A_MILLIMETRE = 8;
 const QUIET_ZONE = 4;
-const DASH = [1.5, 1];
-const LINE_WIDTH = 0.2;
 const ELLIPSIS = '…';
 
 export interface Box {
@@ -45,6 +47,25 @@ export function cellBox(index: number): Box {
         width,
         height: SHEET.cellHeight
     };
+}
+
+export function cutMarks(): Array<Box> {
+    const { margin, columns, rows, cellHeight, markLength: length, markGap: gap, markWidth: thickness } = SHEET;
+    const cellWidth = (SHEET.width - margin * 2) / columns;
+    const before = margin - gap - length;
+    const across = Array.from({ length: columns + 1 }, (_, column) => margin + column * cellWidth - thickness / 2);
+    const down = Array.from({ length: rows + 1 }, (_, row) => margin + row * cellHeight - thickness / 2);
+
+    return [
+        ...across.flatMap((x) => [
+            { x, y: before, width: thickness, height: length },
+            { x, y: margin + rows * cellHeight + gap, width: thickness, height: length }
+        ]),
+        ...down.flatMap((y) => [
+            { x: before, y, width: length, height: thickness },
+            { x: SHEET.width - margin + gap, y, width: length, height: thickness }
+        ])
+    ];
 }
 
 export function wrapName(name: string, fits: (text: string) => boolean): Array<string> {
@@ -104,18 +125,18 @@ function drawCell(context: CanvasRenderingContext2D, recipe: RecipeContent, inde
     wrapName(recipe.name, (text) => context.measureText(text).width <= dots(SHEET.nameWidth)).forEach((line, row) =>
         context.fillText(line, dots(box.x + box.width / 2), below + dots(1 + row * SHEET.nameSize * 1.25))
     );
+}
 
-    context.strokeStyle = ink;
-    context.lineWidth = Math.max(1, dots(LINE_WIDTH));
-    context.setLineDash(DASH.map(dots));
-    context.beginPath();
-    context.moveTo(dots(box.x), dots(box.y + box.height));
-    context.lineTo(dots(box.x + box.width), dots(box.y + box.height));
-    if (index % SHEET.columns < SHEET.columns - 1) {
-        context.moveTo(dots(box.x + box.width), dots(box.y));
-        context.lineTo(dots(box.x + box.width), dots(box.y + box.height));
-    }
-    context.stroke();
+function drawMarks(context: CanvasRenderingContext2D, ink: string): void {
+    context.fillStyle = ink;
+    cutMarks().forEach(({ x, y, width, height }) =>
+        context.fillRect(
+            Math.round(x * DOTS_A_MILLIMETRE),
+            Math.round(y * DOTS_A_MILLIMETRE),
+            Math.max(1, Math.round(width * DOTS_A_MILLIMETRE)),
+            Math.max(1, Math.round(height * DOTS_A_MILLIMETRE))
+        )
+    );
 }
 
 export function sheetImages(recipes: Array<RecipeContent>, ink: string, paper: string): Array<Blob> {
@@ -130,6 +151,7 @@ export function sheetImages(recipes: Array<RecipeContent>, ink: string, paper: s
 
         context.fillStyle = paper;
         context.fillRect(0, 0, canvas.width, canvas.height);
+        drawMarks(context, ink);
         page.forEach((recipe, index) => drawCell(context, recipe, index, ink));
         const bytes = atob(canvas.toDataURL('image/png').split(',')[1]);
 

@@ -1,6 +1,6 @@
 # 0103. Recipe codes are printed on A4, twelve to a page
 
-- Status: accepted
+- Status: superseded by [0109](0109-cut-marks-at-the-page-edge.md)
 - Date: 2026-11-23
 - Decided by: the owner
 

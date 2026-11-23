@@ -109,7 +109,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 1. The print button on a recipe's page prints its code.
 2. On the Recipes tab, the choose button turns the rows into tick boxes. The print button, which shows how many are ticked, prints the codes of the ticked recipes; the cross leaves choosing.
-3. The sheet is A4 with three codes across and four down, each 50 mm wide with the recipe's name below it and dashed lines to cut along. More than twelve go on to the next page. In the app on the home screen of an iPhone the button opens the share sheet with the sheet as pictures, one per page; Print is among its choices.
+3. The sheet is A4 with three codes across and four down, each 50 mm wide with the recipe's name below it. Short marks at the edge of the page show where to cut, so a cut-out code has no line on it. More than twelve go on to the next page. In the app on the home screen of an iPhone the button opens the share sheet with the sheet as pictures, one per page; Print is among its choices.
 4. A code holds the recipe as it was saved. After a change to the recipe it has to be printed again.
 
 ## Oversight

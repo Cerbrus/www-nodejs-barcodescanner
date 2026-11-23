@@ -1,4 +1,4 @@
-import { SHEET, cellBox, sheetPages, wrapName } from './recipe-sheet-image';
+import { SHEET, cellBox, cutMarks, sheetPages, wrapName } from './recipe-sheet-image';
 
 const fitsIn =
     (characters: number) =>
@@ -25,6 +25,34 @@ describe('the sheet of recipe codes as a picture', () => {
         expect(last.x + last.width).toBeCloseTo(SHEET.width - SHEET.margin);
         expect(last.y + last.height).toBeLessThanOrEqual(SHEET.height - SHEET.margin);
         expect(SHEET.code).toBeLessThan(width);
+    });
+
+    it('marks every cut with a short line at each end, outside the cells and inside what a printer reaches', () => {
+        const marks = cutMarks();
+        const cells = { left: 10, top: 10, right: 200, bottom: 286 };
+        const inCells = (mark: { x: number; y: number; width: number; height: number }): boolean =>
+            mark.x + mark.width > cells.left &&
+            mark.x < cells.right &&
+            mark.y + mark.height > cells.top &&
+            mark.y < cells.bottom;
+
+        expect(marks.length).toBe((3 + 1) * 2 + (4 + 1) * 2);
+        expect(marks.filter(inCells)).toEqual([]);
+        expect(
+            marks.every(
+                (mark) =>
+                    mark.x >= SHEET.edge &&
+                    mark.y >= SHEET.edge &&
+                    mark.x + mark.width <= SHEET.width - SHEET.edge &&
+                    mark.y + mark.height <= SHEET.height - SHEET.edge
+            )
+        ).toBe(true);
+        expect(marks.filter((mark) => mark.height > mark.width).map((mark) => Math.round(mark.x * 10) / 10)).toEqual([
+            9.9, 9.9, 73.2, 73.2, 136.6, 136.6, 199.9, 199.9
+        ]);
+        expect(marks.filter((mark) => mark.width > mark.height).map((mark) => Math.round(mark.y * 10) / 10)).toEqual([
+            9.9, 9.9, 78.9, 78.9, 147.9, 147.9, 216.9, 216.9, 285.9, 285.9
+        ]);
     });
 
     it('keeps a short name on one line and breaks a longer one between words', () => {

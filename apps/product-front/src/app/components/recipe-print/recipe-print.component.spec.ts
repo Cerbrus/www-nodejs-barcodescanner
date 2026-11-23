@@ -53,7 +53,18 @@ describe('RecipePrintComponent and RecipePrintService', () => {
         expect(cellsWhenPrinting).toEqual([2]);
         expect(texts(sheet, '.cell-name')).toEqual(['Pannenkoeken', 'Soep']);
         expect(sheet.querySelectorAll('.cell app-recipe-code svg').length).toBe(2);
+        expect(sheet.querySelectorAll('.leaf').length).toBe(1);
+        expect(sheet.querySelectorAll('.leaf .mark').length).toBe(18);
         expect(document.body.classList.contains('printing-recipes')).toBe(true);
+    });
+
+    it('starts a new page after twelve codes, each page with its own cut marks', () => {
+        printing.print(Array.from({ length: 14 }, (_, index) => recipe(index + 1, `Recept ${index + 1}`)));
+
+        expect(Array.from(sheet.querySelectorAll('.leaf'), (page) => page.querySelectorAll('.cell').length)).toEqual([
+            12, 2
+        ]);
+        expect(sheet.querySelectorAll('.mark').length).toBe(36);
     });
 
     it('clears the sheet when printing is over, and can print again after that', () => {

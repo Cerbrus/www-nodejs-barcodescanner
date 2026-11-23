@@ -1,8 +1,26 @@
-.pages {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.leaf {
+    position: relative;
+    width: 200mm;
+    height: 286mm;
+    overflow: hidden;
     background: var(--print-paper);
     color: var(--print-ink);
+    break-after: page;
+}
+.leaf:last-child {
+    break-after: auto;
+}
+.mark {
+    position: absolute;
+    background: var(--print-ink);
+}
+.cells {
+    display: grid;
+    position: absolute;
+    top: 5mm;
+    left: 5mm;
+    grid-template-columns: repeat(3, 1fr);
+    width: 190mm;
 }
 .cell {
     display: flex;
@@ -12,12 +30,6 @@
     gap: 2mm;
     height: 69mm;
     padding: 3mm;
-    border-right: 0.2mm dashed var(--print-ink);
-    border-bottom: 0.2mm dashed var(--print-ink);
-    break-inside: avoid;
-}
-.cell:nth-child(3n) {
-    border-right: none;
 }
 .cell-code {
     width: 50mm;
