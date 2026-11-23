@@ -28,7 +28,7 @@ In daily-use shape and running on the Pi:
     1. **`libs/shared`**: the library is set up and what the API and the web app both write today moves there ([0104](decisions/0104-shared-library.md)). Nothing behaves differently. Done 2026-11-23 12:57.
     2. **Hardware agent**: it rebuilds the typed text, posts barcodes and recipe codes and refuses the rest ([0106](decisions/0106-agent-posts-barcodes-and-recipe-codes.md)). Until part 5 the API refuses a recipe code. Done 2026-11-23 13:12.
     3. **Recipes in the app**: the tables and routes ([0105](decisions/0105-recipe-tables-and-routes.md)), the Recipes tab and pages with the Products page moved to the owner's Management group ([0101](decisions/0101-recipes-tab-and-pages.md)), and adding from the app with the tick sheet, the history line and undo ([0102](decisions/0102-putting-a-recipe-on-the-list.md)). Done 2026-11-23 13:47.
-    4. **Codes**: the code on the recipe page, drawn by `qrcode-generator`, the select mode and the A4 sheet ([0103](decisions/0103-recipe-codes-printed-on-a4.md)).
+    4. **Codes**: the code on the recipe page, drawn by `qrcode-generator`, the select mode and the A4 sheet ([0103](decisions/0103-recipe-codes-printed-on-a4.md)). Done 2026-11-23 15:53.
     5. **Scanning codes**: the recipe rule behind `/scans`, the sounds `recipe` and `recipe_partial`, the push notification for a product the app does not know, the camera's tick sheet with a square frame, and recipe offers in the inbox.
     6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md)).
 5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
@@ -109,4 +109,5 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Loading over a weak connection: answers compressed, files with a version in their name kept by the service worker and the browser, the icon font from 4.0 MB to 8 KB. Checked by the owner on the live site | 2026-11-23 11:49 | 1.2.18 |
 | Recipes, part 1: the shared library `libs/shared` holds what the API and the web app both wrote | 2026-11-23 12:57 | 1.2.28 |
 | Recipes, part 2: the hardware agent rebuilds the typed text, posts barcodes and recipe codes and refuses the rest | 2026-11-23 13:12 | 1.2.30 |
-| Recipes, part 3: the Recipes tab and pages, recipes kept by the API, a recipe on the list at once or through a tick sheet, one history line and one undo | 2026-11-23 13:47 | |
+| Recipes, part 3: the Recipes tab and pages, recipes kept by the API, a recipe on the list at once or through a tick sheet, one history line and one undo | 2026-11-23 13:47 | 1.2.33 |
+| Recipes, part 4: a recipe shows its QR code, and the codes of chosen recipes print on A4, twelve to a page | 2026-11-23 15:53 | |
