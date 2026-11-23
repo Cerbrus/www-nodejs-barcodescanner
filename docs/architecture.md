@@ -27,7 +27,7 @@ How the product is built today. What is still open is in [plan.md](plan.md).
 | Container | Content | Notes |
 |---|---|---|
 | `app` | NestJS serving `/api/v1/...` and the built Angular app | SQLite at `/data/app.db` on a volume. Icons and the seed file ship inside the image at `/app/data/`. Runs migrations at start. |
-| `hardware-agent` | Python, one file | Reads the scanner, posts scans and its own log lines to `app` over the compose network. Retries while the app is starting. Beeps a buzzer on a GPIO pin according to the scan result, when one is configured. |
+| `hardware-agent` | Python, one file | Reads the scanner, posts scans and its own log lines to `app` over the compose network. The scanner types like a US keyboard; the agent rebuilds the typed text, Shift included, and posts it only when it is a barcode (6 to 14 digits) or a recipe code (`R`, a digit and `;` at the start). Anything else, and any scan with Alt, Ctrl or a key that types nothing, is refused with the error sound and a log line. Retries while the app is starting. Beeps a buzzer on a GPIO pin according to the scan result, when one is configured. |
 
 ## API layout
 

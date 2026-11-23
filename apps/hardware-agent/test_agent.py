@@ -10,8 +10,12 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 KEYS = {f'KEY_{digit}': 100 + digit for digit in range(10)}
 KEYS.update({f'KEY_KP{digit}': 200 + digit for digit in range(10)})
+KEYS.update({f'KEY_{letter}': 300 + index for index, letter in enumerate('ABCDEFGHIJKLMNOPQRSTUVWXYZ')})
+KEYS.update({f'KEY_{name}': 400 + index for index, name in enumerate([
+    'GRAVE', 'MINUS', 'EQUAL', 'LEFTBRACE', 'RIGHTBRACE', 'BACKSLASH', 'SEMICOLON', 'APOSTROPHE', 'COMMA', 'DOT',
+    'SLASH', 'SPACE'])})
 KEYS.update(KEY_ENTER=28, KEY_KPENTER=96, KEY_TAB=15, KEY_LEFTSHIFT=42, KEY_RIGHTSHIFT=54, KEY_LEFTCTRL=29,
-            KEY_RIGHTCTRL=97, KEY_LEFTALT=56, KEY_RIGHTALT=100, KEY_CAPSLOCK=58, KEY_NUMLOCK=69, KEY_A=30)
+            KEY_RIGHTCTRL=97, KEY_LEFTALT=56, KEY_RIGHTALT=500, KEY_CAPSLOCK=58, KEY_NUMLOCK=69, KEY_F1=59)
 EV_KEY, KEY_DOWN, KEY_UP = 1, 1, 0
 
 
@@ -58,8 +62,19 @@ class Event:
 
 
 def keys(text):
-    names = {'\n': 'KEY_ENTER', '\t': 'KEY_TAB'}
-    return [Event(KEYS[names.get(character, f'KEY_{character}')]) for character in text]
+    end_keys = {'\n': 'KEY_ENTER', '\t': 'KEY_TAB'}
+    typed = {character: (code, shifted)
+             for code, characters in agent.TYPED_KEYS.items() for shifted, character in enumerate(characters)}
+    events = []
+    for character in text:
+        if character in end_keys:
+            events.append(Event(KEYS[end_keys[character]]))
+            continue
+        code, shifted = typed[character]
+        press = [Event(code), Event(code, KEY_UP)]
+        shift = KEYS['KEY_LEFTSHIFT']
+        events += [Event(shift), *press, Event(shift, KEY_UP)] if shifted else press
+    return events
 
 
 class FakeDevice:
@@ -133,45 +148,94 @@ class ReadScans(unittest.TestCase):
 
     def test_digits_and_enter_become_one_scan(self):
         self.device.feed(keys('8710400335481\n'))
-        self.assertEqual(next(self.scans), '8710400335481')
+        self.assertEqual(next(self.scans), ('8710400335481', True))
 
     def test_keys_arriving_in_pieces_are_joined(self):
         self.device.feed(keys('8710'))
         self.device.feed(keys('4003'))
         self.device.feed(keys('35481\n'))
-        self.assertEqual(next(self.scans), '8710400335481')
+        self.assertEqual(next(self.scans), ('8710400335481', True))
 
     def test_keypad_digits_and_keypad_enter_count_too(self):
         self.device.feed([Event(KEYS[f'KEY_KP{digit}']) for digit in '12345670'] + [Event(KEYS['KEY_KPENTER'])])
-        self.assertEqual(next(self.scans), '12345670')
+        self.assertEqual(next(self.scans), ('12345670', True))
 
     def test_tab_ends_a_scan(self):
         self.device.feed(keys('12345670\t'))
-        self.assertEqual(next(self.scans), '12345670')
+        self.assertEqual(next(self.scans), ('12345670', True))
 
     def test_two_scans_in_one_read_are_kept_apart(self):
         self.device.feed(keys('11111111\n22222222\n'))
-        self.assertEqual([next(self.scans), next(self.scans)], ['11111111', '22222222'])
+        self.assertEqual([next(self.scans), next(self.scans)], [('11111111', True), ('22222222', True)])
 
     def test_a_scan_without_end_key_is_delivered_after_a_pause(self):
         self.device.feed(keys('12345670'))
         started = time.monotonic()
-        self.assertEqual(next(self.scans), '12345670')
+        self.assertEqual(next(self.scans), ('12345670', True))
         self.assertGreaterEqual(time.monotonic() - started, agent.IDLE_SECONDS * 0.8)
 
-    def test_key_releases_modifiers_and_other_event_types_are_ignored(self):
-        self.device.feed([Event(KEYS['KEY_LEFTSHIFT']), Event(KEYS['KEY_1']), Event(KEYS['KEY_1'], KEY_UP),
-                          Event(KEYS['KEY_2'], kind=4), Event(KEYS['KEY_2']), Event(KEYS['KEY_ENTER'])])
-        self.assertEqual(next(self.scans), '12')
+    def test_key_releases_lock_keys_and_other_event_types_are_ignored(self):
+        self.device.feed([Event(KEYS['KEY_NUMLOCK']), Event(KEYS['KEY_1']), Event(KEYS['KEY_1'], KEY_UP),
+                          Event(KEYS['KEY_2'], kind=4), Event(KEYS['KEY_CAPSLOCK']), Event(KEYS['KEY_2']),
+                          Event(KEYS['KEY_ENTER'])])
+        self.assertEqual(next(self.scans), ('12', True))
 
-    def test_letters_do_not_end_up_in_the_code(self):
-        self.device.feed([Event(KEYS['KEY_A'])] + keys('12345670\n'))
-        self.assertEqual(next(self.scans), '12345670')
+    def test_every_printable_ascii_character_is_typed_back(self):
+        text = ''.join(chr(code) for code in range(32, 127))
+        self.device.feed(keys(f'{text}\n'))
+        self.assertEqual(next(self.scans), (text, True))
 
-    def test_an_end_key_without_digits_gives_no_scan(self):
+    def test_a_digit_key_with_shift_is_a_symbol_and_not_a_digit(self):
+        self.device.feed(keys('!@#$%^&*()\n'))
+        self.assertEqual(next(self.scans), ('!@#$%^&*()', True))
+
+    def test_shift_holds_until_it_is_released(self):
+        shift = KEYS['KEY_RIGHTSHIFT']
+        self.device.feed([Event(shift), Event(KEYS['KEY_A']), Event(KEYS['KEY_B']), Event(shift, KEY_UP),
+                          Event(KEYS['KEY_C']), Event(KEYS['KEY_ENTER'])])
+        self.assertEqual(next(self.scans), ('ABc', True))
+
+    def test_a_recipe_code_is_typed_back_whole(self):
+        code = 'R1;Pasta pesto;45*2:volkoren;112:cr%C3%A8me;87'
+        self.device.feed(keys(f'{code}\n'))
+        self.assertEqual(next(self.scans), (code, True))
+
+    def test_an_alt_code_makes_the_scan_unreadable(self):
+        alt_code = [Event(KEYS['KEY_LEFTALT'])] + [Event(KEYS[f'KEY_KP{digit}']) for digit in '50089']
+        self.device.feed(keys('A') + alt_code + keys('B\n'))
+        self.assertEqual(next(self.scans), ('A50089B', False))
+
+    def test_a_key_that_types_nothing_makes_the_scan_unreadable(self):
+        self.device.feed([Event(KEYS['KEY_F1'])] + keys('12345670\n'))
+        self.assertEqual(next(self.scans), ('12345670', False))
+
+    def test_the_next_scan_after_an_unreadable_one_is_readable_again(self):
+        self.device.feed([Event(KEYS['KEY_LEFTCTRL'])] + keys('1\n12345670\n'))
+        self.assertEqual([next(self.scans), next(self.scans)], [('1', False), ('12345670', True)])
+
+    def test_an_end_key_without_keys_gives_no_scan(self):
         self.device.feed(keys('\n'))
         self.device.feed(keys('12345670\n'))
-        self.assertEqual(next(self.scans), '12345670')
+        self.assertEqual(next(self.scans), ('12345670', True))
+
+
+class TellCodesApart(unittest.TestCase):
+    def test_six_to_fourteen_digits_are_a_barcode(self):
+        self.assertTrue(all(agent.is_code(code) for code in ['123456', '8710400335481', '12345678901234']))
+
+    def test_fewer_or_more_digits_are_not(self):
+        self.assertFalse(any(agent.is_code(code) for code in ['', '12345', '123456789012345']))
+
+    def test_a_recipe_code_starts_with_the_letter_a_version_and_a_semicolon(self):
+        self.assertTrue(all(agent.is_code(code) for code in ['R1;Pasta pesto;45', 'R2;']))
+
+    def test_other_text_is_not_a_code(self):
+        others = ['https://example.com/1234567', 'R;Pasta', 'r1;Pasta', 'R12;Pasta', '8710400335481a', ' 8710400335481']
+        self.assertFalse(any(agent.is_code(code) for code in others))
+
+    def test_a_long_text_is_cut_off_in_the_log(self):
+        self.assertEqual(agent.shorten('12345670'), '12345670')
+        self.assertEqual(agent.shorten('R1;' + 'x' * 60), 'R1;' + 'x' * 37 + '…')
 
 
 class BuzzerSounds(unittest.TestCase):
@@ -278,6 +342,25 @@ class SendScans(unittest.TestCase):
         self.assertEqual(body['code'], '8710400335481')
         self.assertNotIn('scannedAt', body)
         self.assertEqual(self.feedback.signals, ['incremented'])
+
+    def test_a_barcode_and_a_recipe_code_are_posted(self):
+        self.reachable()
+        self.sender.receive('8710400335481', True)
+        self.sender.receive('R1;Pasta pesto;45*2:volkoren', True)
+        self.assertEqual([body['code'] for body in self.posted()], ['8710400335481', 'R1;Pasta pesto;45*2:volkoren'])
+
+    def test_text_that_is_no_code_is_not_posted_and_gives_the_error_signal(self):
+        self.reachable()
+        self.sender.receive('https://example.com/1234567', True)
+        self.sender.receive('12345', True)
+        self.assertEqual(self.posted(), [])
+        self.assertEqual(self.feedback.signals, ['error', 'error'])
+
+    def test_an_unreadable_scan_is_not_posted_even_when_its_text_looks_like_a_barcode(self):
+        self.reachable()
+        self.sender.receive('1345790826', False)
+        self.assertEqual(self.posted(), [])
+        self.assertEqual(self.feedback.signals, ['error'])
 
     def test_a_refused_scan_gives_the_error_signal_and_is_not_kept(self):
         self.api.answers['/api/v1/scans'] = (400, {'message': 'code must match'})

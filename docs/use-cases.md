@@ -19,6 +19,8 @@ Terms:
 
 A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16). When the app is not reachable, for instance during an update, the scan is kept and added a moment later; the buzzer plays its own "kept" sound, so there is no need to scan again.
 
+A code that is not a product barcode, such as a QR code with a web address, adds nothing: the buzzer plays the error sound and the system log holds the first characters of what was read.
+
 ### UC-2 Scan a new product with the handheld scanner
 
 1. The user scans a barcode that has no mapping.

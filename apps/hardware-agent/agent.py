@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import queue
+import re
 import select
 import sys
 import threading
@@ -22,15 +23,21 @@ LOG_DELIVERY_ATTEMPTS = 5
 LOG_QUEUE_SIZE = 200
 API_LOG_LEVELS = {'info', 'warning', 'error'}
 
-DIGIT_KEYS = {
-    **{getattr(ecodes, f'KEY_{digit}'): str(digit) for digit in range(10)},
-    **{getattr(ecodes, f'KEY_KP{digit}'): str(digit) for digit in range(10)},
-}
+KEY_NAMES = ['GRAVE', *'1234567890', 'MINUS', 'EQUAL', *'QWERTYUIOP', 'LEFTBRACE', 'RIGHTBRACE', 'BACKSLASH',
+             *'ASDFGHJKL', 'SEMICOLON', 'APOSTROPHE', *'ZXCVBNM', 'COMMA', 'DOT', 'SLASH', 'SPACE']
+PLAIN_CHARACTERS = "`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ "
+SHIFTED_CHARACTERS = '~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>? '
+TYPED_KEYS = {getattr(ecodes, f'KEY_{name}'): characters
+              for name, characters in zip(KEY_NAMES, zip(PLAIN_CHARACTERS, SHIFTED_CHARACTERS))}
+KEYPAD_KEYS = {getattr(ecodes, f'KEY_KP{digit}'): str(digit) for digit in range(10)}
 END_KEYS = {ecodes.KEY_ENTER, ecodes.KEY_KPENTER, ecodes.KEY_TAB}
-MODIFIER_KEYS = {ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT, ecodes.KEY_LEFTCTRL, ecodes.KEY_RIGHTCTRL,
-                 ecodes.KEY_LEFTALT, ecodes.KEY_RIGHTALT, ecodes.KEY_CAPSLOCK, ecodes.KEY_NUMLOCK}
-KEY_DOWN = 1
+SHIFT_KEYS = {ecodes.KEY_LEFTSHIFT, ecodes.KEY_RIGHTSHIFT}
+LOCK_KEYS = {ecodes.KEY_CAPSLOCK, ecodes.KEY_NUMLOCK}
+KEY_UP, KEY_DOWN = 0, 1
 IDLE_SECONDS = 0.3
+BARCODE = re.compile(r'\d{6,14}')
+RECIPE_CODE = re.compile(r'R\d;')
+LOGGED_CHARACTERS = 40
 
 FEEDBACK_OUTPUT = os.environ.get('FEEDBACK_OUTPUT', 'none').lower() or 'none'
 GPIO_CHIP = os.environ.get('GPIO_CHIP') or '/dev/gpiochip0'
@@ -107,34 +114,44 @@ class ApiLogHandler(logging.Handler):
 log.addHandler(ApiLogHandler())
 
 
+def shorten(text):
+    return text if len(text) <= LOGGED_CHARACTERS else f'{text[:LOGGED_CHARACTERS]}…'
+
+
+def is_code(text):
+    return bool(BARCODE.fullmatch(text) or RECIPE_CODE.match(text))
+
+
 def read_scans(device):
-    digits = ''
-    other_keys = 0
+    text, readable, shift = '', True, False
     while True:
-        waiting_for_end = digits or other_keys
+        waiting_for_end = text or not readable
         ready, _, _ = select.select([device.fd], [], [], IDLE_SECONDS if waiting_for_end else None)
         if not ready:
-            if other_keys:
-                log.warning('scan without end key: %d digits "%s" and %d other keys', len(digits), digits, other_keys)
-            if digits:
-                yield digits
-            digits, other_keys = '', 0
+            log.warning('scan without end key: "%s"', shorten(text))
+            yield text, readable
+            text, readable = '', True
             continue
 
         for event in device.read():
-            if event.type != ecodes.EV_KEY or event.value != KEY_DOWN:
+            if event.type != ecodes.EV_KEY:
+                continue
+            if event.code in SHIFT_KEYS:
+                shift = event.value != KEY_UP
+                continue
+            if event.value != KEY_DOWN:
                 continue
             log.debug('key %s', ecodes.KEY.get(event.code, event.code))
             if event.code in END_KEYS:
-                if other_keys:
-                    log.warning('scan with %d non-digit keys, digits "%s"', other_keys, digits)
-                if digits:
-                    yield digits
-                digits, other_keys = '', 0
-            elif event.code in DIGIT_KEYS:
-                digits += DIGIT_KEYS[event.code]
-            elif event.code not in MODIFIER_KEYS:
-                other_keys += 1
+                if text or not readable:
+                    yield text, readable
+                text, readable = '', True
+            elif event.code in TYPED_KEYS:
+                text += TYPED_KEYS[event.code][shift]
+            elif event.code in KEYPAD_KEYS:
+                text += KEYPAD_KEYS[event.code]
+            elif event.code not in LOCK_KEYS:
+                readable = False
 
 
 class Buzzer:
@@ -319,6 +336,13 @@ class ScanSender:
         self.lock = threading.Lock()
         threading.Thread(target=self.deliver_held, daemon=True).start()
 
+    def receive(self, text, readable):
+        if readable and is_code(text):
+            self.handle(text)
+        else:
+            log.warning('scan refused, neither a barcode nor a recipe code: "%s"', shorten(text))
+            self.feedback.signal('error')
+
     def handle(self, code):
         scanned_at = time.time()
         with self.lock:
@@ -332,7 +356,7 @@ class ScanSender:
             self.hold(code, scanned_at, 'the app is not reachable')
         elif outcome:
             self.feedback.signal(outcome.get('result'))
-            log.info('scan %s: %s %s', code, outcome.get('result'), outcome.get('itemName') or '')
+            log.info('scan %s: %s %s', shorten(code), outcome.get('result'), outcome.get('itemName') or '')
 
     def send(self, code, scanned_at=None):
         try:
@@ -340,7 +364,7 @@ class ScanSender:
         except urllib.error.HTTPError as error:
             if error.code >= SERVER_ERROR:
                 return None
-            log.warning('scan %s rejected by the API: %s %s', code, error.code, error.read().decode(errors='replace'))
+            log.warning('scan %s rejected by the API: %s %s', shorten(code), error.code, error.read().decode(errors='replace'))
             self.feedback.signal('error')
             return {}
         except (urllib.error.URLError, OSError, ValueError):
@@ -349,11 +373,11 @@ class ScanSender:
     def hold(self, code, scanned_at, reason):
         with self.lock:
             if len(self.held) >= HELD_SCANS_LIMIT:
-                log.warning('scan %s dropped: %d scans are already waiting', code, len(self.held))
+                log.warning('scan %s dropped: %d scans are already waiting', shorten(code), len(self.held))
                 self.feedback.signal('error')
                 return
             self.held.append((code, scanned_at))
-        log.warning('scan %s held, %s', code, reason)
+        log.warning('scan %s held, %s', shorten(code), reason)
         self.feedback.signal('held')
 
     def deliver_held(self):
@@ -370,7 +394,7 @@ class ScanSender:
 
             age = time.time() - scanned_at
             if age > HELD_SCAN_MAX_SECONDS:
-                log.warning('held scan %s dropped after %d minutes without the app', code, age // 60)
+                log.warning('held scan %s dropped after %d minutes without the app', shorten(code), age // 60)
                 outcome = {}
             else:
                 outcome = self.send(code, scanned_at)
@@ -380,7 +404,7 @@ class ScanSender:
             with self.lock:
                 self.held.popleft()
             if outcome:
-                log.info('held scan %s delivered after %d s: %s %s', code, age, outcome.get('result'), outcome.get('itemName') or '')
+                log.info('held scan %s delivered after %d s: %s %s', shorten(code), age, outcome.get('result'), outcome.get('itemName') or '')
 
 
 def run():
@@ -404,8 +428,8 @@ def run():
         log.info('scanner connected: %s (%s)', device.name, DEVICE_PATH)
         status.report('connected', device.name)
         try:
-            for code in read_scans(device):
-                sender.handle(code)
+            for text, readable in read_scans(device):
+                sender.receive(text, readable)
         except OSError as error:
             log.warning('scanner disconnected (%s)', error)
             status.report('waiting')
