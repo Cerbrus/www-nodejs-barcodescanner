@@ -272,6 +272,20 @@ describe('ShoppingStore', () => {
         expect(store.online()).toBe(false);
     });
 
+    it('keeps a change for later at once while the server does not answer, without asking it', () => {
+        const store = create();
+        api.getList.mockReturnValue(NEVER);
+        store.refreshAll().subscribe();
+        vi.advanceTimersByTime(5000);
+        expect(store.online()).toBe(false);
+
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
+
+        expect(api.changeListEntry).not.toHaveBeenCalled();
+        expect(store.pending().map((change) => [change.id, change.state])).toEqual([['e1', 'recent']]);
+        expect(store.recent().map((row) => row.catalogItem.name)).toContain('Melk');
+    });
+
     it('ignores a snapshot that is not one', () => {
         saveSnapshot({ savedAt: '', sections: [], items: [], entries: [], inbox: [] });
         api.getSections.mockReturnValue(throwError(noConnection));

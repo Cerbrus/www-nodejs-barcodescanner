@@ -134,7 +134,7 @@ export class ShoppingStore {
     }
 
     public changeEntry(id: string, change: ListEntryChange): Observable<void> {
-        if (this.pending().length || !navigator.onLine) {
+        if (this.pending().length || !navigator.onLine || !this.online()) {
             return this.keepForLater(id, change);
         }
 
