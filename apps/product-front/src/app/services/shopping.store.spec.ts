@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, Subject, filter, of, throwError } from 'rxjs';
+import { NEVER, Observable, Subject, filter, of, throwError } from 'rxjs';
 
 import { CatalogItem, ListEntry, Section } from '../models';
 import { ApiService } from './api.service';
@@ -233,6 +233,43 @@ describe('ShoppingStore', () => {
         vi.advanceTimersByTime(5000);
 
         expect(store.failed()).toBe(false);
+    });
+
+    it('counts loading as failed when the server has not answered after five seconds, and tries again', () => {
+        api.getList.mockReturnValue(NEVER);
+        const store = create();
+
+        vi.advanceTimersByTime(4999);
+
+        expect(store.settled()).toBe(false);
+        expect(store.online()).toBe(true);
+
+        vi.advanceTimersByTime(1);
+
+        expect(store.settled()).toBe(true);
+        expect(store.online()).toBe(false);
+
+        api.getList.mockReturnValue(of([]));
+        vi.advanceTimersByTime(5000);
+
+        expect(store.online()).toBe(true);
+    });
+
+    it('keeps a change for later when the server has not answered it after five seconds', () => {
+        const store = create();
+        api.changeListEntry.mockReturnValue(NEVER);
+
+        store.changeEntry('e1', { state: 'recent' }).subscribe();
+        vi.advanceTimersByTime(4999);
+
+        expect(store.pending()).toEqual([]);
+        expect(store.recent().map((row) => row.catalogItem.name)).toContain('Melk');
+
+        vi.advanceTimersByTime(1);
+
+        expect(store.pending().map((change) => [change.id, change.state])).toEqual([['e1', 'recent']]);
+        expect(store.recent().map((row) => row.catalogItem.name)).toContain('Melk');
+        expect(store.online()).toBe(false);
     });
 
     it('ignores a snapshot that is not one', () => {

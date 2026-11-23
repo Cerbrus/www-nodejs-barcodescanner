@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import {
     Observable,
+    TimeoutError,
     catchError,
     debounceTime,
     defer,
@@ -14,7 +15,8 @@ import {
     of,
     switchMap,
     tap,
-    throwError
+    throwError,
+    timeout
 } from 'rxjs';
 
 import { Barcode, CatalogItem, CatalogItemInput, ListEntry, ListEntryChange, Section } from '../models';
@@ -31,6 +33,7 @@ export interface SectionGroup<T> {
 
 const REFRESH_DELAY_MILLISECONDS = 150;
 const RETRY_MILLISECONDS = 5000;
+const ANSWER_WAIT_MILLISECONDS = 5000;
 const NO_CONNECTION = 0;
 
 @Injectable({ providedIn: 'root' })
@@ -102,6 +105,7 @@ export class ShoppingStore {
             switchMap(() =>
                 forkJoin([this.api.getSections(), this.api.getCatalog(), this.api.getList(), this.api.getInbox()])
             ),
+            timeout(ANSWER_WAIT_MILLISECONDS),
             tap(([sections, items, entries, inbox]) => {
                 this.sections.set(sections);
                 this.items.set(items);
@@ -118,6 +122,7 @@ export class ShoppingStore {
     public refreshListAndInbox(): Observable<void> {
         return this.sendPending().pipe(
             switchMap(() => forkJoin([this.api.getList(), this.api.getInbox()])),
+            timeout(ANSWER_WAIT_MILLISECONDS),
             tap(([entries, inbox]) => {
                 this.entries.set(entries);
                 this.inbox.set(inbox);
@@ -137,11 +142,13 @@ export class ShoppingStore {
         this.entries.update((entries) => this.withLocalChange(entries, id, change));
 
         return this.api.changeListEntry(id, change).pipe(
+            timeout(ANSWER_WAIT_MILLISECONDS),
             switchMap(() => this.refreshListAndInbox()),
-            catchError((error: HttpErrorResponse) => {
+            catchError((error: HttpErrorResponse | TimeoutError) => {
                 this.entries.set(before);
+                const unanswered = error instanceof TimeoutError || error.status === NO_CONNECTION;
 
-                return error.status === NO_CONNECTION ? this.keepForLater(id, change) : throwError(() => error);
+                return unanswered ? this.keepForLater(id, change) : throwError(() => error);
             })
         );
     }
