@@ -26,7 +26,7 @@ In daily-use shape and running on the Pi:
     - **Alerts to the owner**: a push notification when the scanner has been away for a while, the hourly backup fails, or a deploy does not come up healthy.
 4. **Recipes**, asked for by the owner on 2026-11-23 and decided in [0100](decisions/0100-recipes-as-qr-codes.md) to [0107](decisions/0107-recipe-additions-wait-in-the-outbox.md). Built in six parts that each leave the app working, in this order:
     1. **`libs/shared`**: the library is set up and what the API and the web app both write today moves there ([0104](decisions/0104-shared-library.md)). Nothing behaves differently. Done 2026-11-23 12:57.
-    2. **Hardware agent**: it rebuilds the typed text, posts barcodes and recipe codes and refuses the rest ([0106](decisions/0106-agent-posts-barcodes-and-recipe-codes.md)). Until part 5 the API refuses a recipe code.
+    2. **Hardware agent**: it rebuilds the typed text, posts barcodes and recipe codes and refuses the rest ([0106](decisions/0106-agent-posts-barcodes-and-recipe-codes.md)). Until part 5 the API refuses a recipe code. Done 2026-11-23 13:12.
     3. **Recipes in the app**: the tables and routes ([0105](decisions/0105-recipe-tables-and-routes.md)), the Recipes tab and pages with the Products page moved to the owner's Management group ([0101](decisions/0101-recipes-tab-and-pages.md)), and adding from the app with the tick sheet, the history line and undo ([0102](decisions/0102-putting-a-recipe-on-the-list.md)).
     4. **Codes**: the code on the recipe page, drawn by `qrcode-generator`, the select mode and the A4 sheet ([0103](decisions/0103-recipe-codes-printed-on-a4.md)).
     5. **Scanning codes**: the recipe rule behind `/scans`, the sounds `recipe` and `recipe_partial`, the push notification for a product the app does not know, the camera's tick sheet with a square frame, and recipe offers in the inbox.
@@ -105,4 +105,5 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | A review that requests changes sends a pull request back to the agent, with the owner's remarks from the pull request | 2026-11-20 17:40 | |
 | Slow start in the shop: the app opens from the kept page and the remembered login without waiting for the network, the iPhone shows a launch image, and a server that does not answer within 5 seconds counts as no connection. Checked by the owner on the iPhone with the Pi's port blocked | 2026-11-23 11:17 | 1.2.16 |
 | Loading over a weak connection: answers compressed, files with a version in their name kept by the service worker and the browser, the icon font from 4.0 MB to 8 KB. Checked by the owner on the live site | 2026-11-23 11:49 | 1.2.18 |
-| Recipes, part 1: the shared library `libs/shared` holds what the API and the web app both wrote | 2026-11-23 12:57 | |
+| Recipes, part 1: the shared library `libs/shared` holds what the API and the web app both wrote | 2026-11-23 12:57 | 1.2.28 |
+| Recipes, part 2: the hardware agent rebuilds the typed text, posts barcodes and recipe codes and refuses the rest | 2026-11-23 13:12 | |
