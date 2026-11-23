@@ -156,11 +156,25 @@ describe('RecipePage', () => {
         ]);
     });
 
+    it('gives the description as many rows as its text needs, between four and twenty-four', async () => {
+        await open('7');
+        await edit();
+        const rows = (): number => Number(page.querySelector('#recipe-description')?.getAttribute('rows'));
+
+        expect(rows()).toBe(4);
+
+        type(page, '#recipe-description', Array.from({ length: 9 }, (_, line) => `Stap ${line}`).join('\n'));
+        await settle();
+        expect(rows()).toBe(10);
+
+        type(page, '#recipe-description', 'x'.repeat(36 * 40));
+        await settle();
+        expect(rows()).toBe(24);
+    });
+
     it('saves the products in the order they were dragged into', async () => {
         await open('7');
         await edit();
-
-        expect(page.querySelectorAll('.ingredient button.handle').length).toBe(2);
 
         fixture.debugElement
             .query(By.directive(CdkDropList))

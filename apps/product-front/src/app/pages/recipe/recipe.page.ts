@@ -1,4 +1,4 @@
-import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -35,6 +35,10 @@ import { CatalogItem } from '../../models';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
+const CHARACTERS_ON_A_LINE = 36;
+const FEWEST_DESCRIPTION_ROWS = 4;
+const MOST_DESCRIPTION_ROWS = 24;
+
 const plain = ({ catalogItemId, quantity, note }: RecipeIngredient): RecipeIngredient => ({
     catalogItemId,
     quantity,
@@ -46,7 +50,6 @@ const plain = ({ catalogItemId, quantity, note }: RecipeIngredient): RecipeIngre
     standalone: true,
     imports: [
         CdkDrag,
-        CdkDragHandle,
         CdkDropList,
         FormsModule,
         RouterLink,
@@ -77,6 +80,7 @@ export class RecipePage {
         ingredients: MAX_RECIPE_INGREDIENTS
     };
 
+    protected readonly dragDelay = { touch: 250, mouse: 0 };
     protected readonly editing = signal(false);
     protected readonly adding = signal(false);
     protected readonly confirmingDelete = signal(false);
@@ -85,6 +89,14 @@ export class RecipePage {
     protected readonly ingredients = signal<Array<RecipeIngredient>>([]);
     protected readonly search = signal('');
     protected readonly creatingName = signal<string | undefined>(undefined);
+
+    protected readonly descriptionRows = computed(() => {
+        const lines = this.description()
+            .split('\n')
+            .reduce((total, line) => total + Math.max(1, Math.ceil(line.length / CHARACTERS_ON_A_LINE)), 0);
+
+        return Math.min(MOST_DESCRIPTION_ROWS, Math.max(FEWEST_DESCRIPTION_ROWS, lines + 1));
+    });
 
     protected readonly recipe = computed(() => {
         const id = this.id();

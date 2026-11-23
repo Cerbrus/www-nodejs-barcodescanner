@@ -22,8 +22,8 @@
             <label class="field-label" for="recipe-description">{{ 'recipe.description' | translate }}</label>
             <textarea
                 id="recipe-description"
-                class="field"
-                rows="6"
+                class="field description"
+                [rows]="descriptionRows()"
                 [attr.maxlength]="limits.description"
                 [ngModel]="description()"
                 (ngModelChange)="description.set($event)"
@@ -39,15 +39,7 @@
                 (cdkDropListDropped)="moveIngredient($event)"
             >
                 @for (row of shown(); track $index) {
-                    <div class="ingredient" cdkDrag>
-                        <button
-                            type="button"
-                            class="handle"
-                            cdkDragHandle
-                            [attr.aria-label]="'recipe.drag' | translate"
-                        >
-                            <i class="material-symbols-outlined">drag_indicator</i>
-                        </button>
+                    <div class="ingredient" cdkDrag [cdkDragStartDelay]="dragDelay">
                         <span class="ingredient-icon">
                             @if (row.item; as item) {
                                 <app-item-icon [item]="item" />
@@ -65,36 +57,44 @@
                             [attr.aria-label]="'recipe.note' | translate"
                             [value]="row.ingredient.note"
                             (change)="setNote($index, note.value)"
+                            (mousedown)="$event.stopPropagation()"
+                            (touchstart)="$event.stopPropagation()"
                         />
-                        @if (row.ingredient.quantity <= 1) {
-                            <button
-                                type="button"
-                                class="step"
-                                [attr.aria-label]="'recipe.removeProduct' | translate: { name: row.item?.name }"
-                                (click)="removeIngredient($index)"
-                            >
-                                <i class="material-symbols-outlined">delete</i>
-                            </button>
-                        } @else {
-                            <button
-                                type="button"
-                                class="step"
-                                [attr.aria-label]="'recipe.less' | translate"
-                                (click)="changeQuantity($index, -1)"
-                            >
-                                <i class="material-symbols-outlined">remove</i>
-                            </button>
-                        }
-                        <span class="quantity">{{ row.ingredient.quantity }}</span>
-                        <button
-                            type="button"
-                            class="step"
-                            [disabled]="row.ingredient.quantity >= limits.quantity"
-                            [attr.aria-label]="'recipe.more' | translate"
-                            (click)="changeQuantity($index, 1)"
+                        <span
+                            class="stepper"
+                            (mousedown)="$event.stopPropagation()"
+                            (touchstart)="$event.stopPropagation()"
                         >
-                            <i class="material-symbols-outlined">add</i>
-                        </button>
+                            @if (row.ingredient.quantity <= 1) {
+                                <button
+                                    type="button"
+                                    class="step"
+                                    [attr.aria-label]="'recipe.removeProduct' | translate: { name: row.item?.name }"
+                                    (click)="removeIngredient($index)"
+                                >
+                                    <i class="material-symbols-outlined">delete</i>
+                                </button>
+                            } @else {
+                                <button
+                                    type="button"
+                                    class="step"
+                                    [attr.aria-label]="'recipe.less' | translate"
+                                    (click)="changeQuantity($index, -1)"
+                                >
+                                    <i class="material-symbols-outlined">remove</i>
+                                </button>
+                            }
+                            <span class="quantity">{{ row.ingredient.quantity }}</span>
+                            <button
+                                type="button"
+                                class="step"
+                                [disabled]="row.ingredient.quantity >= limits.quantity"
+                                [attr.aria-label]="'recipe.more' | translate"
+                                (click)="changeQuantity($index, 1)"
+                            >
+                                <i class="material-symbols-outlined">add</i>
+                            </button>
+                        </span>
                     </div>
                 }
             </div>

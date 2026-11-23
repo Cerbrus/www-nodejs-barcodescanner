@@ -24,7 +24,6 @@ export const ICON_NAMES = [
     'content_copy',
     'dark_mode',
     'delete',
-    'drag_indicator',
     'edit',
     'expand_less',
     'expand_more',

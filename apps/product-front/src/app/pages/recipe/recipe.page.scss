@@ -12,16 +12,18 @@
 .ingredient + .ingredient {
     border-top: 1px solid var(--line);
 }
-.handle {
-    display: inline-flex;
+.ingredient[cdkDrag] {
+    cursor: grab;
+    touch-action: pan-y !important;
+}
+.description {
+    resize: vertical;
+}
+.stepper {
+    display: flex;
     flex: none;
     align-items: center;
-    width: 20px;
-    height: 32px;
-    margin-left: -6px;
-    color: var(--text-muted);
-    cursor: grab;
-    touch-action: none;
+    cursor: default;
 }
 .ingredient.cdk-drag-preview {
     border-radius: 10px;
@@ -55,6 +57,9 @@
 .ingredient-name.grow {
     flex-grow: 1;
 }
+.ingredient-name:not(.grow) {
+    max-width: 38%;
+}
 .ingredient-remark {
     flex: 0 1 auto;
     min-width: 0;
@@ -76,7 +81,7 @@
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 32px;
+    width: 28px;
     height: 32px;
     border-radius: 8px;
     color: var(--text);
@@ -86,7 +91,7 @@
 }
 .quantity {
     flex: none;
-    min-width: 20px;
+    min-width: 16px;
     font-weight: 700;
     text-align: center;
 }
