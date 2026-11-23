@@ -78,7 +78,7 @@ describe('ShellComponent', () => {
             '/list',
             '/scan',
             '/inbox',
-            '/catalog',
+            '/recipes',
             '/system'
         ]);
         expect(texts(page, '.tab-badge')).toEqual(['2']);
@@ -146,9 +146,24 @@ describe('ShellComponent', () => {
         click(page, '.toast-action');
         fixture.detectChanges();
 
-        expect(api.undoScan).toHaveBeenCalledTimes(1);
-        expect(store.refreshListAndInbox).toHaveBeenCalledTimes(1);
+        expect(store.undoLastScan).toHaveBeenCalledTimes(1);
         expect(page.querySelector('.toast')).toBeNull();
+    });
+
+    it('announces a recipe from the handheld scanner by its name, and says so when a product was unknown', () => {
+        open();
+        events.emit('scan', { source: 'handheld', result: 'recipe', title: 'Pannenkoeken', added: 3, unknown: [] });
+        events.emit('scan', {
+            source: 'handheld',
+            result: 'recipe_partial',
+            title: 'Soep',
+            added: 1,
+            unknown: [99]
+        });
+        fixture.detectChanges();
+
+        expect(texts(page, '.toast.ok .grow')).toEqual(['recipe.added']);
+        expect(texts(page, '.toast.attention .grow')).toEqual(['recipe.addedPartly']);
     });
 
     it('announces an unknown handheld scan with a way to the inbox', () => {

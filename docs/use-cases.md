@@ -54,10 +54,10 @@ The inbox page lists every waiting barcode and opens the same prompt.
 
 ### UC-6 Manage products and mappings
 
-The products page lists every catalog item as a tile, in collapsible shop sections, with a search field. Each catalog item has its own management page:
+The products page is for the owner and is reached from the Management group of the System page. It lists every catalog item as a tile, in collapsible shop sections, with a search field. Each catalog item has its own management page, which every account can still open from a product on the list:
 
 - It shows the item's name, section and icon, and every barcode attached to it. Each barcode is drawn as a scannable image with its number, the product title a connector suggested, how often it was scanned and when it was last scanned.
-- Rename the item, change its section, emoji or icon, or delete it. The icon picker shows the icons as a searchable grid; "none" comes first, then the product's standard icon from the seed data when it has one.
+- Rename the item, change its section, emoji or icon, or delete it. Deleting a product that recipes use says how many, and takes it out of them. The icon picker shows the icons as a searchable grid; "none" comes first, then the product's standard icon from the seed data when it has one.
 - Move a barcode to a different catalog item, or detach it. A detached barcode returns to the inbox on its next scan.
 
 The drawn barcode is there to recognise which package a number belongs to, and to rescan it from the screen with the handheld scanner when testing.
@@ -80,11 +80,27 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 - At quantity 1 the minus button takes the product off the list and moves it to *recent*, the same as checking it off.
 - A *recent* tile has a menu too: put it on the list, edit the product, or remove it from *recent* after a confirmation. Removing only clears it from the list page; the product and its barcodes stay.
 
+## Recipes
+
+### UC-20 Keep recipes
+
+1. The Recipes tab lists the recipes by name, each with its number of products and the icons of the first few, and a search field that filters on the name.
+2. "New recipe" opens an empty form: a name, a description and the products. A product is picked with the product search, where a product that does not exist can be made; each has a quantity and a note. Picking a product that is already in the recipe without a note counts it up.
+3. A recipe opens to read: its name, the description shown as markdown, and its products with quantity and note. The pencil at the top right turns it into the form; Save and Cancel go back to reading. Delete is in the form, behind a confirmation.
+4. Recipes are shared by every account.
+
+### UC-21 Put a recipe on the list
+
+1. The button on a recipe's row puts every product on the list at once. A product that is already to buy goes up by the recipe's quantity.
+2. The button on the recipe's own page opens a sheet with every product ticked. The user unticks what is in the house and confirms; only the ticked products go on the list.
+3. A message names the recipe and how many products went on the list, with an undo that takes the whole recipe back in one step.
+4. Without a connection the buttons are off.
+
 ## Oversight
 
 ### UC-9 Scan history
 
-A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). It also undoes the last scan, and it is the debugging view. A scan of a barcode that is still unnamed and whose lookup failed at a source carries a warning icon; tapping it opens the naming prompt, which can ask that source again.
+A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). A recipe is one line with its name, how many products it put on the list and where it came from (the app, the phone or the handheld scanner); a tap shows those products with their quantities. It also undoes the last scan, a recipe as a whole, and it is the debugging view. A scan of a barcode that is still unnamed and whose lookup failed at a source carries a warning icon; tapping it opens the naming prompt, which can ask that source again.
 
 ### UC-10 Hands-off updates
 
@@ -153,4 +169,4 @@ The user adds the site to the home screen from the browser's share menu. It then
 
 ### UC-15 Language and appearance
 
-The System page has three groups. "This device", for every account: Dutch or English, automatic, light or dark appearance (both remembered per device), notifications for this device on or off, feedback and the changelog (UC-19). "Account": the address that is logged in and the logout button. "Management", for the owner only: whether the live connection is up, the handheld scanner, with its state ("connected") at the top right of its row next to the title and the time of its last scan below, and rows that open the sounds at the scanner, the scan history and the system log. The running version stands below it. The owner also gets the test notification button. Other accounts do not see the management group, and the server refuses them the data behind it.
+The System page has three groups. "This device", for every account: Dutch or English, automatic, light or dark appearance (both remembered per device), notifications for this device on or off, feedback and the changelog (UC-19). "Account": the address that is logged in and the logout button. "Management", for the owner only: whether the live connection is up, the handheld scanner, with its state ("connected") at the top right of its row next to the title and the time of its last scan below, and rows that open the products (UC-6), the sounds at the scanner, the scan history and the system log. The running version stands below it. The owner also gets the test notification button. Other accounts do not see the management group, and the server refuses them the data behind it.

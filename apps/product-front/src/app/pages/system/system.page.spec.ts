@@ -89,6 +89,7 @@ describe('SystemPage', () => {
         expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
             '/remarks',
             '/changelog',
+            '/catalog',
             '/sounds',
             '/history',
             '/log'

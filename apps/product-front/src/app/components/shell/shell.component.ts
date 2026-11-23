@@ -3,14 +3,13 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@a
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { filter, switchMap, tap } from 'rxjs';
+import { filter, tap } from 'rxjs';
 
 import { ScanSource } from '@barcodescanner/shared';
 
 import { withNote } from '../../display-name';
 import { IconName } from '../../icon-names';
 import { ScanOutcome } from '../../models';
-import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
 import { RemarkService } from '../../services/remark.service';
@@ -49,7 +48,6 @@ export class ShellComponent {
     protected readonly remarks = inject(RemarkService);
     protected readonly inboxCount = computed(() => this.store.inbox().length);
 
-    private readonly api = inject(ApiService);
     private readonly auth = inject(AuthService);
     private readonly router = inject(Router);
     private readonly translate = inject(TranslateService);
@@ -58,7 +56,7 @@ export class ShellComponent {
         { route: '/list', label: 'nav.list', icon: 'shopping_cart' },
         { route: '/scan', label: 'nav.scan', icon: 'barcode_scanner' },
         { route: '/inbox', label: 'nav.inbox', icon: 'inbox' },
-        { route: '/catalog', label: 'nav.catalog', icon: 'category' },
+        { route: '/recipes', label: 'nav.recipes', icon: 'menu_book' },
         { route: '/system', label: 'nav.system', icon: 'settings' }
     ];
 
@@ -110,6 +108,20 @@ export class ShellComponent {
             return;
         }
 
+        if (scan.title !== undefined) {
+            this.toasts.show({
+                kind: scan.unknown?.length ? 'attention' : 'ok',
+                text: this.translate.instant(scan.unknown?.length ? 'recipe.addedPartly' : 'recipe.added', {
+                    name: scan.title,
+                    count: scan.added,
+                    unknown: scan.unknown?.length
+                }),
+                actionLabel: this.translate.instant('history.undo'),
+                action: () => this.store.undoLastScan()
+            });
+            return;
+        }
+
         this.toasts.show({
             kind: 'ok',
             text: this.translate.instant(`scan.${scan.result}`, {
@@ -117,14 +129,7 @@ export class ShellComponent {
                 quantity: scan.quantity
             }),
             actionLabel: this.translate.instant('history.undo'),
-            action: () => this.undoScan()
+            action: () => this.store.undoLastScan()
         });
-    }
-
-    private undoScan(): void {
-        this.api
-            .undoScan()
-            .pipe(switchMap(() => this.store.refreshListAndInbox()))
-            .subscribe();
     }
 }

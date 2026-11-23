@@ -1,0 +1,27 @@
+.choice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 6px 0;
+    cursor: pointer;
+}
+.choice + .choice {
+    border-top: 1px solid var(--line);
+}
+.choice input {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    accent-color: var(--accent);
+}
+.choice-icon {
+    width: 28px;
+    height: 28px;
+    flex: none;
+}
+.choice.unknown {
+    padding-left: 34px;
+    color: var(--text-muted);
+    cursor: default;
+}

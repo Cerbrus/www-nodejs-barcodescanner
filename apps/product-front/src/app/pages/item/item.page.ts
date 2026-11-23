@@ -21,6 +21,7 @@ import { ItemIconComponent } from '../../components/item-icon/item-icon.componen
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { Barcode, CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 
@@ -45,6 +46,10 @@ export class ItemPage {
     public readonly id = input.required({ transform: numberAttribute });
 
     protected readonly store = inject(ShoppingStore);
+    protected readonly overview = computed(() =>
+        this.auth.owner() ? { path: '/catalog', label: 'catalog.title' } : { path: '/list', label: 'item.backToList' }
+    );
+
     protected readonly item = signal<CatalogItem | undefined>(undefined);
     protected readonly name = signal('');
     protected readonly sectionId = signal('');
@@ -73,6 +78,7 @@ export class ItemPage {
     });
 
     private readonly api = inject(ApiService);
+    private readonly auth = inject(AuthService);
     private readonly router = inject(Router);
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
@@ -133,7 +139,7 @@ export class ItemPage {
             .deleteCatalogItem(this.id())
             .pipe(
                 switchMap(() => this.store.refreshAll()),
-                tap(() => this.router.navigate(['/catalog']))
+                tap(() => this.router.navigate([this.overview().path]))
             )
             .subscribe();
     }

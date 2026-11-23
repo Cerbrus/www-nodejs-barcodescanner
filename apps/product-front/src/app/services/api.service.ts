@@ -2,7 +2,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { IssueDraft, IssueOptions, RemarkKind, SoundBlock } from '@barcodescanner/shared';
+import { IssueDraft, IssueOptions, RecipeContent, RemarkKind, SoundBlock } from '@barcodescanner/shared';
 
 import {
     AgentStatus,
@@ -16,6 +16,8 @@ import {
     LogLine,
     PushResult,
     PushSubscriptionInput,
+    Recipe,
+    RecipeInput,
     Release,
     Remark,
     RemarkInput,
@@ -100,6 +102,26 @@ export class ApiService {
 
     public removeListEntry(id: string): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/list/${id}`);
+    }
+
+    public getRecipes(): Observable<Array<Recipe>> {
+        return this.http.get<Array<Recipe>>(`${this.baseUrl}/recipes`);
+    }
+
+    public createRecipe(recipe: RecipeInput): Observable<Recipe> {
+        return this.http.post<Recipe>(`${this.baseUrl}/recipes`, recipe);
+    }
+
+    public updateRecipe(id: number, recipe: RecipeInput): Observable<Recipe> {
+        return this.http.patch<Recipe>(`${this.baseUrl}/recipes/${id}`, recipe);
+    }
+
+    public deleteRecipe(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/recipes/${id}`);
+    }
+
+    public addRecipe(recipe: RecipeContent): Observable<ScanOutcome> {
+        return this.http.post<ScanOutcome>(`${this.baseUrl}/recipes/additions`, recipe);
     }
 
     public getInbox(): Observable<Array<Barcode>> {

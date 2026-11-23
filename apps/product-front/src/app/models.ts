@@ -2,6 +2,7 @@ import {
     IssueProgress,
     ListState,
     ProductSuggestion,
+    RecipeIngredient,
     RemarkContext,
     RemarkKind,
     RemarkTarget,
@@ -28,6 +29,7 @@ export interface CatalogItem {
     emoji?: string;
     custom: boolean;
     defaultIcon?: string;
+    recipeCount?: number;
     section?: Section;
     barcodes?: Array<Barcode>;
 }
@@ -69,6 +71,27 @@ export interface Scan {
     undoneAt?: string;
     catalogItemId?: number;
     note?: string;
+    title?: string;
+    changes?: Array<ScanChange>;
+}
+
+export interface ScanChange {
+    catalogItemId: number;
+    note: string;
+    quantity: number;
+}
+
+export interface Recipe {
+    id: number;
+    name: string;
+    description: string;
+    ingredients: Array<RecipeIngredient>;
+}
+
+export interface RecipeInput {
+    name: string;
+    description: string;
+    ingredients: Array<RecipeIngredient>;
 }
 
 export interface ScanOutcome {
@@ -79,6 +102,9 @@ export interface ScanOutcome {
     itemName?: string;
     note?: string;
     quantity?: number;
+    title?: string;
+    added?: number;
+    unknown?: Array<number>;
 }
 
 export interface LogLine {

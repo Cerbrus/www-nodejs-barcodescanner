@@ -27,7 +27,20 @@ export const appRoutes: Array<Route> = [
                 loadComponent: () => import('../pages/inbox/inbox.page').then((m) => m.InboxPage)
             },
             {
+                path: 'recipes',
+                loadComponent: () => import('../pages/recipes/recipes.page').then((m) => m.RecipesPage)
+            },
+            {
+                path: 'recipes/new',
+                loadComponent: () => import('../pages/recipe/recipe.page').then((m) => m.RecipePage)
+            },
+            {
+                path: 'recipes/:id',
+                loadComponent: () => import('../pages/recipe/recipe.page').then((m) => m.RecipePage)
+            },
+            {
                 path: 'catalog',
+                canActivate: [requireOwner],
                 loadComponent: () => import('../pages/catalog/catalog.page').then((m) => m.CatalogPage)
             },
             {

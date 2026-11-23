@@ -7,7 +7,7 @@ import { Observable, debounceTime, startWith, switchMap, tap } from 'rxjs';
 
 import { CONNECTORS, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
 import { withNote } from '../../display-name';
-import { Scan } from '../../models';
+import { Scan, ScanChange } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -26,6 +26,7 @@ export class HistoryPage {
     protected readonly scans = signal<Array<Scan>>([]);
     protected readonly loaded = signal(false);
     protected readonly namingCode = signal<string | undefined>(undefined);
+    protected readonly openScanId = signal<number | undefined>(undefined);
     protected readonly canUndo = computed(() =>
         this.scans().some((scan) => !scan.undoneAt && scan.result !== 'ignored')
     );
@@ -56,6 +57,14 @@ export class HistoryPage {
 
     protected itemName(scan: Scan): string | undefined {
         return scan.catalogItemId ? withNote(this.store.itemById(scan.catalogItemId)?.name, scan.note) : undefined;
+    }
+
+    protected changeName(change: ScanChange): string | undefined {
+        return withNote(this.store.itemById(change.catalogItemId)?.name, change.note);
+    }
+
+    protected toggle(scanId: number): void {
+        this.openScanId.update((open) => (open === scanId ? undefined : scanId));
     }
 
     protected undo(): void {

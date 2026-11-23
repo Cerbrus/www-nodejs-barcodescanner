@@ -19,7 +19,18 @@ import {
     timeout
 } from 'rxjs';
 
-import { Barcode, CatalogItem, CatalogItemInput, ListEntry, ListEntryChange, Section } from '../models';
+import { RecipeContent } from '@barcodescanner/shared';
+
+import {
+    Barcode,
+    CatalogItem,
+    CatalogItemInput,
+    ListEntry,
+    ListEntryChange,
+    Recipe,
+    RecipeInput,
+    Section
+} from '../models';
 import { ApiService } from './api.service';
 import { EventsService } from './events.service';
 import { PendingChange, loadOutbox, saveOutbox } from './outbox';
@@ -42,6 +53,7 @@ export class ShoppingStore {
     public readonly items = signal<Array<CatalogItem>>([]);
     public readonly entries = signal<Array<ListEntry>>([]);
     public readonly inbox = signal<Array<Barcode>>([]);
+    public readonly recipes = signal<Array<Recipe>>([]);
     public readonly loaded = signal(false);
     public readonly failed = signal(false);
     public readonly settled = signal(false);
@@ -76,6 +88,14 @@ export class ShoppingStore {
             .subscribe();
 
         this.events
+            .on('recipe')
+            .pipe(
+                debounceTime(REFRESH_DELAY_MILLISECONDS),
+                switchMap(() => this.refreshRecipes())
+            )
+            .subscribe();
+
+        this.events
             .on('catalog')
             .pipe(
                 debounceTime(REFRESH_DELAY_MILLISECONDS),
@@ -100,13 +120,24 @@ export class ShoppingStore {
         return this.items().find((item) => item.id === id);
     }
 
+    public recipeById(id: number): Recipe | undefined {
+        return this.recipes().find((recipe) => recipe.id === id);
+    }
+
     public refreshAll(): Observable<void> {
         return this.sendPending().pipe(
             switchMap(() =>
-                forkJoin([this.api.getSections(), this.api.getCatalog(), this.api.getList(), this.api.getInbox()])
+                forkJoin([
+                    this.api.getSections(),
+                    this.api.getCatalog(),
+                    this.api.getList(),
+                    this.api.getInbox(),
+                    this.api.getRecipes()
+                ])
             ),
             timeout(ANSWER_WAIT_MILLISECONDS),
-            tap(([sections, items, entries, inbox]) => {
+            tap(([sections, items, entries, inbox, recipes]) => {
+                this.recipes.set(recipes);
                 this.sections.set(sections);
                 this.items.set(items);
                 this.entries.set(entries);
@@ -180,8 +211,54 @@ export class ShoppingStore {
         return this.api.mapBarcode(code, catalogItemId, note).pipe(switchMap(() => this.refreshListAndInbox()));
     }
 
+    public saveRecipe(id: number | undefined, input: RecipeInput): Observable<Recipe> {
+        const saved = id === undefined ? this.api.createRecipe(input) : this.api.updateRecipe(id, input);
+
+        return saved.pipe(switchMap((recipe) => this.refreshRecipes().pipe(map(() => recipe))));
+    }
+
+    public deleteRecipe(id: number): Observable<void> {
+        return this.api.deleteRecipe(id).pipe(switchMap(() => this.refreshRecipes()));
+    }
+
+    public putRecipeOnList(recipe: RecipeContent): Observable<void> {
+        return this.api.addRecipe(recipe).pipe(
+            tap((outcome) =>
+                this.toasts.show({
+                    kind: outcome.unknown?.length ? 'attention' : 'ok',
+                    text: this.translate.instant(outcome.unknown?.length ? 'recipe.addedPartly' : 'recipe.added', {
+                        name: outcome.title,
+                        count: outcome.added,
+                        unknown: outcome.unknown?.length
+                    }),
+                    actionLabel: this.translate.instant('history.undo'),
+                    action: () => this.undoLastScan()
+                })
+            ),
+            switchMap(() => this.refreshListAndInbox())
+        );
+    }
+
+    public undoLastScan(): void {
+        this.api
+            .undoScan()
+            .pipe(switchMap(() => this.refreshListAndInbox()))
+            .subscribe();
+    }
+
     public createItem(input: CatalogItemInput): Observable<CatalogItem> {
         return this.api.createCatalogItem(input).pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
+    }
+
+    private refreshRecipes(): Observable<void> {
+        return this.api.getRecipes().pipe(
+            tap((recipes) => {
+                this.recipes.set(recipes);
+                this.saveSnapshotNow(this.updatedAt() ?? new Date().toISOString());
+            }),
+            map(() => undefined),
+            catchError(() => of(undefined))
+        );
     }
 
     private keepForLater(id: string, change: ListEntryChange): Observable<void> {
@@ -248,7 +325,8 @@ export class ShoppingStore {
             sections: this.sections(),
             items: this.items(),
             entries: this.entries(),
-            inbox: this.inbox()
+            inbox: this.inbox(),
+            recipes: this.recipes()
         });
     }
 
@@ -262,6 +340,7 @@ export class ShoppingStore {
         this.items.set(snapshot.items);
         this.entries.set(snapshot.entries);
         this.inbox.set(snapshot.inbox);
+        this.recipes.set(snapshot.recipes ?? []);
         this.updatedAt.set(snapshot.savedAt);
         this.loaded.set(true);
     }

@@ -160,6 +160,7 @@ test('open from the kept page when the network is slow to answer', async ({ page
 test('other pages open, and the browser reported nothing the content policy would block', async ({ page, request }) => {
     for (const [address, heading] of [
         ['/#/inbox', 'Inbox'],
+        ['/#/recipes', 'Recepten'],
         ['/#/catalog', 'Producten'],
         ['/#/system', 'Systeem'],
         ['/#/sounds', 'Geluid bij de scanner'],

@@ -6,6 +6,7 @@ import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing
 import { TranslateTesting } from '../../../testing/translate';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 import { ItemPage } from './item.page';
@@ -31,6 +32,7 @@ describe('ItemPage', () => {
     let fixture: ComponentFixture<ItemPage>;
     let page: HTMLElement;
     let store: FakeStore;
+    let owner: boolean;
     const api = {
         iconsUrl: '/icons',
         getIcons: () => of(['milk', 'bread']),
@@ -59,6 +61,7 @@ describe('ItemPage', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        owner = true;
         store = fakeStore([MILK, item(2, 'Karnemelk')]);
         api.getCatalogItem.mockReturnValue(of(MILK));
         api.updateCatalogItem.mockReturnValue(of(MILK));
@@ -69,7 +72,8 @@ describe('ItemPage', () => {
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },
-                { provide: ApiService, useValue: api }
+                { provide: ApiService, useValue: api },
+                { provide: AuthService, useValue: { owner: () => owner } }
             ]
         });
     });
@@ -201,5 +205,22 @@ describe('ItemPage', () => {
         expect(api.deleteCatalogItem).toHaveBeenCalledWith(1);
         expect(store.refreshAll).toHaveBeenCalledTimes(1);
         expect(navigate).toHaveBeenCalledWith(['/catalog']);
+    });
+
+    it('sends another account back to the list instead of the products', async () => {
+        owner = false;
+        await open();
+
+        expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/list');
+        expect(texts(page, 'a.back-bar')[0]).toContain('item.backToList');
+    });
+
+    it('says how many recipes lose the product before it is deleted', async () => {
+        api.getCatalogItem.mockReturnValue(of({ ...MILK, recipeCount: 2 }));
+        await open();
+        button('item.delete').click();
+        await settle();
+
+        expect(texts(page, '.card p').join(' ')).toContain('item.deleteConfirmRecipes');
     });
 });

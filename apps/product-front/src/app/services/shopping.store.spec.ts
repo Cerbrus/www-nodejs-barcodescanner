@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { NEVER, Observable, Subject, filter, of, throwError } from 'rxjs';
 
-import { CatalogItem, ListEntry, Section } from '../models';
+import { CatalogItem, ListEntry, Recipe, Section } from '../models';
 import { ApiService } from './api.service';
 import { EventsService } from './events.service';
 import { loadOutbox } from './outbox';
@@ -27,6 +27,12 @@ const entry = (catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1
     updatedAt: '2026-11-13T10:00:00.000Z'
 });
 const noConnection = (): HttpErrorResponse => new HttpErrorResponse({ status: 0 });
+const pancakes: Recipe = {
+    id: 7,
+    name: 'Pannenkoeken',
+    description: '',
+    ingredients: [{ catalogItemId: 1, quantity: 2, note: '' }]
+};
 
 describe('ShoppingStore', () => {
     let events$: Subject<string>;
@@ -36,6 +42,12 @@ describe('ShoppingStore', () => {
         getCatalog: vi.fn(),
         getList: vi.fn(),
         getInbox: vi.fn(),
+        getRecipes: vi.fn(),
+        createRecipe: vi.fn(),
+        updateRecipe: vi.fn(),
+        deleteRecipe: vi.fn(),
+        addRecipe: vi.fn(),
+        undoScan: vi.fn(),
         changeListEntry: vi.fn(),
         sendOfflineChanges: vi.fn()
     };
@@ -70,6 +82,9 @@ describe('ShoppingStore', () => {
         api.getCatalog.mockReturnValue(of([milk, loaf]));
         api.getList.mockReturnValue(of([entry(milk, 'to_buy', 2), entry(loaf, 'recent')]));
         api.getInbox.mockReturnValue(of([]));
+        api.getRecipes.mockReturnValue(of([pancakes]));
+        api.deleteRecipe.mockReturnValue(of(undefined));
+        api.undoScan.mockReturnValue(of({}));
         api.changeListEntry.mockReturnValue(of(entry(milk, 'recent')));
         api.sendOfflineChanges.mockReturnValue(of({ applied: 1, skipped: [] }));
     });
@@ -86,6 +101,61 @@ describe('ShoppingStore', () => {
         expect(store.toBuy().map((row) => row.catalogItem.name)).toEqual(['Melk']);
         expect(store.recent().map((row) => row.catalogItem.name)).toEqual(['Brood']);
         expect(store.online()).toBe(true);
+    });
+
+    it('loads the recipes with the rest, keeps them in the snapshot, and reloads them when one changes', () => {
+        const store = create();
+
+        expect(store.recipes()).toEqual([pancakes]);
+        expect(store.recipeById(7)?.name).toBe('Pannenkoeken');
+        expect(loadSnapshot()?.recipes).toEqual([pancakes]);
+
+        api.getRecipes.mockReturnValue(of([]));
+        events$.next('recipe');
+        vi.advanceTimersByTime(200);
+
+        expect(store.recipes()).toEqual([]);
+        expect(loadSnapshot()?.recipes).toEqual([]);
+    });
+
+    it('makes a new recipe or changes an existing one, and deletes one', () => {
+        const store = create();
+        const input = { name: 'Vla', description: '', ingredients: [] };
+        api.createRecipe.mockReturnValue(of({ ...input, id: 8 }));
+        api.updateRecipe.mockReturnValue(of({ ...input, id: 7 }));
+        const saved: Array<number> = [];
+
+        store.saveRecipe(undefined, input).subscribe((recipe) => saved.push(recipe.id));
+        store.saveRecipe(7, input).subscribe((recipe) => saved.push(recipe.id));
+        store.deleteRecipe(7).subscribe();
+
+        expect(saved).toEqual([8, 7]);
+        expect(api.createRecipe).toHaveBeenCalledWith(input);
+        expect(api.updateRecipe).toHaveBeenCalledWith(7, input);
+        expect(api.deleteRecipe).toHaveBeenCalledWith(7);
+        expect(api.getRecipes).toHaveBeenCalledTimes(4);
+    });
+
+    it('puts a recipe on the list, says so with an undo, and warns when a product was unknown', () => {
+        const store = create();
+        const toasts = TestBed.inject(ToastService);
+        const recipe = { name: 'Pannenkoeken', ingredients: pancakes.ingredients };
+        api.addRecipe.mockReturnValue(of({ title: 'Pannenkoeken', added: 1, unknown: [] }));
+
+        store.putRecipeOnList(recipe).subscribe();
+
+        expect(api.addRecipe).toHaveBeenCalledWith(recipe);
+        expect(toasts.toasts().map(({ kind, text }) => [kind, text])).toEqual([['ok', 'recipe.added']]);
+        expect(api.getList).toHaveBeenCalledTimes(2);
+
+        toasts.toasts()[0].action?.();
+        expect(api.undoScan).toHaveBeenCalledTimes(1);
+        expect(api.getList).toHaveBeenCalledTimes(3);
+
+        api.addRecipe.mockReturnValue(of({ title: 'Pannenkoeken', added: 0, unknown: [1] }));
+        store.putRecipeOnList(recipe).subscribe();
+        expect(toasts.toasts().at(-1)?.kind).toBe('attention');
+        expect(toasts.toasts().at(-1)?.text).toBe('recipe.addedPartly');
     });
 
     it('groups by section in the order of the sections and leaves out empty ones', () => {

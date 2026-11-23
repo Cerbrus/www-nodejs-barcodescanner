@@ -40,6 +40,7 @@ export const ICON_NAMES = [
     'login',
     'logout',
     'manage_search',
+    'menu_book',
     'merge_type',
     'more_horiz',
     'more_vert',

@@ -7,12 +7,34 @@
     white-space: nowrap;
 }
 .result.added,
-.result.incremented {
+.result.incremented,
+.result.recipe {
     background: color-mix(in srgb, var(--accent) 22%, transparent);
 }
-.result.needs_name {
+.result.needs_name,
+.result.recipe_partial {
     background: var(--warning);
     color: var(--warning-text);
+}
+.recipe-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+}
+.changes {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0 2px 36px;
+    padding: 0;
+    font-size: 0.9rem;
+    list-style: none;
+}
+.changes li {
+    display: flex;
+    gap: 12px;
 }
 .lookup-failed {
     padding: 6px;

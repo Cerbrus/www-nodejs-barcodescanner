@@ -1,7 +1,7 @@
 <div class="page">
-    <a class="back-bar" routerLink="/catalog">
+    <a class="back-bar" [routerLink]="overview().path">
         <i class="material-symbols-outlined">arrow_back</i>
-        {{ 'catalog.title' | translate }}
+        {{ overview().label | translate }}
     </a>
 
     @if (item(); as item) {
@@ -130,7 +130,12 @@
         <h2 class="section-title">{{ 'item.dangerZone' | translate }}</h2>
         @if (confirmingDelete()) {
             <div class="card">
-                <p>{{ 'item.deleteConfirm' | translate: { name: item.name } }}</p>
+                <p>
+                    {{
+                        (item.recipeCount ? 'item.deleteConfirmRecipes' : 'item.deleteConfirm')
+                            | translate: { name: item.name, count: item.recipeCount }
+                    }}
+                </p>
                 <div class="mt-3 flex gap-2">
                     <button type="button" class="btn danger" appFocusOnShow (click)="delete()">
                         {{ 'item.delete' | translate }}

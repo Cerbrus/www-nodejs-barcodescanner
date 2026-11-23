@@ -13,7 +13,7 @@
         "list": "Lijst",
         "scan": "Scannen",
         "inbox": "Inbox",
-        "catalog": "Producten",
+        "recipes": "Recepten",
         "system": "Systeem"
     },
     "list": {
@@ -85,6 +85,36 @@
         "searchPlaceholder": "Zoeken…",
         "noResults": "Geen product gevonden"
     },
+    "recipe": {
+        "title": "Recepten",
+        "new": "Nieuw recept",
+        "edit": "Recept bewerken",
+        "searchPlaceholder": "Zoeken…",
+        "empty": "Nog geen recepten. Maak er een van de producten die je er steeds voor koopt.",
+        "noResults": "Geen recept gevonden",
+        "products": "{count, plural, one {# product} other {# producten}}",
+        "toList": "Op lijst",
+        "addAll": "Alles van {name} op de lijst zetten",
+        "added": "{name}: {count, plural, one {# product} other {# producten}} op de lijst",
+        "addedPartly": "{name}: {count} op de lijst, {unknown} onbekend",
+        "name": "Naam",
+        "description": "Beschrijving",
+        "ingredients": "Producten",
+        "noIngredients": "Nog geen producten in dit recept",
+        "addProduct": "Product toevoegen…",
+        "note": "Notitie",
+        "less": "Eén minder",
+        "more": "Eén meer",
+        "removeProduct": "{name} uit het recept halen",
+        "saved": "Recept opgeslagen",
+        "delete": "Recept verwijderen",
+        "deleteConfirm": "\"{name}\" verwijderen? De producten zelf blijven bestaan.",
+        "notFound": "Dit recept bestaat niet (meer)",
+        "sheetHint": "Vink uit wat je al in huis hebt.",
+        "addChosen": "{count, plural, one {# product} other {# producten}} op de lijst",
+        "unknownProduct": "Onbekend product (#{id})",
+        "createAndAdd": "Aanmaken en toevoegen"
+    },
     "item": {
         "name": "Naam",
         "section": "Afdeling",
@@ -101,7 +131,9 @@
         "dangerZone": "Verwijderen",
         "delete": "Product verwijderen",
         "deleteConfirm": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox.",
-        "chooseIcon": "Icoon kiezen"
+        "chooseIcon": "Icoon kiezen",
+        "deleteConfirmRecipes": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox. Het product zit in {count, plural, one {# recept} other {# recepten}} en wordt daaruit gehaald.",
+        "backToList": "Lijst"
     },
     "history": {
         "title": "Scangeschiedenis",
@@ -114,8 +146,11 @@
             "incremented": "aantal +1",
             "needs_name": "naam nodig",
             "ignored": "genegeerd",
-            "undone": "ongedaan"
-        }
+            "undone": "ongedaan",
+            "recipe": "recept",
+            "recipe_partial": "recept, deels"
+        },
+        "recipeProducts": "Recept · {count, plural, one {# product} other {# producten}}"
     },
     "log": {
         "title": "Systeemlog",

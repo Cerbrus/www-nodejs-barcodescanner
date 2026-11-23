@@ -91,7 +91,7 @@ test('point at the bottom menu: the active tab is picked, another tab navigates,
     await expect(page.locator('app-remark-sheet .sheet')).toBeHidden();
     expect((await remarksOf(request))[0]).toMatchObject({ text: 'Menu wish', page: '#/list' });
 
-    await page.locator('nav a[href="#/catalog"]').click({ button: 'right' });
+    await page.locator('nav a[href="#/recipes"]').click({ button: 'right' });
     await expect(page.locator('app-remark-sheet .sheet')).toBeVisible();
     await expect(page).toHaveURL(/#\/list$/);
     await page.locator('app-remark-sheet').getByRole('button', { name: 'Annuleren' }).click();

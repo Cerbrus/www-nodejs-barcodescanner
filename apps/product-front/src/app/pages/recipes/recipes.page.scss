@@ -1,0 +1,25 @@
+.recipe {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 8px;
+}
+.recipe-link {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+.recipe-facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+.recipe-icon {
+    width: 20px;
+    height: 20px;
+    flex: none;
+}

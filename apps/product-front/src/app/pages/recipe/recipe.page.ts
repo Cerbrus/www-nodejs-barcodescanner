@@ -1,0 +1,210 @@
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    numberAttribute,
+    signal,
+    untracked
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { tap } from 'rxjs';
+
+import {
+    MAX_INGREDIENT_NOTE_LENGTH,
+    MAX_INGREDIENT_QUANTITY,
+    MAX_RECIPE_DESCRIPTION_LENGTH,
+    MAX_RECIPE_INGREDIENTS,
+    MAX_RECIPE_NAME_LENGTH,
+    RecipeIngredient
+} from '@barcodescanner/shared';
+
+import { ItemAutocompleteComponent } from '../../components/item-autocomplete/item-autocomplete.component';
+import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
+import { MarkdownComponent } from '../../components/markdown/markdown.component';
+import { NewItemFormComponent } from '../../components/new-item-form/new-item-form.component';
+import { RecipeSheetComponent } from '../../components/recipe-sheet/recipe-sheet.component';
+import { SheetComponent } from '../../components/sheet/sheet.component';
+import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
+import { CatalogItem } from '../../models';
+import { ShoppingStore } from '../../services/shopping.store';
+import { ToastService } from '../../services/toast.service';
+
+const plain = ({ catalogItemId, quantity, note }: RecipeIngredient): RecipeIngredient => ({
+    catalogItemId,
+    quantity,
+    note
+});
+
+@Component({
+    selector: 'app-recipe-page',
+    standalone: true,
+    imports: [
+        FormsModule,
+        RouterLink,
+        TranslatePipe,
+        ItemAutocompleteComponent,
+        ItemIconComponent,
+        MarkdownComponent,
+        NewItemFormComponent,
+        RecipeSheetComponent,
+        SheetComponent,
+        FocusOnShowDirective
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './recipe.page.html',
+    styleUrl: './recipe.page.scss'
+})
+export class RecipePage {
+    public readonly id = input(undefined, {
+        transform: (value: unknown) => (value === undefined ? undefined : numberAttribute(value))
+    });
+
+    protected readonly store = inject(ShoppingStore);
+    protected readonly limits = {
+        name: MAX_RECIPE_NAME_LENGTH,
+        description: MAX_RECIPE_DESCRIPTION_LENGTH,
+        note: MAX_INGREDIENT_NOTE_LENGTH,
+        quantity: MAX_INGREDIENT_QUANTITY,
+        ingredients: MAX_RECIPE_INGREDIENTS
+    };
+
+    protected readonly editing = signal(false);
+    protected readonly adding = signal(false);
+    protected readonly confirmingDelete = signal(false);
+    protected readonly name = signal('');
+    protected readonly description = signal('');
+    protected readonly ingredients = signal<Array<RecipeIngredient>>([]);
+    protected readonly search = signal('');
+    protected readonly creatingName = signal<string | undefined>(undefined);
+
+    protected readonly recipe = computed(() => {
+        const id = this.id();
+
+        return id === undefined ? undefined : this.store.recipeById(id);
+    });
+
+    protected readonly shown = computed(() =>
+        (this.editing() ? this.ingredients() : (this.recipe()?.ingredients ?? [])).map((ingredient) => ({
+            ingredient,
+            item: this.store.itemById(ingredient.catalogItemId)
+        }))
+    );
+
+    protected readonly canSave = computed(() => {
+        const recipe = this.recipe();
+        const changed =
+            !recipe ||
+            this.name().trim() !== recipe.name ||
+            this.description().trim() !== recipe.description ||
+            JSON.stringify(this.ingredients()) !== JSON.stringify(recipe.ingredients.map(plain));
+
+        return this.name().trim().length > 0 && changed;
+    });
+
+    private readonly router = inject(Router);
+    private readonly toasts = inject(ToastService);
+    private readonly translate = inject(TranslateService);
+
+    constructor() {
+        effect(() => {
+            if (this.id() === undefined) {
+                untracked(() => this.startEdit());
+            }
+        });
+    }
+
+    protected startEdit(): void {
+        const recipe = this.recipe();
+        this.name.set(recipe?.name ?? '');
+        this.description.set(recipe?.description ?? '');
+        this.ingredients.set(recipe?.ingredients.map(plain) ?? []);
+        this.search.set('');
+        this.confirmingDelete.set(false);
+        this.editing.set(true);
+    }
+
+    protected cancel(): void {
+        if (this.id() === undefined) {
+            void this.router.navigate(['/recipes']);
+        } else {
+            this.editing.set(false);
+        }
+    }
+
+    protected save(): void {
+        const isNew = this.id() === undefined;
+        this.store
+            .saveRecipe(this.id(), {
+                name: this.name().trim(),
+                description: this.description().trim(),
+                ingredients: this.ingredients()
+            })
+            .pipe(
+                tap((saved) => {
+                    this.toasts.show({ kind: 'ok', text: this.translate.instant('recipe.saved') });
+                    this.editing.set(false);
+                    if (isNew) {
+                        void this.router.navigate(['/recipes', saved.id], { replaceUrl: true });
+                    }
+                })
+            )
+            .subscribe();
+    }
+
+    protected delete(): void {
+        const id = this.id();
+        if (id === undefined) {
+            return;
+        }
+
+        this.store
+            .deleteRecipe(id)
+            .pipe(tap(() => void this.router.navigate(['/recipes'])))
+            .subscribe();
+    }
+
+    protected addIngredient(item: CatalogItem): void {
+        this.search.set('');
+        this.creatingName.set(undefined);
+        const index = this.ingredients().findIndex((row) => row.catalogItemId === item.id && !row.note);
+        if (index < 0) {
+            this.ingredients.update((rows) => [...rows, { catalogItemId: item.id, quantity: 1, note: '' }]);
+        } else {
+            this.changeQuantity(index, 1);
+        }
+    }
+
+    protected changeQuantity(index: number, delta: number): void {
+        this.change(index, (row) => ({
+            ...row,
+            quantity: Math.min(MAX_INGREDIENT_QUANTITY, Math.max(1, row.quantity + delta))
+        }));
+    }
+
+    protected setNote(index: number, note: string): void {
+        this.change(index, (row) => ({ ...row, note: note.trim() }));
+    }
+
+    protected removeIngredient(index: number): void {
+        this.ingredients.update((rows) => rows.filter((_, position) => position !== index));
+    }
+
+    protected putOnList(ingredients: Array<RecipeIngredient>): void {
+        const recipe = this.recipe();
+        if (!recipe) {
+            return;
+        }
+
+        this.adding.set(false);
+        this.store.putRecipeOnList({ name: recipe.name, ingredients: ingredients.map(plain) }).subscribe();
+    }
+
+    private change(index: number, change: (row: RecipeIngredient) => RecipeIngredient): void {
+        this.ingredients.update((rows) => rows.map((row, position) => (position === index ? change(row) : row)));
+    }
+}

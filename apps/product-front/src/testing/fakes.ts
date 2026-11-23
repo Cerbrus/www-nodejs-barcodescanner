@@ -3,7 +3,7 @@ import { Observable, Subject, of } from 'rxjs';
 
 import { RemarkTarget } from '@barcodescanner/shared';
 
-import { Barcode, CatalogItem, ListEntry, Section } from '../app/models';
+import { Barcode, CatalogItem, ListEntry, Recipe, Section } from '../app/models';
 
 export const SECTIONS: Array<Section> = [
     { id: 'brood-gebak', name: 'Brood', sortOrder: 1, emoji: '🍞' },
@@ -32,6 +32,7 @@ export interface FakeStore {
     items: WritableSignal<Array<CatalogItem>>;
     entries: WritableSignal<Array<ListEntry>>;
     inbox: WritableSignal<Array<Barcode>>;
+    recipes: WritableSignal<Array<Recipe>>;
     loaded: WritableSignal<boolean>;
     failed: WritableSignal<boolean>;
     settled: WritableSignal<boolean>;
@@ -44,6 +45,11 @@ export interface FakeStore {
     toBuyGroups: Signal<Array<{ section: Section; rows: Array<ListEntry> }>>;
     itemGroups: Signal<Array<{ section: Section; rows: Array<CatalogItem> }>>;
     itemById: (id: number) => CatalogItem | undefined;
+    recipeById: (id: number) => Recipe | undefined;
+    saveRecipe: ReturnType<typeof vi.fn>;
+    deleteRecipe: ReturnType<typeof vi.fn>;
+    putRecipeOnList: ReturnType<typeof vi.fn>;
+    undoLastScan: ReturnType<typeof vi.fn>;
     changeEntry: ReturnType<typeof vi.fn>;
     addItem: ReturnType<typeof vi.fn>;
     removeEntry: ReturnType<typeof vi.fn>;
@@ -59,6 +65,7 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
     const catalog = signal(items);
     const list = signal(entries);
     const pending = signal<Array<{ id?: string }>>([]);
+    const recipes = signal<Array<Recipe>>([]);
     const toBuy = computed(() => list().filter((row) => row.state === 'to_buy'));
     const group = <T>(rows: Array<T>, sectionOf: (row: T) => string): Array<{ section: Section; rows: Array<T> }> =>
         sections()
@@ -70,6 +77,7 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         items: catalog,
         entries: list,
         inbox: signal<Array<Barcode>>([]),
+        recipes,
         loaded: signal(true),
         failed: signal(false),
         settled: signal(true),
@@ -82,6 +90,11 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         toBuyGroups: computed(() => group(toBuy(), (row) => row.catalogItem.sectionId)),
         itemGroups: computed(() => group(catalog(), (row) => row.sectionId)),
         itemById: (id: number) => catalog().find((row) => row.id === id),
+        recipeById: (id: number) => recipes().find((row) => row.id === id),
+        saveRecipe: vi.fn(),
+        deleteRecipe: vi.fn(() => of(undefined)),
+        putRecipeOnList: vi.fn(() => of(undefined)),
+        undoLastScan: vi.fn(),
         changeEntry: vi.fn(() => of(undefined)),
         addItem: vi.fn(() => of(undefined)),
         removeEntry: vi.fn(() => of(undefined)),

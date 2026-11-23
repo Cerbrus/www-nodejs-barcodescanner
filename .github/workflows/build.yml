@@ -76,6 +76,7 @@ jobs:
             -   run: yarn product-api:test
             -   run: yarn product-api:test:integration
             -   run: yarn product-front:test
+            -   run: yarn shared:test
             -   name: Run the built app in a browser
                 run: yarn e2e
             -   name: Show the page of a failed browser test

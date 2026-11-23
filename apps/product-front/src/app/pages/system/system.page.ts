@@ -20,6 +20,7 @@ const LANGUAGE_STORAGE_KEY = 'language';
 const COMMIT_LENGTH = 7;
 const AGENT_REFRESH_MILLISECONDS = 60 * 1000;
 const MANAGEMENT_LINKS: Array<{ path: string; icon: IconName; title: string }> = [
+    { path: '/catalog', icon: 'category', title: 'catalog.title' },
     { path: '/sounds', icon: 'volume_up', title: 'sound.title' },
     { path: '/history', icon: 'history', title: 'history.title' },
     { path: '/log', icon: 'terminal', title: 'log.title' }

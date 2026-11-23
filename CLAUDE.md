@@ -34,7 +34,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 | API | `apps/product-api/` | NestJS, TypeORM, SQLite. Layers under `src/`: `api` (controllers, dto, guards), `core` (services, rules, connectors), `data` (entities, migrations), `config`. Integration tests in `src/test/` |
 | Web app | `apps/product-front/` | Angular 22, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/` |
 | Hardware agent | `apps/hardware-agent/` | Python, evdev |
-| Shared library | `libs/shared/` | Plain TypeScript that the API and the web app both use, imported as `@barcodescanner/shared`: the types and limits they exchange. No Angular, NestJS or TypeORM in it; lint enforces it |
+| Shared library | `libs/shared/` | Plain TypeScript that the API and the web app both use, imported as `@barcodescanner/shared`: the types and limits they exchange, and the reader and writer of the recipe code. No Angular, NestJS or TypeORM in it; lint enforces it |
 | Deployment | `deployment/` | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh` |
 | End-to-end tests | `e2e/` | Playwright with the installed Chrome; starts the built app itself (`start-app.mjs`) and makes its own camera picture (`barcode-video.mjs`) |
 | Data | `data/` | `seed-items.json` and `icons/` are committed; everything else is ignored |
@@ -54,11 +54,12 @@ yarn product-api:test                 # scan rules, session signing
 yarn product-api:test:integration     # services on a temporary SQLite file; login guard, data routes and the whole app over HTTP
 yarn product-front:test               # the web app's logic and components, in Vitest without a browser
 yarn product-front:test:coverage      # the same, with a table of what the tests reach per file
+yarn shared:test                      # the shared library: the recipe code and its ingredients
 yarn e2e                              # builds both apps, starts them on port 3931 with an empty database and drives them in headless Chrome
 yarn hardware-agent:test              # the agent with a fake scanner, buzzer and API; needs Python 3 only
 ```
 
-Don't start the serve commands from a session; ask the user to run them. The build runs lint, all four test commands and `yarn e2e` first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`; shared stand-ins for the store and the event stream are in `src/testing/fakes.ts`. A change to the web app comes with its test.
+Don't start the serve commands from a session; ask the user to run them. The build runs lint, all five test commands and `yarn e2e` first, so keep them green. Web app tests sit next to the file they test as `*.spec.ts`; shared stand-ins for the store and the event stream are in `src/testing/fakes.ts`. A change to the web app comes with its test.
 
 ## Code style
 

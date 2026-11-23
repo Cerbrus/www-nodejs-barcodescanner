@@ -122,12 +122,12 @@ describe('routes, settings and the console banner', () => {
         expect(appRoutes.find((route) => route.path === 'login')?.canActivate).toBeUndefined();
     });
 
-    it('keeps history, log and sounds for the owner, and nothing else', () => {
+    it('keeps the products, history, log and sounds for the owner, and nothing else', () => {
         const ownerOnly = shell.children
             ?.filter((route) => route.canActivate?.includes(requireOwner))
             .map((route) => route.path);
 
-        expect(ownerOnly).toEqual(['history', 'log', 'sounds']);
+        expect(ownerOnly).toEqual(['catalog', 'history', 'log', 'sounds']);
     });
 
     it('starts on the list, and sends an unknown address there', () => {
@@ -144,7 +144,7 @@ describe('routes, settings and the console banner', () => {
                     .map((route) => route.loadComponent?.())
             );
 
-            expect(pages.length).toBe(12);
+            expect(pages.length).toBe(15);
             expect(pages.every((page) => typeof page === 'function')).toBe(true);
         },
         PAGE_LOAD_TIMEOUT_MILLISECONDS

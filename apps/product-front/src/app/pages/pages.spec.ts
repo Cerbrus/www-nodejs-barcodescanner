@@ -189,6 +189,36 @@ describe('the smaller pages', () => {
             expect(page.querySelectorAll('.card.opacity-50').length).toBe(1);
         });
 
+        it('shows a recipe as one line with its name and where it came from, and its products on a tap', async () => {
+            api.getScans.mockReturnValue(
+                of([
+                    scan(1, 'recipe', {
+                        source: 'app',
+                        title: 'Pannenkoeken',
+                        changes: [
+                            { catalogItemId: 1, note: 'vol', quantity: 2 },
+                            { catalogItemId: 99, note: '', quantity: 1 }
+                        ]
+                    }),
+                    scan(2, 'recipe_partial', { title: 'Soep', changes: [], undoneAt: '2026-11-13T10:01:00.000Z' })
+                ])
+            );
+            const fixture = await open(HistoryPage);
+
+            expect(texts(page, '.recipe-line .font-semibold')).toEqual(['Pannenkoeken', 'Soep']);
+            expect(texts(page, '.recipe-line > i:first-child')).toEqual(['menu_book', 'barcode_reader']);
+            expect(texts(page, '.result')).toEqual(['history.result.recipe', 'history.result.undone']);
+            expect(page.querySelector('.changes')).toBeNull();
+
+            click(page, '.recipe-line');
+            await settle(fixture);
+            expect(texts(page, '.changes li')).toEqual(['Melk (vol) × 2', 'inbox.unknownProduct × 1']);
+
+            click(page, '.recipe-line');
+            await settle(fixture);
+            expect(page.querySelector('.changes')).toBeNull();
+        });
+
         it('marks a scan whose barcode is unnamed and whose lookup failed, and opens the naming prompt for it', async () => {
             store.inbox.set([
                 { code: '8710400000002', scanCount: 1, lookupFailed: ['ah', 'off'] },

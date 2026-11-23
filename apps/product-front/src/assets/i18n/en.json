@@ -13,7 +13,7 @@
         "list": "List",
         "scan": "Scan",
         "inbox": "Inbox",
-        "catalog": "Products",
+        "recipes": "Recipes",
         "system": "System"
     },
     "list": {
@@ -85,6 +85,36 @@
         "searchPlaceholder": "Search…",
         "noResults": "No product found"
     },
+    "recipe": {
+        "title": "Recipes",
+        "new": "New recipe",
+        "edit": "Edit recipe",
+        "searchPlaceholder": "Search…",
+        "empty": "No recipes yet. Make one from the products you buy for it every time.",
+        "noResults": "No recipe found",
+        "products": "{count, plural, one {# product} other {# products}}",
+        "toList": "To list",
+        "addAll": "Put everything of {name} on the list",
+        "added": "{name}: {count, plural, one {# product} other {# products}} on the list",
+        "addedPartly": "{name}: {count} on the list, {unknown} unknown",
+        "name": "Name",
+        "description": "Description",
+        "ingredients": "Products",
+        "noIngredients": "No products in this recipe yet",
+        "addProduct": "Add a product…",
+        "note": "Note",
+        "less": "One less",
+        "more": "One more",
+        "removeProduct": "Take {name} out of the recipe",
+        "saved": "Recipe saved",
+        "delete": "Delete recipe",
+        "deleteConfirm": "Delete \"{name}\"? The products themselves stay.",
+        "notFound": "This recipe does not exist (anymore)",
+        "sheetHint": "Untick what you already have at home.",
+        "addChosen": "{count, plural, one {# product} other {# products}} on the list",
+        "unknownProduct": "Unknown product (#{id})",
+        "createAndAdd": "Create and add"
+    },
     "item": {
         "name": "Name",
         "section": "Section",
@@ -101,7 +131,9 @@
         "dangerZone": "Delete",
         "delete": "Delete product",
         "deleteConfirm": "Delete \"{name}\"? Linked barcodes go back to the inbox.",
-        "chooseIcon": "Choose icon"
+        "chooseIcon": "Choose icon",
+        "deleteConfirmRecipes": "Delete \"{name}\"? Linked barcodes go back to the inbox. The product is in {count, plural, one {# recipe} other {# recipes}} and is taken out of them.",
+        "backToList": "List"
     },
     "history": {
         "title": "Scan history",
@@ -114,8 +146,11 @@
             "incremented": "count +1",
             "needs_name": "needs name",
             "ignored": "ignored",
-            "undone": "undone"
-        }
+            "undone": "undone",
+            "recipe": "recipe",
+            "recipe_partial": "recipe, partly"
+        },
+        "recipeProducts": "Recipe · {count, plural, one {# product} other {# products}}"
     },
     "log": {
         "title": "System log",

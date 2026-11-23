@@ -6,6 +6,7 @@ Scan the barcode of an empty package before tossing it, and the product lands on
 
 - **Scan to list**: a known barcode puts its product on the list, or counts the quantity up. A second read within 1 second is ignored. A code that is no product barcode, such as a QR code with a web address, is refused at the scanner with the error sound.
 - **Name once**: an unknown barcode waits in an inbox. Albert Heijn and Open Food Facts are asked what it is, the user picks or creates the product once, and every later scan is automatic.
+- **Recipes**: keep a recipe as a list of products with quantities and notes and a description, and put it on the list in one go, or tick only what is not in the house. One undo takes it back.
 - **Shopping list**: tiles grouped by shop section, with icon, quantity and note. Tap to check off, tap a recent item to put it back, search to add by hand, remove what should not come back.
 - **Phone**: camera scanning, installable on the home screen, light and dark theme, Dutch and English, push notification when the handheld scanner reads something unknown.
 - **Sound**: a buzzer at the scanner beeps the result of each scan; which sound for which result is chosen in the app.
@@ -48,6 +49,7 @@ yarn lint:all
 yarn product-api:test                 # scan rules and session signing
 yarn product-api:test:integration     # services against a temporary SQLite file; login guard, data routes and the whole app over HTTP
 yarn product-front:test               # the web app's logic and components, without a browser
+yarn shared:test                      # the shared library: the recipe code and its ingredients
 yarn e2e                              # the built app in headless Chrome: scan, name, check off, offline, camera
 yarn hardware-agent:test              # the hardware agent with a fake scanner, buzzer and API
 ```

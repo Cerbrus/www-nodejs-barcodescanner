@@ -13,34 +13,80 @@
 
     <div class="flex flex-col gap-1">
         @for (scan of scans(); track scan.id) {
-            <div class="card flex items-center gap-3 py-2" [class.opacity-50]="scan.undoneAt">
-                <i class="material-symbols-outlined muted">
-                    {{ scan.source === 'phone' ? 'smartphone' : 'barcode_reader' }}
-                </i>
-                <span class="grow">
-                    <span class="block font-semibold">
-                        {{ itemName(scan) ?? ('inbox.unknownProduct' | translate) }}
-                    </span>
-                    <span class="muted block text-xs">
-                        <span class="font-mono">{{ scan.code }}</span>
-                        · {{ scan.createdAt | date: 'd MMM HH:mm:ss' }}
-                    </span>
-                </span>
-                @if (failedSources(scan); as sources) {
+            @if (scan.title !== undefined && scan.title !== null) {
+                <div class="card py-2" [class.opacity-50]="scan.undoneAt">
                     <button
                         type="button"
-                        class="btn lookup-failed"
-                        [title]="'history.lookupFailed' | translate: { sources }"
-                        [attr.aria-label]="'history.lookupFailed' | translate: { sources }"
-                        (click)="namingCode.set(scan.code)"
+                        class="recipe-line"
+                        [attr.aria-expanded]="openScanId() === scan.id"
+                        (click)="toggle(scan.id)"
                     >
-                        <i class="material-symbols-outlined">cloud_off</i>
+                        <i class="material-symbols-outlined muted">
+                            {{
+                                scan.source === 'phone'
+                                    ? 'smartphone'
+                                    : scan.source === 'app'
+                                      ? 'menu_book'
+                                      : 'barcode_reader'
+                            }}
+                        </i>
+                        <span class="grow">
+                            <span class="block font-semibold">{{ scan.title }}</span>
+                            <span class="muted block text-xs">
+                                {{ 'history.recipeProducts' | translate: { count: scan.changes?.length ?? 0 } }}
+                                · {{ scan.createdAt | date: 'd MMM HH:mm:ss' }}
+                            </span>
+                        </span>
+                        <span class="result" [class]="scan.result">
+                            {{ 'history.result.' + (scan.undoneAt ? 'undone' : scan.result) | translate }}
+                        </span>
+                        <i class="material-symbols-outlined muted">
+                            {{ openScanId() === scan.id ? 'expand_less' : 'expand_more' }}
+                        </i>
                     </button>
-                }
-                <span class="result" [class]="scan.result">
-                    {{ 'history.result.' + (scan.undoneAt ? 'undone' : scan.result) | translate }}
-                </span>
-            </div>
+                    @if (openScanId() === scan.id) {
+                        <ul class="changes">
+                            @for (change of scan.changes ?? []; track $index) {
+                                <li>
+                                    <span class="grow">
+                                        {{ changeName(change) ?? ('inbox.unknownProduct' | translate) }}
+                                    </span>
+                                    <span class="font-bold">× {{ change.quantity }}</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            } @else {
+                <div class="card flex items-center gap-3 py-2" [class.opacity-50]="scan.undoneAt">
+                    <i class="material-symbols-outlined muted">
+                        {{ scan.source === 'phone' ? 'smartphone' : 'barcode_reader' }}
+                    </i>
+                    <span class="grow">
+                        <span class="block font-semibold">
+                            {{ itemName(scan) ?? ('inbox.unknownProduct' | translate) }}
+                        </span>
+                        <span class="muted block text-xs">
+                            <span class="font-mono">{{ scan.code }}</span>
+                            · {{ scan.createdAt | date: 'd MMM HH:mm:ss' }}
+                        </span>
+                    </span>
+                    @if (failedSources(scan); as sources) {
+                        <button
+                            type="button"
+                            class="btn lookup-failed"
+                            [title]="'history.lookupFailed' | translate: { sources }"
+                            [attr.aria-label]="'history.lookupFailed' | translate: { sources }"
+                            (click)="namingCode.set(scan.code)"
+                        >
+                            <i class="material-symbols-outlined">cloud_off</i>
+                        </button>
+                    }
+                    <span class="result" [class]="scan.result">
+                        {{ 'history.result.' + (scan.undoneAt ? 'undone' : scan.result) | translate }}
+                    </span>
+                </div>
+            }
         } @empty {
             <p class="empty">{{ (loaded() ? 'history.empty' : 'common.loading') | translate }}</p>
         }

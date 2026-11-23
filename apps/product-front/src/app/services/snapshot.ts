@@ -1,4 +1,4 @@
-import { Barcode, CatalogItem, ListEntry, Section } from '../models';
+import { Barcode, CatalogItem, ListEntry, Recipe, Section } from '../models';
 
 export interface Snapshot {
     savedAt: string;
@@ -6,6 +6,7 @@ export interface Snapshot {
     items: Array<CatalogItem>;
     entries: Array<ListEntry>;
     inbox: Array<Barcode>;
+    recipes?: Array<Recipe>;
 }
 
 const SNAPSHOT_KEY = 'snapshot';

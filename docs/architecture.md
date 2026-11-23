@@ -103,10 +103,11 @@ What it deliberately does not have: a class per use case, domain models separate
 
 | Service | Responsibility |
 |---|---|
-| `scan` | Registers a scan, names a barcode and applies its waiting scans, discards, undoes. Each of these runs in one transaction |
+| `scan` | Registers a scan, names a barcode and applies its waiting scans, discards, undoes, and puts a recipe on the list as one scan with a row in `scan_change` per list entry it touched. Each of these runs in one transaction |
 | `barcode` | The only service that touches the `barcode` table: inbox, links, scan counters, suggestions |
 | `catalog` | Sections, products, icon names, the default icon from the seed file |
 | `list` | List entries: to buy, recent, quantity, note |
+| `recipe` | Recipes with their ingredients: makes, changes and deletes them, refuses a second recipe of a name and a product that does not exist, and counts the recipes that use a product |
 | `connector` | Runs the product connectors in parallel |
 | `events` | Server-sent events to open pages and the hardware agent |
 | `feedback` | Buzzer sounds as presets made of blocks (`sound` table, rules in `core/rules/sounds.ts`: beep, pause, trill, buzz, at most 1 second in total, so at most 100 blocks of the shortest 10 ms), the sound chosen per scan result and for a new version, test sounds. The server turns blocks into the on, off and gate steps the hardware agent plays. At start the app compares its version with `/data/announced-version`; when it differs, the hardware agent's event stream starts with that sound and the file gets the new version |
@@ -126,7 +127,7 @@ The app also serves the icon files under `/icons` and the built web app for ever
 
 ## Shared library
 
-`libs/shared` holds what the API and the web app both need, written once: the list states, the scan results and sources, a product suggestion, the sound blocks, steps and limits, and the remark kinds, target, context and issue progress. It is plain TypeScript without Angular, NestJS or TypeORM, which its lint rules enforce. Both apps import it as `@barcodescanner/shared`, a path alias in `tsconfig.base.json`; the API's bundle and the web app's bundle each take in what they use, so the image holds no separate library. The API's unit tests find the alias through `TSX_TSCONFIG_PATH`, its integration tests through `tsconfig-paths`. The hardware agent is Python and does not use it.
+`libs/shared` holds what the API and the web app both need, written once: the list states, the scan results and sources, a product suggestion, the sound blocks, steps and limits, the remark kinds, target, context and issue progress, and for recipes the ingredient, the limits, the rule that adds up the same product with the same note, and the reader and writer of the recipe code (`recipe-code.ts`, decision 0100). It is plain TypeScript without Angular, NestJS or TypeORM, which its lint rules enforce. Both apps import it as `@barcodescanner/shared`, a path alias in `tsconfig.base.json`; the API's bundle and the web app's bundle each take in what they use, so the image holds no separate library. The API's unit tests find the alias through `TSX_TSCONFIG_PATH`, its integration tests through `tsconfig-paths`. Its own tests run with `yarn shared:test`. The hardware agent is Python and does not use it.
 
 ## Web app
 
@@ -134,8 +135,8 @@ Angular with standalone components and signals; no state library. Every componen
 
 | Folder | Content |
 |---|---|
-| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `catalog` (products), `item` (one product with its barcodes), `history`, `log`, `system`, `changelog` |
-| `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog; Escape closes it), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode` |
+| `pages/` | `login`, `list`, `scan` (camera), `inbox`, `recipes` (the Recipes tab), `recipe` (one recipe: a read view, and an edit mode behind the pencil), `catalog` (products, for the owner, reached from the System page), `item` (one product with its barcodes), `history`, `log`, `system`, `changelog` |
+| `components/` | `shell` (navigation, offline banner, toasts), `item-tile`, `item-icon`, `sheet` (modal dialog; Escape closes it), `item-autocomplete`, `new-item-form`, `naming-prompt`, `icon-picker`, `barcode`, `recipe-sheet` (the products of a recipe with a tick box each, before they go on the list) |
 | `services/` | `auth.service` (login state, route guard), `api.service` (HTTP), `events.service` (live stream), `shopping.store` (sections, items, list and inbox as signals), `push.service`, `theme.service`, `toast.service` |
 
 - `shopping.store` loads everything once and reloads on events from the server, so every open page follows scans made elsewhere. The shell shows a toast with undo for scans from the handheld scanner.
@@ -165,7 +166,10 @@ Angular with standalone components and signals; no state library. Every componen
 | `catalog_item` | `id`, `name` (unique), `section_id`, `icon`, `emoji`, `custom` | `icon` is a file name in the icon folder, served under `/icons/<icon>.png` |
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `note`, `suggestions` (JSON), `lookup_failed` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox. `note` is the variant its scans go to (empty for none). `lookup_failed` lists the connectors that gave no answer |
 | `list_entry` | `id` (key, UUID), `catalog_item_id`, `note`, `state` (`to_buy`, `recent`), `quantity`, `updated_at` | Catalog item plus note is unique: the note is the variant. The web app makes the id, so an entry can be added offline |
-| `scan` | `id`, `code`, `source` (`handheld`, `phone`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity` | History and undo; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan |
+| `scan` | `id`, `code`, `source` (`handheld`, `phone`, `app`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity`, `title` | History and undo; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan. A recipe is one row with the result `recipe` or `recipe_partial`, its name in `title` and its recipe code in `code` |
+| `scan_change` | `id`, `scan_id`, `catalog_item_id`, `note`, `quantity`, `previous_state`, `previous_quantity` | One row per list entry a recipe touched: what was added and what the entry was before, for undo |
+| `recipe` | `id`, `name` (unique), `description` (markdown), `created_at`, `updated_at` | |
+| `recipe_ingredient` | `id`, `recipe_id`, `catalog_item_id`, `quantity`, `note`, `position` | Product plus note is unique within a recipe; `position` keeps the order. Deleting a product removes its rows |
 | `feedback_setting` | `event` (key), `sound_id` | Chosen buzzer sound per scan result; no row means the default |
 | `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `origin`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
 
@@ -185,6 +189,8 @@ On `POST /api/v1/scans` with `{ code }`. The source is not sent: a scan posted w
 When a barcode gets its mapping, its waiting `needs_name` scans are applied by rule 2.
 
 Checking off an entry sets state `recent` and quantity 0. Undo reverses the list change of the latest scan that is not undone.
+
+**A recipe on the list** (`POST /api/v1/recipes/additions`). The same product with the same note is added up first. Each product that exists goes to its entry with that note: quantity plus the recipe's quantity when the entry is to buy, otherwise to buy with that quantity. A product id that does not exist is left out and the result is `recipe_partial` instead of `recipe`. Undo takes the whole recipe back: an entry that still holds more than the recipe added loses that quantity, otherwise it returns to what it was before, and an entry that was checked off or removed since is left alone.
 
 ## Connectors
 
@@ -216,13 +222,15 @@ interface ProductSuggestion {
 |---|---|
 | `POST /api/v1/scans` | Register a scan; open to the agent |
 | `POST /api/v1/scans/undo` | Undo the latest scan |
-| `GET /api/v1/scans` | History |
+| `GET /api/v1/scans` | History; a recipe comes with the list entries it touched |
+| `GET /api/v1/recipes`, `POST`, `GET /:id`, `PATCH /:id`, `DELETE /:id` | Recipes with their ingredients; a change replaces the name, the description and all ingredients |
+| `POST /api/v1/recipes/additions` | Put the given products of a recipe on the list as one scan with the source `app` |
 | `GET /api/v1/list` | List entries with their catalog items |
 | `PATCH /api/v1/list/:id` | State, quantity, note of an entry; with `catalogItemId` it creates the entry under that id. A note another entry of the product already has merges the two |
 | `POST /api/v1/list/offline-changes` | Changes made without a connection, each with its time; answers how many were applied and which entries the server kept |
 | `DELETE /api/v1/list/:id` | Delete the entry; the web app uses it to remove a product from recent |
 | `GET /api/v1/catalog`, `POST`, `PATCH /:id`, `DELETE /:id` | Catalog items |
-| `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan) and `defaultIcon`, the icon the seed file gives a product of that name |
+| `GET /api/v1/catalog/:id` | One catalog item with its barcodes (number, suggestions, scan count, last scan), `defaultIcon`, the icon the seed file gives a product of that name, and `recipeCount`, the number of recipes that use it |
 | `GET /api/v1/sections` | Shop sections in display order |
 | `GET /api/v1/barcodes?unmapped=true` | Inbox |
 | `GET /api/v1/barcodes/:code` | One barcode with its suggestions and, while it is unnamed, a `proposal` (product id or new name, and note) |
