@@ -14,7 +14,7 @@ import {
     ValidateNested
 } from 'class-validator';
 
-import { ListState } from '../../data/entities';
+import { ListState } from '@barcodescanner/shared';
 
 const MAX_CHANGES = 200;
 

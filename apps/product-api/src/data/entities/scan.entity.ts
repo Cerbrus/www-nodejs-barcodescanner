@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import { ListState, ScanResult, ScanSource } from './types';
+import { ListState, ScanResult, ScanSource } from '@barcodescanner/shared';
 
 @Entity('scan')
 export class ScanEntity {

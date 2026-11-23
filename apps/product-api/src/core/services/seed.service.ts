@@ -4,8 +4,10 @@ import { existsSync, readFileSync } from 'fs';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
+import { ListState } from '@barcodescanner/shared';
+
 import { AppConfig } from '../../config/app.config';
-import { CatalogItemEntity, ListEntryEntity, ListState, SectionEntity } from '../../data/entities';
+import { CatalogItemEntity, ListEntryEntity, SectionEntity } from '../../data/entities';
 
 interface SeedFile {
     sections: Array<{ id: string; name: string; order: number; emoji?: string }>;

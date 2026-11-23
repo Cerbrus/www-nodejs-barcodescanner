@@ -1,24 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-export interface RemarkTargetData {
-    component?: string;
-    label?: string;
-    text?: string;
-    path?: string;
-}
-
-export interface RemarkContextData {
-    version?: string;
-    commit?: string;
-    userAgent?: string;
-    viewport?: string;
-    language?: string;
-    theme?: string;
-    installed?: boolean;
-    online?: boolean;
-    waitingChanges?: number;
-    recentMessages?: Array<string>;
-}
+import { RemarkContext, RemarkKind, RemarkTarget } from '@barcodescanner/shared';
 
 @Entity('remark')
 export class RemarkEntity {
@@ -26,7 +8,7 @@ export class RemarkEntity {
     public id: number;
 
     @Column({ type: 'varchar' })
-    public kind: 'bug' | 'wish' | 'note';
+    public kind: RemarkKind;
 
     @Column({ type: 'text' })
     public text: string;
@@ -38,10 +20,10 @@ export class RemarkEntity {
     public page: string;
 
     @Column({ type: 'simple-json', nullable: true })
-    public target?: RemarkTargetData | null;
+    public target?: RemarkTarget | null;
 
     @Column({ type: 'simple-json', nullable: true })
-    public context?: RemarkContextData | null;
+    public context?: RemarkContext | null;
 
     @Column({ type: 'varchar' })
     public account: string;

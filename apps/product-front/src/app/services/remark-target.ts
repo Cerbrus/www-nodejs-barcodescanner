@@ -1,4 +1,4 @@
-import { RemarkTarget } from '../models';
+import { RemarkTarget } from '@barcodescanner/shared';
 
 const MEANINGFUL = 'app-item-tile, button, a, input, select, textarea, [role="option"], .card, .row, .toast, h1, h2';
 const TEXT_FIELD = 'input, textarea, select';

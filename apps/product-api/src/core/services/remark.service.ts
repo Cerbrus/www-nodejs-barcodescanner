@@ -10,14 +10,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Not, Repository } from 'typeorm';
 
+import { IssueDraft, IssueOptions, IssueProgress, RemarkKind } from '@barcodescanner/shared';
+
 import { AppConfig } from '../../config/app.config';
 import { RemarkEntity } from '../../data/entities';
 import {
-    IssueDraft,
-    IssueOptions,
-    IssueProgress,
     REJECTED_STATE,
-    RemarkKind,
     RemarkState,
     cleanContext,
     cleanTarget,

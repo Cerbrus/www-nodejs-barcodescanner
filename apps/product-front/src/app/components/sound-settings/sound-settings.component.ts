@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, of, tap } from 'rxjs';
 
-import { FeedbackSettings, Sound } from '../../models';
+import { Sound } from '@barcodescanner/shared';
+
+import { FeedbackSettings } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { SheetComponent } from '../sheet/sheet.component';
 import { SoundEditorComponent, SoundSaved } from '../sound-editor/sound-editor.component';

@@ -4,7 +4,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { CatalogItemEntity, ListEntryEntity, ListState } from '../../data/entities';
+import { ListState } from '@barcodescanner/shared';
+
+import { CatalogItemEntity, ListEntryEntity } from '../../data/entities';
 import { EntrySnapshot } from '../rules/scan-rules';
 import { EventsService } from './events.service';
 

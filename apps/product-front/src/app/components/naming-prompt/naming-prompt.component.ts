@@ -3,7 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, finalize, switchMap, tap } from 'rxjs';
 
-import { Barcode, CatalogItem, ProductSuggestion } from '../../models';
+import { ProductSuggestion } from '@barcodescanner/shared';
+
+import { Barcode, CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
 import { ShoppingStore } from '../../services/shopping.store';

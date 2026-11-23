@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-import { MAX_SOUND_MILLISECONDS, SoundBlock } from '../../models';
+import { MAX_SOUND_MILLISECONDS, SoundBlock } from '@barcodescanner/shared';
 
 interface Wave {
     kind: SoundBlock['kind'];

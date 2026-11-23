@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, finalize, of, tap } from 'rxjs';
 
+import { REMARK_KINDS, RemarkKind } from '@barcodescanner/shared';
+
 import { IconName } from '../../icon-names';
-import { REMARK_KINDS, RemarkKind } from '../../models';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 import { SheetComponent } from '../sheet/sheet.component';

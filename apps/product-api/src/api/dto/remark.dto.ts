@@ -1,7 +1,9 @@
 import { Type } from 'class-transformer';
 import { IsBoolean, IsDate, IsIn, IsNotEmpty, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { MAX_REMARK_TEXT_LENGTH, REMARK_KINDS, REMARK_STATES, RemarkKind, RemarkState } from '../../core/rules/remarks';
+import { REMARK_KINDS, RemarkKind } from '@barcodescanner/shared';
+
+import { MAX_REMARK_TEXT_LENGTH, REMARK_STATES, RemarkState } from '../../core/rules/remarks';
 
 export class RemarkCreateDto {
     @IsIn(REMARK_KINDS)

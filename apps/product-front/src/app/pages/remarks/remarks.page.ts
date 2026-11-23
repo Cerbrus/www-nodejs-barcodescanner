@@ -6,11 +6,13 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, catchError, finalize, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
+import { IssueDraft, IssueOptions, IssueStage, REMARK_KINDS, RemarkKind } from '@barcodescanner/shared';
+
 import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { IconName } from '../../icon-names';
-import { IssueDraft, IssueOptions, IssueStage, REMARK_KINDS, Remark, RemarkKind, RemarkList } from '../../models';
+import { Remark, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';

@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
 
-import { IssueDraft, IssueOptions, IssueProgress } from '../../core/rules/remarks';
+import { IssueDraft, IssueOptions, IssueProgress } from '@barcodescanner/shared';
+
 import { RemarkService } from '../../core/services/remark.service';
 import { RemarkEntity } from '../../data/entities';
 import { RemarkCreateDto, RemarkIssueDto, RemarkStateDto, RemarkTextDto } from '../dto/remark.dto';

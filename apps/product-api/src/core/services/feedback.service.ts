@@ -13,6 +13,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { Sound, SoundBlock, SoundStep } from '@barcodescanner/shared';
+
 import { AppConfig } from '../../config/app.config';
 import { FeedbackSettingEntity, SoundEntity } from '../../data/entities';
 import {
@@ -21,9 +23,6 @@ import {
     FeedbackEvent,
     MAX_NAME_LENGTH,
     NO_SOUND,
-    Sound,
-    SoundBlock,
-    SoundStep,
     cleanBlocks,
     soundProblem,
     toSteps

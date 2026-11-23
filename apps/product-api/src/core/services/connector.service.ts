@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { ProductSuggestion } from '@barcodescanner/shared';
+
 import { AppConfig } from '../../config/app.config';
 import { AHConnector } from '../connectors/ah.connector';
-import { ProductConnector, ProductSuggestion } from '../connectors/connector.model';
+import { ProductConnector } from '../connectors/connector.model';
 import { OpenFoodFactsConnector } from '../connectors/off.connector';
 import { sectionForCategory } from '../rules/shop-sections';
 

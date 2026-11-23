@@ -1,6 +1,6 @@
 import { IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
-import { ListState } from '../../data/entities';
+import { ListState } from '@barcodescanner/shared';
 
 export class ListEntryChangeDto {
     @IsOptional()

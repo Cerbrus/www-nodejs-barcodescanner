@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
+import { ProductSuggestion } from '@barcodescanner/shared';
+
 import { CatalogItemEntity } from './catalog-item.entity';
-import { ProductSuggestion } from './product-suggestion';
 
 @Entity('barcode')
 export class BarcodeEntity {

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { ProductConnector, ProductSuggestion } from './connector.model';
+import { ProductSuggestion } from '@barcodescanner/shared';
+
+import { ProductConnector } from './connector.model';
 
 const PRODUCT_URL = 'https://world.openfoodfacts.org/api/v2/product';
 const FIELDS = 'product_name,product_name_nl,brands,categories_tags,image_front_small_url';

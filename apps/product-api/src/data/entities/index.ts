@@ -17,8 +17,6 @@ export * from './push-subscription.entity';
 export * from './feedback-setting.entity';
 export * from './remark.entity';
 export * from './sound.entity';
-export * from './product-suggestion';
-export * from './types';
 
 export const Entities = [
     SectionEntity,

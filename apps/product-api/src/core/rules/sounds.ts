@@ -1,34 +1,12 @@
-import { BLOCK_KINDS, SoundBlock } from '../../data/entities';
-
-export { BLOCK_KINDS, SoundBlock };
-
-export interface SoundStep {
-    kind: 'on' | 'off' | 'gate';
-    seconds: number;
-    hz?: number;
-    duty?: number;
-}
-
-export interface Sound {
-    id: string;
-    name?: string;
-    blocks: Array<SoundBlock>;
-    steps: Array<SoundStep>;
-}
+import { BLOCK_KINDS, MAX_SOUND_MILLISECONDS, SOUND_RATES, SoundBlock, SoundStep } from '@barcodescanner/shared';
 
 export const FEEDBACK_EVENTS = ['added', 'incremented', 'needs_name', 'ignored', 'held', 'error', 'updated'] as const;
 export type FeedbackEvent = (typeof FEEDBACK_EVENTS)[number];
 
 export const NO_SOUND = 'none';
-export const MAX_MILLISECONDS = 1000;
 export const MIN_BLOCK_MILLISECONDS = 10;
-export const MAX_BLOCKS = MAX_MILLISECONDS / MIN_BLOCK_MILLISECONDS;
+export const MAX_BLOCKS = MAX_SOUND_MILLISECONDS / MIN_BLOCK_MILLISECONDS;
 export const MAX_NAME_LENGTH = 40;
-export const RATES: Record<'trill' | 'buzz', { min: number; max: number }> = {
-    trill: { min: 4, max: 40 },
-    buzz: { min: 100, max: 1000 }
-};
-
 const GATE_DUTY = 50;
 
 export const DEFAULT_SOUND_IDS: Record<FeedbackEvent, string> = {
@@ -50,7 +28,7 @@ function blockProblem(block: SoundBlock, index: number): string | undefined {
         return `${at} must last a whole number of ${MIN_BLOCK_MILLISECONDS} ms steps`;
     }
     if (block.kind === 'trill' || block.kind === 'buzz') {
-        const { min, max } = RATES[block.kind];
+        const { min, max } = SOUND_RATES[block.kind];
         if (!Number.isInteger(block.rate) || (block.rate ?? 0) < min || (block.rate ?? 0) > max) {
             return `${at} needs a rate from ${min} to ${max} a second`;
         }
@@ -66,8 +44,8 @@ export function soundProblem(blocks: Array<SoundBlock>): string | undefined {
     if (blocks.length > MAX_BLOCKS) {
         return `a sound has at most ${MAX_BLOCKS} blocks`;
     }
-    if (blocks.reduce((total, block) => total + block.ms, 0) > MAX_MILLISECONDS) {
-        return `a sound lasts at most ${MAX_MILLISECONDS} ms`;
+    if (blocks.reduce((total, block) => total + block.ms, 0) > MAX_SOUND_MILLISECONDS) {
+        return `a sound lasts at most ${MAX_SOUND_MILLISECONDS} ms`;
     }
 
     return blocks.map(blockProblem).find((problem) => problem);

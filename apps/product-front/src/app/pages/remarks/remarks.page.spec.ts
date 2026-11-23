@@ -3,9 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
+import { IssueDraft } from '@barcodescanner/shared';
+
 import { FakeEvents, FakeRemarks, fakeEvents, fakeRemarks, texts } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
-import { AuthState, IssueDraft, Remark } from '../../models';
+import { AuthState, Remark } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';

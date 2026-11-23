@@ -1,7 +1,9 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 
-import { Barcode, CatalogItem, ListEntry, RemarkTarget, Section } from '../app/models';
+import { RemarkTarget } from '@barcodescanner/shared';
+
+import { Barcode, CatalogItem, ListEntry, Section } from '../app/models';
 
 export const SECTIONS: Array<Section> = [
     { id: 'brood-gebak', name: 'Brood', sortOrder: 1, emoji: '🍞' },

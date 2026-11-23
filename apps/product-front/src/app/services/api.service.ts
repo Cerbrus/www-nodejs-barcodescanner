@@ -2,6 +2,8 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { IssueDraft, IssueOptions, RemarkKind, SoundBlock } from '@barcodescanner/shared';
+
 import {
     AgentStatus,
     Barcode,
@@ -9,8 +11,6 @@ import {
     CatalogItemInput,
     FeedbackSettings,
     Health,
-    IssueDraft,
-    IssueOptions,
     ListEntry,
     ListEntryChange,
     LogLine,
@@ -19,12 +19,10 @@ import {
     Release,
     Remark,
     RemarkInput,
-    RemarkKind,
     RemarkList,
     Scan,
     ScanOutcome,
-    Section,
-    SoundBlock
+    Section
 } from '../models';
 import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
 import { PendingChange } from './outbox';

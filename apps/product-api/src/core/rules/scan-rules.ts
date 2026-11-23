@@ -1,4 +1,4 @@
-import { ListState, ScanResult } from '../../data/entities';
+import { ListState, ScanResult } from '@barcodescanner/shared';
 
 export const DEBOUNCE_MILLISECONDS = 1000;
 

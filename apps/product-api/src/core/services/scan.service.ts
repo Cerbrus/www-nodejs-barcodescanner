@@ -2,7 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 
-import { BarcodeEntity, ProductSuggestion, ScanEntity, ScanResult, ScanSource } from '../../data/entities';
+import { ProductSuggestion, ScanResult, ScanSource } from '@barcodescanner/shared';
+
+import { BarcodeEntity, ScanEntity } from '../../data/entities';
 import { TransactionRunner } from '../../data/transaction.runner';
 import { addOneToEntry, decideScan } from '../rules/scan-rules';
 import { BarcodeService } from './barcode.service';

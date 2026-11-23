@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { SoundBlock } from './types';
+import { SoundBlock } from '@barcodescanner/shared';
 
 @Entity('sound')
 export class SoundEntity {

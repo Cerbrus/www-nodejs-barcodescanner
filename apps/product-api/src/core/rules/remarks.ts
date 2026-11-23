@@ -1,5 +1,12 @@
-export const REMARK_KINDS = ['bug', 'wish', 'note'] as const;
-export type RemarkKind = (typeof REMARK_KINDS)[number];
+import {
+    IssueDraft,
+    IssueOptions,
+    IssueProgress,
+    IssueStage,
+    RemarkContext,
+    RemarkKind,
+    RemarkTarget
+} from '@barcodescanner/shared';
 
 export const REMARK_STATES = ['open', 'closed'] as const;
 export type RemarkState = (typeof REMARK_STATES)[number];
@@ -8,26 +15,6 @@ export const REJECTED_STATE = 'rejected';
 export const MAX_REMARK_TEXT_LENGTH = 2000;
 export const MAX_REMARKS_PER_HOUR = 30;
 export const INVESTIGATE_LABEL = 'investigate';
-
-export interface RemarkTarget {
-    component?: string;
-    label?: string;
-    text?: string;
-    path?: string;
-}
-
-export interface RemarkContext {
-    version?: string;
-    commit?: string;
-    userAgent?: string;
-    viewport?: string;
-    language?: string;
-    theme?: string;
-    installed?: boolean;
-    online?: boolean;
-    waitingChanges?: number;
-    recentMessages?: Array<string>;
-}
 
 export interface RemarkContent {
     id: number;
@@ -39,40 +26,10 @@ export interface RemarkContent {
     account: string;
 }
 
-export interface IssueOptions {
-    includeDevice: boolean;
-    includeAccount: boolean;
-    investigate: boolean;
-}
-
-export type IssueStage =
-    | 'sent'
-    | 'investigating'
-    | 'needsAnswers'
-    | 'tooLarge'
-    | 'notPossible'
-    | 'review'
-    | 'merged'
-    | 'released'
-    | 'live'
-    | 'closed';
-
 export interface IssueSnapshot {
     state: 'open' | 'closed';
     labels: Array<string>;
     pullRequests: Array<{ number: number; title: string; url: string; state: 'open' | 'closed'; merged: boolean }>;
-}
-
-export interface IssueProgress {
-    stage: IssueStage;
-    pullRequest?: { number: number; title: string; url: string };
-    version?: string;
-}
-
-export interface IssueDraft {
-    title: string;
-    body: string;
-    labels: Array<string>;
 }
 
 const MAX_FIELD_LENGTH = 300;

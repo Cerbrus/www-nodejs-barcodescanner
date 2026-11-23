@@ -16,7 +16,9 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, finalize, tap } from 'rxjs';
 
-import { BLOCK_KINDS, FeedbackSettings, MAX_SOUND_MILLISECONDS, SOUND_RATES, Sound, SoundBlock } from '../../models';
+import { BLOCK_KINDS, MAX_SOUND_MILLISECONDS, SOUND_RATES, Sound, SoundBlock } from '@barcodescanner/shared';
+
+import { FeedbackSettings } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { SheetComponent } from '../sheet/sheet.component';
 import { SoundTimelineComponent } from '../sound-timeline/sound-timeline.component';

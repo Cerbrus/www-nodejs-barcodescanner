@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SoundBlock } from '../../models';
+import { SoundBlock } from '@barcodescanner/shared';
+
 import { SoundTimelineComponent } from './sound-timeline.component';
 
 describe('SoundTimelineComponent', () => {

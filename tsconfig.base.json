@@ -2,6 +2,10 @@
     "compileOnSave": false,
     "compilerOptions": {
         "rootDir": ".",
+        "baseUrl": ".",
+        "paths": {
+            "@barcodescanner/shared": ["libs/shared/src/index.ts"]
+        },
         "sourceMap": true,
         "declaration": false,
         "moduleResolution": "node",

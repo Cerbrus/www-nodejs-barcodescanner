@@ -5,9 +5,11 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap, tap } from 'rxjs';
 
+import { ScanSource } from '@barcodescanner/shared';
+
 import { withNote } from '../../display-name';
 import { IconName } from '../../icon-names';
-import { ScanOutcome, ScanSource } from '../../models';
+import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';

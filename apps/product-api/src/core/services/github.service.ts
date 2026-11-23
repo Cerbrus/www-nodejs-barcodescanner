@@ -1,7 +1,9 @@
 import { BadGatewayException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 
+import { IssueDraft } from '@barcodescanner/shared';
+
 import { AppConfig } from '../../config/app.config';
-import { IssueDraft, IssueSnapshot, compareVersions, parseVersion } from '../rules/remarks';
+import { IssueSnapshot, compareVersions, parseVersion } from '../rules/remarks';
 
 export interface CreatedIssue {
     number: number;

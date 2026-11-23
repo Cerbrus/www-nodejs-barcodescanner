@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
+import { ProductSuggestion } from '@barcodescanner/shared';
+
 import { AHProduct } from './ah';
-import { ProductConnector, ProductSuggestion } from './connector.model';
+import { ProductConnector } from './connector.model';
 
 const AUTH_URL = 'https://api.ah.nl/mobile-auth/v1/auth/token/anonymous';
 const PRODUCT_URL = 'https://api.ah.nl/mobile-services/product/search/v1/gtin';

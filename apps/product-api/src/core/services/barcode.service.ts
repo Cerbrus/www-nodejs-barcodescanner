@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, IsNull, Repository } from 'typeorm';
 
-import { BarcodeEntity, ProductSuggestion } from '../../data/entities';
+import { ProductSuggestion } from '@barcodescanner/shared';
+
+import { BarcodeEntity } from '../../data/entities';
 import { EventsService } from './events.service';
 import { cleanNote } from './list.service';
 

@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
+import { SoundBlock } from '@barcodescanner/shared';
+
 import { click, texts } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
-import { FeedbackSettings, SoundBlock } from '../../models';
+import { FeedbackSettings } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { SoundSettingsComponent } from './sound-settings.component';
 

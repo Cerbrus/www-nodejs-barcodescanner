@@ -18,7 +18,9 @@ import {
     toArray
 } from 'rxjs';
 
-import { Remark, RemarkContext, RemarkInput, RemarkKind, RemarkTarget } from '../models';
+import { RemarkContext, RemarkKind, RemarkTarget } from '@barcodescanner/shared';
+
+import { Remark, RemarkInput } from '../models';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { EventsService } from './events.service';

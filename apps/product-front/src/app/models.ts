@@ -1,6 +1,16 @@
-export type ListState = 'to_buy' | 'recent';
-export type ScanResult = 'added' | 'incremented' | 'needs_name' | 'ignored';
-export type ScanSource = 'handheld' | 'phone';
+import {
+    IssueProgress,
+    ListState,
+    ProductSuggestion,
+    RemarkContext,
+    RemarkKind,
+    RemarkTarget,
+    ScanResult,
+    ScanSource,
+    Sound,
+    SoundStep
+} from '@barcodescanner/shared';
+
 export type LogLevel = 'debug' | 'info' | 'warning' | 'error';
 
 export interface Section {
@@ -20,15 +30,6 @@ export interface CatalogItem {
     defaultIcon?: string;
     section?: Section;
     barcodes?: Array<Barcode>;
-}
-
-export interface ProductSuggestion {
-    connectorId: string;
-    title: string;
-    brand?: string;
-    category?: string;
-    sectionId?: string;
-    imageUrl?: string;
 }
 
 export interface NameProposal {
@@ -115,35 +116,10 @@ export interface PushResult {
     failed: number;
 }
 
-export interface SoundStep {
-    kind: 'on' | 'off' | 'gate';
-    seconds: number;
-    hz?: number;
-    duty?: number;
-}
-
-export const BLOCK_KINDS = ['beep', 'pause', 'trill', 'buzz'] as const;
-
-export interface SoundBlock {
-    kind: (typeof BLOCK_KINDS)[number];
-    ms: number;
-    rate?: number;
-}
-
-export interface Sound {
-    id: string;
-    name?: string;
-    blocks: Array<SoundBlock>;
-    steps: Array<SoundStep>;
-}
-
 export interface FeedbackSettings {
     events: Array<{ event: string; soundId: string; steps: Array<SoundStep> }>;
     sounds: Array<Sound>;
 }
-
-export const MAX_SOUND_MILLISECONDS = 1000;
-export const SOUND_RATES = { trill: { min: 4, max: 40, step: 1 }, buzz: { min: 100, max: 1000, step: 50 } };
 
 export interface AuthState {
     enabled: boolean;
@@ -174,29 +150,6 @@ export interface ListEntryChange {
     note?: string;
 }
 
-export const REMARK_KINDS = ['wish', 'bug', 'note'] as const;
-export type RemarkKind = (typeof REMARK_KINDS)[number];
-
-export interface RemarkTarget {
-    component?: string;
-    label?: string;
-    text?: string;
-    path?: string;
-}
-
-export interface RemarkContext {
-    version?: string;
-    commit?: string;
-    userAgent?: string;
-    viewport?: string;
-    language?: string;
-    theme?: string;
-    installed?: boolean;
-    online?: boolean;
-    waitingChanges?: number;
-    recentMessages?: Array<string>;
-}
-
 export interface RemarkInput {
     kind: RemarkKind;
     text: string;
@@ -204,24 +157,6 @@ export interface RemarkInput {
     target?: RemarkTarget;
     context?: RemarkContext;
     writtenAt?: string;
-}
-
-export type IssueStage =
-    | 'sent'
-    | 'investigating'
-    | 'needsAnswers'
-    | 'tooLarge'
-    | 'notPossible'
-    | 'review'
-    | 'merged'
-    | 'released'
-    | 'live'
-    | 'closed';
-
-export interface IssueProgress {
-    stage: IssueStage;
-    pullRequest?: { number: number; title: string; url: string };
-    version?: string;
 }
 
 export interface Remark {
@@ -243,16 +178,4 @@ export interface Remark {
 export interface RemarkList {
     remarks: Array<Remark>;
     canSendToGitHub: boolean;
-}
-
-export interface IssueOptions {
-    includeDevice: boolean;
-    includeAccount: boolean;
-    investigate: boolean;
-}
-
-export interface IssueDraft {
-    title: string;
-    body: string;
-    labels: Array<string>;
 }

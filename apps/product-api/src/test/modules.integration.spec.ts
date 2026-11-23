@@ -11,9 +11,11 @@ import { INestApplicationContext, Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
+import { ProductSuggestion } from '@barcodescanner/shared';
+
 import { AppConfig } from '../config/app.config';
 import { AppConfigModule } from '../config/config.module';
-import { ProductConnector, ProductSuggestion } from '../core/connectors/connector.model';
+import { ProductConnector } from '../core/connectors/connector.model';
 import { CoreModule } from '../core/core.module';
 import { DEBOUNCE_MILLISECONDS } from '../core/rules/scan-rules';
 import { BarcodeService } from '../core/services/barcode.service';

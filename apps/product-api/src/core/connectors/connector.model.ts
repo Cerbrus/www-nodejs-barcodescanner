@@ -1,6 +1,4 @@
-import { ProductSuggestion } from '../../data/entities';
-
-export { ProductSuggestion };
+import { ProductSuggestion } from '@barcodescanner/shared';
 
 export interface ProductConnector {
     readonly id: string;

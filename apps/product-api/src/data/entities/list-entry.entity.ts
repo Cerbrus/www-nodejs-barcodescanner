@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 
+import { ListState } from '@barcodescanner/shared';
+
 import { CatalogItemEntity } from './catalog-item.entity';
-import { ListState } from './types';
 
 @Entity('list_entry')
 @Unique('uq_list_entry_variant', ['catalogItemId', 'note'])
