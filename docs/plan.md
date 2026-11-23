@@ -41,7 +41,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 
 ## Never tested
 
-- The loading changes of 2026-11-23 on the live site: compression behind the reverse proxy, the cache header on versioned files and the smaller icon font on the iPhone. Tried with the tests and a local build only.
+- Compression and the cache header on versioned files through the reverse proxy: seen on the Pi itself on 2026-11-23, straight at the app.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - A reboot with the firewall service since it was added.
 - Push notifications in a desktop browser, which takes the service worker path.
@@ -97,4 +97,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | First train, started by hand: pull requests 37 and 39 rebased, checked together and landed as one version; GitHub marked both merged and closed their issues | 2026-11-20 15:10 | 1.1.130 |
 | A review that requests changes sends a pull request back to the agent, with the owner's remarks from the pull request | 2026-11-20 17:40 | |
 | Slow start in the shop: the app opens from the kept page and the remembered login without waiting for the network, the iPhone shows a launch image, and a server that does not answer within 5 seconds counts as no connection. Checked by the owner on the iPhone with the Pi's port blocked | 2026-11-23 11:17 | 1.2.16 |
-| Loading over a weak connection: answers compressed, files with a version in their name kept by the service worker and the browser, the icon font from 4.0 MB to 8 KB | 2026-11-23 11:49 | |
+| Loading over a weak connection: answers compressed, files with a version in their name kept by the service worker and the browser, the icon font from 4.0 MB to 8 KB. Checked by the owner on the live site | 2026-11-23 11:49 | 1.2.18 |
