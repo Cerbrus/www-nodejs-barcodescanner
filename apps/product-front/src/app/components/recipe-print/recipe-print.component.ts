@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, afterRenderEffect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { RecipePrintService } from '../../services/recipe-print.service';
 import { RecipeCodeComponent } from '../recipe-code/recipe-code.component';
@@ -13,12 +13,4 @@ import { RecipeCodeComponent } from '../recipe-code/recipe-code.component';
 })
 export class RecipePrintComponent {
     protected readonly printing = inject(RecipePrintService);
-
-    constructor() {
-        afterRenderEffect(() => {
-            if (this.printing.recipes().length) {
-                window.print();
-            }
-        });
-    }
 }

@@ -13,60 +13,68 @@ const recipe = (id: number, name: string): Recipe => ({
     ingredients: [{ catalogItemId: id, quantity: 1, note: '' }]
 });
 
-describe('RecipePrintComponent', () => {
+describe('RecipePrintComponent and RecipePrintService', () => {
     let fixture: ComponentFixture<RecipePrintComponent>;
     let sheet: HTMLElement;
     let printing: RecipePrintService;
-    let print: ReturnType<typeof vi.fn>;
+    let cellsWhenPrinting: Array<number>;
+    let share: ReturnType<typeof vi.fn>;
 
-    const settle = async (): Promise<void> => {
-        fixture.detectChanges();
-        await fixture.whenStable();
-    };
-
-    beforeEach(async () => {
-        print = vi.fn();
-        vi.stubGlobal('print', print);
+    beforeEach(() => {
+        cellsWhenPrinting = [];
+        share = vi.fn(() => Promise.resolve());
+        vi.stubGlobal('print', () => cellsWhenPrinting.push(sheet.querySelectorAll('.cell').length));
         TestBed.configureTestingModule({ imports: [RecipePrintComponent, TranslateTesting] });
         printing = TestBed.inject(RecipePrintService);
         fixture = TestBed.createComponent(RecipePrintComponent);
+        fixture.autoDetectChanges();
         sheet = fixture.nativeElement as HTMLElement;
-        await settle();
     });
 
     afterEach(() => {
         printing.done();
         vi.unstubAllGlobals();
+        Reflect.deleteProperty(navigator, 'standalone');
+        Reflect.deleteProperty(navigator, 'share');
+        Reflect.deleteProperty(navigator, 'canShare');
     });
 
     it('holds nothing and prints nothing until recipes are handed over', () => {
+        printing.print([]);
+
         expect(sheet.querySelectorAll('.cell').length).toBe(0);
-        expect(print).not.toHaveBeenCalled();
+        expect(cellsWhenPrinting).toEqual([]);
         expect(document.body.classList.contains('printing-recipes')).toBe(false);
     });
 
-    it('lays out one cell per recipe with its code and its name, then opens the print dialog once', async () => {
+    it('has drawn one cell per recipe, with its code and name, by the time the print dialog opens in the same tap', () => {
         printing.print([recipe(1, 'Pannenkoeken'), recipe(2, 'Soep')]);
-        await settle();
 
+        expect(cellsWhenPrinting).toEqual([2]);
         expect(texts(sheet, '.cell-name')).toEqual(['Pannenkoeken', 'Soep']);
         expect(sheet.querySelectorAll('.cell app-recipe-code svg').length).toBe(2);
-        expect(print).toHaveBeenCalledTimes(1);
         expect(document.body.classList.contains('printing-recipes')).toBe(true);
     });
 
-    it('clears the sheet when printing is over, and can print again after that', async () => {
+    it('clears the sheet when printing is over, and can print again after that', () => {
         printing.print([recipe(1, 'Pannenkoeken')]);
-        await settle();
         window.dispatchEvent(new Event('afterprint'));
-        await settle();
+        fixture.detectChanges();
 
         expect(sheet.querySelectorAll('.cell').length).toBe(0);
         expect(document.body.classList.contains('printing-recipes')).toBe(false);
 
         printing.print([recipe(1, 'Pannenkoeken')]);
-        await settle();
 
-        expect(print).toHaveBeenCalledTimes(2);
+        expect(cellsWhenPrinting).toEqual([1, 1]);
+    });
+
+    it('prints as usual from the home screen when the sheet cannot be made into a picture', () => {
+        Object.assign(navigator, { standalone: true, share, canShare: () => true });
+
+        printing.print([recipe(1, 'Pannenkoeken')]);
+
+        expect(share).not.toHaveBeenCalled();
+        expect(cellsWhenPrinting).toEqual([1]);
     });
 });
