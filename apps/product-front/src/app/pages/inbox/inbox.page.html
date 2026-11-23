@@ -3,6 +3,41 @@
     <p class="muted mb-3 text-sm">{{ 'inbox.intro' | translate }}</p>
 
     <div class="flex flex-col gap-2">
+        @for (offer of store.recipeOffers(); track offer.id) {
+            <div class="card offer flex items-center gap-3">
+                <i class="material-symbols-outlined muted">menu_book</i>
+                <span class="grow">
+                    <span class="block font-semibold">{{ offer.name }}</span>
+                    <span class="muted block text-xs">
+                        {{ 'history.recipeProducts' | translate: { count: offer.products } }}
+                        @if (offer.unknown.length) {
+                            · {{ 'inbox.recipeUnknown' | translate: { count: offer.unknown.length } }}
+                        }
+                        · {{ offer.createdAt | date: 'd MMM HH:mm' }}
+                    </span>
+                    @if (offer.nameTaken) {
+                        <span class="muted block text-xs">{{ 'inbox.recipeNameTaken' | translate }}</span>
+                    }
+                </span>
+                <button
+                    type="button"
+                    class="btn primary"
+                    [disabled]="offer.nameTaken"
+                    [attr.aria-label]="'inbox.saveRecipe' | translate: { name: offer.name }"
+                    (click)="saveRecipe(offer.id)"
+                >
+                    <i class="material-symbols-outlined">save</i>
+                </button>
+                <button
+                    type="button"
+                    class="btn"
+                    [attr.aria-label]="'inbox.ignoreRecipe' | translate: { name: offer.name }"
+                    (click)="ignoreRecipe(offer.id)"
+                >
+                    <i class="material-symbols-outlined">close</i>
+                </button>
+            </div>
+        }
         @for (barcode of store.inbox(); track barcode.code) {
             <button type="button" class="card flex items-center gap-3 text-left" (click)="namingCode.set(barcode.code)">
                 @if (barcode.suggestions?.[0]?.imageUrl; as imageUrl) {
@@ -23,7 +58,9 @@
                 <i class="material-symbols-outlined muted">chevron_right</i>
             </button>
         } @empty {
-            <p class="empty">{{ 'inbox.empty' | translate }}</p>
+            @if (!store.recipeOffers().length) {
+                <p class="empty">{{ 'inbox.empty' | translate }}</p>
+            }
         }
     </div>
 </div>

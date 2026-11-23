@@ -4,6 +4,7 @@ import { FeedbackSettingEntity } from './feedback-setting.entity';
 import { ListEntryEntity } from './list-entry.entity';
 import { PushSubscriptionEntity } from './push-subscription.entity';
 import { RecipeIngredientEntity } from './recipe-ingredient.entity';
+import { RecipeOfferEntity } from './recipe-offer.entity';
 import { RecipeEntity } from './recipe.entity';
 import { RemarkEntity } from './remark.entity';
 import { ScanChangeEntity } from './scan-change.entity';
@@ -23,6 +24,7 @@ export * from './remark.entity';
 export * from './sound.entity';
 export * from './recipe.entity';
 export * from './recipe-ingredient.entity';
+export * from './recipe-offer.entity';
 
 export const Entities = [
     SectionEntity,
@@ -36,5 +38,6 @@ export const Entities = [
     RemarkEntity,
     SoundEntity,
     RecipeEntity,
-    RecipeIngredientEntity
+    RecipeIngredientEntity,
+    RecipeOfferEntity
 ];

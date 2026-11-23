@@ -93,6 +93,21 @@ describe('RecipePage', () => {
         expect(page.querySelector('button[aria-label="recipe.print"]')).toBeNull();
     });
 
+    it('opens straight in the form when asked to, as after saving an offered recipe', async () => {
+        fixture = TestBed.createComponent(RecipePage);
+        fixture.componentRef.setInput('id', '7');
+        fixture.componentRef.setInput('edit', 'true');
+        page = fixture.nativeElement as HTMLElement;
+        await settle();
+
+        expect((page.querySelector('#recipe-name') as HTMLInputElement).value).toBe('Pannenkoeken');
+
+        button('common.cancel').click();
+        await settle();
+
+        expect(page.querySelector('#recipe-name')).toBeNull();
+    });
+
     it('says so when the recipe does not exist, and that it is loading before that', async () => {
         store.loaded.set(false);
         await open('404');

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 
@@ -8,6 +8,7 @@ import {
     ScanResult,
     ScanSource,
     cleanIngredients,
+    readRecipeCode,
     writeRecipeCode
 } from '@barcodescanner/shared';
 
@@ -20,6 +21,7 @@ import { ConnectorService } from './connector.service';
 import { EventsService } from './events.service';
 import { ListService, cleanNote } from './list.service';
 import { PushService } from './push.service';
+import { RecipeService } from './recipe.service';
 
 export interface ScanOutcome {
     scanId: number;
@@ -66,7 +68,8 @@ export class ScanService {
         private readonly list: ListService,
         private readonly connectors: ConnectorService,
         private readonly events: EventsService,
-        private readonly push: PushService
+        private readonly push: PushService,
+        private readonly recipes: RecipeService
     ) {}
 
     public async register(
@@ -93,8 +96,24 @@ export class ScanService {
         return outcome;
     }
 
-    public async addRecipe(recipe: RecipeContent, source: ScanSource): Promise<ScanOutcome> {
-        const outcome = await this.transactions.run((manager) => this.writeRecipe(recipe, source, manager));
+    public async scanRecipe(code: string, source: ScanSource, scannedAt?: Date): Promise<ScanOutcome> {
+        const recipe = readRecipeCode(code);
+        if (!recipe?.name.trim()) {
+            throw new BadRequestException('This is not a recipe code the app can read');
+        }
+
+        const outcome = await this.addRecipe(recipe, source, scannedAt);
+        await this.recipes.offerIfUnknown(recipe);
+        if (source === 'handheld' && outcome.unknown?.length) {
+            void this.push.notifyRecipePartial(recipe.name.trim(), outcome.unknown.length);
+        }
+
+        return outcome;
+    }
+
+    public async addRecipe(recipe: RecipeContent, source: ScanSource, scannedAt?: Date): Promise<ScanOutcome> {
+        const at = this.acceptedTime(scannedAt);
+        const outcome = await this.transactions.run((manager) => this.writeRecipe(recipe, source, at, manager));
 
         this.logger.log(
             `recipe "${outcome.title}" from ${source}: ${outcome.added} added${outcome.unknown?.length ? `, unknown product ${outcome.unknown.join(', ')}` : ''}`
@@ -188,7 +207,12 @@ export class ScanService {
         return this.scans.find({ relations: { changes: true }, order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
     }
 
-    private async writeRecipe(recipe: RecipeContent, source: ScanSource, manager: EntityManager): Promise<ScanOutcome> {
+    private async writeRecipe(
+        recipe: RecipeContent,
+        source: ScanSource,
+        now: Date,
+        manager: EntityManager
+    ): Promise<ScanOutcome> {
         const ingredients = cleanIngredients(recipe.ingredients);
         const unknown = await this.catalog.unknownIds(
             ingredients.map(({ catalogItemId }) => catalogItemId),
@@ -200,7 +224,7 @@ export class ScanService {
             code: writeRecipeCode({ name: title, ingredients }),
             source,
             result: unknown.length ? ('recipe_partial' as const) : ('recipe' as const),
-            createdAt: new Date(),
+            createdAt: now,
             title
         });
 

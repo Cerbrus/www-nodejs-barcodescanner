@@ -2,9 +2,15 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { RecipeIngredient, cleanIngredients } from '@barcodescanner/shared';
+import {
+    RecipeContent,
+    RecipeIngredient,
+    cleanIngredients,
+    readRecipeCode,
+    writeRecipeCode
+} from '@barcodescanner/shared';
 
-import { RecipeEntity, RecipeIngredientEntity } from '../../data/entities';
+import { RecipeEntity, RecipeIngredientEntity, RecipeOfferEntity } from '../../data/entities';
 import { TransactionRunner } from '../../data/transaction.runner';
 import { CatalogService } from './catalog.service';
 import { EventsService } from './events.service';
@@ -15,11 +21,24 @@ export interface RecipeInput {
     ingredients: Array<RecipeIngredient>;
 }
 
+export interface RecipeOffer {
+    id: number;
+    name: string;
+    createdAt: Date;
+    products: number;
+    unknown: Array<number>;
+    nameTaken: boolean;
+}
+
+const codeOf = (recipe: RecipeContent): string =>
+    writeRecipeCode({ name: recipe.name.trim(), ingredients: cleanIngredients(recipe.ingredients) });
+
 @Injectable()
 export class RecipeService {
     constructor(
         @InjectRepository(RecipeEntity) private readonly recipes: Repository<RecipeEntity>,
         @InjectRepository(RecipeIngredientEntity) private readonly ingredients: Repository<RecipeIngredientEntity>,
+        @InjectRepository(RecipeOfferEntity) private readonly offers: Repository<RecipeOfferEntity>,
         private readonly transactions: TransactionRunner,
         private readonly catalog: CatalogService,
         private readonly events: EventsService
@@ -56,6 +75,7 @@ export class RecipeService {
 
             return recipe.id;
         });
+        await this.forgetOffersOf(id);
         this.events.emit('recipe', { recipeId: id });
 
         return this.get(id);
@@ -69,6 +89,7 @@ export class RecipeService {
             await manager.getRepository(RecipeIngredientEntity).delete({ recipeId: id });
             await this.writeIngredients(id, input.ingredients, manager);
         });
+        await this.forgetOffersOf(id);
         this.events.emit('recipe', { recipeId: id });
 
         return this.get(id);
@@ -80,10 +101,104 @@ export class RecipeService {
         this.events.emit('recipe', { recipeId: id, deleted: true });
     }
 
+    public async offerIfUnknown(recipe: RecipeContent): Promise<boolean> {
+        const code = codeOf(recipe);
+        if ((await this.codes()).has(code)) {
+            return false;
+        }
+        if (!(await this.offers.existsBy({ code }))) {
+            await this.offers.insert({ code, name: recipe.name.trim(), createdAt: new Date() });
+            this.events.emit('recipe', { offered: true });
+        }
+
+        return true;
+    }
+
+    public async getOffers(): Promise<Array<RecipeOffer>> {
+        const names = new Set((await this.recipes.find({ select: { name: true } })).map(({ name }) => name));
+        const offers = await this.offers.find({ order: { createdAt: 'DESC', id: 'DESC' } });
+
+        return Promise.all(
+            offers.map(async ({ id, name, code, createdAt }) => {
+                const ids = (readRecipeCode(code)?.ingredients ?? []).map(({ catalogItemId }) => catalogItemId);
+
+                return {
+                    id,
+                    name,
+                    createdAt,
+                    products: ids.length,
+                    unknown: await this.catalog.unknownIds(ids),
+                    nameTaken: names.has(name)
+                };
+            })
+        );
+    }
+
+    public async saveOffer(id: number): Promise<RecipeEntity> {
+        const offer = await this.offer(id);
+        const recipe = readRecipeCode(offer.code);
+        if (!recipe) {
+            throw new BadRequestException(`Recipe offer ${id} cannot be read`);
+        }
+        const unknown = await this.catalog.unknownIds(recipe.ingredients.map(({ catalogItemId }) => catalogItemId));
+        const saved = await this.create({
+            name: recipe.name,
+            ingredients: recipe.ingredients.filter(({ catalogItemId }) => !unknown.includes(catalogItemId))
+        });
+        await this.offers.delete(id);
+        this.events.emit('recipe', { recipeId: saved.id });
+
+        return saved;
+    }
+
+    public async dropOffer(id: number): Promise<void> {
+        await this.offer(id);
+        await this.offers.delete(id);
+        this.events.emit('recipe', { offered: false });
+    }
+
     public async countUsing(catalogItemId: number): Promise<number> {
         const rows = await this.ingredients.find({ where: { catalogItemId }, select: { recipeId: true } });
 
         return new Set(rows.map(({ recipeId }) => recipeId)).size;
+    }
+
+    private async offer(id: number): Promise<RecipeOfferEntity> {
+        const offer = await this.offers.findOneBy({ id });
+        if (!offer) {
+            throw new NotFoundException(`Recipe offer ${id} does not exist`);
+        }
+
+        return offer;
+    }
+
+    private async codes(): Promise<Set<string>> {
+        return new Set(
+            (await this.getAll()).map(({ name, ingredients }) =>
+                codeOf({
+                    name,
+                    ingredients: (ingredients ?? []).map(({ catalogItemId, quantity, note }) => ({
+                        catalogItemId,
+                        quantity,
+                        note
+                    }))
+                })
+            )
+        );
+    }
+
+    private async forgetOffersOf(id: number): Promise<void> {
+        const { name, ingredients } = await this.get(id);
+        await this.offers.delete({
+            code: codeOf({
+                name,
+                ingredients: (ingredients ?? []).map(({ catalogItemId, quantity, note }) => ({
+                    catalogItemId,
+                    quantity,
+                    note
+                }))
+            })
+        });
     }
 
     private async checked(

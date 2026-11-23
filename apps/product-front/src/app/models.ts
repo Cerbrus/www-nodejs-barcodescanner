@@ -88,6 +88,15 @@ export interface Recipe {
     ingredients: Array<RecipeIngredient>;
 }
 
+export interface RecipeOffer {
+    id: number;
+    name: string;
+    createdAt: string;
+    products: number;
+    unknown: Array<number>;
+    nameTaken: boolean;
+}
+
 export interface RecipeInput {
     name: string;
     description: string;

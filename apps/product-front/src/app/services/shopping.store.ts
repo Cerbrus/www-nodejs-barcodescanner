@@ -29,6 +29,7 @@ import {
     ListEntryChange,
     Recipe,
     RecipeInput,
+    RecipeOffer,
     Section
 } from '../models';
 import { ApiService } from './api.service';
@@ -54,6 +55,8 @@ export class ShoppingStore {
     public readonly entries = signal<Array<ListEntry>>([]);
     public readonly inbox = signal<Array<Barcode>>([]);
     public readonly recipes = signal<Array<Recipe>>([]);
+    public readonly recipeOffers = signal<Array<RecipeOffer>>([]);
+    public readonly waiting = computed(() => this.inbox().length + this.recipeOffers().length);
     public readonly collecting = signal(false);
     public readonly loaded = signal(false);
     public readonly failed = signal(false);
@@ -133,12 +136,14 @@ export class ShoppingStore {
                     this.api.getCatalog(),
                     this.api.getList(),
                     this.api.getInbox(),
-                    this.api.getRecipes()
+                    this.api.getRecipes(),
+                    this.api.getRecipeOffers()
                 ])
             ),
             timeout(ANSWER_WAIT_MILLISECONDS),
-            tap(([sections, items, entries, inbox, recipes]) => {
+            tap(([sections, items, entries, inbox, recipes, recipeOffers]) => {
                 this.recipes.set(recipes);
+                this.recipeOffers.set(recipeOffers);
                 this.sections.set(sections);
                 this.items.set(items);
                 this.entries.set(entries);
@@ -222,6 +227,14 @@ export class ShoppingStore {
         return this.api.deleteRecipe(id).pipe(switchMap(() => this.refreshRecipes()));
     }
 
+    public saveRecipeOffer(id: number): Observable<Recipe> {
+        return this.api.saveRecipeOffer(id).pipe(switchMap((recipe) => this.refreshRecipes().pipe(map(() => recipe))));
+    }
+
+    public dropRecipeOffer(id: number): Observable<void> {
+        return this.api.dropRecipeOffer(id).pipe(switchMap(() => this.refreshRecipes()));
+    }
+
     public putRecipeOnList(recipe: RecipeContent): Observable<void> {
         return this.api.addRecipe(recipe).pipe(
             tap((outcome) =>
@@ -252,9 +265,10 @@ export class ShoppingStore {
     }
 
     private refreshRecipes(): Observable<void> {
-        return this.api.getRecipes().pipe(
-            tap((recipes) => {
+        return forkJoin([this.api.getRecipes(), this.api.getRecipeOffers()]).pipe(
+            tap(([recipes, recipeOffers]) => {
                 this.recipes.set(recipes);
+                this.recipeOffers.set(recipeOffers);
                 this.saveSnapshotNow(this.updatedAt() ?? new Date().toISOString());
             }),
             map(() => undefined),
@@ -327,7 +341,8 @@ export class ShoppingStore {
             items: this.items(),
             entries: this.entries(),
             inbox: this.inbox(),
-            recipes: this.recipes()
+            recipes: this.recipes(),
+            recipeOffers: this.recipeOffers()
         });
     }
 
@@ -342,6 +357,7 @@ export class ShoppingStore {
         this.entries.set(snapshot.entries);
         this.inbox.set(snapshot.inbox);
         this.recipes.set(snapshot.recipes ?? []);
+        this.recipeOffers.set(snapshot.recipeOffers ?? []);
         this.updatedAt.set(snapshot.savedAt);
         this.loaded.set(true);
     }

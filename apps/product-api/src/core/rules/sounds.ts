@@ -1,6 +1,16 @@
 import { BLOCK_KINDS, MAX_SOUND_MILLISECONDS, SOUND_RATES, SoundBlock, SoundStep } from '@barcodescanner/shared';
 
-export const FEEDBACK_EVENTS = ['added', 'incremented', 'needs_name', 'ignored', 'held', 'error', 'updated'] as const;
+export const FEEDBACK_EVENTS = [
+    'added',
+    'incremented',
+    'needs_name',
+    'recipe',
+    'recipe_partial',
+    'ignored',
+    'held',
+    'error',
+    'updated'
+] as const;
 export type FeedbackEvent = (typeof FEEDBACK_EVENTS)[number];
 
 export const NO_SOUND = 'none';
@@ -13,6 +23,8 @@ export const DEFAULT_SOUND_IDS: Record<FeedbackEvent, string> = {
     added: 'beep',
     incremented: 'double',
     needs_name: 'long',
+    recipe: 'trill8',
+    recipe_partial: 'rough500',
     ignored: NO_SOUND,
     held: 'longShort',
     error: 'triple',

@@ -106,6 +106,43 @@ describe('the smaller pages', () => {
             expect(page.querySelectorAll('button.card img').length).toBe(1);
         });
 
+        it('offers a scanned recipe it does not know: save opens it for editing, ignore drops it', async () => {
+            store.recipeOffers.set([
+                {
+                    id: 3,
+                    name: 'Soep',
+                    createdAt: '2026-11-23T16:00:00.000Z',
+                    products: 4,
+                    unknown: [99],
+                    nameTaken: false
+                },
+                { id: 4, name: 'Vla', createdAt: '2026-11-23T16:01:00.000Z', products: 2, unknown: [], nameTaken: true }
+            ]);
+            store.saveRecipeOffer.mockReturnValue(of({ id: 12, name: 'Soep', description: '', ingredients: [] }));
+            const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+            await open(InboxPage);
+
+            expect(texts(page, '.offer .font-semibold')).toEqual(['Soep', 'Vla']);
+            expect(texts(page, '.offer')[0]).toContain('inbox.recipeUnknown');
+            expect(texts(page, '.offer')[1]).toContain('inbox.recipeNameTaken');
+            expect(page.querySelector('.empty')).toBeNull();
+            expect(
+                Array.from(
+                    page.querySelectorAll<HTMLButtonElement>('.offer button.primary'),
+                    (button) => button.disabled
+                )
+            ).toEqual([false, true]);
+
+            click(page, '.offer button.primary', 0);
+
+            expect(store.saveRecipeOffer).toHaveBeenCalledWith(3);
+            expect(navigate).toHaveBeenCalledWith(['/recipes', 12], { queryParams: { edit: true } });
+
+            click(page, '.offer button:not(.primary)', 1);
+
+            expect(store.dropRecipeOffer).toHaveBeenCalledWith(4);
+        });
+
         it('opens the naming prompt for a tapped barcode and closes it again', async () => {
             store.inbox.set([{ code: '8710400000001', scanCount: 1 }]);
             const fixture = await open(InboxPage);

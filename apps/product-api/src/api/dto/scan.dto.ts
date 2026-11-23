@@ -2,7 +2,7 @@ import { IsBoolean, IsISO8601, IsOptional, IsString, Matches } from 'class-valid
 
 export class ScanDto {
     @IsString()
-    @Matches(/^\d{6,14}$/)
+    @Matches(/^(\d{6,14}|R\d;[\x20-\x7e]{0,2000})$/)
     public code: string;
 
     @IsOptional()

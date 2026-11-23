@@ -3,7 +3,7 @@ import { Observable, Subject, of } from 'rxjs';
 
 import { RemarkTarget } from '@barcodescanner/shared';
 
-import { Barcode, CatalogItem, ListEntry, Recipe, Section } from '../app/models';
+import { Barcode, CatalogItem, ListEntry, Recipe, RecipeOffer, Section } from '../app/models';
 
 export const SECTIONS: Array<Section> = [
     { id: 'brood-gebak', name: 'Brood', sortOrder: 1, emoji: '🍞' },
@@ -33,6 +33,10 @@ export interface FakeStore {
     entries: WritableSignal<Array<ListEntry>>;
     inbox: WritableSignal<Array<Barcode>>;
     recipes: WritableSignal<Array<Recipe>>;
+    recipeOffers: WritableSignal<Array<RecipeOffer>>;
+    waiting: Signal<number>;
+    saveRecipeOffer: ReturnType<typeof vi.fn>;
+    dropRecipeOffer: ReturnType<typeof vi.fn>;
     loaded: WritableSignal<boolean>;
     failed: WritableSignal<boolean>;
     settled: WritableSignal<boolean>;
@@ -66,6 +70,8 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
     const list = signal(entries);
     const pending = signal<Array<{ id?: string }>>([]);
     const recipes = signal<Array<Recipe>>([]);
+    const recipeOffers = signal<Array<RecipeOffer>>([]);
+    const inbox = signal<Array<Barcode>>([]);
     const toBuy = computed(() => list().filter((row) => row.state === 'to_buy'));
     const group = <T>(rows: Array<T>, sectionOf: (row: T) => string): Array<{ section: Section; rows: Array<T> }> =>
         sections()
@@ -76,8 +82,12 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         sections,
         items: catalog,
         entries: list,
-        inbox: signal<Array<Barcode>>([]),
+        inbox,
         recipes,
+        recipeOffers,
+        waiting: computed(() => inbox().length + recipeOffers().length),
+        saveRecipeOffer: vi.fn(),
+        dropRecipeOffer: vi.fn(() => of(undefined)),
         loaded: signal(true),
         failed: signal(false),
         settled: signal(true),

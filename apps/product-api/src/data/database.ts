@@ -13,6 +13,7 @@ import { ListVariants1763400000000 } from './migrations/1763400000000-list-varia
 import { SoundPresets1763500000000 } from './migrations/1763500000000-sound-presets';
 import { Recipes1763600000000 } from './migrations/1763600000000-recipes';
 import { CollectingScans1763700000000 } from './migrations/1763700000000-collecting-scans';
+import { RecipeOffers1763800000000 } from './migrations/1763800000000-recipe-offers';
 import { SnakeNamingStrategy } from './snake-naming.strategy';
 
 export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
@@ -32,7 +33,8 @@ export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
             ListVariants1763400000000,
             SoundPresets1763500000000,
             Recipes1763600000000,
-            CollectingScans1763700000000
+            CollectingScans1763700000000,
+            RecipeOffers1763800000000
         ],
         migrationsRun: true,
         synchronize: false,

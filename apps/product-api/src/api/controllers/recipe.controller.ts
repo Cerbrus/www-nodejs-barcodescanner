@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 
-import { RecipeService } from '../../core/services/recipe.service';
+import { RecipeOffer, RecipeService } from '../../core/services/recipe.service';
 import { ScanOutcome, ScanService } from '../../core/services/scan.service';
 import { RecipeEntity } from '../../data/entities';
 import { RecipeAdditionDto } from '../dto/recipe-addition.dto';
@@ -21,6 +21,22 @@ export class RecipeController {
     @Post('additions')
     public add(@Body() addition: RecipeAdditionDto): Promise<ScanOutcome> {
         return this.scans.addRecipe(addition, 'app');
+    }
+
+    @Get('offers')
+    public getOffers(): Promise<Array<RecipeOffer>> {
+        return this.recipes.getOffers();
+    }
+
+    @Post('offers/:id/save')
+    public saveOffer(@Param('id', ParseIntPipe) id: number): Promise<RecipeEntity> {
+        return this.recipes.saveOffer(id);
+    }
+
+    @Delete('offers/:id')
+    @HttpCode(204)
+    public dropOffer(@Param('id', ParseIntPipe) id: number): Promise<void> {
+        return this.recipes.dropOffer(id);
     }
 
     @Get(':id')

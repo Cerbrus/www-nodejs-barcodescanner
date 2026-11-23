@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -48,7 +48,7 @@ export class ShellComponent {
     protected readonly store = inject(ShoppingStore);
     protected readonly toasts = inject(ToastService);
     protected readonly remarks = inject(RemarkService);
-    protected readonly inboxCount = computed(() => this.store.inbox().length);
+    protected readonly inboxCount = this.store.waiting;
 
     private readonly auth = inject(AuthService);
     private readonly router = inject(Router);

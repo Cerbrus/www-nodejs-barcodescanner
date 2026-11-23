@@ -17,10 +17,13 @@ export class ScanController {
     @Agent()
     @Post()
     public register(@Body() scan: ScanDto, @CalledBy() caller: Caller): Promise<ScanOutcome> {
+        const scannedAt = caller === 'agent' && scan.scannedAt ? new Date(scan.scannedAt) : undefined;
+        if (/^R\d;/.test(scan.code)) {
+            return this.scans.scanRecipe(scan.code, caller === 'agent' ? 'handheld' : 'phone', scannedAt);
+        }
+
         return caller === 'agent'
-            ? this.scans.register(scan.code, 'handheld', {
-                  scannedAt: scan.scannedAt ? new Date(scan.scannedAt) : undefined
-              })
+            ? this.scans.register(scan.code, 'handheld', { scannedAt })
             : this.scans.register(scan.code, 'phone', { collecting: scan.collecting });
     }
 

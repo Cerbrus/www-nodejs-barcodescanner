@@ -14,6 +14,7 @@ import { ListVariants1763400000000 } from '../data/migrations/1763400000000-list
 import { SoundPresets1763500000000 } from '../data/migrations/1763500000000-sound-presets';
 import { Recipes1763600000000 } from '../data/migrations/1763600000000-recipes';
 import { CollectingScans1763700000000 } from '../data/migrations/1763700000000-collecting-scans';
+import { RecipeOffers1763800000000 } from '../data/migrations/1763800000000-recipe-offers';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -120,6 +121,19 @@ describe('migrations', () => {
             { event: 'error', sound_id: 'trill8' },
             { event: 'ignored', sound_id: 'none' }
         ]);
+    });
+
+    it('adds the table of offered recipes, with a code only once, and takes it away again', async () => {
+        const offer = `INSERT INTO "recipe_offer" ("code", "name", "created_at") VALUES ('R1;Soep;7', 'Soep', '2026-11-23 16:00:00')`;
+        const runner = database.createQueryRunner();
+        await new RecipeOffers1763800000000().down(runner);
+        await assert.rejects(database.query(offer));
+        await new RecipeOffers1763800000000().up(runner);
+        await runner.release();
+
+        await database.query(offer);
+        await assert.rejects(database.query(offer));
+        assert.deepEqual(await database.query('SELECT "name" FROM "recipe_offer"'), [{ name: 'Soep' }]);
     });
 
     it('adds the recipe tables and the title of a scan, and takes them away again', async () => {

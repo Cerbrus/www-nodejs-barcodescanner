@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { NEVER, Observable, Subject, filter, of, throwError } from 'rxjs';
 
-import { CatalogItem, ListEntry, Recipe, Section } from '../models';
+import { CatalogItem, ListEntry, Recipe, RecipeOffer, Section } from '../models';
 import { ApiService } from './api.service';
 import { EventsService } from './events.service';
 import { loadOutbox } from './outbox';
@@ -27,6 +27,14 @@ const entry = (catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1
     updatedAt: '2026-11-13T10:00:00.000Z'
 });
 const noConnection = (): HttpErrorResponse => new HttpErrorResponse({ status: 0 });
+const offer: RecipeOffer = {
+    id: 3,
+    name: 'Soep',
+    createdAt: '2026-11-23T16:00:00.000Z',
+    products: 2,
+    unknown: [],
+    nameTaken: false
+};
 const pancakes: Recipe = {
     id: 7,
     name: 'Pannenkoeken',
@@ -43,6 +51,9 @@ describe('ShoppingStore', () => {
         getList: vi.fn(),
         getInbox: vi.fn(),
         getRecipes: vi.fn(),
+        getRecipeOffers: vi.fn(),
+        saveRecipeOffer: vi.fn(),
+        dropRecipeOffer: vi.fn(),
         createRecipe: vi.fn(),
         updateRecipe: vi.fn(),
         deleteRecipe: vi.fn(),
@@ -83,6 +94,8 @@ describe('ShoppingStore', () => {
         api.getList.mockReturnValue(of([entry(milk, 'to_buy', 2), entry(loaf, 'recent')]));
         api.getInbox.mockReturnValue(of([]));
         api.getRecipes.mockReturnValue(of([pancakes]));
+        api.getRecipeOffers.mockReturnValue(of([offer]));
+        api.dropRecipeOffer.mockReturnValue(of(undefined));
         api.deleteRecipe.mockReturnValue(of(undefined));
         api.undoScan.mockReturnValue(of({}));
         api.changeListEntry.mockReturnValue(of(entry(milk, 'recent')));
@@ -116,6 +129,25 @@ describe('ShoppingStore', () => {
 
         expect(store.recipes()).toEqual([]);
         expect(loadSnapshot()?.recipes).toEqual([]);
+    });
+
+    it('counts offered recipes with the unnamed barcodes, and keeps or drops an offer', () => {
+        const store = create();
+        api.saveRecipeOffer.mockReturnValue(of({ ...pancakes, id: 9 }));
+        const saved: Array<number> = [];
+
+        expect(store.recipeOffers()).toEqual([offer]);
+        expect(store.waiting()).toBe(1);
+        expect(loadSnapshot()?.recipeOffers).toEqual([offer]);
+
+        api.getRecipeOffers.mockReturnValue(of([]));
+        store.saveRecipeOffer(3).subscribe((recipe) => saved.push(recipe.id));
+        store.dropRecipeOffer(4).subscribe();
+
+        expect(saved).toEqual([9]);
+        expect(api.saveRecipeOffer).toHaveBeenCalledWith(3);
+        expect(api.dropRecipeOffer).toHaveBeenCalledWith(4);
+        expect(store.waiting()).toBe(0);
     });
 
     it('makes a new recipe or changes an existing one, and deletes one', () => {

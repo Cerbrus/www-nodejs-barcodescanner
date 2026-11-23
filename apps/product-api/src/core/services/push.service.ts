@@ -39,6 +39,8 @@ type Texts = Record<
     | 'unknownTitle'
     | 'unknownNamed'
     | 'unknownBare'
+    | 'recipeTitle'
+    | 'recipeUnknown'
     | 'testTitle'
     | 'testBody'
     | 'remarkBug'
@@ -58,6 +60,8 @@ const TEXTS: Record<string, Texts> = {
         unknownTitle: 'Onbekend product gescand',
         unknownNamed: '{title} ({code}) heeft nog geen naam op de lijst.',
         unknownBare: 'Barcode {code} heeft nog geen naam.',
+        recipeTitle: 'Recept {title}',
+        recipeUnknown: '{count} van de producten in de code bestaan niet meer. De rest staat op de lijst.',
         testTitle: 'Boodschappen',
         testBody: 'Meldingen werken.',
         remarkBug: 'Nieuwe foutmelding',
@@ -68,6 +72,8 @@ const TEXTS: Record<string, Texts> = {
         unknownTitle: 'Unknown product scanned',
         unknownNamed: '{title} ({code}) has no name on the list yet.',
         unknownBare: 'Barcode {code} has no name yet.',
+        recipeTitle: 'Recipe {title}',
+        recipeUnknown: '{count} of the products in the code no longer exist. The rest is on the list.',
         testTitle: 'Shopping list',
         testBody: 'Notifications work.',
         remarkBug: 'New bug report',
@@ -121,6 +127,19 @@ export class PushService {
             }
         } catch (error) {
             this.logger.warn(`push for ${code} failed: ${error}`);
+        }
+    }
+
+    public async notifyRecipePartial(title: string, unknown: number): Promise<void> {
+        try {
+            await this.send((texts) => ({
+                title: texts.recipeTitle.replace('{title}', title),
+                body: texts.recipeUnknown.replace('{count}', String(unknown)),
+                url: '/#/history',
+                tag: `recipe-${title}`
+            }));
+        } catch (error) {
+            this.logger.warn(`push for recipe "${title}" failed: ${error}`);
         }
     }
 

@@ -2,6 +2,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
 import {
     ChangeDetectionStrategy,
     Component,
+    booleanAttribute,
     computed,
     effect,
     inject,
@@ -74,6 +75,8 @@ export class RecipePage {
         transform: (value: unknown) => (value === undefined ? undefined : numberAttribute(value))
     });
 
+    public readonly edit = input(false, { transform: booleanAttribute });
+
     protected readonly store = inject(ShoppingStore);
     protected readonly printing = inject(RecipePrintService);
     protected readonly limits = {
@@ -127,12 +130,19 @@ export class RecipePage {
     });
 
     private readonly router = inject(Router);
+    private openedForEdit = false;
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
 
     constructor() {
         effect(() => {
             if (this.id() === undefined) {
+                untracked(() => this.startEdit());
+            }
+        });
+        effect(() => {
+            if (this.edit() && this.recipe() && !this.openedForEdit) {
+                this.openedForEdit = true;
                 untracked(() => this.startEdit());
             }
         });

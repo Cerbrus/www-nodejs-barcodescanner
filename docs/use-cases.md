@@ -105,6 +105,14 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 3. A message names the recipe and how many products went on the list, with an undo that takes the whole recipe back in one step.
 4. Without a connection the buttons are off.
 
+### UC-24 Scan a recipe code with the handheld scanner
+
+1. The user scans the code of a recipe with the handheld scanner.
+2. Every product of the recipe goes on the list, as with the button on a recipe's row. The buzzer plays the recipe sound, and open web pages show a message with the recipe's name and an undo.
+3. A product in the code that no longer exists is left out. The buzzer then plays its own sound, the message says how many are unknown, and a phone with notifications on gets a notification.
+4. A recipe the app does not have, or no longer has in this form, is offered in the inbox with its name and number of products. Save keeps it, with the products that exist, and opens it in the form; ignore drops the offer. A recipe whose name is taken can only be ignored. The same code scanned again while it waits is one offer.
+5. The history shows the scan as one line; one undo takes the whole recipe back.
+
 ### UC-22 Print recipe codes
 
 1. The print button on a recipe's page prints its code.

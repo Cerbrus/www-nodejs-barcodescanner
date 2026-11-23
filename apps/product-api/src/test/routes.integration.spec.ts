@@ -345,6 +345,77 @@ describe('data routes over HTTP', () => {
         assert.deepEqual((await call('GET', '/recipes', asUser)).body, []);
     });
 
+    it('takes a recipe code from the handheld scanner, offers an unknown recipe once, and keeps or drops the offer', async () => {
+        const code = `R1;Wentelteefjes;${milkId}*2:kaneel;999999`;
+        for (const refused of ['R2;Later;1', 'R1;;1', 'R1;Kapot;vijf', `R1;Te lang;${'9'.repeat(2100)}`]) {
+            assert.equal((await call('POST', '/scans', asAgent, { code: refused })).status, 400, refused);
+        }
+
+        const scanned = await call<{ result: string; title: string; added: number; unknown: Array<number> }>(
+            'POST',
+            '/scans',
+            asAgent,
+            { code }
+        );
+        assert.deepEqual(
+            [scanned.status, scanned.body.result, scanned.body.title, scanned.body.added, scanned.body.unknown],
+            [201, 'recipe_partial', 'Wentelteefjes', 1, [999999]]
+        );
+        const entries = await call<Array<{ catalogItemId: number; note: string; quantity: number }>>(
+            'GET',
+            '/list',
+            asUser
+        );
+        assert.equal(
+            entries.body.find((entry) => entry.catalogItemId === milkId && entry.note === 'kaneel')?.quantity,
+            2
+        );
+        const history = await call<Array<{ source: string; title: string }>>('GET', '/scans?limit=1', asUser);
+        assert.deepEqual([history.body[0].source, history.body[0].title], ['handheld', 'Wentelteefjes']);
+
+        assert.equal((await call('POST', '/scans', asGuest, { code })).status, 201);
+        type Offer = { id: number; name: string; products: number; unknown: Array<number>; nameTaken: boolean };
+        const offers = await call<Array<Offer>>('GET', '/recipes/offers', asGuest);
+        assert.deepEqual(
+            offers.body.map(({ name, products, unknown, nameTaken }) => [name, products, unknown, nameTaken]),
+            [['Wentelteefjes', 2, [999999], false]]
+        );
+        assert.equal((await call('GET', '/recipes/offers', asAgent)).status, 403);
+
+        const saved = await call<{ id: number; name: string; ingredients: Array<{ note: string }> }>(
+            'POST',
+            `/recipes/offers/${offers.body[0].id}/save`,
+            asGuest
+        );
+        assert.deepEqual(
+            [saved.status, saved.body.name, saved.body.ingredients.map(({ note }) => note)],
+            [201, 'Wentelteefjes', ['kaneel']]
+        );
+        assert.deepEqual((await call('GET', '/recipes/offers', asUser)).body, []);
+        assert.equal((await call('POST', `/recipes/offers/${offers.body[0].id}/save`, asUser)).status, 404);
+
+        assert.equal(
+            (await call('POST', '/scans', asAgent, { code: `R1;Wentelteefjes;${milkId}*2:kaneel` })).status,
+            201
+        );
+        assert.deepEqual((await call('GET', '/recipes/offers', asUser)).body, []);
+
+        assert.equal((await call('POST', '/scans', asAgent, { code })).status, 201);
+        const again = await call<Array<Offer>>('GET', '/recipes/offers', asUser);
+        assert.deepEqual(
+            again.body.map(({ name, nameTaken }) => [name, nameTaken]),
+            [['Wentelteefjes', true]]
+        );
+        assert.equal((await call('POST', `/recipes/offers/${again.body[0].id}/save`, asUser)).status, 409);
+        assert.equal((await call('DELETE', `/recipes/offers/${again.body[0].id}`, asUser)).status, 204);
+        assert.equal((await call('DELETE', `/recipes/offers/${again.body[0].id}`, asUser)).status, 404);
+
+        for (let scan = 0; scan < 4; scan++) {
+            assert.equal((await call('POST', '/scans/undo', asUser)).status, 201);
+        }
+        assert.equal((await call('DELETE', `/recipes/${saved.body.id}`, asUser)).status, 204);
+    });
+
     it('answers 404 for a barcode it has never seen', async () => {
         assert.equal((await call('GET', '/barcodes/00000000', asUser)).status, 404);
     });

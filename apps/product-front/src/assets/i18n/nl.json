@@ -82,7 +82,11 @@
         "intro": "Gescande barcodes die nog niet aan een product gekoppeld zijn. Na koppelen komen de wachtende scans op de lijst.",
         "empty": "Geen onbekende barcodes",
         "unknownProduct": "Onbekend product",
-        "scans": "{count, plural, one {# scan} other {# scans}}"
+        "scans": "{count, plural, one {# scan} other {# scans}}",
+        "saveRecipe": "{name} opslaan als recept",
+        "ignoreRecipe": "{name} negeren",
+        "recipeNameTaken": "Er bestaat al een recept met deze naam",
+        "recipeUnknown": "{count} onbekend"
     },
     "catalog": {
         "title": "Producten",
@@ -232,7 +236,9 @@
             "ignored": "Herhaalde scan genegeerd",
             "error": "Scan niet aangekomen",
             "held": "Scan bewaard (app niet bereikbaar)",
-            "updated": "Nieuwe versie live"
+            "updated": "Nieuwe versie live",
+            "recipe": "Recept op de lijst",
+            "recipe_partial": "Recept, deels onbekend"
         },
         "name": {
             "tick": "Tikje",

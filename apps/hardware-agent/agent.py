@@ -67,6 +67,8 @@ DEFAULT_SIGNALS = {
     'added': [on(0.08)],
     'incremented': [on(BLIP), off(GAP), on(BLIP)],
     'needs_name': [on(0.45)],
+    'recipe': [{'kind': 'gate', 'hz': 8, 'duty': 50, 'seconds': 0.9}],
+    'recipe_partial': [{'kind': 'gate', 'hz': 500, 'duty': 50, 'seconds': 0.6}],
     'ignored': [],
     'held': [on(0.3), off(BLIP), on(BLIP)],
     'error': [on(0.08), off(GAP), on(0.08), off(GAP), on(0.08)],
@@ -356,7 +358,7 @@ class ScanSender:
             self.hold(code, scanned_at, 'the app is not reachable')
         elif outcome:
             self.feedback.signal(outcome.get('result'))
-            log.info('scan %s: %s %s', shorten(code), outcome.get('result'), outcome.get('itemName') or '')
+            log.info('scan %s: %s %s', shorten(code), outcome.get('result'), outcome.get('itemName') or outcome.get('title') or '')
 
     def send(self, code, scanned_at=None):
         try:

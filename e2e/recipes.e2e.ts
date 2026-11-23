@@ -73,3 +73,24 @@ test('show the code of a recipe, and lay out the codes of chosen recipes for pri
     await expect(page.locator('app-recipe-print .cell-code')).toBeVisible();
     await expect(page.locator('nav.tabs')).toBeHidden();
 });
+
+test('scan a recipe code the app does not have: it lands on the list and is offered in the inbox', async ({
+    page,
+    request
+}) => {
+    const product = await productOffTheList(request);
+    const scanned = await request.post('/api/v1/scans', { data: { code: `R1;Gescand recept;${product.id}*2` } });
+
+    expect(scanned.status()).toBe(201);
+    await expect.poll(() => toBuy(request, product.id)).toBe(2);
+
+    await page.goto('/#/inbox');
+    await expect(page.locator('.offer', { hasText: 'Gescand recept' })).toBeVisible();
+    await page.getByRole('button', { name: 'Gescand recept opslaan als recept' }).click();
+
+    await expect(page.locator('#recipe-name')).toHaveValue('Gescand recept');
+    await expect(page.locator('.ingredient-name')).toHaveText([product.name]);
+
+    await page.goto('/#/inbox');
+    await expect(page.locator('.offer')).toHaveCount(0);
+});

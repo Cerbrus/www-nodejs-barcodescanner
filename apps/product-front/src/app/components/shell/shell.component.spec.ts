@@ -85,6 +85,16 @@ describe('ShellComponent', () => {
         expect(setAppBadge).toHaveBeenCalledWith(2);
     });
 
+    it('counts an offered recipe on the inbox tab too', () => {
+        store.inbox.set([{ code: '1', scanCount: 1 }]);
+        store.recipeOffers.set([
+            { id: 3, name: 'Soep', createdAt: '2026-11-23T16:00:00.000Z', products: 4, unknown: [], nameTaken: false }
+        ]);
+        open();
+
+        expect(texts(page, '.tab-badge')).toEqual(['2']);
+    });
+
     it('shows the number of open remarks on the system tab', () => {
         remarks.ready.set(4);
         open();

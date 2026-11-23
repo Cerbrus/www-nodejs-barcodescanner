@@ -18,6 +18,7 @@ import {
     PushSubscriptionInput,
     Recipe,
     RecipeInput,
+    RecipeOffer,
     Release,
     Remark,
     RemarkInput,
@@ -118,6 +119,18 @@ export class ApiService {
 
     public deleteRecipe(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/recipes/${id}`);
+    }
+
+    public getRecipeOffers(): Observable<Array<RecipeOffer>> {
+        return this.http.get<Array<RecipeOffer>>(`${this.baseUrl}/recipes/offers`);
+    }
+
+    public saveRecipeOffer(id: number): Observable<Recipe> {
+        return this.http.post<Recipe>(`${this.baseUrl}/recipes/offers/${id}/save`, {});
+    }
+
+    public dropRecipeOffer(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/recipes/offers/${id}`);
     }
 
     public addRecipe(recipe: RecipeContent): Observable<ScanOutcome> {

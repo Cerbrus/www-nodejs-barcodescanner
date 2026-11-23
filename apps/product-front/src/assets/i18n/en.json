@@ -82,7 +82,11 @@
         "intro": "Scanned barcodes that are not linked to a product yet. After linking, the waiting scans go onto the list.",
         "empty": "No unknown barcodes",
         "unknownProduct": "Unknown product",
-        "scans": "{count, plural, one {# scan} other {# scans}}"
+        "scans": "{count, plural, one {# scan} other {# scans}}",
+        "saveRecipe": "Save {name} as a recipe",
+        "ignoreRecipe": "Ignore {name}",
+        "recipeNameTaken": "A recipe of this name exists already",
+        "recipeUnknown": "{count} unknown"
     },
     "catalog": {
         "title": "Products",
@@ -232,7 +236,9 @@
             "ignored": "Repeated scan ignored",
             "error": "Scan not delivered",
             "held": "Scan held (app not reachable)",
-            "updated": "New version live"
+            "updated": "New version live",
+            "recipe": "Recipe on the list",
+            "recipe_partial": "Recipe, partly unknown"
         },
         "name": {
             "tick": "Tick",
