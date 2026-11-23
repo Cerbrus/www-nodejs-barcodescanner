@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { Observable, catchError, map, of, tap, throwError, timeout } from 'rxjs';
+import { EMPTY, Observable, catchError, map, of, tap, throwError, timeout } from 'rxjs';
 
 import { AuthState } from '../models';
 import { EventsService } from './events.service';
@@ -22,6 +22,7 @@ export class AuthService {
     private readonly http = inject(HttpClient);
     private readonly settings = inject(SettingsService);
     private readonly events = inject(EventsService);
+    private readonly router = inject(Router);
 
     public readonly owner = computed(() => this.state()?.owner ?? false);
 
@@ -39,10 +40,22 @@ export class AuthService {
             return of(known);
         }
 
-        return this.http.get<AuthState>(`${this.baseUrl}/auth/me`).pipe(
+        const recalled = recalledState();
+        if (recalled) {
+            this.state.set(recalled);
+            this.fetchState()
+                .pipe(
+                    tap((state) => this.replaceRecalled(state)),
+                    catchError(() => EMPTY)
+                )
+                .subscribe();
+
+            return of(recalled);
+        }
+
+        return this.fetchState().pipe(
             timeout(AUTH_TIMEOUT_MS),
-            tap((state) => rememberState(state)),
-            catchError(() => of(recalledState() ?? UNREACHABLE)),
+            catchError(() => of(UNREACHABLE)),
             tap((state) => this.state.set(state))
         );
     }
@@ -62,6 +75,18 @@ export class AuthService {
                 window.location.reload();
             })
         );
+    }
+
+    private fetchState(): Observable<AuthState> {
+        return this.http.get<AuthState>(`${this.baseUrl}/auth/me`).pipe(tap((state) => rememberState(state)));
+    }
+
+    private replaceRecalled(state: AuthState): void {
+        this.state.set(state);
+        if (state.enabled && !state.authenticated) {
+            this.events.stop();
+            void this.router.navigateByUrl(LOGIN_ROUTE);
+        }
     }
 }
 

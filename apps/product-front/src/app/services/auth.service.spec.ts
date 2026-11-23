@@ -66,6 +66,7 @@ describe('login in the web app', () => {
         expect(run(requireLogin, guest)).toBe(true);
 
         TestBed.inject(AuthService).state.set(undefined);
+        localStorage.clear();
 
         expect(run(requireLogin, anonymous)).toEqual({ redirect: '/login' });
     });
@@ -84,6 +85,7 @@ describe('login in the web app', () => {
         expect(TestBed.inject(AuthService).owner()).toBe(true);
 
         TestBed.inject(AuthService).state.set(undefined);
+        localStorage.clear();
 
         expect(run(requireOwner, guest)).toEqual({ redirect: '/system' });
         expect(TestBed.inject(AuthService).owner()).toBe(false);
@@ -100,6 +102,35 @@ describe('login in the web app', () => {
 
         expect(run(requireOwner, 'unreachable')).toBe(true);
         expect(TestBed.inject(AuthService).state()?.email).toBe('owner@example.com');
+    });
+
+    it('opens at once with the last known login, before the server answers', () => {
+        run(requireLogin, owner);
+        TestBed.inject(AuthService).state.set(undefined);
+        let result: GuardResult = false;
+
+        (
+            TestBed.runInInjectionContext(() =>
+                requireOwner({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
+            ) as Observable<GuardResult>
+        ).subscribe((value) => (result = value));
+
+        expect(result).toBe(true);
+
+        server.expectOne('/api/v1/auth/me').flush(guest);
+
+        expect(TestBed.inject(AuthService).owner()).toBe(false);
+        expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('goes to the login page when the server says the last known login ran out', () => {
+        run(requireLogin, owner);
+        TestBed.inject(AuthService).state.set(undefined);
+
+        expect(run(requireLogin, anonymous)).toBe(true);
+        expect(navigate).toHaveBeenCalledWith('/login');
+        expect(stopEvents).toHaveBeenCalledTimes(1);
+        expect(TestBed.inject(AuthService).state()?.authenticated).toBe(false);
     });
 
     it('gives up waiting for the login state after five seconds', () => {
