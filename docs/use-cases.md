@@ -85,7 +85,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 ### UC-20 Keep recipes
 
 1. The Recipes tab lists the recipes by name, each with its number of products and the icons of the first few, and a search field that filters on the name.
-2. "New recipe" opens an empty form: a name, a description and the products. A product is picked with the product search, where a product that does not exist can be made; each has a quantity and a note. Picking a product that is already in the recipe without a note counts it up.
+2. "New recipe" opens an empty form: a name, a description and the products. A product is picked with the product search, where a product that does not exist can be made; each is one line with its note and its quantity. Picking a product that is already in the recipe without a note counts it up; the minus of a product that is down to one is a bin that takes it out.
 3. A recipe opens to read: its name, the description shown as markdown, and its products with quantity and note. The pencil at the top right turns it into the form; Save and Cancel go back to reading. Delete is in the form, behind a confirmation.
 4. Recipes are shared by every account.
 

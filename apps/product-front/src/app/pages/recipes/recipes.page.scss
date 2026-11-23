@@ -19,7 +19,11 @@
     font-size: 0.8rem;
 }
 .recipe-icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     flex: none;
+    padding: 2px;
+    border-radius: 6px;
+    background: var(--tile-neutral);
+    color: var(--tile-text);
 }

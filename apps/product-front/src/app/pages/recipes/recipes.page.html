@@ -1,9 +1,8 @@
 <div class="page">
     <div class="flex items-center justify-between gap-3">
         <h1 class="page-title">{{ 'recipe.title' | translate }}</h1>
-        <a class="btn primary" routerLink="/recipes/new">
+        <a class="btn primary" routerLink="/recipes/new" [attr.aria-label]="'recipe.new' | translate">
             <i class="material-symbols-outlined">add</i>
-            {{ 'recipe.new' | translate }}
         </a>
     </div>
     <div class="clearable">

@@ -43,9 +43,10 @@ describe('RecipeSheetComponent', () => {
 
     it('shows the recipe with every known product ticked, its note and its quantity', () => {
         expect(texts(sheet, 'h2')).toEqual(['Pannenkoeken']);
-        expect(texts(sheet, 'label.choice')).toEqual(['M Melk vol× 2', 'E Eieren']);
+        expect(texts(sheet, 'label.choice')).toEqual(['MMelkvol× 2', 'EEieren']);
         expect(Array.from(sheet.querySelectorAll('input'), (box) => box.checked)).toEqual([true, true]);
-        expect(texts(sheet, 'button.primary')[0]).toContain('recipe.addChosen');
+        expect(texts(sheet, 'button.primary')[0]).toContain('recipe.products');
+        expect(sheet.querySelector('p')).toBeNull();
     });
 
     it('shows a product the app does not know greyed, without a tick box', () => {

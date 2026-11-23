@@ -1,8 +1,7 @@
 <app-sheet (closed)="closed.emit()">
     <h2 class="page-title">{{ name() }}</h2>
-    <p class="muted -mt-2 mb-2 text-sm">{{ 'recipe.sheetHint' | translate }}</p>
 
-    <div class="flex flex-col">
+    <div class="choices">
         @for (row of rows(); track row.index) {
             @if (row.item; as item) {
                 <label class="choice">
@@ -13,24 +12,22 @@
                         (change)="toggle(row.index)"
                     />
                     <span class="choice-icon"><app-item-icon [item]="item" /></span>
-                    <span class="grow">
-                        {{ item.name }}
-                        @if (row.ingredient.note) {
-                            <span class="muted block text-xs">{{ row.ingredient.note }}</span>
-                        }
-                    </span>
+                    <span class="choice-name">{{ item.name }}</span>
+                    @if (row.ingredient.note) {
+                        <span class="choice-note">{{ row.ingredient.note }}</span>
+                    }
                     @if (row.ingredient.quantity > 1) {
-                        <span class="font-bold">× {{ row.ingredient.quantity }}</span>
+                        <span class="choice-quantity">× {{ row.ingredient.quantity }}</span>
                     }
                 </label>
             } @else {
                 <div class="choice unknown">
-                    <span class="grow">
+                    <span class="choice-name">
                         {{ 'recipe.unknownProduct' | translate: { id: row.ingredient.catalogItemId } }}
-                        @if (row.ingredient.note) {
-                            <span class="block text-xs">{{ row.ingredient.note }}</span>
-                        }
                     </span>
+                    @if (row.ingredient.note) {
+                        <span class="choice-note">{{ row.ingredient.note }}</span>
+                    }
                 </div>
             }
         }
@@ -44,11 +41,10 @@
             (click)="confirmed.emit(chosen())"
         >
             <i class="material-symbols-outlined">add_shopping_cart</i>
-            {{ 'recipe.addChosen' | translate: { count: chosen().length } }}
+            {{ 'recipe.products' | translate: { count: chosen().length } }}
         </button>
-        <button type="button" class="btn" (click)="closed.emit()">
+        <button type="button" class="btn" [attr.aria-label]="'common.cancel' | translate" (click)="closed.emit()">
             <i class="material-symbols-outlined">close</i>
-            {{ 'common.cancel' | translate }}
         </button>
     </div>
 </app-sheet>

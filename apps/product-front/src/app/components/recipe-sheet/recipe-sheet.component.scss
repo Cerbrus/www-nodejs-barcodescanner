@@ -1,9 +1,14 @@
+.choices {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+}
 .choice {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 48px;
-    padding: 6px 0;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 12px;
     cursor: pointer;
 }
 .choice + .choice {
@@ -19,9 +24,38 @@
     width: 28px;
     height: 28px;
     flex: none;
+    padding: 3px;
+    border-radius: 7px;
+    background: var(--tile-neutral);
+    color: var(--tile-text);
+}
+.choice-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.choice-note {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.choice-quantity {
+    flex: none;
+    font-weight: 700;
 }
 .choice.unknown {
-    padding-left: 34px;
+    padding-left: 42px;
     color: var(--text-muted);
     cursor: default;
+}
+.choice.unknown .choice-name {
+    font-weight: 400;
 }

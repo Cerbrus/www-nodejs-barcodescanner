@@ -110,8 +110,6 @@
         "delete": "Delete recipe",
         "deleteConfirm": "Delete \"{name}\"? The products themselves stay.",
         "notFound": "This recipe does not exist (anymore)",
-        "sheetHint": "Untick what you already have at home.",
-        "addChosen": "{count, plural, one {# product} other {# products}} on the list",
         "unknownProduct": "Unknown product (#{id})",
         "createAndAdd": "Create and add"
     },
@@ -138,7 +136,7 @@
     "history": {
         "title": "Scan history",
         "undo": "Undo",
-        "undoLast": "Undo last",
+        "undoLast": "Undo",
         "lookupFailed": "Lookup failed at {sources}. Name it or try again",
         "empty": "No scans yet",
         "result": {

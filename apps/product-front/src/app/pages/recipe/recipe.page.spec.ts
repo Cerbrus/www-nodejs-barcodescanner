@@ -68,7 +68,7 @@ describe('RecipePage', () => {
 
         expect(texts(page, 'h1')).toEqual(['Pannenkoeken']);
         expect(page.querySelector('app-markdown strong')?.textContent).toBe('beslag');
-        expect(texts(page, '.ingredient')).toEqual(['M Melk vol× 2', 'E Eieren']);
+        expect(texts(page, '.ingredient')).toEqual(['MMelkvol× 2', 'EEieren']);
         expect(page.querySelector('#recipe-name')).toBeNull();
         expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/recipes');
     });
@@ -126,7 +126,7 @@ describe('RecipePage', () => {
         expect(navigate).not.toHaveBeenCalled();
     });
 
-    it('adds a product from the search, counts one up when it is there already, and takes one out', async () => {
+    it('adds a product from the search, counts one up when it is there already, and takes out one that is down to one', async () => {
         await open('7');
         await edit();
         type(page, 'app-item-autocomplete input', 'bloem');
@@ -137,13 +137,16 @@ describe('RecipePage', () => {
         await settle();
         click(page, 'app-item-autocomplete .option');
         await settle();
+        expect(texts(page, '.ingredient .quantity')).toEqual(['2', '2', '1']);
+        expect(texts(page, '.ingredient .step:first-of-type')).toEqual(['remove', 'remove', 'delete']);
+
         click(page, 'button[aria-label="recipe.removeProduct"]', 0);
         await settle();
         button('common.save').click();
 
         expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
-            { catalogItemId: 2, quantity: 2, note: '' },
-            { catalogItemId: 3, quantity: 1, note: '' }
+            { catalogItemId: 1, quantity: 2, note: 'vol' },
+            { catalogItemId: 2, quantity: 2, note: '' }
         ]);
     });
 

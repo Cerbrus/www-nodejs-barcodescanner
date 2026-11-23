@@ -31,61 +31,63 @@
         </div>
 
         <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>
-        <div class="flex flex-col gap-1">
-            @for (row of shown(); track $index) {
-                <div class="card ingredient">
-                    <span class="ingredient-icon">
-                        @if (row.item; as item) {
-                            <app-item-icon [item]="item" />
+        @if (shown().length) {
+            <div class="card ingredients">
+                @for (row of shown(); track $index) {
+                    <div class="ingredient">
+                        <span class="ingredient-icon">
+                            @if (row.item; as item) {
+                                <app-item-icon [item]="item" />
+                            }
+                        </span>
+                        <span class="ingredient-name">{{ row.item?.name }}</span>
+                        <input
+                            #note
+                            class="field ingredient-note"
+                            type="text"
+                            autocomplete="off"
+                            [id]="'ingredient-note-' + $index"
+                            [attr.maxlength]="limits.note"
+                            [placeholder]="'recipe.note' | translate"
+                            [attr.aria-label]="'recipe.note' | translate"
+                            [value]="row.ingredient.note"
+                            (change)="setNote($index, note.value)"
+                        />
+                        @if (row.ingredient.quantity <= 1) {
+                            <button
+                                type="button"
+                                class="step"
+                                [attr.aria-label]="'recipe.removeProduct' | translate: { name: row.item?.name }"
+                                (click)="removeIngredient($index)"
+                            >
+                                <i class="material-symbols-outlined">delete</i>
+                            </button>
+                        } @else {
+                            <button
+                                type="button"
+                                class="step"
+                                [attr.aria-label]="'recipe.less' | translate"
+                                (click)="changeQuantity($index, -1)"
+                            >
+                                <i class="material-symbols-outlined">remove</i>
+                            </button>
                         }
-                    </span>
-                    <span class="ingredient-name">{{ row.item?.name }}</span>
-                    <span class="stepper">
-                        <button
-                            type="button"
-                            class="btn"
-                            [disabled]="row.ingredient.quantity <= 1"
-                            [attr.aria-label]="'recipe.less' | translate"
-                            (click)="changeQuantity($index, -1)"
-                        >
-                            <i class="material-symbols-outlined">remove</i>
-                        </button>
                         <span class="quantity">{{ row.ingredient.quantity }}</span>
                         <button
                             type="button"
-                            class="btn"
+                            class="step"
                             [disabled]="row.ingredient.quantity >= limits.quantity"
                             [attr.aria-label]="'recipe.more' | translate"
                             (click)="changeQuantity($index, 1)"
                         >
                             <i class="material-symbols-outlined">add</i>
                         </button>
-                    </span>
-                    <input
-                        #note
-                        class="field ingredient-note"
-                        type="text"
-                        autocomplete="off"
-                        [id]="'ingredient-note-' + $index"
-                        [attr.maxlength]="limits.note"
-                        [placeholder]="'recipe.note' | translate"
-                        [attr.aria-label]="'recipe.note' | translate"
-                        [value]="row.ingredient.note"
-                        (change)="setNote($index, note.value)"
-                    />
-                    <button
-                        type="button"
-                        class="btn"
-                        [attr.aria-label]="'recipe.removeProduct' | translate: { name: row.item?.name }"
-                        (click)="removeIngredient($index)"
-                    >
-                        <i class="material-symbols-outlined">close</i>
-                    </button>
-                </div>
-            } @empty {
-                <p class="empty">{{ 'recipe.noIngredients' | translate }}</p>
-            }
-        </div>
+                    </div>
+                }
+            </div>
+        } @else {
+            <p class="empty">{{ 'recipe.noIngredients' | translate }}</p>
+        }
 
         @if (shown().length < limits.ingredients) {
             <div class="mt-2">
@@ -146,28 +148,28 @@
         }
 
         <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>
-        <div class="flex flex-col gap-1">
-            @for (row of shown(); track $index) {
-                <div class="card ingredient">
-                    <span class="ingredient-icon">
-                        @if (row.item; as item) {
-                            <app-item-icon [item]="item" />
-                        }
-                    </span>
-                    <span class="ingredient-name">
-                        {{ row.item?.name }}
+        @if (shown().length) {
+            <div class="card ingredients">
+                @for (row of shown(); track $index) {
+                    <div class="ingredient">
+                        <span class="ingredient-icon">
+                            @if (row.item; as item) {
+                                <app-item-icon [item]="item" />
+                            }
+                        </span>
+                        <span class="ingredient-name grow">{{ row.item?.name }}</span>
                         @if (row.ingredient.note) {
-                            <span class="muted block text-xs font-normal">{{ row.ingredient.note }}</span>
+                            <span class="ingredient-remark">{{ row.ingredient.note }}</span>
                         }
-                    </span>
-                    @if (row.ingredient.quantity > 1) {
-                        <span class="font-bold">× {{ row.ingredient.quantity }}</span>
-                    }
-                </div>
-            } @empty {
-                <p class="empty">{{ 'recipe.noIngredients' | translate }}</p>
-            }
-        </div>
+                        @if (row.ingredient.quantity > 1) {
+                            <span class="quantity">× {{ row.ingredient.quantity }}</span>
+                        }
+                    </div>
+                }
+            </div>
+        } @else {
+            <p class="empty">{{ 'recipe.noIngredients' | translate }}</p>
+        }
 
         <button
             type="button"

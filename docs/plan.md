@@ -33,6 +33,8 @@ In daily-use shape and running on the Pi:
     6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md)).
 5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
+After the recipes (owner, 2026-11-23): go through every button in the app with the owner. Many need no text, only their icon.
+
 Deferred or blocked:
 
 - The AI suggestion for names (milestone 12, step 4): no paid API; the free options are in [archive/naming-plan.md](archive/naming-plan.md).
