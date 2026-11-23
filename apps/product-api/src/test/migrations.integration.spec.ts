@@ -13,6 +13,7 @@ import { MissingEmojis1763300000000 } from '../data/migrations/1763300000000-mis
 import { ListVariants1763400000000 } from '../data/migrations/1763400000000-list-variants';
 import { SoundPresets1763500000000 } from '../data/migrations/1763500000000-sound-presets';
 import { Recipes1763600000000 } from '../data/migrations/1763600000000-recipes';
+import { ShoppingMode1763700000000 } from '../data/migrations/1763700000000-shopping-mode';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -149,5 +150,25 @@ describe('migrations', () => {
             `INSERT INTO "scan" ("code", "source", "result", "created_at", "title") VALUES ('R1;Soep', 'app', 'recipe', '2026-11-23 12:00:00', 'Soep')`
         );
         assert.deepEqual(await database.query('SELECT "title" FROM "scan"'), [{ title: 'Soep' }]);
+    });
+
+    it('adds the settings table and the collecting mark of a scan, and takes them away again', async () => {
+        const runner = database.createQueryRunner();
+        await new ShoppingMode1763700000000().down(runner);
+        const columns = async (): Promise<Array<string>> =>
+            ((await database.query('PRAGMA table_info("scan")')) as Array<{ name: string }>).map(({ name }) => name);
+        assert.ok(!(await columns()).includes('collecting'));
+        await assert.rejects(database.query('SELECT * FROM "setting"'));
+        await new ShoppingMode1763700000000().up(runner);
+        await runner.release();
+
+        assert.ok((await columns()).includes('collecting'));
+        await database.query(`INSERT INTO "setting" ("key", "value") VALUES ('shopping_mode', 'on')`);
+        await database.query(
+            `INSERT INTO "scan" ("code", "source", "result", "created_at") VALUES ('87654321', 'phone', 'added', '2026-11-23 12:00:00')`
+        );
+        assert.deepEqual(await database.query(`SELECT "collecting" FROM "scan" WHERE "code" = '87654321'`), [
+            { collecting: 0 }
+        ]);
     });
 });

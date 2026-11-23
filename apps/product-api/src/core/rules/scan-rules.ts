@@ -12,6 +12,7 @@ export interface ScanContext {
     previousScanOfCodeAt?: Date;
     catalogItemId?: number | null;
     entry?: EntrySnapshot;
+    collecting?: boolean;
 }
 
 export interface ScanDecision {
@@ -25,6 +26,14 @@ export function addOneToEntry(entry?: EntrySnapshot): { result: 'added' | 'incre
     }
 
     return { result: 'added', entry: { state: 'to_buy', quantity: 1 } };
+}
+
+export function collectEntry(entry?: EntrySnapshot): { result: 'collected' | 'not_on_list'; entry?: EntrySnapshot } {
+    if (entry?.state === 'to_buy') {
+        return { result: 'collected', entry: { state: 'recent', quantity: 0 } };
+    }
+
+    return { result: 'not_on_list' };
 }
 
 export function addToEntry(entry: EntrySnapshot | undefined, quantity: number): EntrySnapshot {
@@ -45,7 +54,7 @@ export function takeBack(
 }
 
 export function decideScan(context: ScanContext): ScanDecision {
-    const { now, previousScanOfCodeAt, catalogItemId, entry } = context;
+    const { now, previousScanOfCodeAt, catalogItemId, entry, collecting } = context;
 
     if (previousScanOfCodeAt && now.getTime() - previousScanOfCodeAt.getTime() < DEBOUNCE_MILLISECONDS) {
         return { result: 'ignored' };
@@ -55,5 +64,5 @@ export function decideScan(context: ScanContext): ScanDecision {
         return { result: 'needs_name' };
     }
 
-    return addOneToEntry(entry);
+    return collecting ? collectEntry(entry) : addOneToEntry(entry);
 }

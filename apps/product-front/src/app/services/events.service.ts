@@ -3,14 +3,25 @@ import { Observable, Subject, filter, map } from 'rxjs';
 
 import { ApiService } from './api.service';
 
-export type AppEventType = 'scan' | 'list' | 'barcode' | 'catalog' | 'log' | 'agent' | 'remark' | 'recipe';
+export type AppEventType =
+    'scan' | 'list' | 'barcode' | 'catalog' | 'log' | 'agent' | 'remark' | 'recipe' | 'shopping_mode';
 
 interface AppEvent {
     type: AppEventType;
     data: unknown;
 }
 
-const EVENT_TYPES: Array<AppEventType> = ['scan', 'list', 'barcode', 'catalog', 'log', 'agent', 'remark', 'recipe'];
+const EVENT_TYPES: Array<AppEventType> = [
+    'scan',
+    'list',
+    'barcode',
+    'catalog',
+    'log',
+    'agent',
+    'remark',
+    'recipe',
+    'shopping_mode'
+];
 const RETRY_MILLISECONDS = 3000;
 const SILENCE_LIMIT_MILLISECONDS = 40000;
 

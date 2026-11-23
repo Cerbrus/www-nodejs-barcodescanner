@@ -1,6 +1,27 @@
 <div class="page">
     <h1 class="page-title">{{ 'nav.system' | translate }}</h1>
 
+    <h2 class="section-title">{{ 'shopping.title' | translate }}</h2>
+    <div class="card group">
+        <div class="row">
+            <span class="label">
+                {{ 'shopping.mode' | translate }}
+                <span class="hint">{{ 'shopping.hint' | translate }}</span>
+            </span>
+            <button
+                type="button"
+                class="btn"
+                [class.primary]="store.shoppingMode()"
+                role="switch"
+                [attr.aria-checked]="store.shoppingMode()"
+                (click)="toggleShopping()"
+            >
+                <i class="material-symbols-outlined">{{ store.shoppingMode() ? 'check' : 'shopping_cart' }}</i>
+                {{ (store.shoppingMode() ? 'shopping.on' : 'shopping.off') | translate }}
+            </button>
+        </div>
+    </div>
+
     <h2 class="section-title">{{ 'system.device' | translate }}</h2>
     <div class="card group">
         <div class="row choice">

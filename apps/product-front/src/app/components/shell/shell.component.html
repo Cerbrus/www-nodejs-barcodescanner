@@ -13,6 +13,16 @@
     </div>
 }
 
+@if (store.shoppingMode()) {
+    <div class="shopping" role="status">
+        <i class="material-symbols-outlined">shopping_cart</i>
+        <span class="grow">{{ 'shopping.banner' | translate }}</span>
+        <button type="button" class="shopping-off" (click)="stopShopping()">
+            {{ 'shopping.turnOff' | translate }}
+        </button>
+    </div>
+}
+
 @if (remarks.pointing()) {
     <div class="pointing" role="status">
         <i class="material-symbols-outlined">ads_click</i>

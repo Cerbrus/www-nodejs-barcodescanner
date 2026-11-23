@@ -48,11 +48,23 @@
         "manualSubmit": "Toevoegen",
         "added": "{name} staat op de lijst",
         "incremented": "{name}: nu {quantity}",
+        "collected": "{name} is gepakt",
+        "not_on_list": "{name} staat niet op de lijst",
         "linked": "Gekoppeld aan {name}",
         "failed": "Scan niet verwerkt: geen verbinding",
         "discarded": "Scan geannuleerd",
         "unknownHandheld": "Onbekend product gescand",
         "nameIt": "Naam geven"
+    },
+    "shopping": {
+        "title": "Winkelen",
+        "mode": "Winkelmodus",
+        "hint": "Gescande producten gaan van de lijst naar recent. Er komt niets bij. Een nog onbekende barcode benoem je vanuit de lijst.",
+        "on": "Aan",
+        "off": "Uit",
+        "banner": "Winkelmodus: een scan pakt het product van de lijst",
+        "turnOff": "Uitzetten",
+        "onList": "Op je lijst"
     },
     "naming": {
         "title": "Welk product is dit?",
@@ -142,6 +154,8 @@
         "result": {
             "added": "toegevoegd",
             "incremented": "aantal +1",
+            "collected": "gepakt",
+            "not_on_list": "niet op lijst",
             "needs_name": "naam nodig",
             "ignored": "genegeerd",
             "undone": "ongedaan",
@@ -219,6 +233,8 @@
         "event": {
             "added": "Product toegevoegd",
             "incremented": "Aantal +1",
+            "collected": "Product gepakt",
+            "not_on_list": "Product niet op de lijst",
             "needs_name": "Onbekend product",
             "ignored": "Herhaalde scan genegeerd",
             "error": "Scan niet aangekomen",

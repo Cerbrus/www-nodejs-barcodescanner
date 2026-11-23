@@ -20,6 +20,7 @@ import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
 import { SeedService } from './services/seed.service';
 import { SessionService } from './services/session.service';
+import { SettingService } from './services/setting.service';
 
 const services = [
     AgentStatusService,
@@ -38,7 +39,8 @@ const services = [
     RemarkService,
     ScanService,
     SeedService,
-    SessionService
+    SessionService,
+    SettingService
 ];
 
 @Module({

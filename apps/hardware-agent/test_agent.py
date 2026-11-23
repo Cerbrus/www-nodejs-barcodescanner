@@ -343,6 +343,12 @@ class SendScans(unittest.TestCase):
         self.assertNotIn('scannedAt', body)
         self.assertEqual(self.feedback.signals, ['incremented'])
 
+    def test_the_results_of_shopping_mode_become_signals(self):
+        for result in ('collected', 'not_on_list'):
+            self.reachable(result)
+            self.sender.handle('8710400335481')
+        self.assertEqual(self.feedback.signals, ['collected', 'not_on_list'])
+
     def test_a_barcode_and_a_recipe_code_are_posted(self):
         self.reachable()
         self.sender.receive('8710400335481', True)

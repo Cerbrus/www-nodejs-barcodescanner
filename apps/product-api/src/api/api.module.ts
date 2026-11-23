@@ -18,6 +18,7 @@ import { RecipeController } from './controllers/recipe.controller';
 import { RemarkController } from './controllers/remark.controller';
 import { ScanController } from './controllers/scan.controller';
 import { SectionController } from './controllers/section.controller';
+import { ShoppingModeController } from './controllers/shopping-mode.controller';
 import { AuthGuard } from './guards/auth.guard';
 
 @Module({
@@ -38,7 +39,8 @@ import { AuthGuard } from './guards/auth.guard';
         RecipeController,
         RemarkController,
         ScanController,
-        SectionController
+        SectionController,
+        ShoppingModeController
     ],
     providers: [AuthGuard, { provide: APP_GUARD, useExisting: AuthGuard }]
 })

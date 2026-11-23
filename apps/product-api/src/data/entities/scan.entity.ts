@@ -36,6 +36,9 @@ export class ScanEntity {
     @Column({ type: 'integer', nullable: true })
     public previousQuantity?: number | null;
 
+    @Column({ type: 'boolean', default: false })
+    public collecting: boolean;
+
     @Column({ type: 'text', nullable: true })
     public title?: string | null;
 

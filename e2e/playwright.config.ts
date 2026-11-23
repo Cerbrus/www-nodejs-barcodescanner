@@ -37,7 +37,8 @@ export default defineConfig({
                 'changelog.e2e.ts',
                 'naming.e2e.ts',
                 'sounds.e2e.ts',
-                'recipes.e2e.ts'
+                'recipes.e2e.ts',
+                'shopping-mode.e2e.ts'
             ],
             use: { launchOptions: { args: FAKE_CAMERA } }
         },

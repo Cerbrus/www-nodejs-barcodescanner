@@ -13,13 +13,14 @@ import {
 
 import { BarcodeEntity, ScanChangeEntity, ScanEntity } from '../../data/entities';
 import { TransactionRunner } from '../../data/transaction.runner';
-import { EntrySnapshot, addOneToEntry, addToEntry, decideScan, takeBack } from '../rules/scan-rules';
+import { EntrySnapshot, addOneToEntry, addToEntry, collectEntry, decideScan, takeBack } from '../rules/scan-rules';
 import { BarcodeService } from './barcode.service';
 import { CatalogService } from './catalog.service';
 import { ConnectorService } from './connector.service';
 import { EventsService } from './events.service';
 import { ListService, cleanNote } from './list.service';
 import { PushService } from './push.service';
+import { SettingService } from './setting.service';
 
 export interface ScanOutcome {
     scanId: number;
@@ -54,7 +55,8 @@ export class ScanService {
         private readonly list: ListService,
         private readonly connectors: ConnectorService,
         private readonly events: EventsService,
-        private readonly push: PushService
+        private readonly push: PushService,
+        private readonly settings: SettingService
     ) {}
 
     public async register(code: string, source: ScanSource, scannedAt?: Date): Promise<ScanOutcome> {
@@ -132,7 +134,7 @@ export class ScanService {
             if (RECIPE_RESULTS.includes(scan.result)) {
                 await this.undoRecipe(scan.id, manager);
             } else {
-                if (scan.catalogItemId && scan.result !== 'needs_name') {
+                if (scan.catalogItemId && scan.result !== 'needs_name' && scan.result !== 'not_on_list') {
                     await this.undoListChange(scan, manager);
                 }
                 await this.barcodes.uncountScan(scan.code, manager);
@@ -228,13 +230,21 @@ export class ScanService {
         const catalogItemId = barcode.catalogItemId ?? undefined;
         const note = catalogItemId ? cleanNote(barcode.note) : '';
         const entry = catalogItemId ? await this.list.getSnapshot(catalogItemId, note, manager) : undefined;
-        const decision = decideScan({ now, previousScanOfCodeAt: previous?.createdAt, catalogItemId, entry });
+        const collecting = await this.settings.shoppingMode(manager);
+        const decision = decideScan({
+            now,
+            previousScanOfCodeAt: previous?.createdAt,
+            catalogItemId,
+            entry,
+            collecting
+        });
 
         const scan = await scans.save({
             code,
             source,
             result: decision.result,
             createdAt: now,
+            collecting,
             catalogItemId: catalogItemId ?? null,
             note: catalogItemId ? note : null,
             previousState: entry?.state ?? null,
@@ -282,7 +292,7 @@ export class ScanService {
 
         for (const scan of pending) {
             const snapshot = await this.list.getSnapshot(catalogItemId, note, manager);
-            const { result, entry } = addOneToEntry(snapshot);
+            const { result, entry } = scan.collecting ? collectEntry(snapshot) : addOneToEntry(snapshot);
             await scans.update(scan.id, {
                 result,
                 catalogItemId,
@@ -290,7 +300,9 @@ export class ScanService {
                 previousState: snapshot?.state ?? null,
                 previousQuantity: snapshot?.quantity ?? null
             });
-            await this.list.writeSnapshot(catalogItemId, note, entry, manager);
+            if (entry) {
+                await this.list.writeSnapshot(catalogItemId, note, entry, manager);
+            }
         }
 
         return pending.length;

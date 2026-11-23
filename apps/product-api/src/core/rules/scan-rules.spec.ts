@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { DEBOUNCE_MILLISECONDS, addOneToEntry, addToEntry, decideScan, takeBack } from './scan-rules';
+import { DEBOUNCE_MILLISECONDS, addOneToEntry, addToEntry, collectEntry, decideScan, takeBack } from './scan-rules';
 
 const now = new Date('2026-11-12T12:00:00.000Z');
 const millisecondsAgo = (milliseconds: number): Date => new Date(now.getTime() - milliseconds);
@@ -94,5 +94,34 @@ describe('a recipe ingredient on the list', () => {
 
         assert.deepEqual(takeBack({ quantity: 2, previous: { state: 'to_buy', quantity: 1 } }, checkedOff), checkedOff);
         assert.equal(takeBack({ quantity: 2, previous: { state: 'to_buy', quantity: 1 } }), undefined);
+    });
+});
+
+describe('collecting while shopping', () => {
+    it('moves an entry that is to buy to recent', () => {
+        assert.deepEqual(collectEntry({ state: 'to_buy', quantity: 3 }), {
+            result: 'collected',
+            entry: { state: 'recent', quantity: 0 }
+        });
+    });
+
+    it('leaves a recent entry and a product that is not on the list alone', () => {
+        assert.deepEqual(collectEntry({ state: 'recent', quantity: 0 }), { result: 'not_on_list' });
+        assert.deepEqual(collectEntry(undefined), { result: 'not_on_list' });
+    });
+
+    it('decides a scan by it only when collecting', () => {
+        const entry = { state: 'to_buy' as const, quantity: 1 };
+
+        assert.equal(decideScan({ now, catalogItemId: 7, entry, collecting: true }).result, 'collected');
+        assert.equal(decideScan({ now, catalogItemId: 7, entry, collecting: false }).result, 'incremented');
+    });
+
+    it('still asks for a name for an unknown barcode and still ignores a double read', () => {
+        assert.equal(decideScan({ now, collecting: true }).result, 'needs_name');
+        assert.equal(
+            decideScan({ now, previousScanOfCodeAt: millisecondsAgo(10), catalogItemId: 7, collecting: true }).result,
+            'ignored'
+        );
     });
 });

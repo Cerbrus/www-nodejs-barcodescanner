@@ -22,6 +22,28 @@
     }
 }
 
+.shopping {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    i {
+        font-size: 18px;
+    }
+}
+
+.shopping-off {
+    padding: 2px 10px;
+    border: 1px solid currentcolor;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
 .pointing {
     display: flex;
     align-items: center;

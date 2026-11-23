@@ -66,6 +66,8 @@ def off(seconds):
 DEFAULT_SIGNALS = {
     'added': [on(0.08)],
     'incremented': [on(BLIP), off(GAP), on(BLIP)],
+    'collected': [on(0.05)],
+    'not_on_list': [on(0.3), off(BLIP), on(BLIP)],
     'needs_name': [on(0.45)],
     'ignored': [],
     'held': [on(0.3), off(BLIP), on(BLIP)],

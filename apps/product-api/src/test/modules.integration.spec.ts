@@ -27,6 +27,7 @@ import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
 import { RecipeService } from '../core/services/recipe.service';
 import { ScanService } from '../core/services/scan.service';
+import { SettingService } from '../core/services/setting.service';
 import { FeedbackSettingEntity, SoundEntity } from '../data/entities';
 import { testFolder } from './test-env';
 
@@ -226,6 +227,41 @@ describe('scan flow against a real database', () => {
             (await scans.history(10)).map((scan) => scan.result),
             ['incremented', 'added', 'ignored', 'incremented']
         );
+    });
+
+    it('moves scanned products from the list to recent while shopping, and adds nothing', async () => {
+        const settings = app.get(SettingService);
+        const code = '8712345678920';
+        const nextScan = async (): Promise<string> => {
+            await wait(DEBOUNCE_MILLISECONDS + 100);
+            return (await scans.register(code, 'handheld')).result;
+        };
+        assert.equal(await settings.shoppingMode(), false);
+
+        await settings.setShoppingMode(true);
+        assert.equal(await settings.shoppingMode(), true);
+        assert.equal((await scans.register(code, 'handheld')).result, 'needs_name');
+        await scans.nameBarcode(code, milkId);
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'recent', quantity: 0 });
+        assert.equal((await scans.history(1))[0].result, 'collected');
+
+        assert.equal(await nextScan(), 'not_on_list');
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'recent', quantity: 0 });
+        await scans.undo();
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'recent', quantity: 0 });
+        await scans.undo();
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 2 });
+
+        assert.equal(await nextScan(), 'collected');
+        await scans.undo();
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 2 });
+
+        await settings.setShoppingMode(false);
+        assert.equal(await nextScan(), 'incremented');
+        await scans.undo();
+        assert.deepEqual(await list.getSnapshot(milkId, ''), { state: 'to_buy', quantity: 2 });
+        await barcodes.unlink(code);
+        await scans.discardBarcode(code);
     });
 
     it('keeps a chosen sound per event and falls back to the default', () =>

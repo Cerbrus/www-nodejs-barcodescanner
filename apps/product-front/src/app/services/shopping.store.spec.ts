@@ -43,6 +43,8 @@ describe('ShoppingStore', () => {
         getList: vi.fn(),
         getInbox: vi.fn(),
         getRecipes: vi.fn(),
+        getShoppingMode: vi.fn(),
+        setShoppingMode: vi.fn(),
         createRecipe: vi.fn(),
         updateRecipe: vi.fn(),
         deleteRecipe: vi.fn(),
@@ -83,6 +85,8 @@ describe('ShoppingStore', () => {
         api.getList.mockReturnValue(of([entry(milk, 'to_buy', 2), entry(loaf, 'recent')]));
         api.getInbox.mockReturnValue(of([]));
         api.getRecipes.mockReturnValue(of([pancakes]));
+        api.getShoppingMode.mockReturnValue(of({ on: false }));
+        api.setShoppingMode.mockImplementation((on: boolean) => of({ on }));
         api.deleteRecipe.mockReturnValue(of(undefined));
         api.undoScan.mockReturnValue(of({}));
         api.changeListEntry.mockReturnValue(of(entry(milk, 'recent')));
@@ -101,6 +105,28 @@ describe('ShoppingStore', () => {
         expect(store.toBuy().map((row) => row.catalogItem.name)).toEqual(['Melk']);
         expect(store.recent().map((row) => row.catalogItem.name)).toEqual(['Brood']);
         expect(store.online()).toBe(true);
+    });
+
+    it('loads shopping mode with the rest, follows it on an event, and turns it on and off', () => {
+        const store = create();
+        expect(store.shoppingMode()).toBe(false);
+
+        api.getShoppingMode.mockReturnValue(of({ on: true }));
+        events$.next('shopping_mode');
+        expect(store.shoppingMode()).toBe(true);
+
+        store.setShoppingMode(false).subscribe();
+        expect(api.setShoppingMode).toHaveBeenCalledWith(false);
+        expect(store.shoppingMode()).toBe(false);
+    });
+
+    it('keeps the list when shopping mode cannot be loaded', () => {
+        api.getShoppingMode.mockReturnValue(throwError(() => noConnection()));
+        const store = create();
+
+        expect(store.loaded()).toBe(true);
+        expect(store.failed()).toBe(false);
+        expect(store.shoppingMode()).toBe(false);
     });
 
     it('loads the recipes with the rest, keeps them in the snapshot, and reloads them when one changes', () => {

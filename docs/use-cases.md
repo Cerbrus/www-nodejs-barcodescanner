@@ -40,6 +40,16 @@ A code that is not a product barcode, such as a QR code with a web address, adds
 1. The user taps undo on the toast or on the history page.
 2. The effect of the last scan is reversed: the quantity goes down by one, or the entry returns to its previous state.
 
+### UC-22 Collect products while shopping
+
+1. In the shop the user turns on shopping mode on the System page. A banner on every page says it is on, with a button to turn it off.
+2. A scan, with the handheld scanner or the phone, of a product that is *to buy* moves it to *recent*, whatever its quantity. A toast offers undo. A product that is not on the list, or is already recent, is left alone and the toast says so; nothing is added.
+3. An unknown barcode goes to the inbox as usual. Its naming prompt offers the products on the list to pick from, or the search to pick or create another product. The product picked is collected if it is on the list; a product that is not on the list stays off it, and only the barcode learns its product.
+4. The buzzer plays its own sound for a collected product and for one that is not on the list (UC-16).
+5. The mode stays on until the user turns it off; it is kept on the server. Turning it off changes nothing on the list.
+
+A barcode scanned while shopping but named later, at home, is still collected, not added.
+
 ## Naming
 
 ### UC-5 Name a barcode (once per barcode)
@@ -100,7 +110,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 ### UC-9 Scan history
 
-A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, needs naming, ignored, undone). A recipe is one line with its name, how many products it put on the list and where it came from (the app, the phone or the handheld scanner); a tap shows those products with their quantities. It also undoes the last scan, a recipe as a whole, and it is the debugging view. A scan of a barcode that is still unnamed and whose lookup failed at a source carries a warning icon; tapping it opens the naming prompt, which can ask that source again.
+A page lists recent scans: time, source (handheld or phone), barcode, result (added, counted up, collected, not on the list, needs naming, ignored, undone). A recipe is one line with its name, how many products it put on the list and where it came from (the app, the phone or the handheld scanner); a tap shows those products with their quantities. It also undoes the last scan, a recipe as a whole, and it is the debugging view. A scan of a barcode that is still unnamed and whose lookup failed at a source carries a warning icon; tapping it opens the naming prompt, which can ask that source again.
 
 ### UC-10 Hands-off updates
 

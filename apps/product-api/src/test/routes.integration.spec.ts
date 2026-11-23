@@ -79,6 +79,15 @@ describe('data routes over HTTP', () => {
         rmSync(testFolder, { recursive: true, force: true });
     });
 
+    it('turns shopping mode on and off for a logged-in user, and keeps it from the agent', async () => {
+        assert.deepEqual((await call('GET', '/shopping-mode', asUser)).body, { on: false });
+        assert.deepEqual((await call('PUT', '/shopping-mode', asUser, { on: true })).body, { on: true });
+        assert.deepEqual((await call('GET', '/shopping-mode', asUser)).body, { on: true });
+        assert.equal((await call('PUT', '/shopping-mode', asUser, { on: 'yes' })).status, 400);
+        assert.equal((await call('GET', '/shopping-mode', asAgent)).status, 403);
+        assert.deepEqual((await call('PUT', '/shopping-mode', asUser, { on: false })).body, { on: false });
+    });
+
     it('refuses a scan whose code is not a barcode', async () => {
         assert.equal((await call('POST', '/scans', asUser, { code: 'abc' })).status, 400);
         assert.equal((await call('POST', '/scans', asUser, {})).status, 400);

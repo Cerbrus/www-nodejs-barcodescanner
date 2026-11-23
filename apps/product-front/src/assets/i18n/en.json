@@ -48,11 +48,23 @@
         "manualSubmit": "Add",
         "added": "{name} is on the list",
         "incremented": "{name}: now {quantity}",
+        "collected": "{name} is collected",
+        "not_on_list": "{name} is not on the list",
         "linked": "Linked to {name}",
         "failed": "Scan not processed: no connection",
         "discarded": "Scan cancelled",
         "unknownHandheld": "Unknown product scanned",
         "nameIt": "Name it"
+    },
+    "shopping": {
+        "title": "Shopping",
+        "mode": "Shopping mode",
+        "hint": "Scanned products move from the list to recent. Nothing is added. A barcode that is not known yet is named from the list.",
+        "on": "On",
+        "off": "Off",
+        "banner": "Shopping mode: a scan collects the product from the list",
+        "turnOff": "Turn off",
+        "onList": "On your list"
     },
     "naming": {
         "title": "Which product is this?",
@@ -142,6 +154,8 @@
         "result": {
             "added": "added",
             "incremented": "count +1",
+            "collected": "collected",
+            "not_on_list": "not on list",
             "needs_name": "needs name",
             "ignored": "ignored",
             "undone": "undone",
@@ -219,6 +233,8 @@
         "event": {
             "added": "Product added",
             "incremented": "Quantity +1",
+            "collected": "Product collected",
+            "not_on_list": "Product not on the list",
             "needs_name": "Unknown product",
             "ignored": "Repeated scan ignored",
             "error": "Scan not delivered",

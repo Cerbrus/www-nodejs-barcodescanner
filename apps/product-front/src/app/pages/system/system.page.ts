@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
 import { PushService } from '../../services/push.service';
 import { RemarkService } from '../../services/remark.service';
+import { ShoppingStore } from '../../services/shopping.store';
 import { Theme, ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -45,6 +46,7 @@ export class SystemPage {
     protected readonly push = inject(PushService);
     protected readonly auth = inject(AuthService);
     protected readonly remarks = inject(RemarkService);
+    protected readonly store = inject(ShoppingStore);
     protected readonly touch = window.matchMedia?.('(pointer: coarse)').matches ?? false;
     protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
@@ -86,6 +88,10 @@ export class SystemPage {
         }
 
         return health.commit ? `${health.version} (${health.commit.slice(0, COMMIT_LENGTH)})` : health.version;
+    }
+
+    protected toggleShopping(): void {
+        this.store.setShoppingMode(!this.store.shoppingMode()).subscribe();
     }
 
     protected logout(): void {

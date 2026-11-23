@@ -54,6 +54,7 @@ export class ShoppingStore {
     public readonly entries = signal<Array<ListEntry>>([]);
     public readonly inbox = signal<Array<Barcode>>([]);
     public readonly recipes = signal<Array<Recipe>>([]);
+    public readonly shoppingMode = signal(false);
     public readonly loaded = signal(false);
     public readonly failed = signal(false);
     public readonly settled = signal(false);
@@ -85,6 +86,11 @@ export class ShoppingStore {
                 debounceTime(REFRESH_DELAY_MILLISECONDS),
                 switchMap(() => this.refreshListAndInbox())
             )
+            .subscribe();
+
+        this.events
+            .on('shopping_mode')
+            .pipe(switchMap(() => this.loadShoppingMode()))
             .subscribe();
 
         this.events
@@ -124,6 +130,21 @@ export class ShoppingStore {
         return this.recipes().find((recipe) => recipe.id === id);
     }
 
+    public loadShoppingMode(): Observable<void> {
+        return this.api.getShoppingMode().pipe(
+            tap(({ on }) => this.shoppingMode.set(on)),
+            map(() => undefined),
+            catchError(() => of(undefined))
+        );
+    }
+
+    public setShoppingMode(on: boolean): Observable<void> {
+        return this.api.setShoppingMode(on).pipe(
+            tap((mode) => this.shoppingMode.set(mode.on)),
+            map(() => undefined)
+        );
+    }
+
     public refreshAll(): Observable<void> {
         return this.sendPending().pipe(
             switchMap(() =>
@@ -145,7 +166,7 @@ export class ShoppingStore {
                 this.loaded.set(true);
                 this.remember();
             }),
-            map(() => undefined),
+            switchMap(() => this.loadShoppingMode()),
             catchError(() => this.markFailed())
         );
     }

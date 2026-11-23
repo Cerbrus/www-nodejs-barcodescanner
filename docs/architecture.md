@@ -77,12 +77,12 @@ apps/product-api/src/
 ├── main.ts, app.module.ts
 ├── config/      app.config.ts: the only file that reads the environment
 ├── api/
-│   ├── controllers/   auth, barcode, catalog, event, feedback, health, icon, list, log, push, scan, section
+│   ├── controllers/   auth, barcode, catalog, event, feedback, health, icon, list, log, push, scan, section, shopping-mode
 │   ├── dto/           one request shape per file, with its validation
 │   ├── guards/        auth.guard, and the decorators Public, Agent, CalledBy
 │   └── configure-api.ts   prefix, versioning and validation, shared by the server and the tests
 ├── core/
-│   ├── services/      barcode, catalog, connector, events, feedback, list, log, push, scan, seed, session
+│   ├── services/      barcode, catalog, connector, events, feedback, list, log, push, scan, seed, session, setting
 │   ├── rules/         scan-rules, session, sounds: no framework, no storage
 │   └── connectors/    Albert Heijn, Open Food Facts
 ├── data/
@@ -103,6 +103,7 @@ What it deliberately does not have: a class per use case, domain models separate
 
 | Service | Responsibility |
 |---|---|
+| `setting` | The only service that touches the `setting` table: shopping mode, and the `shopping_mode` event |
 | `scan` | Registers a scan, names a barcode and applies its waiting scans, discards, undoes, and puts a recipe on the list as one scan with a row in `scan_change` per list entry it touched. Each of these runs in one transaction |
 | `barcode` | The only service that touches the `barcode` table: inbox, links, scan counters, suggestions |
 | `catalog` | Sections, products, icon names, the default icon from the seed file |
@@ -166,10 +167,11 @@ Angular with standalone components and signals; no state library. Every componen
 | `catalog_item` | `id`, `name` (unique), `section_id`, `icon`, `emoji`, `custom` | `icon` is a file name in the icon folder, served under `/icons/<icon>.png` |
 | `barcode` | `code` (key), `catalog_item_id` (nullable), `note`, `suggestions` (JSON), `lookup_failed` (JSON), `scan_count`, `last_scanned_at` | No catalog item means the barcode is in the inbox. `note` is the variant its scans go to (empty for none). `lookup_failed` lists the connectors that gave no answer |
 | `list_entry` | `id` (key, UUID), `catalog_item_id`, `note`, `state` (`to_buy`, `recent`), `quantity`, `updated_at` | Catalog item plus note is unique: the note is the variant. The web app makes the id, so an entry can be added offline |
-| `scan` | `id`, `code`, `source` (`handheld`, `phone`, `app`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity`, `title` | History and undo; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan. A recipe is one row with the result `recipe` or `recipe_partial`, its name in `title` and its recipe code in `code` |
+| `scan` | `id`, `code`, `source` (`handheld`, `phone`, `app`), `result`, `created_at`, `undone_at`, `catalog_item_id`, `note`, `previous_state`, `previous_quantity`, `title`, `collecting` | History and undo; `collecting` marks a scan made in shopping mode, so naming it later collects instead of adds; `note` is the variant the scan went to, the `previous_` columns hold what that list entry was before the scan. A recipe is one row with the result `recipe` or `recipe_partial`, its name in `title` and its recipe code in `code` |
 | `scan_change` | `id`, `scan_id`, `catalog_item_id`, `note`, `quantity`, `previous_state`, `previous_quantity` | One row per list entry a recipe touched: what was added and what the entry was before, for undo |
 | `recipe` | `id`, `name` (unique), `description` (markdown), `created_at`, `updated_at` | |
 | `recipe_ingredient` | `id`, `recipe_id`, `catalog_item_id`, `quantity`, `note`, `position` | Product plus note is unique within a recipe; `position` keeps the order. Deleting a product removes its rows |
+| `setting` | `key`, `value` | Settings kept by the server. `shopping_mode` is `on` or `off` (decision 0108) |
 | `feedback_setting` | `event` (key), `sound_id` | Chosen buzzer sound per scan result; no row means the default |
 | `push_subscription` | `endpoint` (key), `p256dh`, `auth`, `language`, `origin`, `created_at` | One row per device with notifications on; removed when the push service reports it gone |
 
@@ -191,6 +193,8 @@ When a barcode gets its mapping, its waiting `needs_name` scans are applied by r
 Checking off an entry sets state `recent` and quantity 0. Undo reverses the list change of the latest scan that is not undone.
 
 **A recipe on the list** (`POST /api/v1/recipes/additions`). The same product with the same note is added up first. Each product that exists goes to its entry with that note: quantity plus the recipe's quantity when the entry is to buy, otherwise to buy with that quantity. A product id that does not exist is left out and the result is `recipe_partial` instead of `recipe`. Undo takes the whole recipe back: an entry that still holds more than the recipe added loses that quantity, otherwise it returns to what it was before, and an entry that was checked off or removed since is left alone.
+
+**Shopping mode** (decision 0108). When `setting.shopping_mode` is `on`, rule 2 reads differently: an entry that is `to_buy` becomes `recent` with quantity 0 (result `collected`); any other entry, or none, is left alone (result `not_on_list`). Rules 1, 3 and 4 do not change. A `needs_name` scan stores `collecting`, and naming the barcode applies the waiting scan with the same collect rule. Undo of `collected` restores the entry; `not_on_list` has no list change to undo.
 
 ## Connectors
 
@@ -236,7 +240,8 @@ interface ProductSuggestion {
 | `GET /api/v1/barcodes/:code` | One barcode with its suggestions and, while it is unnamed, a `proposal` (product id or new name, and note) |
 | `PUT /api/v1/barcodes/:code` | Set or change the mapping, with an optional `note` as variant |
 | `DELETE /api/v1/barcodes/:code` | Remove the mapping |
-| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, `feedback_settings`, and a `ping` every 25 seconds |
+| `GET /api/v1/shopping-mode`, `PUT` | Read or set shopping mode, `{ on }`; any logged-in account, not the agent. A change sends the `shopping_mode` event |
+| `GET /api/v1/events` | Server-sent events: `scan`, `list`, `barcode`, `catalog`, `log`, `feedback`, `feedback_settings`, `shopping_mode`, and a `ping` every 25 seconds |
 | `GET /icons/<icon>.png` | Icon files |
 | `GET /api/v1/icons` | Names of the available icons, for the icon picker |
 | `POST /api/v1/barcodes/:code/lookup` | Ask the connectors again; keeps what was found before |
@@ -308,6 +313,8 @@ The hardware agent turns the result of each scan into a sound on a buzzer connec
 |---|---|
 | `added` | short beep |
 | `incremented` | two blips |
+| `collected`: shopping mode took the product off the list | tick |
+| `not_on_list`: shopping mode, the product is not to buy | long, short |
 | `needs_name` | long beep |
 | `held`: the app is not reachable; the scan is kept and delivered later | long, short |
 | `error`: scan rejected, or too many scans waiting | three beeps |

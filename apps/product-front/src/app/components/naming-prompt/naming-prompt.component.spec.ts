@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { FakeEvents, FakeStore, click, entry, fakeEvents, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { Barcode } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -111,6 +111,28 @@ describe('NamingPromptComponent', () => {
         expect(api.repeatLookup).toHaveBeenCalledWith(CODE);
         expect(texts(page, 'button.card .font-semibold')).toEqual(['Melk 1L']);
         expect(page.querySelector('[role=status]')).toBeNull();
+    });
+
+    it('offers the products on the list to pick from only while shopping', async () => {
+        store.entries.set([entry(store.items()[0], 'to_buy', 1, 'Volkoren'), entry(store.items()[1], 'recent')]);
+        await open(known());
+        expect(page.querySelector('.flex-wrap button')).toBeNull();
+
+        store.shoppingMode.set(true);
+        await settle();
+        expect(texts(page, '.flex-wrap button')).toEqual(['Melk · Volkoren']);
+
+        click(page, '.flex-wrap button');
+        await settle();
+
+        expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 1, 'Volkoren');
+    });
+
+    it('offers no list while shopping when nothing is to buy', async () => {
+        store.shoppingMode.set(true);
+        await open(known());
+
+        expect(page.querySelector('.flex-wrap button')).toBeNull();
     });
 
     it('links the barcode to a product picked from the search', async () => {

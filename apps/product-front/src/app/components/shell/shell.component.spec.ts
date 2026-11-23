@@ -110,6 +110,21 @@ describe('ShellComponent', () => {
         expect(page.querySelector('.tab-badge')).toBeNull();
     });
 
+    it('shows a banner while shopping mode is on, and turns it off from there', () => {
+        open();
+        expect(page.querySelector('.shopping')).toBeNull();
+
+        store.shoppingMode.set(true);
+        fixture.detectChanges();
+        expect(texts(page, '.shopping span')).toEqual(['shopping.banner']);
+
+        click(page, '.shopping-off');
+        fixture.detectChanges();
+
+        expect(store.setShoppingMode).toHaveBeenCalledWith(false);
+        expect(page.querySelector('.shopping')).toBeNull();
+    });
+
     it('shows no banner while connected, or before the first load has settled', () => {
         open();
         expect(page.querySelector('.offline')).toBeNull();

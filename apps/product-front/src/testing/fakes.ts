@@ -33,6 +33,8 @@ export interface FakeStore {
     entries: WritableSignal<Array<ListEntry>>;
     inbox: WritableSignal<Array<Barcode>>;
     recipes: WritableSignal<Array<Recipe>>;
+    shoppingMode: WritableSignal<boolean>;
+    setShoppingMode: ReturnType<typeof vi.fn>;
     loaded: WritableSignal<boolean>;
     failed: WritableSignal<boolean>;
     settled: WritableSignal<boolean>;
@@ -66,6 +68,7 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
     const list = signal(entries);
     const pending = signal<Array<{ id?: string }>>([]);
     const recipes = signal<Array<Recipe>>([]);
+    const shoppingMode = signal(false);
     const toBuy = computed(() => list().filter((row) => row.state === 'to_buy'));
     const group = <T>(rows: Array<T>, sectionOf: (row: T) => string): Array<{ section: Section; rows: Array<T> }> =>
         sections()
@@ -78,6 +81,12 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         entries: list,
         inbox: signal<Array<Barcode>>([]),
         recipes,
+        shoppingMode,
+        setShoppingMode: vi.fn((on: boolean) => {
+            shoppingMode.set(on);
+
+            return of(undefined);
+        }),
         loaded: signal(true),
         failed: signal(false),
         settled: signal(true),

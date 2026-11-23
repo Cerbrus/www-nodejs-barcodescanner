@@ -97,6 +97,10 @@ export class ShellComponent {
             .subscribe();
     }
 
+    protected stopShopping(): void {
+        this.store.setShoppingMode(false).subscribe();
+    }
+
     private announce(scan: ScanEvent): void {
         if (scan.result === 'needs_name') {
             this.toasts.show({

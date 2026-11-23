@@ -9,6 +9,7 @@ import { RemarkEntity } from './remark.entity';
 import { ScanChangeEntity } from './scan-change.entity';
 import { ScanEntity } from './scan.entity';
 import { SectionEntity } from './section.entity';
+import { SettingEntity } from './setting.entity';
 import { SoundEntity } from './sound.entity';
 
 export * from './section.entity';
@@ -20,6 +21,7 @@ export * from './scan-change.entity';
 export * from './push-subscription.entity';
 export * from './feedback-setting.entity';
 export * from './remark.entity';
+export * from './setting.entity';
 export * from './sound.entity';
 export * from './recipe.entity';
 export * from './recipe-ingredient.entity';
@@ -34,6 +36,7 @@ export const Entities = [
     PushSubscriptionEntity,
     FeedbackSettingEntity,
     RemarkEntity,
+    SettingEntity,
     SoundEntity,
     RecipeEntity,
     RecipeIngredientEntity

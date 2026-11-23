@@ -4,7 +4,16 @@ import { provideRouter } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { FakeEvents, FakeRemarks, click, fakeEvents, fakeRemarks, texts } from '../../../testing/fakes';
+import {
+    FakeEvents,
+    FakeRemarks,
+    FakeStore,
+    click,
+    fakeEvents,
+    fakeRemarks,
+    fakeStore,
+    texts
+} from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { AgentStatus, AuthState } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -12,6 +21,7 @@ import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
 import { PushService, PushStatus } from '../../services/push.service';
 import { RemarkService } from '../../services/remark.service';
+import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
 import { SystemPage } from './system.page';
 
@@ -24,6 +34,7 @@ describe('SystemPage', () => {
     let page: HTMLElement;
     let events: FakeEvents;
     let remarks: FakeRemarks;
+    let store: FakeStore;
     const state = signal<AuthState | undefined>(OWNER);
     const auth = { state, owner: computed(() => state()?.owner ?? false), logout: vi.fn(() => of(undefined)) };
     const push = {
@@ -60,6 +71,7 @@ describe('SystemPage', () => {
         delete document.documentElement.dataset['theme'];
         events = fakeEvents();
         remarks = fakeRemarks();
+        store = fakeStore();
         push.status.set('off');
         push.busy.set(false);
         api.getHealth.mockReturnValue(
@@ -75,7 +87,8 @@ describe('SystemPage', () => {
                 { provide: PushService, useValue: push },
                 { provide: ApiService, useValue: api },
                 { provide: EventsService, useValue: events },
-                { provide: RemarkService, useValue: remarks }
+                { provide: RemarkService, useValue: remarks },
+                { provide: ShoppingStore, useValue: store }
             ]
         });
     });
@@ -85,7 +98,7 @@ describe('SystemPage', () => {
     it('shows the owner three groups, with the management rows in order and the version below', async () => {
         await open(OWNER);
 
-        expect(groups()).toEqual(['system.device', 'login.account', 'system.management']);
+        expect(groups()).toEqual(['shopping.title', 'system.device', 'login.account', 'system.management']);
         expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
             '/remarks',
             '/changelog',
@@ -109,7 +122,7 @@ describe('SystemPage', () => {
     it('shows another account only this device and the account, and asks the server for nothing of the owner', async () => {
         await open(GUEST);
 
-        expect(groups()).toEqual(['system.device', 'login.account']);
+        expect(groups()).toEqual(['shopping.title', 'system.device', 'login.account']);
         expect(page.querySelector('.version')).toBeNull();
         expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
             '/remarks',
@@ -122,7 +135,26 @@ describe('SystemPage', () => {
     it('leaves the account group out when login is switched off', async () => {
         await open(LOGIN_OFF);
 
-        expect(groups()).toEqual(['system.device', 'system.management']);
+        expect(groups()).toEqual(['shopping.title', 'system.device', 'system.management']);
+    });
+
+    it('turns shopping mode on and off for any account', async () => {
+        await open(GUEST);
+        const toggle = (): HTMLElement => row('shopping.mode').querySelector('[role="switch"]') as HTMLElement;
+
+        expect(toggle().getAttribute('aria-checked')).toBe('false');
+        click(row('shopping.mode'), '[role="switch"]');
+        await settle();
+
+        expect(store.setShoppingMode).toHaveBeenCalledWith(true);
+        expect(toggle().getAttribute('aria-checked')).toBe('true');
+        expect(toggle().textContent).toContain('shopping.on');
+
+        click(row('shopping.mode'), '[role="switch"]');
+        await settle();
+
+        expect(store.setShoppingMode).toHaveBeenLastCalledWith(false);
+        expect(toggle().getAttribute('aria-checked')).toBe('false');
     });
 
     it('switches language and remembers it on this device', async () => {

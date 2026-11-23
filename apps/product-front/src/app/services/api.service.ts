@@ -58,6 +58,14 @@ export class ApiService {
         return this.http.get<Health>(`${this.baseUrl}/health`);
     }
 
+    public getShoppingMode(): Observable<{ on: boolean }> {
+        return this.http.get<{ on: boolean }>(`${this.baseUrl}/shopping-mode`);
+    }
+
+    public setShoppingMode(on: boolean): Observable<{ on: boolean }> {
+        return this.http.put<{ on: boolean }>(`${this.baseUrl}/shopping-mode`, { on });
+    }
+
     public getSections(): Observable<Array<Section>> {
         return this.http.get<Array<Section>>(`${this.baseUrl}/sections`);
     }
