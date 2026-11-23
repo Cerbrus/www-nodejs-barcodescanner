@@ -6,7 +6,7 @@ import { click, fakeStore, item, texts } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
-import { RecipeSheetComponent } from './recipe-sheet.component';
+import { RecipeChoice, RecipeSheetComponent } from './recipe-sheet.component';
 
 const INGREDIENTS: Array<RecipeIngredient> = [
     { catalogItemId: 1, quantity: 2, note: 'vol' },
@@ -17,7 +17,7 @@ const INGREDIENTS: Array<RecipeIngredient> = [
 describe('RecipeSheetComponent', () => {
     let fixture: ComponentFixture<RecipeSheetComponent>;
     let sheet: HTMLElement;
-    let confirmed: Array<Array<RecipeIngredient>>;
+    let confirmed: Array<RecipeChoice>;
     let closed: number;
 
     const confirm = (): HTMLButtonElement => sheet.querySelector('button.primary') as HTMLButtonElement;
@@ -59,13 +59,27 @@ describe('RecipeSheetComponent', () => {
         fixture.detectChanges();
         confirm().click();
 
-        expect(confirmed).toEqual([[INGREDIENTS[1]]]);
+        expect(confirmed).toEqual([{ ingredients: [INGREDIENTS[1]], save: false }]);
 
         click(sheet, 'label.choice input', 0);
         fixture.detectChanges();
         confirm().click();
 
-        expect(confirmed.at(-1)).toEqual([INGREDIENTS[0], INGREDIENTS[1]]);
+        expect(confirmed.at(-1)?.ingredients).toEqual([INGREDIENTS[0], INGREDIENTS[1]]);
+    });
+
+    it('has a box to keep the recipe only when it can be kept, and hands over whether it is ticked', () => {
+        expect(sheet.querySelector('.keep')).toBeNull();
+
+        fixture.componentRef.setInput('savable', true);
+        fixture.detectChanges();
+        confirm().click();
+        click(sheet, '.keep input');
+        fixture.detectChanges();
+        confirm().click();
+
+        expect(texts(sheet, '.keep')).toEqual(['recipe.keep']);
+        expect(confirmed.map(({ save }) => save)).toEqual([false, true]);
     });
 
     it('cannot be confirmed with nothing ticked, and closes on cancel', () => {

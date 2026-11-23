@@ -37,20 +37,20 @@ jobs:
         env:
             GH_TOKEN: ${{ github.token }}
         steps:
-            -   uses: actions/checkout@v7
-                with:
-                    fetch-depth: 0
-            -   name: Take the script out of the checkout
-                run: cp .github/scripts/release-train.sh "$RUNNER_TEMP/release-train.sh"
-            -   name: ⏳ Last call on the platform
-                env:
-                    WAIT_MINUTES: ${{ inputs.wait_minutes }}
-                run: bash "$RUNNER_TEMP/release-train.sh" wait "$WAIT_MINUTES"
-            -   name: Rebase the approved pull requests onto each other
-                id: train
-                env:
-                    PULL_REQUESTS: ${{ inputs.pull_requests }}
-                run: bash "$RUNNER_TEMP/release-train.sh" assemble "$PULL_REQUESTS"
+            - uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+            - name: Take the script out of the checkout
+              run: cp .github/scripts/release-train.sh "$RUNNER_TEMP/release-train.sh"
+            - name: ⏳ Last call on the platform
+              env:
+                  WAIT_MINUTES: ${{ inputs.wait_minutes }}
+              run: bash "$RUNNER_TEMP/release-train.sh" wait "$WAIT_MINUTES"
+            - name: Rebase the approved pull requests onto each other
+              id: train
+              env:
+                  PULL_REQUESTS: ${{ inputs.pull_requests }}
+              run: bash "$RUNNER_TEMP/release-train.sh" assemble "$PULL_REQUESTS"
 
     checks:
         name: 🔨 Wheel-tapper's inspection
@@ -67,7 +67,7 @@ jobs:
 
     land:
         name: 🚉 Full steam into master
-        needs: [ assemble, checks ]
+        needs: [assemble, checks]
         runs-on: ubuntu-latest
         timeout-minutes: 10
         environment: release
@@ -77,17 +77,17 @@ jobs:
             pull-requests: write
             issues: write
         steps:
-            -   uses: actions/checkout@v7
-            -   name: Land the pull requests
-                env:
-                    GH_TOKEN: ${{ github.token }}
-                    RELEASE_TRAIN_TOKEN: ${{ secrets.RELEASE_TRAIN_TOKEN }}
-                    TRAIN: ${{ needs.assemble.outputs.train }}
-                run: bash .github/scripts/release-train.sh land "$TRAIN"
+            - uses: actions/checkout@v7
+            - name: Land the pull requests
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  RELEASE_TRAIN_TOKEN: ${{ secrets.RELEASE_TRAIN_TOKEN }}
+                  TRAIN: ${{ needs.assemble.outputs.train }}
+              run: bash .github/scripts/release-train.sh land "$TRAIN"
 
     rebase:
         name: 🔧 Send the left-behind to the workshop
-        needs: [ assemble, checks, land ]
+        needs: [assemble, checks, land]
         if: >-
             always() && needs.assemble.result == 'success' && needs.assemble.outputs.rebase != '' &&
             (needs.land.result == 'success' || needs.assemble.outputs.count == '0')
@@ -96,19 +96,19 @@ jobs:
         permissions:
             actions: write
         steps:
-            -   name: Ask the agent to rebase each pull request that conflicted
-                env:
-                    GH_TOKEN: ${{ github.token }}
-                    GH_REPO: ${{ github.repository }}
-                    ISSUES: ${{ needs.assemble.outputs.rebase }}
-                run: |
-                    for issue in $ISSUES; do
-                        gh workflow run issue-investigator.yml --ref master -f issue="$issue" -f task=rebase
-                    done
+            - name: Ask the agent to rebase each pull request that conflicted
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  GH_REPO: ${{ github.repository }}
+                  ISSUES: ${{ needs.assemble.outputs.rebase }}
+              run: |
+                  for issue in $ISSUES; do
+                      gh workflow run issue-investigator.yml --ref master -f issue="$issue" -f task=rebase
+                  done
 
     clean-up:
         name: 🧹 Back to the shed
-        needs: [ assemble, checks, land ]
+        needs: [assemble, checks, land]
         if: always() && needs.assemble.result == 'success' && needs.assemble.outputs.count != '0'
         runs-on: ubuntu-latest
         timeout-minutes: 5
@@ -121,9 +121,9 @@ jobs:
             TRAIN: ${{ needs.assemble.outputs.train }}
             BRANCH: ${{ needs.assemble.outputs.branch }}
         steps:
-            -   uses: actions/checkout@v7
-            -   name: 🚨 Tell the pull requests that the train derailed
-                if: needs.land.result != 'success'
-                run: bash .github/scripts/release-train.sh report-failure "$TRAIN"
-            -   name: Remove the train's branch
-                run: bash .github/scripts/release-train.sh remove-branch "$BRANCH"
+            - uses: actions/checkout@v7
+            - name: 🚨 Tell the pull requests that the train derailed
+              if: needs.land.result != 'success'
+              run: bash .github/scripts/release-train.sh report-failure "$TRAIN"
+            - name: Remove the train's branch
+              run: bash .github/scripts/release-train.sh remove-branch "$BRANCH"

@@ -33,12 +33,19 @@
         }
     </div>
 
+    @if (savable()) {
+        <label class="keep">
+            <input type="checkbox" id="recipe-keep" [checked]="save()" (change)="save.set(!save())" />
+            {{ 'recipe.keep' | translate }}
+        </label>
+    }
+
     <div class="mt-4 flex gap-2">
         <button
             type="button"
             class="btn primary basis-0 grow"
             [disabled]="!chosen().length"
-            (click)="confirmed.emit(chosen())"
+            (click)="confirmed.emit({ ingredients: chosen(), save: savable() && save() })"
         >
             <i class="material-symbols-outlined">add_shopping_cart</i>
             {{ 'recipe.products' | translate: { count: chosen().length } }}

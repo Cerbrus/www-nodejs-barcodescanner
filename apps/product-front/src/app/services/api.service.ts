@@ -25,6 +25,7 @@ import {
     RemarkList,
     Scan,
     ScanOutcome,
+    ScannedRecipeCode,
     Section
 } from '../models';
 import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
@@ -133,8 +134,8 @@ export class ApiService {
         return this.http.delete<void>(`${this.baseUrl}/recipes/offers/${id}`);
     }
 
-    public addRecipe(recipe: RecipeContent): Observable<ScanOutcome> {
-        return this.http.post<ScanOutcome>(`${this.baseUrl}/recipes/additions`, recipe);
+    public addRecipe(recipe: RecipeContent, scanned?: ScannedRecipeCode): Observable<ScanOutcome> {
+        return this.http.post<ScanOutcome>(`${this.baseUrl}/recipes/additions`, { ...recipe, ...scanned });
     }
 
     public getInbox(): Observable<Array<Barcode>> {

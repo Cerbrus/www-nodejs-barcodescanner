@@ -14,7 +14,16 @@
 .choice + .choice {
     border-top: 1px solid var(--line);
 }
-.choice input {
+.keep {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 12px 0;
+    cursor: pointer;
+}
+.choice input,
+.keep input {
     width: 22px;
     height: 22px;
     flex: none;

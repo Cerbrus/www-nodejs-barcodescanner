@@ -10,16 +10,16 @@ The API restructure is finished on its branch and passes its tests, a local imag
 
 Stacked in this order; each contains the ones above it. All local, none pushed.
 
-| Branch | Commits | Content | State |
-|---|---|---|---|
-| `feature/api-restructure` | 7 | The API in layers, one config class, one owner for the barcode table, transactions, caller kinds, route tests. Version `1.1.0` | Done, verified locally |
-| `feature/product-review` | 1 | [product-review-2026-11-13.md](product-review-2026-11-13.md), [offline-plan.md](offline-plan.md) | Documents only |
-| `feature/web-feedback` | 1 | Error toast for failed changes, toast with undo for handheld scans, undo for a check-off, event stream stops after logout | Done, checked in a browser |
-| `feature/agent-tests-and-script-checks` | 1 | 20 tests for the hardware agent, shellcheck on the scripts, both in the build's checks job | Done; the workflow steps themselves run for the first time on GitHub |
-| `feature/ops-visibility` | 3 | Security headers on every answer; backup result in the system log; first version of this report | Done; backup part unverified on the Pi |
-| `feature/connector-failures` | 1 | The naming prompt says which lookup source gave no answer and can ask again | Done, checked in a browser |
-| `feature/scanner-status` | 1 | The System page shows whether the scanner service and the scanner are there, and the last handheld scan | Done, checked in a browser with a simulated agent |
-| `feature/offline-read` | 1 + this report | The app starts without a connection and shows the list as last loaded, read-only | Done, checked in desktop Chrome; not on a phone |
+| Branch                                  | Commits         | Content                                                                                                                        | State                                                                |
+| --------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| `feature/api-restructure`               | 7               | The API in layers, one config class, one owner for the barcode table, transactions, caller kinds, route tests. Version `1.1.0` | Done, verified locally                                               |
+| `feature/product-review`                | 1               | [product-review-2026-11-13.md](product-review-2026-11-13.md), [offline-plan.md](offline-plan.md)                               | Documents only                                                       |
+| `feature/web-feedback`                  | 1               | Error toast for failed changes, toast with undo for handheld scans, undo for a check-off, event stream stops after logout      | Done, checked in a browser                                           |
+| `feature/agent-tests-and-script-checks` | 1               | 20 tests for the hardware agent, shellcheck on the scripts, both in the build's checks job                                     | Done; the workflow steps themselves run for the first time on GitHub |
+| `feature/ops-visibility`                | 3               | Security headers on every answer; backup result in the system log; first version of this report                                | Done; backup part unverified on the Pi                               |
+| `feature/connector-failures`            | 1               | The naming prompt says which lookup source gave no answer and can ask again                                                    | Done, checked in a browser                                           |
+| `feature/scanner-status`                | 1               | The System page shows whether the scanner service and the scanner are there, and the last handheld scan                        | Done, checked in a browser with a simulated agent                    |
+| `feature/offline-read`                  | 1 + this report | The app starts without a connection and shows the list as last loaded, read-only                                               | Done, checked in desktop Chrome; not on a phone                      |
 
 To release everything: fast-forward `master` to `feature/offline-read`. The last three branches are the riskiest to release unseen, in rising order; `feature/ops-visibility` is a sensible first stop. To release only the restructure: fast-forward to `feature/api-restructure`.
 
@@ -56,14 +56,14 @@ To release everything: fast-forward `master` to `feature/offline-read`. The last
 
 ## Not done, and why
 
-| Item | Why |
-|---|---|
-| Changing the list offline | Needs three choices by the owner and a phone in a shop; plan written |
-| Tests for the web app | Needs a test runner, a new dependency with a long tail; plan written |
-| Better shop-section guess | No data yet: three barcodes scanned so far; planned for after two weeks of use |
-| Notification when the scanner stays away | Follows the scanner state; left until that is tried for real |
-| Anything on the Pi | Agreed: read-only. Nothing was read either; it was not needed |
-| Pushing branches | Agreed: local only |
+| Item                                     | Why                                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| Changing the list offline                | Needs three choices by the owner and a phone in a shop; plan written           |
+| Tests for the web app                    | Needs a test runner, a new dependency with a long tail; plan written           |
+| Better shop-section guess                | No data yet: three barcodes scanned so far; planned for after two weeks of use |
+| Notification when the scanner stays away | Follows the scanner state; left until that is tried for real                   |
+| Anything on the Pi                       | Agreed: read-only. Nothing was read either; it was not needed                  |
+| Pushing branches                         | Agreed: local only                                                             |
 
 ## Questions waiting for the owner
 

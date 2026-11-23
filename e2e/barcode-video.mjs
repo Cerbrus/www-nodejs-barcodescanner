@@ -1,5 +1,7 @@
 import { writeFileSync } from 'node:fs';
 
+import qrcode from 'qrcode-generator';
+
 const LEFT = [
     '0001101',
     '0011001',
@@ -59,6 +61,33 @@ export function writeBarcodeVideo(path, code) {
         }
     }
 
+    writeVideo(path, luminance);
+}
+
+export function writeQrVideo(path, text) {
+    const code = qrcode(0, 'M');
+    code.addData(text, 'Byte');
+    code.make();
+    const count = code.getModuleCount();
+    const size = Math.floor((HEIGHT - 80) / count);
+    const left = Math.round((WIDTH - count * size) / 2);
+    const top = Math.round((HEIGHT - count * size) / 2);
+    const luminance = Buffer.alloc(WIDTH * HEIGHT, WHITE);
+
+    for (let row = 0; row < count; row++) {
+        for (let column = 0; column < count; column++) {
+            if (code.isDark(row, column)) {
+                for (let y = top + row * size; y < top + (row + 1) * size; y++) {
+                    luminance.fill(BLACK, y * WIDTH + left + column * size, y * WIDTH + left + (column + 1) * size);
+                }
+            }
+        }
+    }
+
+    writeVideo(path, luminance);
+}
+
+function writeVideo(path, luminance) {
     const colour = Buffer.alloc((WIDTH / 2) * (HEIGHT / 2) * 2, NO_COLOUR);
     const frame = Buffer.concat([Buffer.from('FRAME\n'), luminance, colour]);
 

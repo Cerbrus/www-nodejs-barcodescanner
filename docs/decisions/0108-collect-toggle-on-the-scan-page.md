@@ -20,7 +20,7 @@ A scan adds a product to the list ([0001](0001-own-shopping-list.md)). In the sh
 
 - The scan page has a toggle. While it is on, the page sends `collecting: true` with each scan. The server keeps no mode. The handheld scanner always adds, as before.
 - The toggle stays on while the app is open, also when the user visits another page, and is off when the app starts.
-- A collecting scan of a known barcode whose entry is *to buy* moves it to *recent* (result `collected`, quantity 0). A product that is not on the list, or already recent, is left alone (result `not_on_list`). Nothing is ever added.
+- A collecting scan of a known barcode whose entry is _to buy_ moves it to _recent_ (result `collected`, quantity 0). A product that is not on the list, or already recent, is left alone (result `not_on_list`). Nothing is ever added.
 - An unknown barcode still goes to the inbox as a `needs_name` scan, and the scan remembers that it was collecting (`scan.collecting`). Naming it applies the waiting scan as a collect. The naming prompt opened from the scan page shows the products to buy as quick picks while the toggle is on; searching and creating a new product work as before. A product that is not on the list stays off the list: the barcode is linked and nothing else changes.
 - Undo restores the entry of a `collected` scan; a `not_on_list` scan changes nothing, so its undo only marks it undone.
 - The buzzer gets no new sounds: these results only come from the phone.

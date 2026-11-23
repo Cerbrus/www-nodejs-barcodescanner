@@ -38,6 +38,7 @@ vi.mock('@zxing/browser', () => ({
 
 const MILK = '8710400000001';
 const BREAD = '8710400000002';
+const SOUP = 'R1;Soep;7*2:vers;9';
 const outcome = (code: string, result: ScanOutcome['result']): ScanOutcome => ({
     scanId: 1,
     code,
@@ -49,7 +50,14 @@ const outcome = (code: string, result: ScanOutcome['result']): ScanOutcome => ({
 describe('ScanPage', () => {
     let fixture: ComponentFixture<ScanPage>;
     const api = { scan: vi.fn(), undoScan: vi.fn() };
-    const store = { refreshListAndInbox: vi.fn(), collecting: signal(false) };
+    const store = {
+        refreshListAndInbox: vi.fn(),
+        collecting: signal(false),
+        recipes: signal<Array<{ name: string }>>([]),
+        putRecipeOnList: vi.fn()
+    };
+    const sheet = (page: HTMLElement): (HTMLElement & { savable?: boolean; name?: string }) | null =>
+        page.querySelector('app-recipe-sheet');
 
     const open = async (): Promise<HTMLElement> => {
         fixture = TestBed.createComponent(ScanPage);
@@ -78,6 +86,8 @@ describe('ScanPage', () => {
         camera.refuse = false;
         camera.starts = 0;
         store.collecting.set(false);
+        store.recipes.set([]);
+        store.putRecipeOnList.mockReturnValue(of(undefined));
         api.scan.mockImplementation((code: string) => of(outcome(code, 'added')));
         api.undoScan.mockReturnValue(of({}));
         store.refreshListAndInbox.mockReturnValue(of(undefined));
@@ -193,6 +203,74 @@ describe('ScanPage', () => {
         see('1234567');
 
         expect(api.scan).not.toHaveBeenCalled();
+    });
+
+    it('stops the camera for a recipe code and opens the tick sheet, with the box to keep a recipe it does not have', async () => {
+        const page = await open();
+        see(SOUP);
+
+        expect(camera.stop).toHaveBeenCalledTimes(1);
+        expect(sheet(page)?.name).toBe('Soep');
+        expect(sheet(page)?.savable).toBe(true);
+        expect(api.scan).not.toHaveBeenCalled();
+
+        see(MILK);
+
+        expect(api.scan).not.toHaveBeenCalled();
+    });
+
+    it('offers no box to keep a recipe whose name the app has', async () => {
+        store.recipes.set([{ name: 'Soep' }]);
+        const page = await open();
+        see(SOUP);
+
+        expect(sheet(page)?.savable).toBe(false);
+    });
+
+    it('puts the ticked products on the list with the code, and starts the camera again', async () => {
+        const page = await open();
+        see(SOUP);
+        const ingredients = [{ catalogItemId: 7, quantity: 2, note: 'vers' }];
+        sheet(page)?.dispatchEvent(Object.assign(new CustomEvent('confirmed'), { ingredients, save: true }));
+        fixture.detectChanges();
+
+        expect(store.putRecipeOnList).toHaveBeenCalledWith({ name: 'Soep', ingredients }, { code: SOUP, save: true });
+        expect(sheet(page)).toBeNull();
+        expect(camera.starts).toBe(2);
+
+        see(SOUP);
+        expect(sheet(page)).toBeNull();
+
+        vi.advanceTimersByTime(3001);
+        see(SOUP);
+        expect(sheet(page)).not.toBeNull();
+    });
+
+    it('starts the camera again when the tick sheet is closed, and says so when the addition fails', async () => {
+        store.putRecipeOnList.mockReturnValue(throwError(() => new Error('offline')));
+        const page = await open();
+        see(SOUP);
+        sheet(page)?.dispatchEvent(new CustomEvent('closed'));
+        fixture.detectChanges();
+
+        expect(sheet(page)).toBeNull();
+        expect(camera.starts).toBe(2);
+        expect(store.putRecipeOnList).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(3001);
+        see(SOUP);
+        sheet(page)?.dispatchEvent(Object.assign(new CustomEvent('confirmed'), { ingredients: [], save: false }));
+
+        expect(toasts()).toEqual(['error: scan.failed']);
+    });
+
+    it('says so when a recipe code cannot be read', async () => {
+        const page = await open();
+        see('R1;Soep;zeven');
+
+        expect(sheet(page)).toBeNull();
+        expect(camera.stop).not.toHaveBeenCalled();
+        expect(toasts()).toEqual(['attention: scan.recipeUnreadable']);
     });
 
     it('stops the camera and asks for a name when the product is unknown, and reads nothing meanwhile', async () => {

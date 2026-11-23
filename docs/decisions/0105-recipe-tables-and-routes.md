@@ -18,23 +18,23 @@ Recipes are stored ([0101](0101-recipes-tab-and-pages.md)), go on the list as on
 
 **Tables**, the first three owned by a new `RecipeService`:
 
-| Table | Columns |
-|---|---|
-| `recipe` | `id`, `name` (unique), `description`, `created_at`, `updated_at` |
-| `recipe_ingredient` | `id`, `recipe_id`, `catalog_item_id`, `quantity`, `note`, `position`; product plus note is unique within a recipe |
-| `recipe_offer` | `id`, `code` (the whole code, unique), `name`, `created_at` |
-| `scan_change` | one row per list entry a recipe scan touched: the scan, product, note, quantity added, and the state and quantity before |
+| Table               | Columns                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `recipe`            | `id`, `name` (unique), `description`, `created_at`, `updated_at`                                                         |
+| `recipe_ingredient` | `id`, `recipe_id`, `catalog_item_id`, `quantity`, `note`, `position`; product plus note is unique within a recipe        |
+| `recipe_offer`      | `id`, `code` (the whole code, unique), `name`, `created_at`                                                              |
+| `scan_change`       | one row per list entry a recipe scan touched: the scan, product, note, quantity added, and the state and quantity before |
 
 A recipe that goes on the list is one row in `scan` with the result `recipe` or `recipe_partial` and the recipe's name in a new `title` column; its `scan_change` rows hold what undo restores. The source of a scan gets a third value, `app`, for a recipe added with a button. Scans of one product keep their columns as they are.
 
 **Routes:**
 
-| Method and path | Purpose |
-|---|---|
-| `GET`, `POST /api/v1/recipes`, `GET`, `PATCH`, `DELETE /api/v1/recipes/:id` | Recipes with their ingredients |
-| `POST /api/v1/recipes/additions` | Put the given ingredients of a recipe on the list as one history line, and save the recipe when asked. Used by the row button, the recipe page and the camera's tick sheet |
-| `POST /api/v1/scans` | Unchanged for a barcode. A code that starts with `R1;` goes to the recipe rule and adds every product |
-| `GET /api/v1/barcodes?unmapped=true` or a route next to it | The inbox also returns the waiting recipe offers |
+| Method and path                                                             | Purpose                                                                                                                                                                    |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`, `POST /api/v1/recipes`, `GET`, `PATCH`, `DELETE /api/v1/recipes/:id` | Recipes with their ingredients                                                                                                                                             |
+| `POST /api/v1/recipes/additions`                                            | Put the given ingredients of a recipe on the list as one history line, and save the recipe when asked. Used by the row button, the recipe page and the camera's tick sheet |
+| `POST /api/v1/scans`                                                        | Unchanged for a barcode. A code that starts with `R1;` goes to the recipe rule and adds every product                                                                      |
+| `GET /api/v1/barcodes?unmapped=true` or a route next to it                  | The inbox also returns the waiting recipe offers                                                                                                                           |
 
 The web app writes the code text itself and reads a scanned code itself, with `libs/shared` ([0104](0104-shared-library.md)); no route hands out or explains a code.
 

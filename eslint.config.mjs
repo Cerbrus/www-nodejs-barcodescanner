@@ -20,8 +20,8 @@ export default tseslint.config({
             'error',
             'always',
             {
-                exceptAfterSingleLine: true,
-            },
+                exceptAfterSingleLine: true
+            }
         ],
         '@typescript-eslint/member-ordering': [
             'error',
@@ -37,9 +37,9 @@ export default tseslint.config({
                     'private-instance-method',
                     'public-static-method',
                     'protected-static-method',
-                    'private-static-method',
-                ],
-            },
+                    'private-static-method'
+                ]
+            }
         ],
         '@typescript-eslint/no-useless-constructor': 'error',
         '@typescript-eslint/explicit-function-return-type': 'error',
@@ -52,28 +52,28 @@ export default tseslint.config({
                     constructors: 'no-public',
                     methods: 'explicit',
                     properties: 'explicit',
-                    parameterProperties: 'explicit',
-                },
-            },
+                    parameterProperties: 'explicit'
+                }
+            }
         ],
         '@typescript-eslint/array-type': [
             'error',
             {
-                default: 'generic',
-            },
+                default: 'generic'
+            }
         ],
         '@typescript-eslint/no-unused-vars': [
             'warn',
             {
                 argsIgnorePattern: '^_',
-                args: 'after-used',
-            },
+                args: 'after-used'
+            }
         ],
         '@typescript-eslint/no-empty-function': [
             'error',
             {
-                allow: ['overrideMethods'],
-            },
+                allow: ['overrideMethods']
+            }
         ],
         '@typescript-eslint/no-explicit-any': 'error',
         'sort-imports': [
@@ -83,8 +83,8 @@ export default tseslint.config({
                 ignoreDeclarationSort: true,
                 ignoreMemberSort: false,
                 memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
-                allowSeparatedGroups: false,
-            },
+                allowSeparatedGroups: false
+            }
         ],
         'import/no-duplicates': 'error',
         'import/no-unresolved': 'error',
@@ -95,9 +95,9 @@ export default tseslint.config({
                 'newlines-between': 'always',
                 alphabetize: {
                     order: 'asc',
-                    caseInsensitive: true,
-                },
-            },
-        ],
+                    caseInsensitive: true
+                }
+            }
+        ]
     }
 });

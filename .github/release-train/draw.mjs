@@ -41,7 +41,10 @@ const style = `<style>
 
 const wheel = (cx, cy, r, spin) => {
     const spokes = [0, 45, 90, 135]
-        .map((a) => `<line x1="${cx - r + 2}" y1="${cy}" x2="${cx + r - 2}" y2="${cy}" transform="rotate(${a} ${cx} ${cy})"/>`)
+        .map(
+            (a) =>
+                `<line x1="${cx - r + 2}" y1="${cy}" x2="${cx + r - 2}" y2="${cy}" transform="rotate(${a} ${cx} ${cy})"/>`
+        )
         .join('');
     return `<g${spin ? ` class="spin" style="transform-origin:${cx}px ${cy}px"` : ''} stroke="${C.wheel}" fill="none"><g stroke-width="1.5">${spokes}</g><circle cx="${cx}" cy="${cy}" r="${r}" stroke-width="4"/><circle cx="${cx}" cy="${cy}" r="3" fill="${C.brass}" stroke="none"/></g>`;
 };
@@ -72,13 +75,21 @@ ${wheel(22, 113, 10, moving)}${wheel(70, 113, 10, moving)}`;
 const at = (x, inner) => `<g transform="translate(${x} 0)">${inner}</g>`;
 const rail = (x1 = 0, x2 = WIDTH, moving = false) => {
     const count = Math.floor((x2 - x1) / SLEEPER) + (moving ? 2 : 0);
-    const sleepers = Array.from({ length: count }, (_, i) => `<rect x="${x1 + 6 + i * SLEEPER}" y="127" width="10" height="4" rx="1" fill="${C.wood}"/>`).join('');
+    const sleepers = Array.from(
+        { length: count },
+        (_, i) => `<rect x="${x1 + 6 + i * SLEEPER}" y="127" width="10" height="4" rx="1" fill="${C.wood}"/>`
+    ).join('');
     return `<line x1="${x1}" y1="125" x2="${x2}" y2="125" stroke="${C.rail}" stroke-width="3" stroke-linecap="round"/><g${moving ? ' class="sleepers"' : ''}>${sleepers}</g>`;
 };
 const puffs = (x, y, n = 4) =>
-    Array.from({ length: n }, (_, i) => `<circle class="puff p${i + 1}" cx="${x}" cy="${y}" r="9" fill="${C.steam}"/>`).join('');
+    Array.from(
+        { length: n },
+        (_, i) => `<circle class="puff p${i + 1}" cx="${x}" cy="${y}" r="9" fill="${C.steam}"/>`
+    ).join('');
 const train = (x, count, moving, colours = [C.red, C.green]) => {
-    const carriages = Array.from({ length: count }, (_, i) => at(x + i * PITCH, carriage(colours[i % colours.length], { moving }))).join('');
+    const carriages = Array.from({ length: count }, (_, i) =>
+        at(x + i * PITCH, carriage(colours[i % colours.length], { moving }))
+    ).join('');
     return carriages + at(x + (count - 1) * PITCH + LOCO_AFTER_CARRIAGE, loco({ moving }));
 };
 const platform = (x1, x2, slope = true) =>
@@ -92,7 +103,8 @@ const svg = (title, body, box = `0 0 ${WIDTH} 150`) =>
 
 const tunnel = (x1, x2) => {
     const arch = (x) => `M${x - 16} 131V44a16 30 0 0 1 32 0V131`;
-    const portal = (x) => `<path d="${arch(x)}z" fill="#1b2028"/><path d="${arch(x)}" fill="none" stroke="#cdd3da" stroke-width="4"/>`;
+    const portal = (x) =>
+        `<path d="${arch(x)}z" fill="#1b2028"/><path d="${arch(x)}" fill="none" stroke="#cdd3da" stroke-width="4"/>`;
     return `<pattern id="bricks" width="24" height="12" patternUnits="userSpaceOnUse"><rect width="24" height="12" fill="#9a5442"/><path d="M0 .5H24M0 6.5H24M.5 0V6M12.5 6V12" stroke="#d9c8b6" stroke-width="1" fill="none"/></pattern><rect x="${x1}" y="-40" width="${x2 - x1}" height="171" fill="url(#bricks)"/>${portal(x1 + 28)}${portal(x2 - 28)}`;
 };
 const clipped = (id, x1, x2, inner) =>

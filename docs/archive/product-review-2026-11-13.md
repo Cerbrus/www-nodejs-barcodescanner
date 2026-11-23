@@ -18,53 +18,53 @@ Weight: **A** affects daily use or safety, **B** worth doing, **C** nice to have
 
 ### Web app
 
-| # | Finding | Weight | What happens |
-|---|---|---|---|
-| W1 | A failed action is silent. 26 places send a change to the server without handling failure; only the scan page shows an error. Tap a tile during an update or without signal and nothing happens, with no message. | A | Built: branch `feature/web-feedback` |
-| W2 | Use case UC-1 says any open page shows a toast with an undo button after a handheld scan. No code does that; the page only refreshes its data. | A | Built: `feature/web-feedback` |
-| W3 | Checking off is one tap on a tile, so a mis-tap happens, and there is no undo except finding the tile under "recent". | B | Built: `feature/web-feedback` |
-| W4 | After logout or an expired session the page keeps trying to reopen the event stream every 3 seconds, forever. | C | Built: `feature/web-feedback` |
-| W5 | The web app has no automated tests at all. Every change is checked by hand, mostly by the owner on the phone. | B | Planned: milestone 9 in [plan.md](../plan.md) |
-| W6 | Shopping without a connection (milestone 8) is not built; in a shop with poor signal the list does not load. | A | Read-only part built after the first report: branch `feature/offline-read`. Changing the list offline is planned in [offline-plan.md](offline-plan.md) and needs the owner's choices |
-| W7 | No one has checked the pages with a screen reader or at large text sizes. | C | Noted |
+| #   | Finding                                                                                                                                                                                                           | Weight | What happens                                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| W1  | A failed action is silent. 26 places send a change to the server without handling failure; only the scan page shows an error. Tap a tile during an update or without signal and nothing happens, with no message. | A      | Built: branch `feature/web-feedback`                                                                                                                                                 |
+| W2  | Use case UC-1 says any open page shows a toast with an undo button after a handheld scan. No code does that; the page only refreshes its data.                                                                    | A      | Built: `feature/web-feedback`                                                                                                                                                        |
+| W3  | Checking off is one tap on a tile, so a mis-tap happens, and there is no undo except finding the tile under "recent".                                                                                             | B      | Built: `feature/web-feedback`                                                                                                                                                        |
+| W4  | After logout or an expired session the page keeps trying to reopen the event stream every 3 seconds, forever.                                                                                                     | C      | Built: `feature/web-feedback`                                                                                                                                                        |
+| W5  | The web app has no automated tests at all. Every change is checked by hand, mostly by the owner on the phone.                                                                                                     | B      | Planned: milestone 9 in [plan.md](../plan.md)                                                                                                                                        |
+| W6  | Shopping without a connection (milestone 8) is not built; in a shop with poor signal the list does not load.                                                                                                      | A      | Read-only part built after the first report: branch `feature/offline-read`. Changing the list offline is planned in [offline-plan.md](offline-plan.md) and needs the owner's choices |
+| W7  | No one has checked the pages with a screen reader or at large text sizes.                                                                                                                                         | C      | Noted                                                                                                                                                                                |
 
 ### API and data
 
-| # | Finding | Weight | What happens |
-|---|---|---|---|
-| A1 | The `scan` table grows without end; every scan is kept forever. Small today, but it is also in every hourly backup. | C | Question 1 |
-| A2 | Responses carry no security headers: nothing forbids framing the site or guessing content types. | B | Built: the safe headers, on `feature/ops-visibility`. A content security policy is question 2 |
-| A3 | Lookup failures of the product connectors are only in the system log (open item of milestone 6). In the naming prompt "no result" and "Albert Heijn did not answer" look the same. | B | Built after the first report: branch `feature/connector-failures` |
-| A4 | The shop section for a new product is guessed from a short keyword list in the web app (open item of milestone 5). | C | Planned, see "Plans" |
-| A5 | The login routes have no rate limit. Low risk: the password check is Google's, and a session cannot be guessed. | C | Noted |
+| #   | Finding                                                                                                                                                                            | Weight | What happens                                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------- |
+| A1  | The `scan` table grows without end; every scan is kept forever. Small today, but it is also in every hourly backup.                                                                | C      | Question 1                                                                                    |
+| A2  | Responses carry no security headers: nothing forbids framing the site or guessing content types.                                                                                   | B      | Built: the safe headers, on `feature/ops-visibility`. A content security policy is question 2 |
+| A3  | Lookup failures of the product connectors are only in the system log (open item of milestone 6). In the naming prompt "no result" and "Albert Heijn did not answer" look the same. | B      | Built after the first report: branch `feature/connector-failures`                             |
+| A4  | The shop section for a new product is guessed from a short keyword list in the web app (open item of milestone 5).                                                                 | C      | Planned, see "Plans"                                                                          |
+| A5  | The login routes have no rate limit. Low risk: the password check is Google's, and a session cannot be guessed.                                                                    | C      | Noted                                                                                         |
 
 ### Hardware agent
 
-| # | Finding | Weight | What happens |
-|---|---|---|---|
-| H1 | The agent has no tests. Its key reading, its sound patterns and its settings handling were only tried by hand. | B | Built: branch `feature/agent-tests-and-script-checks` |
-| H2 | A scan made while the app is unreachable is lost: the agent beeps the error sound and forgets the scan. The app restarts at every update, about 15 seconds each. | B | Built on branch `feature/agent-hold-scans` after the owner chose to hold and deliver |
-| H3 | Nothing shows whether the scanner is connected, short of reading the system log. A dongle that fell out is noticed when a scan does not arrive. | B | Built after the first report: branch `feature/scanner-status`. The notification for a scanner that stays away is not built |
-| H4 | The agent still sends the scan source, which the API now ignores. | C | Remove one release after 1.1.0 |
+| #   | Finding                                                                                                                                                          | Weight | What happens                                                                                                               |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| H1  | The agent has no tests. Its key reading, its sound patterns and its settings handling were only tried by hand.                                                   | B      | Built: branch `feature/agent-tests-and-script-checks`                                                                      |
+| H2  | A scan made while the app is unreachable is lost: the agent beeps the error sound and forgets the scan. The app restarts at every update, about 15 seconds each. | B      | Built on branch `feature/agent-hold-scans` after the owner chose to hold and deliver                                       |
+| H3  | Nothing shows whether the scanner is connected, short of reading the system log. A dongle that fell out is noticed when a scan does not arrive.                  | B      | Built after the first report: branch `feature/scanner-status`. The notification for a scanner that stays away is not built |
+| H4  | The agent still sends the scan source, which the API now ignores.                                                                                                | C      | Remove one release after 1.1.0                                                                                             |
 
 ### Deployment and operations
 
-| # | Finding | Weight | What happens |
-|---|---|---|---|
-| O1 | A failed backup is invisible unless someone reads the journal on the Pi. | B | Built: `feature/ops-visibility`; unverified on the Pi |
-| O2 | The shell scripts that run as root on the Pi are not checked by any tool. | B | Built: `feature/agent-tests-and-script-checks` |
-| O3 | The Pi runs, as root, whatever `master` holds: the updater fetches its own scripts from the repository. Whoever can push to `master` controls the Pi. | A | Question 4 |
-| O4 | No automatic updates of dependencies; versions are whatever was current on 2026-11-12. | B | Question 5 |
-| O5 | The repository is public and has no licence file, so legally nobody may reuse it, and the two connector logos sit next to code without a note on their status. | C | Question 6 |
-| O6 | `install.sh`, the restore procedure and rollback were never run for real. | B | Stays on the "never tested" list; needs a spare SD card |
-| O7 | Versions have numbers and tags but no notes: what changed in 1.0.14 is only in commit messages. | C | Question 7 |
+| #   | Finding                                                                                                                                                        | Weight | What happens                                            |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------- |
+| O1  | A failed backup is invisible unless someone reads the journal on the Pi.                                                                                       | B      | Built: `feature/ops-visibility`; unverified on the Pi   |
+| O2  | The shell scripts that run as root on the Pi are not checked by any tool.                                                                                      | B      | Built: `feature/agent-tests-and-script-checks`          |
+| O3  | The Pi runs, as root, whatever `master` holds: the updater fetches its own scripts from the repository. Whoever can push to `master` controls the Pi.          | A      | Question 4                                              |
+| O4  | No automatic updates of dependencies; versions are whatever was current on 2026-11-12.                                                                         | B      | Question 5                                              |
+| O5  | The repository is public and has no licence file, so legally nobody may reuse it, and the two connector logos sit next to code without a note on their status. | C      | Question 6                                              |
+| O6  | `install.sh`, the restore procedure and rollback were never run for real.                                                                                      | B      | Stays on the "never tested" list; needs a spare SD card |
+| O7  | Versions have numbers and tags but no notes: what changed in 1.0.14 is only in commit messages.                                                                | C      | Question 7                                              |
 
 ### Documentation
 
-| # | Finding | Weight | What happens |
-|---|---|---|---|
-| D1 | UC-1 describes the toast that did not exist (W2). | B | Fixed by building W2 |
-| D2 | The README has no picture of the product. | C | Noted; needs screenshots from a phone |
+| #   | Finding                                           | Weight | What happens                          |
+| --- | ------------------------------------------------- | ------ | ------------------------------------- |
+| D1  | UC-1 describes the toast that did not exist (W2). | B      | Fixed by building W2                  |
+| D2  | The README has no picture of the product.         | C      | Noted; needs screenshots from a phone |
 
 ## Built tonight
 

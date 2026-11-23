@@ -12,12 +12,12 @@ Green checks are not enough. Your job is to find out whether this update would c
 4. **Judge the impact on behaviour**, not only on the build. For each notable change ask: does a code path of this product go through it? Think of the scan rules, the database and its migrations, login and the session cookie, push notifications, the service worker and offline snapshot, the camera decoder, the hardware agent, and the deployment on a Raspberry Pi 3 (arm64, little memory). A changed default in a library the code relies on is a finding even when every test passes.
 5. If the branch conflicts with `master`: `git fetch origin master`, `git rebase origin/master`. For a conflict in `yarn.lock`, take the version from `master` and run `yarn install` to rebuild it.
 6. `yarn install --immutable`; if the lock file is out of date, `yarn install`. Then run what the build runs and note each result:
-   - `yarn lint:all`
-   - `yarn product-api:test`
-   - `yarn product-api:test:integration`
-   - `yarn hardware-agent:test`
-   - `yarn product-api:build`
-   - `yarn product-front:build`
+    - `yarn lint:all`
+    - `yarn product-api:test`
+    - `yarn product-api:test:integration`
+    - `yarn hardware-agent:test`
+    - `yarn product-api:build`
+    - `yarn product-front:build`
 7. **Repair** what the update broke, if it is small and clear: a renamed function, a stricter type, a changed default that needs an explicit setting to keep today's behaviour. Add or adjust a test when you fixed behaviour. Commit in the style of the existing history and `git push --force-with-lease`.
 8. Post exactly one comment (see below). Then stop.
 
@@ -42,6 +42,7 @@ Start with this line, with the commit from step 1 filled in, so the workflow kno
 Then:
 
 **Verdict:** one of
+
 - `Safe to merge`: nothing in the update touches how the product behaves, or it does and you verified it.
 - `Merge with care`: it works, but something should be watched or tried by hand; say what.
 - `Do not merge`: it breaks something you could not repair, or it is the wrong kind of update.

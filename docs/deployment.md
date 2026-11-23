@@ -16,18 +16,18 @@ The repository and the images are public, so the Pi needs no GitHub token and no
 
 Checked over SSH on 2026-11-12:
 
-| Fact | Value |
-|---|---|
-| Model | Raspberry Pi 3 Model B+ |
-| OS | Debian 13 (trixie), 64-bit (`aarch64`) |
-| Memory | about 900 MB, plus the same amount of swap; roughly 600 MB available |
-| Disk | 10 GB free |
-| Docker | Engine 29.9.3 and compose plugin v5.7.1, installed 2026-11-12 from Docker's Debian repository |
-| Other services | `recipes` and `webserver` (ports 3000 and 3010), `fan-control` |
-| Port 3020 | free |
-| Network | wired and wifi interface; point the proxy at the wired address |
-| Scanner dongle | `/dev/input/by-id/usb-0581_011c-event-kbd` |
-| Memory limits | available since 2026-11-12: `cgroup_enable=memory cgroup_memory=1` added to `/boot/firmware/cmdline.txt` (backup next to it) |
+| Fact           | Value                                                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Model          | Raspberry Pi 3 Model B+                                                                                                      |
+| OS             | Debian 13 (trixie), 64-bit (`aarch64`)                                                                                       |
+| Memory         | about 900 MB, plus the same amount of swap; roughly 600 MB available                                                         |
+| Disk           | 10 GB free                                                                                                                   |
+| Docker         | Engine 29.9.3 and compose plugin v5.7.1, installed 2026-11-12 from Docker's Debian repository                                |
+| Other services | `recipes` and `webserver` (ports 3000 and 3010), `fan-control`                                                               |
+| Port 3020      | free                                                                                                                         |
+| Network        | wired and wifi interface; point the proxy at the wired address                                                               |
+| Scanner dongle | `/dev/input/by-id/usb-0581_011c-event-kbd`                                                                                   |
+| Memory limits  | available since 2026-11-12: `cgroup_enable=memory cgroup_memory=1` added to `/boot/firmware/cmdline.txt` (backup next to it) |
 
 Consequences:
 
@@ -132,28 +132,28 @@ A pull request lands through the owner's approval, not through a merge by hand. 
 
 The least that must be set: `SCANNER_DEVICE`. For login also `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `PUBLIC_URL`, `ALLOWED_EMAILS` and `AGENT_TOKEN`; at start the server log names the ones that are empty. Everything else is optional or has a default.
 
-| Variable | Meaning |
-|---|---|
-| `IMAGE_TAG` | `latest` by default. Set a version number such as `1.0.20` to pin that version. |
-| `APP_PORT` | Host port of the web app and API, default `3020` |
-| `ALLOWED_SOURCE` | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network. |
-| `SCANNER_DEVICE` | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd` |
-| `BACKUP_REPO` | SSH address of the private backup repository. Empty switches the backup off. |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client for login. An empty id switches login off. |
-| `PUBLIC_URL` | Address the site is reached at, such as `https://shopping.example.com`, without a slash at the end |
-| `ALLOWED_EMAILS` | Google accounts that may log in, comma-separated |
-| `OWNER_EMAIL` | The account that also gets the system parts (log, history, scanner status, sounds, test notification). Empty: the first address of `ALLOWED_EMAILS` |
-| `GITHUB_ISSUES_TOKEN` | Lets the owner send feedback from the app to GitHub as an issue. A fine-grained personal access token for the one repository, with read and write on issues only. Empty: the button is not shown |
-| `GITHUB_REPOSITORY` | The repository the issues go to, as `owner/name`. Default: this project's |
-| `AGENT_TOKEN` | Secret the hardware agent uses instead of a login; `install.sh` creates it |
-| `CSP_MODE` | Content security policy: `report` (default) writes to the system log what the policy would block, `enforce` blocks it, `off` sends no policy. Restart the app after changing it |
-| `FEEDBACK_OUTPUT` | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below |
-| `BUZZER_PIN` | GPIO number of the buzzer pin, default `18` |
-| `BUZZER_TYPE` | `active` (default) or `passive` |
-| `BUZZER_ACTIVE_LOW` | `true` for modules that sound when the pin is low, default `false` |
-| `PUSH_SUBJECT` | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses. |
+| Variable                                   | Meaning                                                                                                                                                                                          |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `IMAGE_TAG`                                | `latest` by default. Set a version number such as `1.0.20` to pin that version.                                                                                                                  |
+| `APP_PORT`                                 | Host port of the web app and API, default `3020`                                                                                                                                                 |
+| `ALLOWED_SOURCE`                           | Address of the reverse proxy; only it may reach `APP_PORT`. Several addresses: comma-separated. Empty means open to the whole network.                                                           |
+| `SCANNER_DEVICE`                           | Path under `/dev/input/by-id/` of the scanner, ending in `-event-kbd`                                                                                                                            |
+| `BACKUP_REPO`                              | SSH address of the private backup repository. Empty switches the backup off.                                                                                                                     |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | The Google OAuth client for login. An empty id switches login off.                                                                                                                               |
+| `PUBLIC_URL`                               | Address the site is reached at, such as `https://shopping.example.com`, without a slash at the end                                                                                               |
+| `ALLOWED_EMAILS`                           | Google accounts that may log in, comma-separated                                                                                                                                                 |
+| `OWNER_EMAIL`                              | The account that also gets the system parts (log, history, scanner status, sounds, test notification). Empty: the first address of `ALLOWED_EMAILS`                                              |
+| `GITHUB_ISSUES_TOKEN`                      | Lets the owner send feedback from the app to GitHub as an issue. A fine-grained personal access token for the one repository, with read and write on issues only. Empty: the button is not shown |
+| `GITHUB_REPOSITORY`                        | The repository the issues go to, as `owner/name`. Default: this project's                                                                                                                        |
+| `AGENT_TOKEN`                              | Secret the hardware agent uses instead of a login; `install.sh` creates it                                                                                                                       |
+| `CSP_MODE`                                 | Content security policy: `report` (default) writes to the system log what the policy would block, `enforce` blocks it, `off` sends no policy. Restart the app after changing it                  |
+| `FEEDBACK_OUTPUT`                          | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below                                                                                                                           |
+| `BUZZER_PIN`                               | GPIO number of the buzzer pin, default `18`                                                                                                                                                      |
+| `BUZZER_TYPE`                              | `active` (default) or `passive`                                                                                                                                                                  |
+| `BUZZER_ACTIVE_LOW`                        | `true` for modules that sound when the pin is low, default `false`                                                                                                                               |
+| `PUSH_SUBJECT`                             | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses.                |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional and not in the template: `CONNECTORS` (default `ah,off`) picks the product lookup sources, `LOG_LEVEL` (default `INFO`) sets how much the hardware agent logs, and `GPIO_CHIP` (default `/dev/gpiochip0`) names the GPIO device of the buzzer. 
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional and not in the template: `CONNECTORS` (default `ah,off`) picks the product lookup sources, `LOG_LEVEL` (default `INFO`) sets how much the hardware agent logs, and `GPIO_CHIP` (default `/dev/gpiochip0`) names the GPIO device of the buzzer.
 
 ## Reverse proxy (Nginx Proxy Manager)
 

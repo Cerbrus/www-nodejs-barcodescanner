@@ -97,6 +97,11 @@ export interface RecipeOffer {
     nameTaken: boolean;
 }
 
+export interface ScannedRecipeCode {
+    code: string;
+    save: boolean;
+}
+
 export interface RecipeInput {
     name: string;
     description: string;

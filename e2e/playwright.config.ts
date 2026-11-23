@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { defineConfig } from '@playwright/test';
 
-import { withCheckDigit, writeBarcodeVideo } from './barcode-video.mjs';
+import { withCheckDigit, writeBarcodeVideo, writeQrVideo } from './barcode-video.mjs';
 
 const PORT = 3931;
 const FAKE_CAMERA = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'];
@@ -12,6 +12,11 @@ export const CAMERA_CODE = withCheckDigit('871040099001');
 
 const video = join(tmpdir(), 'barcodescanner-e2e-camera.y4m');
 writeBarcodeVideo(video, CAMERA_CODE);
+
+export const CAMERA_RECIPE = { name: 'Camerasoep', productId: 1, quantity: 2 };
+
+const recipeVideo = join(tmpdir(), 'barcodescanner-e2e-recipe.y4m');
+writeQrVideo(recipeVideo, `R1;${CAMERA_RECIPE.name};${CAMERA_RECIPE.productId}*${CAMERA_RECIPE.quantity};999999:weg`);
 
 export default defineConfig({
     testDir: '.',
@@ -47,6 +52,12 @@ export default defineConfig({
             testMatch: 'camera.e2e.ts',
             dependencies: ['app'],
             use: { launchOptions: { args: [...FAKE_CAMERA, `--use-file-for-fake-video-capture=${video}`] } }
+        },
+        {
+            name: 'recipe-camera',
+            testMatch: 'recipe-camera.e2e.ts',
+            dependencies: ['camera'],
+            use: { launchOptions: { args: [...FAKE_CAMERA, `--use-file-for-fake-video-capture=${recipeVideo}`] } }
         }
     ],
     webServer: {

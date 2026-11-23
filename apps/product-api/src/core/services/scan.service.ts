@@ -36,6 +36,11 @@ export interface ScanOutcome {
     unknown?: Array<number>;
 }
 
+export interface ChosenRecipe extends RecipeContent {
+    code?: string;
+    save?: boolean;
+}
+
 const MAX_HELD_MILLISECONDS = 60 * 60 * 1000;
 const RECIPE_RESULTS: Array<ScanResult> = ['recipe', 'recipe_partial'];
 
@@ -106,6 +111,20 @@ export class ScanService {
         await this.recipes.offerIfUnknown(recipe);
         if (source === 'handheld' && outcome.unknown?.length) {
             void this.push.notifyRecipePartial(recipe.name.trim(), outcome.unknown.length);
+        }
+
+        return outcome;
+    }
+
+    public async addChosen({ code, save, ...chosen }: ChosenRecipe): Promise<ScanOutcome> {
+        const scanned = code ? readRecipeCode(code) : undefined;
+        if (code && !scanned?.name.trim()) {
+            throw new BadRequestException('This is not a recipe code the app can read');
+        }
+
+        const outcome = await this.addRecipe(chosen, scanned ? 'phone' : 'app');
+        if (scanned) {
+            await (save ? this.recipes.keepIfUnknown(scanned) : this.recipes.offerIfUnknown(scanned));
         }
 
         return outcome;

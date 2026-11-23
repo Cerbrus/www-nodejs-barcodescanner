@@ -55,7 +55,8 @@
         "discarded": "Scan cancelled",
         "unknownHandheld": "Unknown product scanned",
         "collect": "Scans collect products from the list",
-        "nameIt": "Name it"
+        "nameIt": "Name it",
+        "recipeUnreadable": "Cannot read this recipe code"
     },
     "naming": {
         "title": "Which product is this?",
@@ -122,7 +123,8 @@
         "createAndAdd": "Create and add",
         "print": "Print codes",
         "select": "Choose recipes",
-        "code": "Code of {name}"
+        "code": "Code of {name}",
+        "keep": "Keep the recipe"
     },
     "item": {
         "name": "Name",

@@ -29,15 +29,15 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 
 ## Layout
 
-| Part | Directory | Notes |
-|---|---|---|
-| API | `apps/product-api/` | NestJS, TypeORM, SQLite. Layers under `src/`: `api` (controllers, dto, guards), `core` (services, rules, connectors), `data` (entities, migrations), `config`. Integration tests in `src/test/` |
-| Web app | `apps/product-front/` | Angular 22, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/` |
-| Hardware agent | `apps/hardware-agent/` | Python, evdev |
-| Shared library | `libs/shared/` | Plain TypeScript that the API and the web app both use, imported as `@barcodescanner/shared`: the types and limits they exchange, and the reader and writer of the recipe code. No Angular, NestJS or TypeORM in it; lint enforces it |
-| Deployment | `deployment/` | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh` |
-| End-to-end tests | `e2e/` | Playwright with the installed Chrome; starts the built app itself (`start-app.mjs`) and makes its own camera picture (`barcode-video.mjs`) |
-| Data | `data/` | `seed-items.json` and `icons/` are committed; everything else is ignored |
+| Part             | Directory              | Notes                                                                                                                                                                                                                                 |
+| ---------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API              | `apps/product-api/`    | NestJS, TypeORM, SQLite. Layers under `src/`: `api` (controllers, dto, guards), `core` (services, rules, connectors), `data` (entities, migrations), `config`. Integration tests in `src/test/`                                       |
+| Web app          | `apps/product-front/`  | Angular 22, TailwindCSS. Pages in `src/app/pages/`, shared pieces in `components/`, state in `services/shopping.store.ts`, texts in `src/assets/i18n/`                                                                                |
+| Hardware agent   | `apps/hardware-agent/` | Python, evdev                                                                                                                                                                                                                         |
+| Shared library   | `libs/shared/`         | Plain TypeScript that the API and the web app both use, imported as `@barcodescanner/shared`: the types and limits they exchange, and the reader and writer of the recipe code. No Angular, NestJS or TypeORM in it; lint enforces it |
+| Deployment       | `deployment/`          | Compose file and the scripts the Pi fetches from `master`: `install.sh`, `update.sh`, `firewall.sh`, `backup.sh`                                                                                                                      |
+| End-to-end tests | `e2e/`                 | Playwright with the installed Chrome; starts the built app itself (`start-app.mjs`) and makes its own camera picture (`barcode-video.mjs`)                                                                                            |
+| Data             | `data/`                | `seed-items.json` and `icons/` are committed; everything else is ignored                                                                                                                                                              |
 
 Nx project names: `product-api`, `product-front`, `shared`.
 

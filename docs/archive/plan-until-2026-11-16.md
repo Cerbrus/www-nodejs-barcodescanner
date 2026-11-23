@@ -168,13 +168,13 @@ The agent, tuned after its first runs:
 
 What the agent built from the owner's feedback, each reviewed, finished and landed locally:
 
-| Version | Issues | What changed for the user | Changed in review |
-|---|---|---|---|
-| 1.1.56 | #9, #10, #11, #12 | two-finger tap removed; remarks about the bottom menu; a number for open feedback; rejecting a remark | number for the owner only; formatter noise removed |
-| 1.1.60 | #17, #18 | a hint that fits the device; the row highlight stays inside the card | wording on a computer, a test clean-up |
-| 1.1.63 | #21, #23 | handled remarks fold away; a "What's new" page | the changelog is written by the build, so a release lists itself |
-| 1.1.65 | #26 | "Let the agent look at it" first and ticked | Nx cache bug of the changelog fixed |
-| 1.1.67 | #25 | actions under a menu, Ctrl+Enter sends, a question when closing with text | one action shows as a button; Handle in the menu; plainer close question |
+| Version | Issues            | What changed for the user                                                                             | Changed in review                                                        |
+| ------- | ----------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1.1.56  | #9, #10, #11, #12 | two-finger tap removed; remarks about the bottom menu; a number for open feedback; rejecting a remark | number for the owner only; formatter noise removed                       |
+| 1.1.60  | #17, #18          | a hint that fits the device; the row highlight stays inside the card                                  | wording on a computer, a test clean-up                                   |
+| 1.1.63  | #21, #23          | handled remarks fold away; a "What's new" page                                                        | the changelog is written by the build, so a release lists itself         |
+| 1.1.65  | #26               | "Let the agent look at it" first and ticked                                                           | Nx cache bug of the changelog fixed                                      |
+| 1.1.67  | #25               | actions under a menu, Ctrl+Enter sends, a question when closing with text                             | one action shows as a button; Handle in the menu; plainer close question |
 
 ### 12. Names, sections and variants: started
 
@@ -222,8 +222,8 @@ The owner's idea of 2026-11-15, plan in [sounds-plan.md](sounds-plan.md). Instea
 
 ## Open points
 
-| Point | Needed by |
-|---|---|
+| Point                                                                                                                                                                | Needed by   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | Content security policy: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi | Milestone 6 |
 
 ## Never tested

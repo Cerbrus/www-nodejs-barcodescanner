@@ -30,6 +30,7 @@ import {
     Recipe,
     RecipeInput,
     RecipeOffer,
+    ScannedRecipeCode,
     Section
 } from '../models';
 import { ApiService } from './api.service';
@@ -235,8 +236,8 @@ export class ShoppingStore {
         return this.api.dropRecipeOffer(id).pipe(switchMap(() => this.refreshRecipes()));
     }
 
-    public putRecipeOnList(recipe: RecipeContent): Observable<void> {
-        return this.api.addRecipe(recipe).pipe(
+    public putRecipeOnList(recipe: RecipeContent, scanned?: ScannedRecipeCode): Observable<void> {
+        return this.api.addRecipe(recipe, scanned).pipe(
             tap((outcome) =>
                 this.toasts.show({
                     kind: outcome.unknown?.length ? 'attention' : 'ok',

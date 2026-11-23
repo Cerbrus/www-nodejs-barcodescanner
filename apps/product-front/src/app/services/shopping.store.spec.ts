@@ -176,7 +176,7 @@ describe('ShoppingStore', () => {
 
         store.putRecipeOnList(recipe).subscribe();
 
-        expect(api.addRecipe).toHaveBeenCalledWith(recipe);
+        expect(api.addRecipe).toHaveBeenCalledWith(recipe, undefined);
         expect(toasts.toasts().map(({ kind, text }) => [kind, text])).toEqual([['ok', 'recipe.added']]);
         expect(api.getList).toHaveBeenCalledTimes(2);
 
@@ -188,6 +188,9 @@ describe('ShoppingStore', () => {
         store.putRecipeOnList(recipe).subscribe();
         expect(toasts.toasts().at(-1)?.kind).toBe('attention');
         expect(toasts.toasts().at(-1)?.text).toBe('recipe.addedPartly');
+
+        store.putRecipeOnList(recipe, { code: 'R1;Pannenkoeken;1', save: true }).subscribe();
+        expect(api.addRecipe).toHaveBeenLastCalledWith(recipe, { code: 'R1;Pannenkoeken;1', save: true });
     });
 
     it('groups by section in the order of the sections and leaves out empty ones', () => {

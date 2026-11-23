@@ -55,7 +55,8 @@
         "discarded": "Scan geannuleerd",
         "unknownHandheld": "Onbekend product gescand",
         "collect": "Scans pakken producten van de lijst",
-        "nameIt": "Naam geven"
+        "nameIt": "Naam geven",
+        "recipeUnreadable": "Receptcode niet te lezen"
     },
     "naming": {
         "title": "Welk product is dit?",
@@ -122,7 +123,8 @@
         "createAndAdd": "Aanmaken en toevoegen",
         "print": "Codes afdrukken",
         "select": "Recepten kiezen",
-        "code": "Code van {name}"
+        "code": "Code van {name}",
+        "keep": "Recept bewaren"
     },
     "item": {
         "name": "Naam",

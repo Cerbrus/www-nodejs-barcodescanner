@@ -19,18 +19,18 @@ The workflow only starts when the repository's owner sets the label. He may set 
 4. Find the code. The "Component" and "Path" lines name the Angular component; the page gives the route in `apps/product-front/src/app/providers/routes.provider.ts`. Follow it to the service and, if needed, to the API route, the service behind it and the table.
 5. For a bug: find the cause. Say whether you confirmed it by a test or by reading, or whether it is a guess. If the owner asks to remove the thing, remove it; the cause then does not matter.
 6. Decide the verdict:
-   - **implement**: you can do it now, with defaults for the open details. This is the normal outcome. It may take several files, a new route, a column with a migration, a setting, new texts and tests: that is fine.
-   - **needs answers**: a real question blocks it (see above). At most three questions, each with the options and the one you would pick.
-   - **too large**: it needs a design first: a new page with its own data, a change to how scanning, login or deployment works, or something that would take more than this run. Give the plan in steps and say which first step you could do alone if asked.
-   - **not possible**: it cannot be done in this product, with the reason.
+    - **implement**: you can do it now, with defaults for the open details. This is the normal outcome. It may take several files, a new route, a column with a migration, a setting, new texts and tests: that is fine.
+    - **needs answers**: a real question blocks it (see above). At most three questions, each with the options and the one you would pick.
+    - **too large**: it needs a design first: a new page with its own data, a change to how scanning, login or deployment works, or something that would take more than this run. Give the plan in steps and say which first step you could do alone if asked.
+    - **not possible**: it cannot be done in this product, with the reason.
 7. **Implement**: make the change on a branch named `issue/<number>-<two-or-three-words>`.
-   - Follow `CLAUDE.md`: its layers, its code style, "a table has one owning service", migrations for schema changes, every visible text in both language files.
-   - Every change comes with its tests: next to the file as `*.spec.ts` for the web app, in `apps/product-api/src/core/rules/*.spec.ts` or `apps/product-api/src/test/` for the API. Update tests that describe the old behaviour; do not delete a test to get rid of a failure.
-   - Update `docs/use-cases.md`, `docs/architecture.md` and `README.md` where they describe what you changed, and `docs/decisions.md` when a decision changed. Mark it in `docs/plan.md` only if the plan lists it.
-   - Run and note each result: `yarn lint:all`, `yarn product-api:test`, `yarn product-api:test:integration`, `yarn product-front:test`, `yarn product-api:build`, `yarn product-front:build`, `yarn e2e`. All must pass before you open the pull request. If one fails and you cannot repair it, the verdict becomes **needs answers** and you say what failed.
-   - Commit with a message that says what changes for the user. Push the branch. Open the pull request ready for review, not as a draft: `gh pr create --base master`. The owner is the code owner and is asked to review it by itself. Its body: what changed for the user, the choices you made where the issue was silent, the decision you changed if any, what you ran, and `Closes #<number>`.
-   - Before you commit, run `yarn prettier --write` on every file you made or changed under `apps/`, `e2e/` and `tools/`, and then `yarn lint:all` once more: it also checks the formatting, and one unformatted file fails the whole build.
-   - After you finish, the workflow waits for the build checks of your pull request. When they fail it calls you once more to repair them, see "When the checks fail".
+    - Follow `CLAUDE.md`: its layers, its code style, "a table has one owning service", migrations for schema changes, every visible text in both language files.
+    - Every change comes with its tests: next to the file as `*.spec.ts` for the web app, in `apps/product-api/src/core/rules/*.spec.ts` or `apps/product-api/src/test/` for the API. Update tests that describe the old behaviour; do not delete a test to get rid of a failure.
+    - Update `docs/use-cases.md`, `docs/architecture.md` and `README.md` where they describe what you changed, and `docs/decisions.md` when a decision changed. Mark it in `docs/plan.md` only if the plan lists it.
+    - Run and note each result: `yarn lint:all`, `yarn product-api:test`, `yarn product-api:test:integration`, `yarn product-front:test`, `yarn product-api:build`, `yarn product-front:build`, `yarn e2e`. All must pass before you open the pull request. If one fails and you cannot repair it, the verdict becomes **needs answers** and you say what failed.
+    - Commit with a message that says what changes for the user. Push the branch. Open the pull request ready for review, not as a draft: `gh pr create --base master`. The owner is the code owner and is asked to review it by itself. Its body: what changed for the user, the choices you made where the issue was silent, the decision you changed if any, what you ran, and `Closes #<number>`.
+    - Before you commit, run `yarn prettier --write` on every file you made or changed under `apps/`, `e2e/` and `tools/`, and then `yarn lint:all` once more: it also checks the formatting, and one unformatted file fails the whole build.
+    - After you finish, the workflow waits for the build checks of your pull request. When they fail it calls you once more to repair them, see "When the checks fail".
 8. Post exactly one comment on the issue (see "The comment").
 9. Set the verdict label, remove `investigate`, and hand the issue to the owner when it now waits for him (see "The verdict"). Then stop.
 
@@ -75,12 +75,12 @@ Your push moves the pull request past his review, so nothing lands until he appr
 
 Label the issue with exactly one of these, and remove any other of them that is still there from an earlier run:
 
-| Label | When | Assign to the owner |
-|---|---|---|
-| `agent: implemented` | A pull request is open and ready for review | the pull request, not the issue |
-| `agent: needs answers` | You asked questions and wait for the owner | the issue |
-| `agent: too large` | You gave a plan, no pull request | the issue |
-| `agent: not possible` | It cannot be done here | the issue |
+| Label                  | When                                        | Assign to the owner             |
+| ---------------------- | ------------------------------------------- | ------------------------------- |
+| `agent: implemented`   | A pull request is open and ready for review | the pull request, not the issue |
+| `agent: needs answers` | You asked questions and wait for the owner  | the issue                       |
+| `agent: too large`     | You gave a plan, no pull request            | the issue                       |
+| `agent: not possible`  | It cannot be done here                      | the issue                       |
 
 The workflow, not you, sets `agent: checks failed` in place of `agent: implemented` when the checks of your pull request still fail after the repair.
 

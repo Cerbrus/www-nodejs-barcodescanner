@@ -4,6 +4,7 @@ import {
     DestroyRef,
     ElementRef,
     afterNextRender,
+    computed,
     inject,
     signal,
     viewChild
@@ -14,7 +15,10 @@ import { BrowserMultiFormatReader, IScannerControls } from '@zxing/browser';
 import { BarcodeFormat, DecodeHintType } from '@zxing/library';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
+import { RecipeContent, isRecipeCode, readRecipeCode } from '@barcodescanner/shared';
+
 import { NamingOutcome, NamingPromptComponent } from '../../components/naming-prompt/naming-prompt.component';
+import { RecipeChoice, RecipeSheetComponent } from '../../components/recipe-sheet/recipe-sheet.component';
 import { withNote } from '../../display-name';
 import { ScanOutcome } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -25,13 +29,19 @@ const SAME_CODE_PAUSE_MILLISECONDS = 3000;
 const SCAN_INTERVAL_MILLISECONDS = 150;
 const CODE_PATTERN = /^\d{8,14}$/;
 const ATTENTION_RESULTS: Array<ScanOutcome['result']> = ['needs_name', 'not_on_list'];
+const FORMATS = [BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A, BarcodeFormat.QR_CODE];
 
 type CameraState = 'starting' | 'running' | 'blocked' | 'unsupported';
+
+interface ScannedRecipe {
+    code: string;
+    recipe: RecipeContent;
+}
 
 @Component({
     selector: 'app-scan-page',
     standalone: true,
-    imports: [FormsModule, TranslatePipe, NamingPromptComponent],
+    imports: [FormsModule, TranslatePipe, NamingPromptComponent, RecipeSheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './scan.page.html',
     styleUrl: './scan.page.scss'
@@ -39,6 +49,7 @@ type CameraState = 'starting' | 'running' | 'blocked' | 'unsupported';
 export class ScanPage {
     protected readonly state = signal<CameraState>('starting');
     protected readonly namingCode = signal<string | undefined>(undefined);
+    protected readonly scanned = signal<ScannedRecipe | undefined>(undefined);
     protected readonly lastOutcome = signal<ScanOutcome | undefined>(undefined);
     protected readonly manualCode = signal('');
 
@@ -49,6 +60,11 @@ export class ScanPage {
     private readonly translate = inject(TranslateService);
 
     protected readonly collecting = this.store.collecting;
+    protected readonly savable = computed(() => {
+        const name = this.scanned()?.recipe.name.trim();
+
+        return !this.store.recipes().some((recipe) => recipe.name === name);
+    });
 
     private controls?: IScannerControls;
     private lastCode = '';
@@ -78,15 +94,37 @@ export class ScanPage {
         }
     }
 
+    protected addRecipe({ ingredients, save }: RecipeChoice): void {
+        const scanned = this.scanned();
+        if (!scanned) {
+            return;
+        }
+
+        this.closeRecipe();
+        this.store
+            .putRecipeOnList({ name: scanned.recipe.name, ingredients }, { code: scanned.code, save })
+            .pipe(
+                catchError(() => {
+                    this.toasts.show({ kind: 'error', text: this.translate.instant('scan.failed') });
+                    return of(undefined);
+                })
+            )
+            .subscribe();
+    }
+
+    protected closeRecipe(): void {
+        this.scanned.set(undefined);
+        this.lastCodeAt = Date.now();
+        this.startCamera();
+    }
+
     private async startCamera(): Promise<void> {
         if (!navigator.mediaDevices?.getUserMedia) {
             this.state.set('unsupported');
             return;
         }
 
-        const hints = new Map<DecodeHintType, unknown>([
-            [DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A]]
-        ]);
+        const hints = new Map<DecodeHintType, unknown>([[DecodeHintType.POSSIBLE_FORMATS, FORMATS]]);
         const reader = new BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: SCAN_INTERVAL_MILLISECONDS });
 
         this.state.set('starting');
@@ -110,16 +148,38 @@ export class ScanPage {
         }
     }
 
+    private stopCamera(): void {
+        this.controls?.stop();
+        this.controls = undefined;
+    }
+
     private onDecoded(code: string): void {
         const now = Date.now();
         const repeated = code === this.lastCode && now - this.lastCodeAt < SAME_CODE_PAUSE_MILLISECONDS;
-        if (repeated || this.namingCode() || !CODE_PATTERN.test(code)) {
+        const recipe = isRecipeCode(code);
+        if (repeated || this.namingCode() || this.scanned() || !(recipe || CODE_PATTERN.test(code))) {
             return;
         }
 
         this.lastCode = code;
         this.lastCodeAt = now;
-        this.register(code);
+        if (recipe) {
+            this.openRecipe(code);
+        } else {
+            this.register(code);
+        }
+    }
+
+    private openRecipe(code: string): void {
+        const recipe = readRecipeCode(code);
+        if (!recipe?.name.trim()) {
+            this.toasts.show({ kind: 'attention', text: this.translate.instant('scan.recipeUnreadable') });
+            return;
+        }
+
+        navigator.vibrate?.(60);
+        this.stopCamera();
+        this.scanned.set({ code, recipe });
     }
 
     private register(code: string): void {
@@ -141,8 +201,7 @@ export class ScanPage {
         navigator.vibrate?.(ATTENTION_RESULTS.includes(outcome.result) ? [60, 60, 60] : 60);
 
         if (outcome.result === 'needs_name') {
-            this.controls?.stop();
-            this.controls = undefined;
+            this.stopCamera();
             this.namingCode.set(outcome.code);
             return;
         }

@@ -114,6 +114,20 @@ export class RecipeService {
         return true;
     }
 
+    public async keepIfUnknown(recipe: RecipeContent): Promise<void> {
+        const code = codeOf(recipe);
+        if ((await this.codes()).has(code)) {
+            return;
+        }
+        if (await this.recipes.existsBy({ name: recipe.name.trim() })) {
+            await this.offerIfUnknown(recipe);
+            return;
+        }
+
+        await this.createFrom(recipe);
+        await this.offers.delete({ code });
+    }
+
     public async getOffers(): Promise<Array<RecipeOffer>> {
         const names = new Set((await this.recipes.find({ select: { name: true } })).map(({ name }) => name));
         const offers = await this.offers.find({ order: { createdAt: 'DESC', id: 'DESC' } });
@@ -140,11 +154,7 @@ export class RecipeService {
         if (!recipe) {
             throw new BadRequestException(`Recipe offer ${id} cannot be read`);
         }
-        const unknown = await this.catalog.unknownIds(recipe.ingredients.map(({ catalogItemId }) => catalogItemId));
-        const saved = await this.create({
-            name: recipe.name,
-            ingredients: recipe.ingredients.filter(({ catalogItemId }) => !unknown.includes(catalogItemId))
-        });
+        const saved = await this.createFrom(recipe);
         await this.offers.delete(id);
         this.events.emit('recipe', { recipeId: saved.id });
 
@@ -161,6 +171,15 @@ export class RecipeService {
         const rows = await this.ingredients.find({ where: { catalogItemId }, select: { recipeId: true } });
 
         return new Set(rows.map(({ recipeId }) => recipeId)).size;
+    }
+
+    private async createFrom(recipe: RecipeContent): Promise<RecipeEntity> {
+        const unknown = await this.catalog.unknownIds(recipe.ingredients.map(({ catalogItemId }) => catalogItemId));
+
+        return this.create({
+            name: recipe.name,
+            ingredients: recipe.ingredients.filter(({ catalogItemId }) => !unknown.includes(catalogItemId))
+        });
     }
 
     private async offer(id: number): Promise<RecipeOfferEntity> {

@@ -213,7 +213,7 @@
         <app-recipe-sheet
             [name]="recipe.name"
             [ingredients]="recipe.ingredients"
-            (confirmed)="putOnList($event)"
+            (confirmed)="putOnList($event.ingredients)"
             (closed)="adding.set(false)"
         />
     }

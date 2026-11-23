@@ -34,13 +34,13 @@ In order of value:
 
 ## Steps
 
-| Step | What | Size |
-|---|---|---|
-| 1 | Service worker caches the app files and icons; app starts offline to a "no data yet" page | medium |
-| 2 | Snapshot in IndexedDB; list shows from the snapshot with a "last updated" mark | medium |
-| 3 | Outbox for check-off, add and quantity; applied on screen at once, sent on reconnect | large |
-| 4 | Server accepts changes with their time and resolves conflicts; tests for the time-order rules | medium |
-| 5 | Tests on the phone in a real shop; documentation | owner |
+| Step | What                                                                                          | Size   |
+| ---- | --------------------------------------------------------------------------------------------- | ------ |
+| 1    | Service worker caches the app files and icons; app starts offline to a "no data yet" page     | medium |
+| 2    | Snapshot in IndexedDB; list shows from the snapshot with a "last updated" mark                | medium |
+| 3    | Outbox for check-off, add and quantity; applied on screen at once, sent on reconnect          | large  |
+| 4    | Server accepts changes with their time and resolves conflicts; tests for the time-order rules | medium |
+| 5    | Tests on the phone in a real shop; documentation                                              | owner  |
 
 Steps 1 and 2 already give "see the list in the shop" and can be released on their own.
 

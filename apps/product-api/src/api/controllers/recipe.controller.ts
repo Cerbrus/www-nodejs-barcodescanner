@@ -20,7 +20,7 @@ export class RecipeController {
 
     @Post('additions')
     public add(@Body() addition: RecipeAdditionDto): Promise<ScanOutcome> {
-        return this.scans.addRecipe(addition, 'app');
+        return this.scans.addChosen(addition);
     }
 
     @Get('offers')

@@ -6,7 +6,7 @@ Terms:
 
 - **Catalog item** (product): a generic product such as "Melk", with a shop section and an icon.
 - **Barcode mapping**: the link from one barcode to one catalog item. Made once, by the user.
-- **List entry**: a catalog item on the shopping list, in state *to buy* or *recent*, with a quantity and a note.
+- **List entry**: a catalog item on the shopping list, in state _to buy_ or _recent_, with a quantity and a note.
 - **Inbox**: scanned barcodes that have no mapping yet.
 
 ## Scanning
@@ -14,7 +14,7 @@ Terms:
 ### UC-1 Scan a known product with the handheld scanner
 
 1. The user scans an empty package with the handheld scanner connected to the Pi.
-2. The catalog item moves to *to buy* with quantity 1. If it is already *to buy*, the quantity goes up by one. A barcode named with a variant (UC-5) goes to the line of that product with that note.
+2. The catalog item moves to _to buy_ with quantity 1. If it is already _to buy_, the quantity goes up by one. A barcode named with a variant (UC-5) goes to the line of that product with that note.
 3. Any open web page shows a toast with the item name and an undo button. For an unknown barcode the toast offers to name it.
 
 A second read of the same barcode within 1 second is ignored. A buzzer at the scanner beeps the result (UC-16). When the app is not reachable, for instance during an update, the scan is kept and added a moment later; the buzzer plays its own "kept" sound, so there is no need to scan again.
@@ -38,7 +38,7 @@ A code that is not a product barcode, such as a QR code with a web address, adds
 ### UC-23 Collect products while shopping
 
 1. In the shop the user turns on the toggle on the scan page. It stays on while the app is open and is off when the app starts.
-2. A scan with the phone of a product that is *to buy* moves it to *recent*, whatever its quantity. A toast offers undo. A product that is not on the list, or is already recent, is left alone and the toast says so; nothing is added.
+2. A scan with the phone of a product that is _to buy_ moves it to _recent_, whatever its quantity. A toast offers undo. A product that is not on the list, or is already recent, is left alone and the toast says so; nothing is added.
 3. An unknown barcode opens the naming prompt as usual. It offers the products on the list to pick from, or the search to pick or create another product. The product picked is collected if it is on the list; a product that is not on the list stays off it, and only the barcode learns its product.
 4. The handheld scanner does not follow the toggle: it always adds.
 
@@ -75,19 +75,19 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 ### UC-7 Shop from the list
 
-1. The list page shows *to buy* tiles in red, grouped by shop section, each with icon, name, quantity and note. *Recent* tiles follow in green.
-2. Tapping a red tile checks it off: it moves to *recent* and its quantity resets. A toast offers to undo it, which puts the product back with its quantity and note.
+1. The list page shows _to buy_ tiles in red, grouped by shop section, each with icon, name, quantity and note. _Recent_ tiles follow in green.
+2. Tapping a red tile checks it off: it moves to _recent_ and its quantity resets. A toast offers to undo it, which puts the product back with its quantity and note.
 3. With a weak or missing connection the app opens from the page kept on the device, without waiting for the network, and with the last known login; the login check runs in the background and sends the app to the login page when the login ran out. Only on a device that never logged in does it wait for the login check, at most 5 seconds. Without a connection, or when the server does not answer within 5 seconds, the app still opens and shows the list as it was last loaded, with a banner saying from when it is; when the connection returns it reloads by itself. Checking off, putting a recent product back, and changing quantity or note work without a connection, and on a connection too weak to answer within 5 seconds: the tile changes at once and shows a small clock until the change has been sent. While the banner shows, the clock is there at once; only the first change on a connection that stops answering gets it after 5 seconds. The banner counts the changes that wait. If the same product was changed at home in the meantime, for instance by a later scan, that later change wins and a toast says the list was updated from the server.
 
 ### UC-8 Add or edit by hand
 
-- Tap a *recent* tile to put it back on the list.
+- Tap a _recent_ tile to put it back on the list.
 - Search the catalog and add an item without scanning. Every line of a found product that is already on the list shows in the results in the list colour, with its note and "+1"; tapping one raises that line's quantity by one. A plain tile next to them starts a new line without a note, unless there already is one.
 - A product can be on the list more than once, each line with its own note (Kaas: jong, belegen, cheddar). Give the line a note, then add the product again from the search for the next one. Giving a line the note of another line of the same product merges them, quantities added.
 - When the search finds no exact match, create the product from there: name, section, icon, emoji. It goes on the list at once.
 - Open a tile's menu to change the quantity with plus and minus, edit the note, or jump to the product's management page.
-- At quantity 1 the minus button takes the product off the list and moves it to *recent*, the same as checking it off.
-- A *recent* tile has a menu too: put it on the list, edit the product, or remove it from *recent* after a confirmation. Removing only clears it from the list page; the product and its barcodes stay.
+- At quantity 1 the minus button takes the product off the list and moves it to _recent_, the same as checking it off.
+- A _recent_ tile has a menu too: put it on the list, edit the product, or remove it from _recent_ after a confirmation. Removing only clears it from the list page; the product and its barcodes stay.
 
 ## Recipes
 
@@ -112,6 +112,15 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 3. A product in the code that no longer exists is left out. The buzzer then plays its own sound, the message says how many are unknown, and a phone with notifications on gets a notification.
 4. A recipe the app does not have, or no longer has in this form, is offered in the inbox with its name and number of products. Save keeps it, with the products that exist, and opens it in the form; ignore drops the offer. A recipe whose name is taken can only be ignored. The same code scanned again while it waits is one offer.
 5. The history shows the scan as one line; one undo takes the whole recipe back.
+
+### UC-25 Scan a recipe code with the phone camera
+
+1. The user points the camera of the scan page at the code of a recipe.
+2. The camera pauses and a sheet shows the recipe's name with every product ticked. A product that no longer exists is greyed and cannot be ticked.
+3. The user unticks what is in the house and confirms. Only the ticked products go on the list, with a message and an undo as in UC-21. The history shows one line, from the phone.
+4. For a recipe whose name the app does not have, the sheet has a box to keep the recipe. Ticked, the recipe is stored at once with the products that exist. Unticked, the recipe is offered in the inbox as in UC-24.
+5. Closing the sheet adds nothing. The camera goes on either way, and reads the same code again only after three seconds.
+6. A recipe code that cannot be read gives a message and nothing else.
 
 ### UC-22 Print recipe codes
 

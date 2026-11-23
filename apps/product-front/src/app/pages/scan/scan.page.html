@@ -58,3 +58,13 @@
 @if (namingCode(); as code) {
     <app-naming-prompt [code]="code" [collecting]="collecting()" (closed)="onNamed($event)" />
 }
+
+@if (scanned(); as scan) {
+    <app-recipe-sheet
+        [name]="scan.recipe.name"
+        [ingredients]="scan.recipe.ingredients"
+        [savable]="savable()"
+        (confirmed)="addRecipe($event)"
+        (closed)="closeRecipe()"
+    />
+}

@@ -11,10 +11,10 @@ Decided with the owner on 2026-11-15. Built in steps, each usable by itself.
 ## Decisions
 
 1. **Naming an unknown barcode, in this order:**
-   1. The most specific existing product whose name appears as whole words in the shop title wins: "AH Geraspte kaas" → the product "Geraspte kaas", no note.
-   2. If only a more generic product matches, that one is offered with the rest of the title as note: "AH Jonge kaas 48+" → "Kaas" with note "Jonge".
-   3. If nothing matches, a new product name is proposed from the title without brand and amount: "Jumbo Volkoren pasta 500 g" → "Volkoren pasta".
-   Always a suggestion: the owner confirms or changes it in the naming prompt.
+    1. The most specific existing product whose name appears as whole words in the shop title wins: "AH Geraspte kaas" → the product "Geraspte kaas", no note.
+    2. If only a more generic product matches, that one is offered with the rest of the title as note: "AH Jonge kaas 48+" → "Kaas" with note "Jonge".
+    3. If nothing matches, a new product name is proposed from the title without brand and amount: "Jumbo Volkoren pasta 500 g" → "Volkoren pasta".
+       Always a suggestion: the owner confirms or changes it in the naming prompt.
 2. **AI suggestion, deferred (owner, 2026-11-15)**: a language model gets the shop title, brand and category and the candidate product names the rules found, and answers with the product (existing or new) and the note. Without a key, or when the call fails, the rules of decision 1 apply. Failure never fails a scan. Only shop data and product names are sent. The Anthropic API is out (the owner's console belongs to his employer) and the owner will not pay, so only a free service counts; see "Free AI options" below.
 3. **Variants on the list**: a product can be on the list several times, told apart by the note. The note is the variant. Two entries of one product never share a note; giving one the same note as another merges them, quantities added.
 4. **A barcode can carry a variant.** Scanning it puts the product with that note on the list, or adds one to that entry.
@@ -32,13 +32,13 @@ Each step comes with its tests and docs, and goes live only after the owner's go
 
 ## Free AI options (researched 2026-11-15, deferred)
 
-| Option | Free limit | Prompts used for training | Catch |
-|---|---|---|---|
-| Cloudflare Workers AI | 10,000 neurons a day, no card; about three times the expected use | No | Models get retired (id change); JSON output not guaranteed, so validate and fall back |
-| Google Gemini API (AI Studio key) | Per project, shown only in AI Studio, roughly 100–1000 calls a day; no card | Not in the EEA | Free limits were cut before; terms speak of professional use and paid plans for apps offered to others in the EEA |
-| Groq | About 30 calls a minute, 1000 a day | No | Exact free limits only visible after login |
-| Mistral Free mode | Unpublished, meant for trying out | Yes, unless opted out | Least attractive |
-| Ollama on an always-on home PC | Unlimited, nothing leaves the house | Not applicable | The machine has to stay on; the Pi 3B+ is far too weak |
+| Option                            | Free limit                                                                  | Prompts used for training | Catch                                                                                                             |
+| --------------------------------- | --------------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Cloudflare Workers AI             | 10,000 neurons a day, no card; about three times the expected use           | No                        | Models get retired (id change); JSON output not guaranteed, so validate and fall back                             |
+| Google Gemini API (AI Studio key) | Per project, shown only in AI Studio, roughly 100–1000 calls a day; no card | Not in the EEA            | Free limits were cut before; terms speak of professional use and paid plans for apps offered to others in the EEA |
+| Groq                              | About 30 calls a minute, 1000 a day                                         | No                        | Exact free limits only visible after login                                                                        |
+| Mistral Free mode                 | Unpublished, meant for trying out                                           | Yes, unless opted out     | Least attractive                                                                                                  |
+| Ollama on an always-on home PC    | Unlimited, nothing leaves the house                                         | Not applicable            | The machine has to stay on; the Pi 3B+ is far too weak                                                            |
 
 Ruled out: GitHub Models (shut down July 2026), Hugging Face (no free credits since October 2026), Cerebras (30-day trial only), OpenRouter free models (about five odd ones, 50 calls a day).
 
