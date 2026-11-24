@@ -14,7 +14,7 @@ AGENT_BRANCH='^issue/([0-9]+)-'
 MERGED_ATTEMPTS=12
 LABELS_SCRIPT="$(dirname "${BASH_SOURCE[0]}")/pull-request-labels.sh"
 STATE_LABELS=('train: on board' 'train: left behind' 'train: derailed')
-WAITING_BUILD_ATTEMPTS=6
+UNSTARTED_BUILD_ATTEMPTS=6
 
 open_pulls() {
     gh api --paginate "repos/$REPO/pulls?state=open&base=$BASE_BRANCH&per_page=100" \
@@ -120,23 +120,53 @@ leave_out() {
 **$title.** The release train left without this pull request: it $reason ($RUN_URL)"
 }
 
+changes_workflow() {
+    local files
+    files=$(gh api --paginate "repos/$REPO/pulls/$1/files?per_page=100" --jq '.[].filename')
+    grep -q '^\.github/workflows/' <<<"$files"
+}
+
+platform_state() {
+    local number=$1 pull head
+    pull=$(gh api "repos/$REPO/pulls/$number")
+    head=$(jq -r .head.sha <<<"$pull")
+    if [ "$(jq -r .user.login <<<"$pull")" = "$OWNER" ] ||
+        [ "$(jq -r '.head.repo.full_name == .base.repo.full_name' <<<"$pull")" != true ] ||
+        [ "$(own_checks "$head")" = failure ] ||
+        changes_workflow "$number"; then
+        echo stays
+    elif approved_at "$number" "$head"; then
+        echo ticket
+    else
+        echo waiting
+    fi
+}
+
 wait_for_approvals() {
-    local minutes=${1:-0} deadline pending number
+    local minutes=${1:-0} deadline tickets waiting number
     case $minutes in
         '' | *[!0-9]*) minutes=0 ;;
     esac
     deadline=$(($(date +%s) + minutes * 60))
 
     while [ "$(date +%s)" -lt "$deadline" ]; do
-        pending=0
+        tickets=0
+        waiting=0
         for number in $(open_pulls); do
-            approved_at "$number" "$(head_of "$number")" || pending=$((pending + 1))
+            case $(platform_state "$number") in
+                ticket) tickets=$((tickets + 1)) ;;
+                waiting) waiting=$((waiting + 1)) ;;
+            esac
         done
-        if [ "$pending" -eq 0 ]; then
-            echo "Every open pull request has its ticket; the train leaves now."
+        if [ "$tickets" -eq 0 ]; then
+            echo "Nobody on the platform holds a ticket; the train does not wait."
             return
         fi
-        echo "Last call: $pending open pull request(s) without approval; waiting."
+        if [ "$waiting" -eq 0 ]; then
+            echo "Every pull request that can board has its ticket; the train leaves now."
+            return
+        fi
+        echo "Last call: $waiting pull request(s) that can board without a ticket; waiting."
         sleep "$POLL_SECONDS"
     done
 }
@@ -153,7 +183,7 @@ candidates() {
 
 assemble() {
     local requested=${1:-} branch="release-train/run-${GITHUB_RUN_ID:?}"
-    local base tip included='[]' number pull name head head_branch same_repo files fork_point rebased count train
+    local base tip included='[]' number pull name head head_branch same_repo fork_point rebased count train
     local -a aboard=() to_rebase=()
     local notes
 
@@ -185,8 +215,7 @@ assemble() {
             SUMMARY=$notes leave_out "$number" "$head" '🛤️ Foreign rolling stock' "comes from a fork, so its branch cannot be rebased here. Land it by hand." "$name"
             continue
         fi
-        files=$(gh api --paginate "repos/$REPO/pulls/$number/files?per_page=100" --jq '.[].filename')
-        if grep -q '^\.github/workflows/' <<<"$files"; then
+        if changes_workflow "$number"; then
             SUMMARY=$notes leave_out "$number" "$head" '📏 Wrong gauge' "changes a workflow file, which the train's token may not push. Land it by hand." "$name"
             continue
         fi
@@ -266,33 +295,53 @@ issues_of() {
     gh pr view "$1" --repo "$REPO" --json closingIssuesReferences --jq '.closingIssuesReferences[].number'
 }
 
-finish_pull() {
-    local number=$1 attempt issue
-    for ((attempt = 0; attempt < MERGED_ATTEMPTS; attempt++)); do
-        if [ "$(gh api "repos/$REPO/pulls/$number" --jq .merged)" = true ]; then
+finish_pulls() {
+    local attempt number issue
+    local -a left=("$@") unmerged
+    for ((attempt = 0; attempt < MERGED_ATTEMPTS && ${#left[@]}; attempt++)); do
+        if [ "$attempt" -gt 0 ]; then
+            sleep 5
+        fi
+        unmerged=()
+        for number in "${left[@]}"; do
+            if [ "$(gh api "repos/$REPO/pulls/$number" --jq .merged)" != true ]; then
+                unmerged+=("$number")
+                continue
+            fi
             for issue in $(issues_of "$number"); do
                 gh issue close "$issue" --repo "$REPO" >/dev/null 2>&1 || true
             done
             echo "- 🎟️ $(pull_link "$number") merged" >>"$SUMMARY"
-            return
-        fi
-        sleep 5
+        done
+        left=("${unmerged[@]}")
     done
-    echo "- ⚠️ $(pull_link "$number") is on \`$BASE_BRANCH\`, but GitHub did not mark it as merged" >>"$SUMMARY"
-    comment_once "$number" "<!-- release-train landed -->" \
-        "**🚉 Arrived, but the ticket was not stamped.** The commits of this pull request are on \`$BASE_BRANCH\` through the release train, but GitHub did not mark it as merged. Close it by hand. ($RUN_URL)"
+    for number in "${left[@]}"; do
+        echo "- ⚠️ $(pull_link "$number") is on \`$BASE_BRANCH\`, but GitHub did not mark it as merged" >>"$SUMMARY"
+        comment_once "$number" "<!-- release-train landed -->" \
+            "**🚉 Arrived, but the ticket was not stamped.** The commits of this pull request are on \`$BASE_BRANCH\` through the release train, but GitHub did not mark it as merged. Close it by hand. ($RUN_URL)"
+    done
 }
 
-remove_waiting_builds() {
-    local attempt sha runs run
-    local -a left=("$@") missing
-    for ((attempt = 0; attempt < WAITING_BUILD_ATTEMPTS && ${#left[@]}; attempt++)); do
+unstarted_builds() {
+    local sha=$1 run
+    for run in $(gh api "repos/$REPO/actions/runs?head_sha=$sha&event=pull_request&status=completed&per_page=100" --jq '.workflow_runs[].id' || true); do
+        if [ "$(gh api "repos/$REPO/actions/runs/$run/jobs" --jq .total_count || true)" = 0 ]; then
+            echo "$run"
+        fi
+    done
+}
+
+remove_unstarted_builds() {
+    local train=$1 attempt sha runs run
+    local -a left missing
+    mapfile -t left < <(jq -r '.pulls[].rebased' <<<"$train")
+    for ((attempt = 0; attempt < UNSTARTED_BUILD_ATTEMPTS && ${#left[@]}; attempt++)); do
         if [ "$attempt" -gt 0 ]; then
             sleep 5
         fi
         missing=()
         for sha in "${left[@]}"; do
-            runs=$(gh api "repos/$REPO/actions/runs?head_sha=$sha&event=pull_request&status=action_required&per_page=100" --jq '.workflow_runs[].id' || true)
+            runs=$(unstarted_builds "$sha")
             if [ -z "$runs" ]; then
                 missing+=("$sha")
             fi
@@ -306,7 +355,7 @@ remove_waiting_builds() {
 
 land() {
     local train=$1 base tip number head branch rebased
-    local -a aboard=() landed=()
+    local -a aboard=()
     base=$(jq -r .base <<<"$train")
     tip=$(jq -r .tip <<<"$train")
 
@@ -340,12 +389,10 @@ land() {
         echo "**🏁 Arrived on time**, as \`${tip:0:7}\`. \`$BASE_BRANCH\` moved, and the build that follows publishes one version for the whole train."
         echo
     } >>"$SUMMARY"
-    while read -r number rebased; do
-        finish_pull "$number"
+    finish_pulls "${aboard[@]}"
+    for number in "${aboard[@]}"; do
         set_state "$number"
-        landed+=("$rebased")
-    done < <(jq -r '.pulls[] | "\(.number) \(.rebased)"' <<<"$train")
-    remove_waiting_builds "${landed[@]}"
+    done
 }
 
 report_failure() {
@@ -421,6 +468,7 @@ main() {
         carry-approval) carry_approval "$@" ;;
         announce) announce "$@" ;;
         remove-branch) remove_branch "$@" ;;
+        remove-unstarted-builds) remove_unstarted_builds "$@" ;;
         *)
             echo "Unknown command: $command" >&2
             exit 2
