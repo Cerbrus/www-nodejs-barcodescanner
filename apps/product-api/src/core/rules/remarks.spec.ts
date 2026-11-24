@@ -145,6 +145,7 @@ describe('progress of an issue', () => {
         assert.equal(progressOfIssue(issue({ labels: ['agent: needs answers'] })).stage, 'needsAnswers');
         assert.equal(progressOfIssue(issue({ labels: ['agent: too large'] })).stage, 'tooLarge');
         assert.equal(progressOfIssue(issue({ labels: ['agent: not possible'] })).stage, 'notPossible');
+        assert.equal(progressOfIssue(issue({ labels: ['agent: not a bug'] })).stage, 'notABug');
     });
 
     it('waits for review while a pull request is open, and names it', () => {

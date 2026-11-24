@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0114 or higher: the highest number plus one.
+- Number the next record 0115 or higher: the highest number plus one.
 
 ## Product
 
@@ -167,4 +167,5 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0077](0077-agent-repairs-failed-checks-once.md)        | The agent repairs a failed build once                                             | accepted                    | 2026-11-20   |
 | [0098](0098-request-changes-back-to-agent.md)           | A request for changes sends the pull request back to the agent                    | accepted                    | 2026-11-20   |
 | [0113](0113-agent-estimates-complexity-and-severity.md) | The agent estimates complexity and severity                                       | accepted                    | 2026-11-24   |
+| [0114](0114-agent-verifies-a-bug-report.md)             | The agent verifies a bug report and rejects one it proved false                   | accepted                    | 2026-11-24   |
 | [0096](0096-remark-not-feedback.md)                     | In the code, feedback from inside the app is called a remark                      | accepted (found afterwards) | not recorded |

@@ -29,6 +29,7 @@ export const ICON_NAMES = [
     'edit',
     'expand_less',
     'expand_more',
+    'fact_check',
     'forum',
     'help',
     'history',

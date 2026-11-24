@@ -47,6 +47,7 @@ const VERDICT_STAGES: Record<string, IssueStage> = {
     'agent: needs answers': 'needsAnswers',
     'agent: too large': 'tooLarge',
     'agent: not possible': 'notPossible',
+    'agent: not a bug': 'notABug',
     [INVESTIGATE_LABEL]: 'investigating'
 };
 

@@ -27,6 +27,7 @@ export type IssueStage =
     | 'needsAnswers'
     | 'tooLarge'
     | 'notPossible'
+    | 'notABug'
     | 'review'
     | 'merged'
     | 'released'

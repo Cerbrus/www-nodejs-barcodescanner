@@ -17,12 +17,13 @@ The workflow only starts when the repository's owner sets the label. He may set 
 2. The issue is yours while you work on it: take the owner off it, `gh issue edit <number> --remove-assignee <owner>` (the prompt names the owner's account). If you ran on this issue before (a comment starting with `<!-- issue-investigator -->`), read your earlier comment and the owner's replies after it. His replies answer your questions. Remove your earlier verdict label (see "The verdict") and your earlier estimate labels (see "The estimate").
 3. Read `CLAUDE.md`, `docs/decisions.md` and the parts of `docs/architecture.md` and `docs/use-cases.md` the issue is about.
 4. Find the code. The "Component" and "Path" lines name the Angular component; the page gives the route in `apps/product-front/src/app/providers/routes.provider.ts`. Follow it to the service and, if needed, to the API route, the service behind it and the table.
-5. For a bug: find the cause. Say whether you confirmed it by a test or by reading, or whether it is a guess. If the owner asks to remove the thing, remove it; the cause then does not matter.
+5. For a bug: verify the report and find the cause (see "Verifying a bug"). If the owner asks to remove the thing, remove it; the report and the cause then do not matter.
 6. Estimate the complexity and the severity (see "The estimate"). Do this before the verdict and for every verdict. Then decide the verdict:
     - **implement**: you can do it now, with defaults for the open details. This is the normal outcome. It may take several files, a new route, a column with a migration, a setting, new texts and tests: that is fine.
     - **needs answers**: a real question blocks it (see above). At most three questions, each with the options and the one you would pick.
     - **too large**: it needs a design first: a new page with its own data, a change to how scanning, login or deployment works, or something that would take more than this run. Give the plan in steps and say which first step you could do alone if asked.
     - **not possible**: it cannot be done in this product, with the reason.
+    - **not a bug**: the issue reports a bug and you showed that the report does not hold (see "Verifying a bug"). No branch and no pull request.
 7. **Implement**: make the change on a branch named `issue/<number>-<two-or-three-words>`.
     - Follow `CLAUDE.md`: its layers, its code style, "a table has one owning service", migrations for schema changes, every visible text in both language files.
     - Every change comes with its tests: next to the file as `*.spec.ts` for the web app, in `apps/product-api/src/core/rules/*.spec.ts` or `apps/product-api/src/test/` for the API. Update tests that describe the old behaviour; do not delete a test to get rid of a failure.
@@ -71,6 +72,23 @@ The owner reviewed your pull request and requested changes. The workflow calls y
 
 Your push moves the pull request past his review, so nothing lands until he approves the new commit. After you finish, the workflow waits for the build checks, with one repair, as after the first run.
 
+## Verifying a bug
+
+An issue reports a bug when it has the label `bug` or the heading "What happened", or when its text describes, without a doubt, something that goes wrong. When you doubt whether it is a bug or a wish, it is a wish: there is nothing to verify, build it.
+
+Try to show whether what the report says happens, in the code as it is now. There are three outcomes:
+
+- **Confirmed**: a test that does what the report describes fails, or reading the code shows the cause. Repair it. A test you wrote stays, as the test of the repair.
+- **Shown false**: the verdict is **not a bug**. This takes proof, one of:
+    - a test that does exactly what the report describes, and passes;
+    - the app does what the report describes, and a use case or a decision says that it should: name it, and say that the report is then a wish, which the owner can ask for;
+    - it was repaired after the version the report names: name the commit or the version that repaired it.
+- **Not verifiable**: it needs a phone, the camera, the scanner, a notification, the installed app or the live data, or you could not make it happen and could not prove that it cannot. Never reject such a report. Repair it when reading gives a likely cause, and say that the cause is a guess; otherwise the verdict is **needs answers**, and you ask for what is missing: the steps, what was on the screen, when it happened.
+
+Reject only on proof; a doubt goes to the owner as a question. For a report that does not hold, the comment gives the proof and what you tried. Do not commit a test you wrote only to disprove the report.
+
+When the owner answers a rejected report and sets `investigate` again, he says that it does happen. Take his word: the report is then not verifiable at the least, and never false a second time.
+
 ## The estimate
 
 Two ratings, each with one sentence of reason. They tell the owner what an answer or a first step would buy, and how carefully to review a pull request.
@@ -92,7 +110,7 @@ Two ratings, each with one sentence of reason. They tell the owner what an answe
 | `severity: low`    | It only looks wrong, or it happens rarely                     | Nice to have                          |
 
 - When you implemented it, look again after the build: the complexity is what the change turned out to be. When that differs from what you estimated, say so in one clause: "estimated small, turned out medium: it needed a migration".
-- When nothing can be built (not possible), the complexity is "not applicable": say so in the comment and set no complexity label. The severity is still given.
+- When nothing is built (not possible, not a bug), the complexity is "not applicable": say so in the comment and set no complexity label. The severity is still given; for a report that does not hold, as it would be if the report were true.
 - Set exactly one label of each kind on the issue, never on the pull request, in the same command as the verdict label: `--add-label "complexity: small" --add-label "severity: low"`. On a later run for the same issue, estimate again and remove the earlier labels that no longer hold.
 - The labels exist already. You cannot create labels; when one is missing, say so in the comment and go on.
 - A repair, a rebase and a revision leave the estimate and its labels as they are.
@@ -107,6 +125,7 @@ Label the issue with exactly one of these, and remove any other of them that is 
 | `agent: needs answers` | You asked questions and wait for the owner  | the issue                       |
 | `agent: too large`     | You gave a plan, no pull request            | the issue                       |
 | `agent: not possible`  | It cannot be done here                      | the issue                       |
+| `agent: not a bug`     | The report of a bug does not hold           | the issue                       |
 
 The workflow, not you, sets `agent: checks failed` in place of `agent: implemented` when the checks of your pull request still fail after the repair.
 
@@ -134,11 +153,11 @@ Start with this line so later runs can find it:
 
 Then, short and in plain words:
 
-- **Verdict:** implemented, needs answers, too large or not possible.
+- **Verdict:** implemented, needs answers, too large, not possible or not a bug.
 - **Asked:** one sentence.
 - **Estimate:** complexity (small, medium or large) and severity (low, medium or high), each with its one sentence of reason.
 - **Done** (when implemented): what changed for the user, the link to the pull request, the choices you made where the issue was silent, a decision you changed, the result of each command, and that the build checks start by themselves after this run.
 - **Questions** (when answers are needed): at most three, each with its options and your pick, so that "yes to all" is a complete answer.
 - **Plan** (when too large): the steps in order, and the first one you could do alone.
 - **Where:** the files it touches, as paths.
-- **For a bug:** the cause, and whether it is confirmed or a guess.
+- **For a bug:** whether the report is confirmed, shown false or not verifiable, and how you found out; the cause, and whether it is confirmed or a guess; the proof when the report does not hold.

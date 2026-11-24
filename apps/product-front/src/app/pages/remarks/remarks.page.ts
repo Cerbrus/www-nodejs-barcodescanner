@@ -28,6 +28,7 @@ const STAGE_ICONS: Record<IssueStage, IconName> = {
     needsAnswers: 'help',
     tooLarge: 'unfold_more',
     notPossible: 'block',
+    notABug: 'fact_check',
     review: 'rate_review',
     merged: 'inventory_2',
     released: 'local_shipping',

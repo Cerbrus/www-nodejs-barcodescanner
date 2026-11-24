@@ -487,6 +487,13 @@ describe('RemarksPage', () => {
         expect(page.querySelectorAll('article')[2].querySelector('.progress') as Element | null).toBeNull();
     });
 
+    it('shows that the agent found a report not to hold', async () => {
+        await open(OWNER, [remark(1, { issueNumber: 12, issueUrl: 'u', progress: { stage: 'notABug' } })]);
+
+        expect(texts(page, 'article .progress span')).toEqual(['remark.stage.notABug']);
+        expect(texts(page, 'article .progress i')).toEqual(['fact_check']);
+    });
+
     it('shows whether a merged fix is released, and only marks it done when it is live', async () => {
         await open(OWNER, [
             remark(1, { issueNumber: 12, issueUrl: 'u', progress: { stage: 'merged' } }),

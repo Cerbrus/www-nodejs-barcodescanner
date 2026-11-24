@@ -372,6 +372,7 @@
             "needsAnswers": "The agent has questions for you",
             "tooLarge": "Too large: the agent made a plan",
             "notPossible": "The agent says it cannot be done",
+            "notABug": "The agent found the report does not hold",
             "review": "Ready for your review",
             "merged": "Merged, not in a release yet",
             "released": "Released in {version}, this app does not run it yet",

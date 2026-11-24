@@ -372,6 +372,7 @@
             "needsAnswers": "De agent heeft vragen voor je",
             "tooLarge": "Te groot: de agent maakte een plan",
             "notPossible": "De agent zegt dat het niet kan",
+            "notABug": "De agent vond dat de melding niet klopt",
             "review": "Klaar voor jouw review",
             "merged": "Samengevoegd, nog niet in een release",
             "released": "Uitgebracht in {version}, deze app draait het nog niet",
