@@ -6,6 +6,7 @@ import { catchError, throwError } from 'rxjs';
 import { ToastService } from './toast.service';
 
 export const QUIET_FAILURE = new HttpContextToken<boolean>(() => false);
+export const FAILURE_TEXTS = new HttpContextToken<Record<number, string>>(() => ({}));
 export const QUIET_WITHOUT_CONNECTION = new HttpContextToken<boolean>(() => false);
 
 const READ_METHODS = ['GET', 'HEAD', 'OPTIONS'];
@@ -32,7 +33,11 @@ export const reportFailedChanges: HttpInterceptorFn = (request, next) => {
             if (!silent) {
                 toasts.show({
                     kind: 'error',
-                    text: translate.instant(MESSAGE_BY_STATUS[error.status] ?? 'error.generic')
+                    text: translate.instant(
+                        request.context.get(FAILURE_TEXTS)[error.status] ??
+                            MESSAGE_BY_STATUS[error.status] ??
+                            'error.generic'
+                    )
                 });
             }
 

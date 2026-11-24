@@ -349,6 +349,11 @@
         "reject": "Afwijzen",
         "rejectConfirm": "Deze feedback afwijzen? Hij verdwijnt uit de lijst.",
         "toGitHub": "Naar GitHub",
+        "error": {
+            "alreadyOnGitHub": "Staat al op GitHub; de lijst wordt bijgewerkt",
+            "gitHubFailed": "GitHub nam de opmerking niet aan; probeer het later opnieuw",
+            "gitHubOff": "Versturen naar GitHub is niet ingesteld"
+        },
         "sendToGitHub": "Versturen naar GitHub",
         "sentToGitHub": "Verstuurd naar GitHub als issue {number}",
         "onGitHub": "Issue {number} op GitHub",

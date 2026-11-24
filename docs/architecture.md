@@ -141,7 +141,7 @@ Angular with standalone components and signals; no state library. Every componen
 
 - Pull down to refresh: `PullRefreshDirective` on the shell's content area emits when a touch pulls it down 70 px (after the 0.5 resistance) from scrollTop 0; the shell runs the reload that the page registered with `PullRefreshService.use` (Feedback, Scan history), else `store.refreshAll()`, and shows a spinner meanwhile.
 - `shopping.store` loads everything once and reloads on events from the server, so every open page follows scans made elsewhere. The shell shows a toast with undo for scans from the handheld scanner.
-- Failed changes are reported in one place: an HTTP interceptor shows an error toast for every request that changes something and fails. A request that handles its own failure, such as a scan, opts out.
+- Failed changes are reported in one place: an HTTP interceptor shows an error toast for every request that changes something and fails. A request that handles its own failure, such as a scan, opts out. A request can name its own texts per status (the remark requests do: already on GitHub, GitHub refused, sending not set up), so a failed send to GitHub never shows the text about product names.
 - Dialogs use the native `<dialog>` element, so they sit above the navigation.
 - Barcodes are drawn in the browser by `BarcodeComponent`: EAN-13, EAN-8, and 12-digit codes padded to 13.
 - New products get their shop section from the first suggestion that carries a `sectionId` (see Connectors); without one, from keywords in the suggestions and the name (`new-item-form`).

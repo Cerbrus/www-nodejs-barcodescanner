@@ -3,7 +3,12 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 
-import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION, reportFailedChanges } from './failed-change.interceptor';
+import {
+    FAILURE_TEXTS,
+    QUIET_FAILURE,
+    QUIET_WITHOUT_CONNECTION,
+    reportFailedChanges
+} from './failed-change.interceptor';
 import { ToastService } from './toast.service';
 
 describe('reportFailedChanges', () => {
@@ -46,6 +51,20 @@ describe('reportFailedChanges', () => {
             [0, 'error.noConnection']
         ] as Array<[number, string]>) {
             http.post('/thing', {}).subscribe({ error: () => undefined });
+            fail(status);
+
+            expect(shown().at(-1)).toBe(`error: ${text}`);
+        }
+    });
+
+    it('uses the texts a request names for its own statuses and the default for the rest', () => {
+        const context = new HttpContext().set(FAILURE_TEXTS, { 409: 'own.conflict', 502: 'own.gateway' });
+        for (const [status, text] of [
+            [409, 'own.conflict'],
+            [502, 'own.gateway'],
+            [404, 'error.notFound']
+        ] as Array<[number, string]>) {
+            http.post('/thing', {}, { context }).subscribe({ error: () => undefined });
             fail(status);
 
             expect(shown().at(-1)).toBe(`error: ${text}`);

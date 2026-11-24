@@ -349,6 +349,11 @@
         "reject": "Reject",
         "rejectConfirm": "Reject this feedback? It disappears from the list.",
         "toGitHub": "To GitHub",
+        "error": {
+            "alreadyOnGitHub": "Already on GitHub; the list will update",
+            "gitHubFailed": "GitHub did not accept the remark; try again later",
+            "gitHubOff": "Sending to GitHub is not set up"
+        },
         "sendToGitHub": "Send to GitHub",
         "sentToGitHub": "Sent to GitHub as issue {number}",
         "onGitHub": "Issue {number} on GitHub",

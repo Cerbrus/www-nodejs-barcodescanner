@@ -28,10 +28,15 @@ import {
     ScannedRecipeCode,
     Section
 } from '../models';
-import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
+import { FAILURE_TEXTS, QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
 import { PendingChange } from './outbox';
 import { SettingsService } from './settings/settings.service';
 
+const REMARK_FAILURES = new HttpContext().set(FAILURE_TEXTS, {
+    409: 'remark.error.alreadyOnGitHub',
+    502: 'remark.error.gitHubFailed',
+    503: 'remark.error.gitHubOff'
+});
 const QUIET = new HttpContext().set(QUIET_FAILURE, true);
 const QUEUED_WITHOUT_CONNECTION = new HttpContext().set(QUIET_WITHOUT_CONNECTION, true);
 
@@ -241,11 +246,17 @@ export class ApiService {
     }
 
     public editRemark(id: number, text: string, kind: RemarkKind): Observable<Remark> {
-        return this.http.put<Remark>(`${this.baseUrl}/remarks/${id}`, { text, kind });
+        return this.http.put<Remark>(
+            `${this.baseUrl}/remarks/${id}`,
+            { text, kind },
+            {
+                context: REMARK_FAILURES
+            }
+        );
     }
 
     public rejectRemark(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/remarks/${id}`);
+        return this.http.delete<void>(`${this.baseUrl}/remarks/${id}`, { context: REMARK_FAILURES });
     }
 
     public getIssueDraft(id: number, options: IssueOptions): Observable<IssueDraft> {
@@ -253,6 +264,6 @@ export class ApiService {
     }
 
     public sendRemarkToGitHub(id: number, options: IssueOptions): Observable<Remark> {
-        return this.http.post<Remark>(`${this.baseUrl}/remarks/${id}/issue`, options);
+        return this.http.post<Remark>(`${this.baseUrl}/remarks/${id}/issue`, options, { context: REMARK_FAILURES });
     }
 }
