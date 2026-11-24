@@ -16,6 +16,7 @@ import { Remark, RemarkList } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
+import { PullRefreshService } from '../../services/pull-refresh.service';
 import { RemarkService } from '../../services/remark.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -101,6 +102,7 @@ export class RemarksPage {
     protected readonly canSendToGitHub = computed(() => this.answer().canSendToGitHub);
 
     constructor() {
+        inject(PullRefreshService).use(() => this.load());
         merge(inject(EventsService).on('remark'), interval(PROGRESS_REFRESH))
             .pipe(
                 startWith(undefined),

@@ -28,7 +28,15 @@
     </div>
 }
 
-<main class="content" appRemarkPointer [class.pointing-at]="remarks.pointing()">
+<main class="content" appRemarkPointer appPullRefresh [class.pointing-at]="remarks.pointing()" (pulled)="refresh()">
+    <div
+        class="pull-indicator"
+        [class.refreshing]="refreshing()"
+        role="status"
+        [attr.aria-label]="'common.refreshing' | translate"
+    >
+        <i class="material-symbols-outlined">refresh</i>
+    </div>
     <router-outlet />
 </main>
 

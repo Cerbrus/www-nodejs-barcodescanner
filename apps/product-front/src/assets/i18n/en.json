@@ -2,6 +2,7 @@
     "common": {
         "appName": "Shopping list",
         "offline": "No connection to the server",
+        "refreshing": "Refreshing…",
         "loading": "Loading…",
         "done": "Done",
         "save": "Save",

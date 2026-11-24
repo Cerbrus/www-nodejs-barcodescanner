@@ -2,6 +2,7 @@
     "common": {
         "appName": "Boodschappen",
         "offline": "Geen verbinding met de server",
+        "refreshing": "Verversen…",
         "loading": "Laden…",
         "done": "Klaar",
         "save": "Opslaan",

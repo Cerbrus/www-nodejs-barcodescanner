@@ -17,6 +17,7 @@ import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
+import { PullRefreshService } from '../../services/pull-refresh.service';
 import { RemarkService } from '../../services/remark.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
@@ -286,6 +287,38 @@ describe('ShellComponent', () => {
 
         expect(event.defaultPrevented).toBe(true);
         expect(remarks.draft()?.target).toEqual(expect.objectContaining({ text: 'nav.inbox' }));
+    });
+
+    const pull = (): void => {
+        const main = page.querySelector('main') as HTMLElement;
+        const touch = (type: string, y?: number): void => {
+            const event = new Event(type, { cancelable: true });
+            Object.defineProperty(event, 'touches', { value: y === undefined ? [] : [{ clientY: y }] });
+            main.dispatchEvent(event);
+        };
+
+        touch('touchstart', 0);
+        touch('touchmove', 300);
+        touch('touchend');
+    };
+
+    it('reloads everything when the page is pulled down and the page has no reload of its own', () => {
+        open();
+
+        pull();
+
+        expect(store.refreshAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs the reload of the page when it has one', () => {
+        open();
+        const reload = vi.fn(() => of(undefined));
+        TestBed.runInInjectionContext(() => TestBed.inject(PullRefreshService).use(reload));
+
+        pull();
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(store.refreshAll).not.toHaveBeenCalled();
     });
 
     it('shows at most three messages and lets each go after five seconds', () => {

@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0112 or higher: the highest number plus one.
+- Number the next record 0113 or higher: the highest number plus one.
 
 ## Product
 
@@ -135,6 +135,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0109](0109-cut-marks-at-the-page-edge.md)                | The sheet of recipe codes has cut marks at the page edge, no lines between the codes     | accepted                    | 2026-11-23   |
 | [0110](0110-offline-recipe-addition-is-always-applied.md) | A recipe addition made without a connection is always applied, at the moment it was made | accepted                    | 2026-11-23   |
 | [0111](0111-buttons-show-an-icon-only.md)                 | Buttons show an icon only, and each kind of action has one icon                          | accepted                    | 2026-11-24   |
+| [0112](0112-pull-down-to-refresh.md)                      | Pulling a page down reloads it                                                           | accepted                    | 2026-11-24   |
 
 ## Release train
 

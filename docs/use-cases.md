@@ -194,6 +194,10 @@ A page shows a live log of what the system is doing, in a monospaced, terminal-l
 
 The user adds the site to the home screen from the browser's share menu. It then opens full screen with its own icon and name, and can receive notifications.
 
+### UC-26 Pull down to refresh
+
+On the phone the user pulls a page down while it is scrolled to the top. Past a threshold, a spinning icon shows and the page reloads: Feedback and the scan history their own data, every other page the list, inbox, recipes and products. The changes that still wait for a connection are sent first.
+
 ### UC-17 Log in
 
 1. Opening the site without a session shows a login page with one button, "Log in with Google".

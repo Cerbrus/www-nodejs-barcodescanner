@@ -10,6 +10,7 @@ import { withNote } from '../../display-name';
 import { Scan, ScanChange } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { EventsService } from '../../services/events.service';
+import { PullRefreshService } from '../../services/pull-refresh.service';
 import { ShoppingStore } from '../../services/shopping.store';
 
 const REFRESH_DELAY_MILLISECONDS = 200;
@@ -35,6 +36,7 @@ export class HistoryPage {
     private readonly store = inject(ShoppingStore);
 
     constructor() {
+        inject(PullRefreshService).use(() => this.load());
         inject(EventsService)
             .on('scan', 'barcode')
             .pipe(

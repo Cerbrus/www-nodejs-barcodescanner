@@ -1,17 +1,19 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { filter, tap } from 'rxjs';
+import { Observable, filter, finalize, tap } from 'rxjs';
 
 import { ScanSource } from '@barcodescanner/shared';
 
+import { PullRefreshDirective } from '../../directives/pull-refresh.directive';
 import { withNote } from '../../display-name';
 import { IconName } from '../../icon-names';
 import { ScanOutcome } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { EventsService } from '../../services/events.service';
+import { PullRefreshService } from '../../services/pull-refresh.service';
 import { RemarkService } from '../../services/remark.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
@@ -36,6 +38,7 @@ interface NavLink {
         RouterLink,
         RouterLinkActive,
         TranslatePipe,
+        PullRefreshDirective,
         RecipePrintComponent,
         RemarkPointerDirective,
         RemarkSheetComponent
@@ -49,9 +52,11 @@ export class ShellComponent {
     protected readonly toasts = inject(ToastService);
     protected readonly remarks = inject(RemarkService);
     protected readonly inboxCount = this.store.waiting;
+    protected readonly refreshing = signal(false);
 
     private readonly auth = inject(AuthService);
     private readonly router = inject(Router);
+    private readonly pullRefresh = inject(PullRefreshService);
     private readonly translate = inject(TranslateService);
 
     protected readonly links: Array<NavLink> = [
@@ -96,6 +101,16 @@ export class ShellComponent {
                 tap((scan) => this.announce(scan)),
                 takeUntilDestroyed()
             )
+            .subscribe();
+    }
+
+    protected refresh(): void {
+        if (this.refreshing()) {
+            return;
+        }
+        this.refreshing.set(true);
+        (this.pullRefresh.current() ?? ((): Observable<unknown> => this.store.refreshAll()))()
+            .pipe(finalize(() => this.refreshing.set(false)))
             .subscribe();
     }
 
