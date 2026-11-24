@@ -39,22 +39,25 @@ Start with this line, with the commit from step 1 filled in, so the workflow kno
 
 `<!-- dependabot-helper <commit> -->`
 
-Then:
+Then the parts below, always in this form: the label in bold on a line of its own, its text from the next line on, and an empty line before the next label. Never put text on the line of a label, and use no headings. Keep the order of the list. A part that holds several things is a list with one bullet for each.
 
-**Verdict:** one of
+```text
+<!-- dependabot-helper <commit> -->
+**Verdict:**
+Safe to merge
 
-- `Safe to merge`: nothing in the update touches how the product behaves, or it does and you verified it.
-- `Merge with care`: it works, but something should be watched or tried by hand; say what.
-- `Do not merge`: it breaks something you could not repair, or it is the wrong kind of update.
+**What changes:**
+- `typeorm` 0.3.20 to 0.3.21: nothing relevant.
+```
 
-**What changes:** one line per package, image or action: old version, new version, and what in it matters here. "Nothing relevant" is fine when true.
-
-**Impact on this product:** where the code uses what changed, and what you concluded. Name files.
-
-**Repairs:** files you changed and why, or "none".
-
-**Checks:** the result of each command in step 6, and anything you could not run.
-
-**To try by hand after merging:** only when the verdict is "Merge with care"; the one or two things worth trying on the phone or the Pi.
+- **Verdict:** one of these, and nothing else on that line:
+    - `Safe to merge`: nothing in the update touches how the product behaves, or it does and you verified it.
+    - `Merge with care`: it works, but something should be watched or tried by hand; say what under "To try by hand after merging".
+    - `Do not merge`: it breaks something you could not repair, or it is the wrong kind of update.
+- **What changes:** one bullet per package, image or action: old version, new version, and what in it matters here. "Nothing relevant" is fine when true.
+- **Impact on this product:** where the code uses what changed, and what you concluded. Name files.
+- **Repairs:** one bullet per file you changed and why, or "None."
+- **Checks:** one bullet with the commands of step 6 that passed, one for each that failed, and one for anything you could not run.
+- **To try by hand after merging:** only when the verdict is "Merge with care"; the one or two things worth trying on the phone or the Pi.
 
 Keep it short. No praise, no summary of these instructions.

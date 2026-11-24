@@ -29,7 +29,7 @@ The workflow only starts when the repository's owner sets the label. He may set 
     - Every change comes with its tests: next to the file as `*.spec.ts` for the web app, in `apps/product-api/src/core/rules/*.spec.ts` or `apps/product-api/src/test/` for the API. Update tests that describe the old behaviour; do not delete a test to get rid of a failure.
     - Update `docs/use-cases.md`, `docs/architecture.md` and `README.md` where they describe what you changed, and `docs/decisions.md` when a decision changed. Mark it in `docs/plan.md` only if the plan lists it.
     - Run and note each result: `yarn lint:all`, `yarn product-api:test`, `yarn product-api:test:integration`, `yarn product-front:test`, `yarn product-api:build`, `yarn product-front:build`, `yarn e2e`. All must pass before you open the pull request. If one fails and you cannot repair it, the verdict becomes **needs answers** and you say what failed.
-    - Commit with a message that says what changes for the user. Push the branch. Open the pull request ready for review, not as a draft: `gh pr create --base master`. Its title starts with the issue in square brackets and then says what changes for the user: `[Issue #<number>] Pull down to refresh`. The owner is the code owner and is asked to review it by itself. Its body: what changed for the user, the estimate as in your comment, the choices you made where the issue was silent, the decision you changed if any, what you ran, and `Closes #<number>`.
+    - Commit with a message that says what changes for the user. Push the branch. Open the pull request ready for review, not as a draft: `gh pr create --base master`. Its title starts with the issue in square brackets and then says what changes for the user: `[Issue #<number>] Pull down to refresh`. The owner is the code owner and is asked to review it by itself. Its body has a fixed form, see "The body of the pull request".
     - Before you commit, run `yarn prettier --write` on every file you made or changed under `apps/`, `e2e/` and `tools/`, and then `yarn lint:all` once more: it also checks the formatting, and one unformatted file fails the whole build.
     - After you finish, the workflow waits for the build checks of your pull request. When they fail it calls you once more to repair them, see "When the checks fail".
 8. Post exactly one comment on the issue (see "The comment").
@@ -145,19 +145,63 @@ The workflow, not you, sets `agent: checks failed` in place of `agent: implement
 - Never print, store or send secrets or tokens.
 - Do not claim what you did not check. "Not checked" is a valid line.
 
+## The body of the pull request
+
+Always these four headings, in this order, then the line that closes the issue. No other headings, and no bold labels in place of a heading.
+
+```text
+## What changes for the user
+One short paragraph.
+
+## Estimate
+- Complexity small: one service in the web app, no route or migration.
+- Severity low: it only looks wrong.
+
+## Choices where the issue was silent
+- One bullet for each choice.
+- No decision changed.
+
+## Ran
+- All passing: `yarn lint:all`, `yarn product-api:test`, `yarn product-api:test:integration`, `yarn product-front:test`, `yarn product-api:build`, `yarn product-front:build`, `yarn e2e`.
+- Not checked on a real phone.
+
+Closes #<number>
+```
+
+- **Estimate:** the same two bullets as in your comment.
+- **Choices where the issue was silent:** the last bullet names the decision you changed, or says "No decision changed."
+- **Ran:** one bullet with the commands that passed, and one for what you did not check.
+
 ## The comment
 
 Start with this line so later runs can find it:
 
 `<!-- issue-investigator -->`
 
-Then, short and in plain words:
+Then the parts below, short and in plain words, always in this form: the label in bold on a line of its own, its text from the next line on, and an empty line before the next label. Never put text on the line of a label, never put a label in the middle of a text, and use no headings. Keep the order of the list, and leave out a part that does not apply. A part that holds several things is a list with one bullet for each.
 
-- **Verdict:** implemented, needs answers, too large, not possible or not a bug.
+```text
+<!-- issue-investigator -->
+**Verdict:**
+implemented
+
+**Asked:**
+The list should keep its order after a reload.
+
+**Estimate:**
+- Complexity small: one service in the web app, no route or migration.
+- Severity low: it only looks wrong.
+```
+
+- **Verdict:** implemented, needs answers, too large, not possible or not a bug. Nothing else on that line.
 - **Asked:** one sentence.
-- **Estimate:** complexity (small, medium or large) and severity (low, medium or high), each with its one sentence of reason.
-- **Done** (when implemented): what changed for the user, the link to the pull request, the choices you made where the issue was silent, a decision you changed, the result of each command, and that the build checks start by themselves after this run.
-- **Questions** (when answers are needed): at most three, each with its options and your pick, so that "yes to all" is a complete answer.
-- **Plan** (when too large): the steps in order, and the first one you could do alone.
-- **Where:** the files it touches, as paths.
+- **Estimate:** two bullets, `Complexity <small, medium or large>:` and `Severity <low, medium or high>:`, each followed by its one sentence of reason.
+- **Done** (when implemented): what changed for the user, and nothing else.
+- **Pull request** (when implemented): its link.
+- **Choices** (when implemented): one bullet for each choice you made where the issue was silent, and one for the decision you changed or "No decision changed."
+- **Ran** (when implemented): one bullet with the commands that passed, one for what you did not check, and one saying that the build checks start by themselves after this run.
+- **Questions** (when answers are needed): at most three, numbered, each with its options and your pick, so that "yes to all" is a complete answer.
+- **Plan** (when too large): the steps in order, numbered, and the first one you could do alone.
+- **Where:** the files it touches, one bullet for each path, in backticks.
 - **For a bug:** whether the report is confirmed, shown false or not verifiable, and how you found out; the cause, and whether it is confirmed or a guess; the proof when the report does not hold.
+- **Note** (only when needed): what the owner must know and fits no other part, such as a step that was refused.
