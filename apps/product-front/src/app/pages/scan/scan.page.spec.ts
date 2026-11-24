@@ -67,6 +67,12 @@ describe('ScanPage', () => {
 
         return fixture.nativeElement as HTMLElement;
     };
+    const openField = async (page: HTMLElement): Promise<void> => {
+        (page.querySelector('button.handle') as HTMLButtonElement).click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+    };
     const see = (code: string): void => {
         camera.decoded?.({ getText: () => code });
         fixture.detectChanges();
@@ -317,6 +323,7 @@ describe('ScanPage', () => {
 
     it('registers a typed code and empties the field, and refuses what is not a code', async () => {
         const page = await open();
+        await openField(page);
         const field = page.querySelector('input') as HTMLInputElement;
         const submit = (text: string): void => {
             field.value = text;
@@ -329,5 +336,20 @@ describe('ScanPage', () => {
         submit(` ${MILK} `);
 
         expect(api.scan.mock.calls.map(([code]) => code)).toEqual([MILK]);
+    });
+
+    it('keeps the field for typing hidden until the handle is pressed, and hides it again', async () => {
+        const page = await open();
+        const handle = page.querySelector('button.handle') as HTMLButtonElement;
+
+        expect(page.querySelector('form.manual')).toBeNull();
+        expect(handle.getAttribute('aria-expanded')).toBe('false');
+
+        await openField(page);
+        expect(page.querySelector('form.manual input')).not.toBeNull();
+        expect(handle.getAttribute('aria-expanded')).toBe('true');
+
+        await openField(page);
+        expect(page.querySelector('form.manual')).toBeNull();
     });
 });

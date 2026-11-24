@@ -52,6 +52,7 @@ export class ScanPage {
     protected readonly scanned = signal<ScannedRecipe | undefined>(undefined);
     protected readonly lastOutcome = signal<ScanOutcome | undefined>(undefined);
     protected readonly manualCode = signal('');
+    protected readonly manualOpen = signal(false);
 
     private readonly video = viewChild.required<ElementRef<HTMLVideoElement>>('video');
     private readonly api = inject(ApiService);
@@ -73,6 +74,10 @@ export class ScanPage {
     constructor() {
         afterNextRender(() => this.startCamera());
         inject(DestroyRef).onDestroy(() => this.controls?.stop());
+    }
+
+    protected toggleManual(): void {
+        this.manualOpen.update((open) => !open);
     }
 
     protected submitManual(): void {

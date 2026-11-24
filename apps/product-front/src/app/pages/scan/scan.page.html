@@ -40,22 +40,39 @@
     }
 </div>
 
-<form class="manual" (ngSubmit)="submitManual()">
-    <input
-        class="field"
-        type="text"
-        name="code"
-        inputmode="numeric"
-        autocomplete="off"
-        pattern="[0-9]*"
-        [placeholder]="'scan.manualPlaceholder' | translate"
-        [ngModel]="manualCode()"
-        (ngModelChange)="manualCode.set($event)"
-    />
-    <button type="submit" class="btn primary" [attr.aria-label]="'scan.manualSubmit' | translate">
-        <i class="material-symbols-outlined">add</i>
+<div class="drawer">
+    <button
+        type="button"
+        class="handle"
+        [attr.aria-expanded]="manualOpen()"
+        [attr.aria-label]="(manualOpen() ? 'scan.manualHide' : 'scan.manualShow') | translate"
+        [title]="(manualOpen() ? 'scan.manualHide' : 'scan.manualShow') | translate"
+        (click)="toggleManual()"
+    >
+        <svg class="tab" viewBox="0 0 64 16" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 16 C13 16 7 0 20 0 L44 0 C57 0 51 16 64 16 Z" />
+        </svg>
+        <i class="material-symbols-outlined">{{ manualOpen() ? 'expand_more' : 'expand_less' }}</i>
     </button>
-</form>
+    @if (manualOpen()) {
+        <form class="manual" (ngSubmit)="submitManual()">
+            <input
+                class="field"
+                type="text"
+                name="code"
+                inputmode="numeric"
+                autocomplete="off"
+                pattern="[0-9]*"
+                [placeholder]="'scan.manualPlaceholder' | translate"
+                [ngModel]="manualCode()"
+                (ngModelChange)="manualCode.set($event)"
+            />
+            <button type="submit" class="btn primary" [attr.aria-label]="'scan.manualSubmit' | translate">
+                <i class="material-symbols-outlined">add</i>
+            </button>
+        </form>
+    }
+</div>
 
 @if (namingCode(); as code) {
     <app-naming-prompt [code]="code" [collecting]="collecting()" (closed)="onNamed($event)" />

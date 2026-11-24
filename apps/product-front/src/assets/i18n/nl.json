@@ -47,6 +47,8 @@
             "unsupported": "Deze browser geeft geen toegang tot de camera. Typ de code hieronder."
         },
         "manualPlaceholder": "Barcode typen",
+        "manualShow": "Toon het veld om een barcode te typen",
+        "manualHide": "Verberg het veld om een barcode te typen",
         "manualSubmit": "Toevoegen",
         "added": "{name} staat op de lijst",
         "incremented": "{name}: nu {quantity}",

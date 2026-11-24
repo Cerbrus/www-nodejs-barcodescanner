@@ -307,7 +307,7 @@ Web push, so it works with the app closed. The frontend registers a small servic
 - Decoding is done in JavaScript by `@zxing/browser`, because Safari on iOS offers no `BarcodeDetector`. Confirmed working on the iPhone and on a laptop.
 - The frame on screen is only a guide; the decoder reads the whole picture.
 - The camera stops while the naming prompt or the tick sheet of a recipe is open and restarts after.
-- Formats: EAN-13, EAN-8, UPC-A and QR. A barcode can also be typed.
+- Formats: EAN-13, EAN-8, UPC-A and QR. A barcode can also be typed: the field is collapsed by default behind a narrow handle at the middle of its top edge, whose sides curve like an easeInOutCubic (`cubic-bezier(0.65, 0, 0.35, 1)`) curve; the state is not remembered.
 - A QR code that starts as a recipe code is read with `libs/shared` and opens the tick sheet (`recipe-sheet`), built from the code alone; another QR code is ignored. The sheet has a box to keep the recipe when no stored recipe has its name. Confirming posts the ticked products with the code to `/recipes/additions`.
 - The frame is a square, sized from the camera area with container units.
 - The decoder does not read every QR code: of 400 made-up recipe codes drawn without any blur, 3 were never read whatever their size, and 24 only at some sizes. The handheld scanner reads those. The end-to-end test shows a recipe code to a stand-in camera.

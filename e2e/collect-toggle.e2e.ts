@@ -21,6 +21,7 @@ test('the collect toggle of the scanner moves a scanned product from the list to
     await page.goto('/#/scan');
     await page.locator('button.collect').click();
     await expect(page.locator('button.collect')).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('button.handle').click();
     await page.locator('form.manual input').fill(MODE_CODE);
     await page.locator('form.manual button[type=submit]').click();
     await expect(page.locator('app-naming-prompt .sheet')).toBeVisible();
@@ -34,6 +35,7 @@ test('the collect toggle of the scanner moves a scanned product from the list to
     await pastTheRepeatPause(request);
     await page.locator('nav a[href="#/scan"]').click();
     await expect(page.locator('button.collect')).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('button.handle').click();
     await page.locator('form.manual input').fill(MODE_CODE);
     await page.locator('form.manual button[type=submit]').click();
     await expect(page.getByText(`${product.name} staat niet op de lijst`)).toBeVisible();

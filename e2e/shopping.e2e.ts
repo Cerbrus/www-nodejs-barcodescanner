@@ -22,6 +22,7 @@ test('type a code, name it, check it off and undo', async ({ page, request }) =>
     const product = await productOffTheList(request);
 
     await page.goto('/#/scan');
+    await page.locator('button.handle').click();
     await page.locator('form.manual input').fill(TYPED_CODE);
     await page.locator('form.manual button[type=submit]').click();
     await nameInPrompt(page, product.name);
@@ -53,6 +54,7 @@ test('scan the same code again and get one more', async ({ page, request }) => {
 
     await pastTheRepeatPause(request);
     await page.goto('/#/scan');
+    await page.locator('button.handle').click();
     await page.locator('form.manual input').fill(TYPED_CODE);
     await page.locator('form.manual button[type=submit]').click();
     await expect.poll(() => answers.length).toBeGreaterThan(0);

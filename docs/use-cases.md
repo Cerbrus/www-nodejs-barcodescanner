@@ -31,7 +31,7 @@ A code that is not a product barcode, such as a QR code with a web address, adds
 
 ### UC-3 Scan with the phone camera
 
-1. The user opens the scan page on the phone. The camera stays open; a code can also be typed.
+1. The user opens the scan page on the phone. The camera stays open; a code can also be typed: the field for it is folded away at the bottom, and a small handle in the middle above it opens it and folds it again.
 2. A known barcode is added at once (same rules as UC-1), with a toast and an undo button.
 3. An unknown barcode pauses the camera and opens the naming prompt (UC-5). After naming, the item is added and scanning resumes.
 

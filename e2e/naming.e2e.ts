@@ -32,6 +32,7 @@ const scanWithProposal = async (page: Page, code: string, proposed: CatalogItem)
     });
 
     await page.goto('/#/scan');
+    await page.locator('button.handle').click();
     await page.locator('form.manual input').fill(code);
     await page.locator('form.manual button[type=submit]').click();
     await expect(page.locator('app-naming-prompt .proposal')).toContainText(proposed.name);

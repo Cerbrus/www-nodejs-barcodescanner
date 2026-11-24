@@ -70,7 +70,7 @@
 .last {
     position: absolute;
     right: 12px;
-    bottom: 12px;
+    bottom: 28px;
     left: 12px;
     display: flex;
     justify-content: space-between;
@@ -82,9 +82,41 @@
     font-size: 0.85rem;
 }
 
+.drawer {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.handle {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 64px;
+    height: 16px;
+    transform: translateX(-50%);
+    color: var(--text-muted);
+
+    .tab {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        fill: var(--surface);
+    }
+
+    i {
+        position: relative;
+        font-size: 16px;
+        line-height: 16px;
+    }
+}
+
 .manual {
     display: flex;
-    flex: 0 0 auto;
     gap: 8px;
     padding: 10px 12px;
     background: var(--surface);

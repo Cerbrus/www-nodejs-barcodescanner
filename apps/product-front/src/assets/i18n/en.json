@@ -47,6 +47,8 @@
             "unsupported": "This browser gives no access to the camera. Type the code below."
         },
         "manualPlaceholder": "Type a barcode",
+        "manualShow": "Show the field to type a barcode",
+        "manualHide": "Hide the field to type a barcode",
         "manualSubmit": "Add",
         "added": "{name} is on the list",
         "incremented": "{name}: now {quantity}",
