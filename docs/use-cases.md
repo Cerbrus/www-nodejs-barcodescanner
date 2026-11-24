@@ -93,7 +93,7 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 ### UC-20 Keep recipes
 
-1. The Recipes tab lists the recipes as the rows of one connected group, like the rows of the System page, each with the name, its number of products and as many of their icons as fit whole on the row (when there are more, the row ends at the last whole icon and its last two fade out), and a search field that filters on the name.
+1. The Recipes tab lists the recipes as the rows of one connected group, like the rows of the System page, each with the name, its number of products and as many of their icons as fit whole on the row (when there are more, the row ends at the last whole icon and its last two fade out), and a search field, set apart from the buttons above it, that filters on the name.
 2. "New recipe" opens an empty form: a name, a description and the products. A product is picked with the product search, where a product that does not exist can be made; each is one line with its note and its quantity. Picking a product that is already in the recipe without a note counts it up; the minus of a product that is down to one is a bin that takes it out. The products are dragged by their row into the order they are saved and shown in.
 3. A recipe opens to read: its name, the description shown as markdown, its products with quantity and note, and its code. The pencil at the top right turns it into the form; Save and Cancel go back to reading. The form ends in one row: cancel, save and, for an existing recipe, delete, which asks first in that same row.
 4. Recipes are shared by every account.

@@ -82,6 +82,14 @@ describe('RecipesPage', () => {
         expect(page.querySelectorAll('.recipe.card')).toHaveLength(0);
     });
 
+    it('keeps a gap between the header buttons and the search field', async () => {
+        await open();
+
+        const header = page.querySelector('.recipes-header') as HTMLElement;
+        expect(header.classList).toContain('mb-3');
+        expect(header.nextElementSibling?.querySelector('#recipe-search')).not.toBeNull();
+    });
+
     it('filters on the name while searching, and says so when nothing matches', async () => {
         await open();
         type(page, '#recipe-search', 'pan');
