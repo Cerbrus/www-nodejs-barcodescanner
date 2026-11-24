@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import {
     FakeEvents,
@@ -319,6 +319,29 @@ describe('ShellComponent', () => {
 
         expect(reload).toHaveBeenCalledTimes(1);
         expect(store.refreshAll).not.toHaveBeenCalled();
+    });
+
+    it('draws the pull indicator as twelve spokes inside the page that moves down', () => {
+        open();
+
+        expect(page.querySelectorAll('main .pull-indicator svg.spinner line').length).toBe(12);
+        expect(page.querySelector('main .pull-body router-outlet')).not.toBeNull();
+        expect(page.querySelector('main .pull-indicator i')).toBeNull();
+    });
+
+    it('marks the content as refreshing until the reload is done', () => {
+        open();
+        const reload = new Subject<undefined>();
+        TestBed.runInInjectionContext(() => TestBed.inject(PullRefreshService).use(() => reload));
+
+        pull();
+        fixture.detectChanges();
+        expect(page.querySelector('main')?.classList.contains('refreshing')).toBe(true);
+
+        reload.next(undefined);
+        reload.complete();
+        fixture.detectChanges();
+        expect(page.querySelector('main')?.classList.contains('refreshing')).toBe(false);
     });
 
     it('shows at most three messages and lets each go after five seconds', () => {

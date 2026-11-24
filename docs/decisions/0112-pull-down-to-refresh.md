@@ -15,7 +15,7 @@ The app follows changes by itself through the live connection, but on a phone th
 
 ## Decision
 
-Pulling the content area down while it is scrolled to the top, past a threshold, reloads the page and shows a spinning icon until it is done. The shell does this for every page. A page whose data does not come from the shopping store registers its own reload: Feedback and Scan history. Every other page reloads the store (list, inbox, recipes, products). A pull sends the changes that still wait for a connection first, as any reload does. It works by touch only; the desktop has the browser's reload.
+Pulling the content area down while it is scrolled to the top, past a threshold, reloads the page. The whole page moves down with the finger, and a spoked spinner like the one on iOS shows in the space it leaves, turning while the page is held down at that spot until the reload is done. The Material icon set has no such spinner, so it is drawn as an inline SVG of twelve spokes (the first version showed the `refresh` icon over the page, 2026-11-24, issue 83). The shell does this for every page. A page whose data does not come from the shopping store registers its own reload: Feedback and Scan history. Every other page reloads the store (list, inbox, recipes, products). A pull sends the changes that still wait for a connection first, as any reload does. It works by touch only; the desktop has the browser's reload.
 
 ## Consequences
 

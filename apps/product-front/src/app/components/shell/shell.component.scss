@@ -49,6 +49,7 @@
 }
 
 .content {
+    position: relative;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
@@ -56,38 +57,64 @@
 }
 
 .pull-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
     display: flex;
+    align-items: center;
     justify-content: center;
-    height: 0;
-    overflow: visible;
+    height: 56px;
+    color: var(--text-muted);
     opacity: 0;
-    transition: opacity 0.15s;
     pointer-events: none;
+}
 
-    i {
-        margin-top: calc(var(--pull, 0px) - 40px);
-        padding: 6px;
-        border-radius: 999px;
-        background: var(--surface);
-        color: var(--accent);
-        box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
-        z-index: 1;
-    }
+.spinner {
+    width: 28px;
+    height: 28px;
 
-    &.refreshing i {
-        margin-top: 12px;
-        animation: spin 0.8s linear infinite;
+    line {
+        stroke: currentcolor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        opacity: calc(1 - var(--spoke) * 0.07);
     }
+}
+
+.pull-body {
+    height: 100%;
+    background: var(--page);
 }
 
 .content.pulling .pull-indicator,
-.pull-indicator.refreshing {
+.content.refreshing .pull-indicator {
     opacity: 1;
 }
 
-.content[data-pull-ready] .pull-indicator i {
-    background: var(--accent);
-    color: var(--accent-text);
+.content.pulling .pull-body {
+    transform: translateY(var(--pull));
+}
+
+.content.pulling .spinner {
+    transform: rotate(calc(var(--pull) * 4deg));
+}
+
+.content[data-pull-ready] .pull-indicator {
+    color: var(--accent);
+}
+
+.content.refreshing .pull-body {
+    transform: translateY(56px);
+    transition: transform 0.2s ease-out;
+}
+
+.content:not(.pulling, .refreshing) .pull-body {
+    transition: transform 0.2s ease-out;
+}
+
+.content.refreshing .spinner {
+    animation: spin 0.9s steps(12) infinite;
 }
 
 @keyframes spin {

@@ -28,16 +28,33 @@
     </div>
 }
 
-<main class="content" appRemarkPointer appPullRefresh [class.pointing-at]="remarks.pointing()" (pulled)="refresh()">
-    <div
-        class="pull-indicator"
-        [class.refreshing]="refreshing()"
-        role="status"
-        [attr.aria-label]="'common.refreshing' | translate"
-    >
-        <i class="material-symbols-outlined">refresh</i>
+<main
+    class="content"
+    appRemarkPointer
+    appPullRefresh
+    [class.pointing-at]="remarks.pointing()"
+    [class.refreshing]="refreshing()"
+    (pulled)="refresh()"
+>
+    <div class="pull-indicator" role="status" [attr.aria-label]="'common.refreshing' | translate">
+        <svg class="spinner" viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(0 12 12)" style="--spoke: 0" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(30 12 12)" style="--spoke: 1" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(60 12 12)" style="--spoke: 2" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(90 12 12)" style="--spoke: 3" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(120 12 12)" style="--spoke: 4" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(150 12 12)" style="--spoke: 5" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(180 12 12)" style="--spoke: 6" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(210 12 12)" style="--spoke: 7" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(240 12 12)" style="--spoke: 8" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(270 12 12)" style="--spoke: 9" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(300 12 12)" style="--spoke: 10" />
+            <line x1="12" y1="3" x2="12" y2="7" transform="rotate(330 12 12)" style="--spoke: 11" />
+        </svg>
     </div>
-    <router-outlet />
+    <div class="pull-body">
+        <router-outlet />
+    </div>
 </main>
 
 <app-remark-sheet />

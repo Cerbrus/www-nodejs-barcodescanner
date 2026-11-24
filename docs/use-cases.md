@@ -196,7 +196,7 @@ The user adds the site to the home screen from the browser's share menu. It then
 
 ### UC-26 Pull down to refresh
 
-On the phone the user pulls a page down while it is scrolled to the top. Past a threshold, a spinning icon shows and the page reloads: Feedback and the scan history their own data, every other page the list, inbox, recipes and products. The changes that still wait for a connection are sent first.
+On the phone the user pulls a page down while it is scrolled to the top. The whole page moves down with the finger and a spoked spinner, like the one on iOS, shows above it. Past a threshold the page reloads, held down with the spinner turning: Feedback and the scan history their own data, every other page the list, inbox, recipes and products. The changes that still wait for a connection are sent first.
 
 ### UC-17 Log in
 
