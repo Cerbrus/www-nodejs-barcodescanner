@@ -1,8 +1,15 @@
+.group {
+    padding: 0;
+    overflow: hidden;
+}
+.recipe + .recipe {
+    border-top: 1px solid var(--line);
+}
 .recipe {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-block: 8px;
+    padding: 8px 12px;
 }
 .recipe.choosing {
     min-height: 62px;

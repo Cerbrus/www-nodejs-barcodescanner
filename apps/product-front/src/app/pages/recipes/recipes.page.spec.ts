@@ -74,6 +74,14 @@ describe('RecipesPage', () => {
         expect(page.querySelector('a.btn.primary')?.getAttribute('href')).toBe('/recipes/new');
     });
 
+    it('shows the recipes as rows of one connected group, not as separate cards', async () => {
+        await open();
+
+        expect(page.querySelectorAll('.card.group')).toHaveLength(1);
+        expect(page.querySelectorAll('.card.group > .recipe')).toHaveLength(3);
+        expect(page.querySelectorAll('.recipe.card')).toHaveLength(0);
+    });
+
     it('filters on the name while searching, and says so when nothing matches', async () => {
         await open();
         type(page, '#recipe-search', 'pan');
