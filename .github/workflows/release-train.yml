@@ -64,6 +64,7 @@ jobs:
         uses: ./.github/workflows/build.yml
         with:
             ref: ${{ needs.assemble.outputs.branch }}
+            publish_commit: true
 
     land:
         name: 🚉 Full steam into master
@@ -72,7 +73,6 @@ jobs:
         timeout-minutes: 10
         environment: release
         permissions:
-            actions: write
             contents: write
             pull-requests: write
             issues: write
@@ -113,6 +113,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 5
         permissions:
+            actions: write
             contents: write
             pull-requests: write
             issues: write
@@ -127,3 +128,6 @@ jobs:
               run: bash .github/scripts/release-train.sh report-failure "$TRAIN"
             - name: Remove the train's branch
               run: bash .github/scripts/release-train.sh remove-branch "$BRANCH"
+            - name: Remove the builds that never started on the landed commits
+              if: needs.land.result == 'success'
+              run: bash .github/scripts/release-train.sh remove-unstarted-builds "$TRAIN"
