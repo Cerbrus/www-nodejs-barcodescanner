@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0113 or higher: the highest number plus one.
+- Number the next record 0114 or higher: the highest number plus one.
 
 ## Product
 
@@ -149,21 +149,22 @@ One record per decision, in the MADR layout. Read this page first; open a record
 
 ## Remarks and the agent
 
-| Number                                           | Title                                                                             | Status                      | Date         |
-| ------------------------------------------------ | --------------------------------------------------------------------------------- | --------------------------- | ------------ |
-| [0064](0064-remarks-in-own-database.md)          | Remarks are stored in the app's own database; only the owner sends them to GitHub | accepted                    | 2026-11-15   |
-| [0065](0065-let-the-agent-look-at-it.md)         | "Let the agent look at it" is the first option and ticked by default              | accepted                    | 2026-11-15   |
-| [0066](0066-reject-is-soft-delete.md)            | Rejecting a remark is a soft delete                                               | accepted                    | 2026-11-15   |
-| [0067](0067-edit-remark-until-sent.md)           | A remark can be edited until it is on GitHub                                      | accepted                    | 2026-11-20   |
-| [0068](0068-remark-progress-from-github.md)      | The Feedback page shows the progress of a sent remark, read from the GitHub API   | accepted                    | 2026-11-20   |
-| [0069](0069-remark-kinds.md)                     | Remarks come as bug, wish or note                                                 | accepted                    | 2026-11-15   |
-| [0070](0070-no-touch-and-hold.md)                | No touch and hold for pointing at the app                                         | accepted                    | 2026-11-15   |
-| [0071](0071-bottom-menu-pointable.md)            | The bottom menu can be pointed at                                                 | accepted                    | 2026-11-15   |
-| [0072](0072-feedback-page-layout.md)             | Feedback page: handled remarks collapsed, actions top right, Ctrl+Enter           | accepted                    | 2026-11-15   |
-| [0073](0073-no-screenshots.md)                   | No screenshots in remarks                                                         | accepted                    | 2026-11-15   |
-| [0074](0074-no-two-finger-tap.md)                | No two-finger tap; pointing mode is the only way on the phone                     | accepted                    | 2026-11-15   |
-| [0075](0075-agent-implements-owner-issues.md)    | The agent implements issues the owner wrote                                       | superseded by 0076          | 2026-11-15   |
-| [0076](0076-agent-for-any-labelled-issue.md)     | The agent starts for any issue the owner labels                                   | accepted                    | 2026-11-20   |
-| [0077](0077-agent-repairs-failed-checks-once.md) | The agent repairs a failed build once                                             | accepted                    | 2026-11-20   |
-| [0098](0098-request-changes-back-to-agent.md)    | A request for changes sends the pull request back to the agent                    | accepted                    | 2026-11-20   |
-| [0096](0096-remark-not-feedback.md)              | In the code, feedback from inside the app is called a remark                      | accepted (found afterwards) | not recorded |
+| Number                                                  | Title                                                                             | Status                      | Date         |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------- | ------------ |
+| [0064](0064-remarks-in-own-database.md)                 | Remarks are stored in the app's own database; only the owner sends them to GitHub | accepted                    | 2026-11-15   |
+| [0065](0065-let-the-agent-look-at-it.md)                | "Let the agent look at it" is the first option and ticked by default              | accepted                    | 2026-11-15   |
+| [0066](0066-reject-is-soft-delete.md)                   | Rejecting a remark is a soft delete                                               | accepted                    | 2026-11-15   |
+| [0067](0067-edit-remark-until-sent.md)                  | A remark can be edited until it is on GitHub                                      | accepted                    | 2026-11-20   |
+| [0068](0068-remark-progress-from-github.md)             | The Feedback page shows the progress of a sent remark, read from the GitHub API   | accepted                    | 2026-11-20   |
+| [0069](0069-remark-kinds.md)                            | Remarks come as bug, wish or note                                                 | accepted                    | 2026-11-15   |
+| [0070](0070-no-touch-and-hold.md)                       | No touch and hold for pointing at the app                                         | accepted                    | 2026-11-15   |
+| [0071](0071-bottom-menu-pointable.md)                   | The bottom menu can be pointed at                                                 | accepted                    | 2026-11-15   |
+| [0072](0072-feedback-page-layout.md)                    | Feedback page: handled remarks collapsed, actions top right, Ctrl+Enter           | accepted                    | 2026-11-15   |
+| [0073](0073-no-screenshots.md)                          | No screenshots in remarks                                                         | accepted                    | 2026-11-15   |
+| [0074](0074-no-two-finger-tap.md)                       | No two-finger tap; pointing mode is the only way on the phone                     | accepted                    | 2026-11-15   |
+| [0075](0075-agent-implements-owner-issues.md)           | The agent implements issues the owner wrote                                       | superseded by 0076          | 2026-11-15   |
+| [0076](0076-agent-for-any-labelled-issue.md)            | The agent starts for any issue the owner labels                                   | accepted                    | 2026-11-20   |
+| [0077](0077-agent-repairs-failed-checks-once.md)        | The agent repairs a failed build once                                             | accepted                    | 2026-11-20   |
+| [0098](0098-request-changes-back-to-agent.md)           | A request for changes sends the pull request back to the agent                    | accepted                    | 2026-11-20   |
+| [0113](0113-agent-estimates-complexity-and-severity.md) | The agent estimates complexity and severity                                       | accepted                    | 2026-11-24   |
+| [0096](0096-remark-not-feedback.md)                     | In the code, feedback from inside the app is called a remark                      | accepted (found afterwards) | not recorded |
