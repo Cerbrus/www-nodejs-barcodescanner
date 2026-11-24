@@ -7,7 +7,7 @@ import { OverflowingDirective } from './overflowing.directive';
 @Component({
     standalone: true,
     imports: [OverflowingDirective],
-    template: '<div id="strip" appOverflowing></div>'
+    template: '<div id="strip" appOverflowing><i></i><i></i><i></i></div>'
 })
 class HostComponent {}
 
@@ -42,14 +42,22 @@ describe('OverflowingDirective', () => {
         Object.defineProperty(strip, 'scrollWidth', { get: () => sizes.scrollWidth });
         Object.defineProperty(strip, 'clientWidth', { get: () => sizes.clientWidth });
 
+        Array.from(strip.children).forEach((child, index) => {
+            Object.defineProperty(child, 'offsetLeft', { get: () => index * 28 });
+            Object.defineProperty(child, 'offsetWidth', { get: () => 22 });
+        });
+        sizes.clientWidth = 60;
+
         measure();
         await fixture.whenStable();
         expect(strip.classList.contains('overflowing')).toBe(true);
+        expect(strip.style.getPropertyValue('--fit')).toBe('50px');
 
         sizes.clientWidth = 200;
         measure();
         await fixture.whenStable();
         expect(strip.classList.contains('overflowing')).toBe(false);
+        expect(strip.style.getPropertyValue('--fit')).toBe('');
 
         fixture.destroy();
         expect(disconnect).toHaveBeenCalledTimes(1);

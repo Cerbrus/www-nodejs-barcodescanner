@@ -46,9 +46,12 @@
     min-width: 0;
     overflow: hidden;
 }
+.recipe-icons.overflowing {
+    clip-path: inset(0 calc(100% - var(--fit)) 0 0);
+}
 .recipe-icons.overflowing::after {
     position: absolute;
-    inset: 0 0 0 auto;
+    inset: 0 calc(100% - var(--fit)) 0 auto;
     width: 50px;
     background: linear-gradient(to right, transparent, var(--surface));
     content: '';
