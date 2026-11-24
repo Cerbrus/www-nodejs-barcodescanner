@@ -75,10 +75,14 @@
                     <a class="recipe-link" [routerLink]="['/recipes', row.recipe.id]">
                         <span class="block font-semibold">{{ row.recipe.name }}</span>
                         <span class="recipe-facts">
-                            {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
-                            @for (item of row.icons; track item.id) {
-                                <span class="recipe-icon"><app-item-icon [item]="item" /></span>
-                            }
+                            <span class="recipe-count">
+                                {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
+                            </span>
+                            <span class="recipe-icons" appOverflowing>
+                                @for (item of row.icons; track item.id) {
+                                    <span class="recipe-icon"><app-item-icon [item]="item" /></span>
+                                }
+                            </span>
                         </span>
                     </a>
                     <button

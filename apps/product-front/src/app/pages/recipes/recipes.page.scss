@@ -23,11 +23,29 @@
 }
 .recipe-facts {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
     color: var(--text-muted);
     font-size: 0.8rem;
+}
+.recipe-count {
+    flex: none;
+}
+.recipe-icons {
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+}
+.recipe-icons.overflowing::after {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 50px;
+    background: linear-gradient(to right, transparent, var(--surface));
+    content: '';
+    pointer-events: none;
 }
 .recipe-icon {
     width: 22px;

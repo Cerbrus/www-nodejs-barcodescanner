@@ -4,16 +4,15 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
+import { OverflowingDirective } from '../../directives/overflowing.directive';
 import { Recipe } from '../../models';
 import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 
-const SHOWN_ICONS = 5;
-
 @Component({
     selector: 'app-recipes-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, TranslatePipe, ItemIconComponent],
+    imports: [FormsModule, RouterLink, TranslatePipe, ItemIconComponent, OverflowingDirective],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './recipes.page.html',
     styleUrl: './recipes.page.scss'
@@ -33,9 +32,7 @@ export class RecipesPage {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((recipe) => ({
                 recipe,
-                icons: recipe.ingredients
-                    .flatMap(({ catalogItemId }) => this.store.itemById(catalogItemId) ?? [])
-                    .slice(0, SHOWN_ICONS)
+                icons: recipe.ingredients.flatMap(({ catalogItemId }) => this.store.itemById(catalogItemId) ?? [])
             }));
     });
 
