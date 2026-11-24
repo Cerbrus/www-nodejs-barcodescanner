@@ -40,8 +40,8 @@ jobs:
             - uses: actions/checkout@v7
               with:
                   fetch-depth: 0
-            - name: Take the script out of the checkout
-              run: cp .github/scripts/release-train.sh "$RUNNER_TEMP/release-train.sh"
+            - name: Take the scripts out of the checkout
+              run: cp .github/scripts/release-train.sh .github/scripts/pull-request-labels.sh "$RUNNER_TEMP/"
             - name: ⏳ Last call on the platform
               env:
                   WAIT_MINUTES: ${{ inputs.wait_minutes }}

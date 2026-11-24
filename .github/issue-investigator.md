@@ -111,7 +111,7 @@ Two ratings, each with one sentence of reason. They tell the owner what an answe
 
 - When you implemented it, look again after the build: the complexity is what the change turned out to be. When that differs from what you estimated, say so in one clause: "estimated small, turned out medium: it needed a migration".
 - When nothing is built (not possible, not a bug), the complexity is "not applicable": say so in the comment and set no complexity label. The severity is still given; for a report that does not hold, as it would be if the report were true.
-- Set exactly one label of each kind on the issue, never on the pull request, in the same command as the verdict label: `--add-label "complexity: small" --add-label "severity: low"`. On a later run for the same issue, estimate again and remove the earlier labels that no longer hold.
+- Set exactly one label of each kind on the issue, never on the pull request (the workflow copies them there, with the labels for the parts the change touches), in the same command as the verdict label: `--add-label "complexity: small" --add-label "severity: low"`. On a later run for the same issue, estimate again and remove the earlier labels that no longer hold.
 - The labels exist already. You cannot create labels; when one is missing, say so in the comment and go on.
 - A repair, a rebase and a revision leave the estimate and its labels as they are.
 

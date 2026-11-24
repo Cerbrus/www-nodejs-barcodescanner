@@ -9,6 +9,7 @@ on:
             - '.github/dependabot.yml'
             - '.github/workflows/dependabot-helper.yml'
             - '.github/workflows/issue-investigator.yml'
+            - '.github/workflows/pull-request-labels.yml'
             - '.github/workflows/release-train.yml'
             - '.github/workflows/release-train-on-approval.yml'
             - '.github/release-train/**'

@@ -65,6 +65,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - The train leaving a pull request with failing checks behind, the agent rebasing a pull request that conflicted, and an approval carried over that rebase: built on 2026-11-20, tried only on a scratch repository. The repair after failed checks ran once for real, on pull request 43.
 - Recipe codes on a real phone and a real handheld scan against the live API: the camera reading a printed code, the tick sheet on the iPhone, and the two buzzer sounds. Tested with a stand-in camera and through the API only. The camera's decoder also misses a small share of QR codes outright (see the phone camera section of the architecture); which printed recipes that hits is not known until one fails.
 - A request for changes sending a pull request back to the agent: built on 2026-11-20. Only the script that collects the owner's remarks was tried, with a stand-in for `gh`; the start from a review and the agent's revision have not run.
+- The labels on pull requests: built on 2026-11-25. The script was run without writing against all 50 pull requests, and the train's label changes against a stand-in for `gh`. The workflow that starts on a pull request, the step in the investigator's workflow and the train setting its state have not run; nor is it known whether the workflow may write labels on a pull request of Dependabot.
 
 Not planned, no hardware for it (owner, 2026-11-15): `install.sh` on a fresh Pi, and push notifications on Android.
 

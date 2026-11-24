@@ -12,6 +12,8 @@ POLL_SECONDS=20
 BOT='github-actions[bot]'
 AGENT_BRANCH='^issue/([0-9]+)-'
 MERGED_ATTEMPTS=12
+LABELS_SCRIPT="$(dirname "${BASH_SOURCE[0]}")/pull-request-labels.sh"
+STATE_LABELS=('train: on board' 'train: left behind' 'train: derailed')
 WAITING_BUILD_ATTEMPTS=6
 
 open_pulls() {
@@ -92,6 +94,24 @@ comment_once() {
 $text" --silent
 }
 
+set_state() {
+    local number=$1 state=${2:-} label
+    for label in "${STATE_LABELS[@]}"; do
+        if [ "$label" = "train: $state" ]; then
+            gh api "repos/$REPO/issues/$number/labels" --silent -f "labels[]=$label" ||
+                echo "::warning::Could not label #$number as $label"
+        else
+            gh api -X DELETE "repos/$REPO/issues/$number/labels/$(jq -rn --arg label "$label" '$label | @uri')" --silent 2>/dev/null || true
+        fi
+    done
+}
+
+label_pull() {
+    if [ -f "$LABELS_SCRIPT" ]; then
+        bash "$LABELS_SCRIPT" "$1" || echo "::warning::Could not label #$1"
+    fi
+}
+
 leave_out() {
     local number=$1 head=$2 title=$3 reason=$4 name=$5
     echo "- $title: $(pull_link "$number") ($name) $reason" >>"$SUMMARY"
@@ -150,6 +170,7 @@ assemble() {
         head=$(jq -r .head.sha <<<"$pull")
         head_branch=$(jq -r .head.ref <<<"$pull")
         same_repo=$(jq -r '.head.repo.full_name == .base.repo.full_name' <<<"$pull")
+        label_pull "$number"
 
         if ! approved_at "$number" "$head"; then
             echo "- 🚫 No ticket: $(pull_link "$number") ($name) is not approved by $OWNER at its current commit" >>"$notes"
@@ -157,6 +178,7 @@ assemble() {
         fi
         if [ "$(own_checks "$head")" = failure ]; then
             SUMMARY=$notes leave_out "$number" "$head" '🔥 Hot box' "fails its own checks, so it would stop the whole train. It rides again once its checks pass." "$name"
+            set_state "$number" 'left behind'
             continue
         fi
         if [ "$same_repo" != true ]; then
@@ -181,6 +203,7 @@ assemble() {
             else
                 SUMMARY=$notes leave_out "$number" "$head" '🚧 Left on the platform' "conflicts with \`$BASE_BRANCH\` or with a carriage ahead of it. Rebase it and approve it again." "$name"
             fi
+            set_state "$number" 'left behind'
             continue
         fi
         if [ "$rebased" = "$tip" ]; then
@@ -190,6 +213,7 @@ assemble() {
 
         tip=$rebased
         aboard+=("$number")
+        set_state "$number" 'on board'
         included=$(jq -c --argjson number "$number" --arg head "$head" --arg branch "$head_branch" --arg rebased "$rebased" \
             '. + [{number: $number, head: $head, branch: $branch, rebased: $rebased}]' <<<"$included")
         echo "- 🎟️ $(pull_link "$number") on board: $name" >>"$notes"
@@ -318,6 +342,7 @@ land() {
     } >>"$SUMMARY"
     while read -r number rebased; do
         finish_pull "$number"
+        set_state "$number"
         landed+=("$rebased")
     done < <(jq -r '.pulls[] | "\(.number) \(.rebased)"' <<<"$train")
     remove_waiting_builds "${landed[@]}"
@@ -331,6 +356,7 @@ report_failure() {
     done
     line=$(train_line "${aboard[@]}")
     for number in "${aboard[@]}"; do
+        set_state "$number" derailed
         gh api "repos/$REPO/issues/$number/comments" --silent -f body="$(picture derailed 'A locomotive off the rails, nose in the ground')
 
 $line

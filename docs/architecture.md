@@ -379,6 +379,18 @@ The run summary and the comments are written in railway terms, each with a plain
 
 Only the last step of landing uses the owner's token, the secret `RELEASE_TRAIN_TOKEN` of the environment `release`, which runs from `master` alone can use. Everything else uses the workflow's own token.
 
+### Labels on a pull request
+
+`.github/scripts/pull-request-labels.sh` gives a pull request the labels that follow from it, and takes away those that no longer hold:
+
+- **Area**, from the paths of its files: `area: api`, `area: web app`, `area: hardware agent`, `area: shared`, `area: e2e`, `area: deployment` (the `deployment` folder and the Dockerfiles), `area: workflows` (`.github`), `area: docs` (`docs` and markdown files) and `area: data`.
+- **Flags**: `migration` for a file in the API's migrations folder, `no deploy` when every file is on the list of paths that start no build (read from `paths-ignore` in `build.yml`), and `lands by hand` for a workflow file or a fork, which the release train refuses.
+- **From its issue**: `bug` or `enhancement`, `complexity: ...` and `severity: ...` of the issue it closes, or of the issue in its branch name `issue/<number>-...`.
+
+It leaves every other label alone. Three callers run it: `.github/workflows/pull-request-labels.yml` for a pull request that is opened, pushed to or edited (it runs the script from `master` and never checks out the pull request's code), the investigator's workflow after the agent is done, because a pull request made with a workflow's token starts no other workflow, and the release train for every pull request it looks at.
+
+The train itself sets its state: `train: on board` while it is checked, `train: left behind` for a hot box or a conflict, `train: derailed` when the train stopped. A pull request loses the state when it boards a later train or lands.
+
 ## Backup
 
 Outside the containers: a timer on the Pi dumps the database as SQL and pushes it to a private repository. See [deployment.md](deployment.md).

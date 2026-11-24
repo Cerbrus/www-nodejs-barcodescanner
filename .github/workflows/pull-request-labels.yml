@@ -1,0 +1,30 @@
+name: Pull request labels
+
+on:
+    pull_request_target:
+        types: [opened, synchronize, reopened, edited]
+
+permissions: {}
+
+concurrency:
+    group: pull-request-labels-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    label:
+        name: Label pull request ${{ github.event.pull_request.number }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            contents: read
+            issues: write
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  ref: ${{ github.event.repository.default_branch }}
+            - name: Set the labels for what the pull request touches and for its issue
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PULL: ${{ github.event.pull_request.number }}
+              run: bash .github/scripts/pull-request-labels.sh "$PULL"

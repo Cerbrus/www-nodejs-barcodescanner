@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0115 or higher: the highest number plus one.
+- Number the next record 0116 or higher: the highest number plus one.
 
 ## Product
 
@@ -139,13 +139,14 @@ One record per decision, in the MADR layout. Read this page first; open a record
 
 ## Release train
 
-| Number                                 | Title                                                              | Status   | Date       |
-| -------------------------------------- | ------------------------------------------------------------------ | -------- | ---------- |
-| [0059](0059-release-train.md)          | The owner's approval lands pull requests through a release train   | accepted | 2026-11-20 |
-| [0060](0060-conflict-back-to-agent.md) | A conflicting pull request of the agent goes back to the agent     | accepted | 2026-11-20 |
-| [0061](0061-hot-box.md)                | A pull request whose own checks fail is left behind (hot box)      | accepted | 2026-11-20 |
-| [0062](0062-train-token.md)            | The train moves master with a limited token of the owner's account | accepted | 2026-11-20 |
-| [0063](0063-train-railway-names.md)    | The train speaks in steam-era railway terms                        | accepted | 2026-11-20 |
+| Number                                  | Title                                                              | Status   | Date       |
+| --------------------------------------- | ------------------------------------------------------------------ | -------- | ---------- |
+| [0059](0059-release-train.md)           | The owner's approval lands pull requests through a release train   | accepted | 2026-11-20 |
+| [0060](0060-conflict-back-to-agent.md)  | A conflicting pull request of the agent goes back to the agent     | accepted | 2026-11-20 |
+| [0061](0061-hot-box.md)                 | A pull request whose own checks fail is left behind (hot box)      | accepted | 2026-11-20 |
+| [0062](0062-train-token.md)             | The train moves master with a limited token of the owner's account | accepted | 2026-11-20 |
+| [0063](0063-train-railway-names.md)     | The train speaks in steam-era railway terms                        | accepted | 2026-11-20 |
+| [0115](0115-labels-on-pull-requests.md) | Pull requests get their labels by themselves                       | accepted | 2026-11-25 |
 
 ## Remarks and the agent
 
