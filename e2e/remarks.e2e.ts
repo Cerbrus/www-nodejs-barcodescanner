@@ -38,7 +38,7 @@ test('right-click a product, write a remark without choosing a kind, and find it
     expect(remark.context?.viewport).toBe('390 × 844');
 
     await page.goto('/#/system');
-    await page.locator('a.row.link[href="#/remarks"]').click();
+    await page.locator('.row.link a[href="#/remarks"]').click();
     await expect(page.locator('article .text')).toHaveText(['The count is hard to read']);
 
     await page.locator('article .menu-anchor > button').click();

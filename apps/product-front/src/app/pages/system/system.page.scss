@@ -54,6 +54,17 @@
     line-height: 22px;
     text-align: center;
 }
+.stretched {
+    position: relative;
+}
+.cover::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+}
+.above {
+    position: relative;
+}
 .link:hover,
 .link:focus-visible {
     background: var(--page);

@@ -31,8 +31,8 @@
                         (click)="theme.use(option.theme)"
                     >
                         <i class="material-symbols-outlined">{{ option.icon }}</i>
-                        @if (option.theme === 'auto') {
-                            {{ 'theme.autoShort' | translate }}
+                        @if (theme.theme() === option.theme) {
+                            {{ (option.theme === 'auto' ? 'theme.autoShort' : 'theme.' + option.theme) | translate }}
                         }
                     </button>
                 }
@@ -75,41 +75,37 @@
         @if (push.status() === 'denied' || push.status() === 'unsupported') {
             <p class="note">{{ 'push.' + push.status() | translate }}</p>
         }
-        <div class="row">
-            <span class="label">
-                {{ 'remark.title' | translate }}
+        <div class="row link stretched">
+            <i class="material-symbols-outlined">forum</i>
+            <a class="label cover" routerLink="/remarks">
+                {{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}
                 @if (remarks.waiting(); as count) {
                     <span class="hint">{{ 'remark.waiting' | translate: { count } }}</span>
                 }
-            </span>
-            <div class="flex gap-2">
+            </a>
+            @if (remarks.ready(); as count) {
+                <span class="count" [attr.aria-label]="'remark.ready' | translate: { count }">{{ count }}</span>
+            }
+            <div class="above flex gap-2">
                 <button
-                    [attr.aria-label]="'remark.point' | translate"
                     type="button"
                     class="btn"
+                    [attr.aria-label]="'remark.point' | translate"
                     (click)="remarks.startPointing()"
                 >
                     <i class="material-symbols-outlined">ads_click</i>
                 </button>
                 <button
-                    [attr.aria-label]="'remark.write' | translate"
                     type="button"
                     class="btn primary"
+                    [attr.aria-label]="'remark.write' | translate"
                     (click)="remarks.write()"
                 >
                     <i class="material-symbols-outlined">add_comment</i>
                 </button>
             </div>
-        </div>
-
-        <a class="row link" routerLink="/remarks">
-            <i class="material-symbols-outlined">forum</i>
-            <span class="label">{{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}</span>
-            @if (remarks.ready(); as count) {
-                <span class="count" [attr.aria-label]="'remark.ready' | translate: { count }">{{ count }}</span>
-            }
             <i class="material-symbols-outlined muted">chevron_right</i>
-        </a>
+        </div>
         <a class="row link" routerLink="/changelog">
             <i class="material-symbols-outlined">new_releases</i>
             <span class="label">{{ 'changelog.title' | translate }}</span>

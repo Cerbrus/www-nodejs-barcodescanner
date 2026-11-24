@@ -86,14 +86,11 @@ describe('SystemPage', () => {
         await open(OWNER);
 
         expect(groups()).toEqual(['system.device', 'login.account', 'system.management']);
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
-            '/remarks',
-            '/changelog',
-            '/catalog',
-            '/sounds',
-            '/history',
-            '/log'
-        ]);
+        expect(
+            Array.from(page.querySelectorAll('.row.link'), (link) =>
+                (link.querySelector('a') ?? link).getAttribute('href')
+            )
+        ).toEqual(['/remarks', '/changelog', '/catalog', '/sounds', '/history', '/log']);
         expect(texts(page, '.version')[0]).toContain('1.1.32 (c96a5b5)');
     });
 
@@ -111,10 +108,11 @@ describe('SystemPage', () => {
 
         expect(groups()).toEqual(['system.device', 'login.account']);
         expect(page.querySelector('.version')).toBeNull();
-        expect(Array.from(page.querySelectorAll('a.row.link'), (link) => link.getAttribute('href'))).toEqual([
-            '/remarks',
-            '/changelog'
-        ]);
+        expect(
+            Array.from(page.querySelectorAll('.row.link'), (link) =>
+                (link.querySelector('a') ?? link).getAttribute('href')
+            )
+        ).toEqual(['/remarks', '/changelog']);
         expect(api.getAgentStatus).not.toHaveBeenCalled();
         expect(texts(page, '.row .truncate')).toEqual(['guest@example.com']);
     });
@@ -144,10 +142,17 @@ describe('SystemPage', () => {
 
         expect(document.documentElement.dataset['theme']).toBe('dark');
         expect(localStorage.getItem('theme')).toBe('dark');
+        expect(texts(row('system.theme'), '.segment').filter((text) => text.includes('theme.'))).toEqual([
+            expect.stringContaining('theme.dark')
+        ]);
 
         click(row('system.theme'), '.segment', 0);
+        await settle();
 
         expect(document.documentElement.dataset['theme']).toBeUndefined();
+        expect(texts(row('system.theme'), '.segment').filter((text) => text.includes('theme.'))).toEqual([
+            expect.stringContaining('theme.autoShort')
+        ]);
     });
 
     it('offers to turn notifications on, and says so when that fails', async () => {
@@ -201,36 +206,34 @@ describe('SystemPage', () => {
     it('lets every account write a remark, point at a part, and open its remarks', async () => {
         await open(GUEST);
         expect(
-            Array.from(row('remark.title').querySelectorAll('button')).map((button) =>
-                button.getAttribute('aria-label')
-            )
+            Array.from(row('remark.mine').querySelectorAll('button')).map((button) => button.getAttribute('aria-label'))
         ).toEqual(['remark.point', 'remark.write']);
-        expect(texts(page, 'a.row.link .label')).toEqual(['remark.mine', 'changelog.title']);
+        expect(texts(page, '.row.link .label')).toEqual(['remark.mine', 'changelog.title']);
 
-        click(row('remark.title'), 'button', 1);
+        click(row('remark.mine'), 'button', 1);
         expect(remarks.draft()).toEqual({ target: undefined });
 
-        click(row('remark.title'), 'button', 0);
+        click(row('remark.mine'), 'button', 0);
         expect(remarks.pointing()).toBe(true);
         expect(remarks.draft()).toBeUndefined();
     });
 
     it('shows how many open remarks there are on the Feedback row, and nothing when there are none', async () => {
         await open(OWNER);
-        expect(page.querySelector('a.row.link .count')).toBeNull();
+        expect(page.querySelector('.row.link .count')).toBeNull();
 
         remarks.ready.set(3);
         await settle();
 
-        expect(texts(page, 'a.row.link .count')).toEqual(['3']);
+        expect(texts(page, '.row.link .count')).toEqual(['3']);
     });
 
     it('shows how many remarks wait for a connection, and names the list "Feedback" for the owner', async () => {
         remarks.waiting.set(2);
         await open(OWNER);
 
-        expect(texts(row('remark.title'), '.hint')).toEqual(['remark.waiting']);
-        expect(texts(page, 'a.row.link .label')[0]).toBe('remark.listTitle');
+        expect(texts(row('remark.listTitle'), '.hint')).toEqual(['remark.waiting']);
+        expect(texts(page, '.row.link .label')[0]).toContain('remark.listTitle');
     });
 
     it('logs out only after a confirmation', async () => {

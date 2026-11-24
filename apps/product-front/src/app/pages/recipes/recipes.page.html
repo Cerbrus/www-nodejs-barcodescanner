@@ -83,7 +83,7 @@
                     </a>
                     <button
                         type="button"
-                        class="btn"
+                        class="btn primary"
                         [disabled]="!row.recipe.ingredients.length"
                         [attr.aria-label]="'recipe.addAll' | translate: { name: row.recipe.name }"
                         (click)="add(row.recipe)"

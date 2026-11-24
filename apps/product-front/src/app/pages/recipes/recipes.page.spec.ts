@@ -100,7 +100,7 @@ describe('RecipesPage', () => {
 
     it('puts every product of a recipe on the list with the button on its row', async () => {
         await open();
-        click(page, '.recipe button', 2);
+        click(page, '.recipe button.primary', 2);
 
         expect(store.putRecipeOnList).toHaveBeenCalledWith({ name: 'Soep', ingredients: SOUP.ingredients });
     });
