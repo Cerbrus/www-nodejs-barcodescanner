@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block&icon_names=account_circle,add,add_circle,add_comment,add_link,add_shopping_cart,ads_click,arrow_back,arrow_downward,arrow_upward,barcode_reader,barcode_scanner,block,brightness_auto,bug_report,cancel,category,check,check_circle,checklist,chevron_right,close,cloud_off,content_copy,dark_mode,delete,edit,expand_less,expand_more,forum,help,history,image,inbox,inventory_2,light_mode,lightbulb,link_off,local_shipping,login,logout,manage_search,menu_book,merge_type,more_horiz,more_vert,new_releases,no_photography,notifications_active,notifications_off,open_in_new,outbox,photo_camera,print,rate_review,refresh,remove,remove_shopping_cart,save,schedule,send,settings,shopping_cart,smartphone,sticky_note_2,swap_horiz,terminal,undo,unfold_more,volume_up')
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block&icon_names=account_circle,add,add_circle,add_comment,add_link,add_shopping_cart,ads_click,arrow_back,arrow_downward,arrow_upward,barcode_reader,barcode_scanner,block,bottom_panel_close,brightness_auto,bug_report,cancel,category,check,check_circle,checklist,chevron_right,close,cloud_off,content_copy,dark_mode,delete,edit,expand_less,expand_more,forum,help,history,image,inbox,inventory_2,light_mode,lightbulb,link_off,local_shipping,login,logout,manage_search,menu_book,merge_type,more_horiz,more_vert,new_releases,no_photography,notifications_active,notifications_off,open_in_new,outbox,photo_camera,print,rate_review,refresh,remove,remove_shopping_cart,save,schedule,send,settings,shopping_cart,smartphone,sticky_note_2,swap_horiz,terminal,undo,unfold_more,verified,volume_up')
 layer(base);
 @import 'tailwindcss' source('../');
 
@@ -212,6 +212,17 @@ app-recipe-print {
             border-color: var(--accent);
             outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
         }
+    }
+
+    .icon-choice {
+        position: relative;
+    }
+
+    .icon-choice-edit {
+        position: absolute;
+        right: 2px;
+        bottom: 2px;
+        font-size: 16px;
     }
 
     .field-label {

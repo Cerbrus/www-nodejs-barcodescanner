@@ -119,6 +119,7 @@ export class ShellComponent {
                     unknown: scan.unknown?.length
                 }),
                 actionLabel: this.translate.instant('history.undo'),
+                actionIcon: 'undo',
                 action: () => this.store.undoLastScan()
             });
             return;
@@ -131,6 +132,7 @@ export class ShellComponent {
                 quantity: scan.quantity
             }),
             actionLabel: this.translate.instant('history.undo'),
+            actionIcon: 'undo',
             action: () => this.store.undoLastScan()
         });
     }

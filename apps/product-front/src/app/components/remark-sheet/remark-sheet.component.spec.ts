@@ -197,62 +197,45 @@ describe('RemarkSheetComponent', () => {
             type(page, 'textarea', 'Half a thought');
             await settle();
         };
-        const choose = async (label: string): Promise<void> => {
-            click(page, 'button.btn', ['remark.keepWriting', 'remark.closeKeep', 'remark.closeClear'].indexOf(label));
+        const labels = (): Array<string | null> =>
+            Array.from(page.querySelectorAll('button.btn')).map((button) => button.getAttribute('aria-label'));
+        const reopened = async (): Promise<void> => {
+            expect(page.querySelector('dialog')).toBeNull();
+            remarks.write();
             await settle();
         };
 
-        it('asks on Cancel, on a click outside and on Escape, and goes back to writing on request', async () => {
+        it('offers to close, to clear and to send, without asking again', async () => {
+            await write();
+            expect(labels()).toEqual(['remark.closeKeep', 'remark.closeClear', 'remark.send']);
+        });
+
+        it('closes and keeps the text and kind on the close button, a click outside and Escape', async () => {
             await write();
             click(page, 'button.btn');
             await settle();
-            expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
-            expect(texts(page, 'button.btn')).toEqual([
-                'arrow_back remark.keepWriting',
-                'close remark.closeKeep',
-                'delete remark.closeClear'
-            ]);
-            expect(remarks.draft()).toBeDefined();
-
-            await choose('remark.keepWriting');
-            expect(page.querySelector('p.text-sm')).toBeNull();
+            await reopened();
+            expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Half a thought');
+            expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
 
             (page.querySelector('dialog') as HTMLDialogElement).click();
             await settle();
-            expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
-            await choose('remark.keepWriting');
+            await reopened();
+            expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Half a thought');
 
             (page.querySelector('dialog') as HTMLDialogElement).dispatchEvent(
                 new Event('cancel', { cancelable: true })
             );
             await settle();
-            expect(texts(page, 'p.text-sm')).toEqual(['remark.closeAsk']);
-            expect(remarks.draft()).toBeDefined();
-        });
-
-        it('closes and keeps the text and kind when asked to just close', async () => {
-            await write();
-            click(page, 'button.btn');
-            await settle();
-            await choose('remark.closeKeep');
-            expect(page.querySelector('dialog')).toBeNull();
-
-            remarks.write();
-            await settle();
+            await reopened();
             expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Half a thought');
-            expect(texts(page, '.segment.chosen')).toEqual(['bug_report remark.kind.bug']);
-            expect(page.querySelector('p.text-sm')).toBeNull();
         });
 
-        it('closes and clears the text and kind when asked to clear as well', async () => {
+        it('closes and clears the text and kind on the delete button', async () => {
             await write();
-            click(page, 'button.btn');
+            click(page, 'button.btn.danger');
             await settle();
-            await choose('remark.closeClear');
-            expect(page.querySelector('dialog')).toBeNull();
-
-            remarks.write();
-            await settle();
+            await reopened();
             expect((page.querySelector('textarea') as HTMLTextAreaElement).value).toBe('');
             expect(texts(page, '.segment.chosen')).toEqual(['lightbulb remark.kind.wish']);
         });

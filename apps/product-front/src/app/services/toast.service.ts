@@ -5,6 +5,7 @@ export interface Toast {
     text: string;
     kind: 'ok' | 'attention' | 'error';
     actionLabel?: string;
+    actionIcon?: string;
     action?: () => void;
 }
 

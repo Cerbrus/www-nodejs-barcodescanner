@@ -234,7 +234,7 @@ describe('NamingPromptComponent', () => {
         expect(store.mapBarcode).toHaveBeenCalledWith(CODE, 50, 'Rode');
 
         store.mapBarcode.mockClear();
-        click(page, 'app-new-item-form .mt-3 button.btn');
+        click(page, 'app-new-item-form button.btn');
         await settle();
         await typeName('Cola zero');
         click(page, 'app-item-autocomplete .option.create');
@@ -296,7 +296,7 @@ describe('NamingPromptComponent', () => {
         await typeName('Nieuw ding');
         click(page, 'app-item-autocomplete .option.create');
         await settle();
-        click(page, 'app-new-item-form .mt-3 button.btn');
+        click(page, 'app-new-item-form button.btn');
         await settle();
 
         expect(page.querySelector('app-item-autocomplete')).not.toBeNull();

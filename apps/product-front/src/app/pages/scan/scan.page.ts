@@ -222,6 +222,7 @@ export class ScanPage {
             kind: 'ok',
             text,
             actionLabel: this.translate.instant('history.undo'),
+            actionIcon: 'undo',
             action: () => this.undo()
         });
     }

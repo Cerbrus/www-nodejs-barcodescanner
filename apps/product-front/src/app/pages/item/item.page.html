@@ -6,12 +6,16 @@
 
     @if (item(); as item) {
         <div class="mt-2 flex items-center gap-3">
-            <span
-                class="h-16 w-16 shrink-0 rounded-2xl p-2"
+            <button
+                type="button"
+                class="icon-choice h-16 w-16 shrink-0 rounded-2xl p-2"
                 style="background: var(--tile-neutral); color: var(--tile-text)"
+                [attr.aria-label]="'item.chooseIcon' | translate"
+                (click)="pickingIcon.set(true)"
             >
                 <app-item-icon [item]="preview()" />
-            </span>
+                <i class="material-symbols-outlined icon-choice-edit">edit</i>
+            </button>
             <h1 class="page-title m-0">{{ item.name }}</h1>
         </div>
 
@@ -33,42 +37,64 @@
                 }
             </select>
 
-            <div class="flex items-end gap-3">
-                <div class="grow">
-                    <span class="field-label">{{ 'item.icon' | translate }}</span>
-                    <button type="button" class="btn w-full justify-start" (click)="pickingIcon.set(true)">
-                        <span
-                            class="h-8 w-8 shrink-0 rounded-lg p-1"
-                            style="background: var(--tile-neutral); color: var(--tile-text)"
-                        >
-                            <app-item-icon [item]="preview()" />
-                        </span>
-                        {{ 'item.chooseIcon' | translate }}
+            @if (confirmingDelete()) {
+                <p class="mt-3">
+                    {{
+                        (item.recipeCount ? 'item.deleteConfirmRecipes' : 'item.deleteConfirm')
+                            | translate: { name: item.name, count: item.recipeCount }
+                    }}
+                </p>
+                <div class="mt-2 flex gap-2">
+                    <button
+                        type="button"
+                        class="btn basis-0 grow"
+                        [attr.aria-label]="'common.cancel' | translate"
+                        (click)="confirmingDelete.set(false)"
+                    >
+                        <i class="material-symbols-outlined">arrow_back</i>
+                    </button>
+                    <button
+                        type="button"
+                        class="btn danger basis-0 grow"
+                        appFocusOnShow
+                        [attr.aria-label]="'item.delete' | translate"
+                        (click)="delete()"
+                    >
+                        <i class="material-symbols-outlined">check</i>
                     </button>
                 </div>
-                <div class="w-24">
-                    <label class="field-label" for="item-emoji">{{ 'item.emoji' | translate }}</label>
-                    <input
-                        id="item-emoji"
-                        class="field"
-                        type="text"
-                        maxlength="8"
-                        [ngModel]="emoji()"
-                        (ngModelChange)="emoji.set($event)"
-                    />
+            } @else {
+                <div class="flex items-end gap-2">
+                    <div class="w-24">
+                        <label class="field-label" for="item-emoji">{{ 'item.emoji' | translate }}</label>
+                        <input
+                            id="item-emoji"
+                            class="field"
+                            type="text"
+                            maxlength="8"
+                            [ngModel]="emoji()"
+                            (ngModelChange)="emoji.set($event)"
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        class="btn primary grow"
+                        [attr.aria-label]="'common.save' | translate"
+                        [disabled]="!changed() || !name().trim()"
+                        (click)="save()"
+                    >
+                        <i class="material-symbols-outlined">save</i>
+                    </button>
+                    <button
+                        type="button"
+                        class="btn danger"
+                        [attr.aria-label]="'item.delete' | translate"
+                        (click)="confirmingDelete.set(true)"
+                    >
+                        <i class="material-symbols-outlined">delete</i>
+                    </button>
                 </div>
-            </div>
-            <p class="muted mt-1 text-xs">{{ 'item.iconHint' | translate }}</p>
-
-            <button
-                type="button"
-                class="btn primary mt-3 w-full"
-                [disabled]="!changed() || !name().trim()"
-                (click)="save()"
-            >
-                <i class="material-symbols-outlined">save</i>
-                {{ 'common.save' | translate }}
-            </button>
+            }
         </div>
 
         <h2 class="section-title">{{ 'item.barcodes' | translate }} ({{ item.barcodes?.length ?? 0 }})</h2>
@@ -78,12 +104,36 @@
                     <div class="flex justify-center rounded-lg bg-white p-3 text-black">
                         <app-barcode [barcode]="barcode.code" [width]="240" />
                     </div>
-                    <p class="mt-2 font-semibold">
-                        {{ barcode.suggestions?.[0]?.title ?? ('inbox.unknownProduct' | translate) }}
-                    </p>
-                    @if (barcode.note) {
-                        <p class="barcode-variant text-sm">{{ 'item.variant' | translate: { note: barcode.note } }}</p>
-                    }
+                    <div class="mt-2 flex items-start gap-2">
+                        <div class="min-w-0 grow">
+                            <p class="font-semibold">
+                                {{ barcode.suggestions?.[0]?.title ?? ('inbox.unknownProduct' | translate) }}
+                            </p>
+                            @if (barcode.note) {
+                                <p class="barcode-variant text-sm">
+                                    {{ 'item.variant' | translate: { note: barcode.note } }}
+                                </p>
+                            }
+                        </div>
+                        @if (movingCode() !== barcode.code) {
+                            <button
+                                type="button"
+                                class="btn"
+                                [attr.aria-label]="'item.move' | translate"
+                                (click)="movingCode.set(barcode.code); moveSearch.set('')"
+                            >
+                                <i class="material-symbols-outlined">swap_horiz</i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn"
+                                [attr.aria-label]="'item.detach' | translate"
+                                (click)="detach(barcode)"
+                            >
+                                <i class="material-symbols-outlined">link_off</i>
+                            </button>
+                        }
+                    </div>
                     <p class="muted text-sm">
                         <span class="font-mono">{{ barcode.code }}</span>
                         · {{ 'inbox.scans' | translate: { count: barcode.scanCount } }}
@@ -93,31 +143,22 @@
                     </p>
 
                     @if (movingCode() === barcode.code) {
-                        <div class="mt-2">
-                            <app-item-autocomplete
-                                [placeholder]="'item.moveSearch' | translate"
-                                [excludeId]="id()"
-                                [(text)]="moveSearch"
-                                (picked)="moveTo($event)"
-                            />
-                        </div>
-                        <button type="button" class="btn mt-2" (click)="movingCode.set(undefined)">
-                            <i class="material-symbols-outlined">close</i>
-                            {{ 'common.cancel' | translate }}
-                        </button>
-                    } @else {
-                        <div class="mt-2 flex gap-2">
+                        <div class="mt-2 flex items-center gap-2">
+                            <div class="min-w-0 grow">
+                                <app-item-autocomplete
+                                    [placeholder]="'item.moveSearch' | translate"
+                                    [excludeId]="id()"
+                                    [(text)]="moveSearch"
+                                    (picked)="moveTo($event)"
+                                />
+                            </div>
                             <button
                                 type="button"
                                 class="btn"
-                                (click)="movingCode.set(barcode.code); moveSearch.set('')"
+                                [attr.aria-label]="'common.cancel' | translate"
+                                (click)="movingCode.set(undefined)"
                             >
-                                <i class="material-symbols-outlined">swap_horiz</i>
-                                {{ 'item.move' | translate }}
-                            </button>
-                            <button type="button" class="btn" (click)="detach(barcode)">
-                                <i class="material-symbols-outlined">link_off</i>
-                                {{ 'item.detach' | translate }}
+                                <i class="material-symbols-outlined">arrow_back</i>
                             </button>
                         </div>
                     }
@@ -126,31 +167,6 @@
                 <p class="empty">{{ 'item.noBarcodes' | translate }}</p>
             }
         </div>
-
-        <h2 class="section-title">{{ 'item.dangerZone' | translate }}</h2>
-        @if (confirmingDelete()) {
-            <div class="card">
-                <p>
-                    {{
-                        (item.recipeCount ? 'item.deleteConfirmRecipes' : 'item.deleteConfirm')
-                            | translate: { name: item.name, count: item.recipeCount }
-                    }}
-                </p>
-                <div class="mt-3 flex gap-2">
-                    <button type="button" class="btn danger" appFocusOnShow (click)="delete()">
-                        {{ 'item.delete' | translate }}
-                    </button>
-                    <button type="button" class="btn" (click)="confirmingDelete.set(false)">
-                        {{ 'common.cancel' | translate }}
-                    </button>
-                </div>
-            </div>
-        } @else {
-            <button type="button" class="btn danger" (click)="confirmingDelete.set(true)">
-                <i class="material-symbols-outlined">delete</i>
-                {{ 'item.delete' | translate }}
-            </button>
-        }
     } @else {
         <p class="empty">{{ 'common.loading' | translate }}</p>
     }

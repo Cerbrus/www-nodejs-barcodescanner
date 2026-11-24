@@ -253,6 +253,7 @@ export class ShoppingStore {
                         unknown: outcome.unknown?.length
                     }),
                     actionLabel: this.translate.instant('history.undo'),
+                    actionIcon: 'undo',
                     action: () => this.undoLastScan()
                 })
             ),

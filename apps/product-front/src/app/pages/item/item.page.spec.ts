@@ -56,7 +56,7 @@ describe('ItemPage', () => {
     const save = (): HTMLButtonElement => page.querySelector('button.primary') as HTMLButtonElement;
     const button = (label: string, index = 0): HTMLElement =>
         Array.from(page.querySelectorAll('button')).filter((candidate) =>
-            (candidate.textContent ?? '').includes(label)
+            `${candidate.textContent} ${candidate.getAttribute('aria-label')}`.includes(label)
         )[index] as HTMLElement;
 
     beforeEach(() => {
@@ -123,7 +123,7 @@ describe('ItemPage', () => {
 
     it('changes the icon through the picker, which offers the standard icon of the product', async () => {
         await open();
-        click(page, 'button.btn.w-full');
+        click(page, 'button.icon-choice');
         await settle();
         expect(texts(page, 'app-icon-picker .icon span').slice(0, 2)).toEqual(['icons.none', 'icons.standard']);
 
@@ -142,7 +142,7 @@ describe('ItemPage', () => {
 
         expect(texts(page, '.section-title')[0]).toBe('item.barcodes (2)');
         expect(page.querySelectorAll('app-barcode .barcode-container').length).toBe(2);
-        expect(texts(page, '.card > p.font-semibold')).toEqual(['AH Melk', 'inbox.unknownProduct']);
+        expect(texts(page, '.card p.font-semibold')).toEqual(['AH Melk', 'inbox.unknownProduct']);
         expect(texts(page, '.barcode-variant')).toEqual(['item.variant']);
     });
 

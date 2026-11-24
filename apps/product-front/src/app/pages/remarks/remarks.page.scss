@@ -53,12 +53,12 @@
 }
 .menu button {
     display: flex;
+    flex-direction: row-reverse;
     align-items: center;
     gap: 8px;
     width: 100%;
     padding: 8px 10px;
     border-radius: 8px;
-    text-align: left;
 }
 .menu button:hover {
     background: var(--line);

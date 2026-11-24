@@ -38,33 +38,32 @@
             (keydown)="onKey($event)"
         ></textarea>
 
-        @if (asking()) {
-            <p class="mt-3 text-sm">{{ 'remark.closeAsk' | translate }}</p>
-            <div class="mt-2 flex flex-wrap gap-2">
-                <button type="button" class="btn" (click)="asking.set(false)">
-                    <i class="material-symbols-outlined">arrow_back</i>
-                    {{ 'remark.keepWriting' | translate }}
-                </button>
-                <button type="button" class="btn" (click)="leave(false)">
-                    <i class="material-symbols-outlined">close</i>
-                    {{ 'remark.closeKeep' | translate }}
-                </button>
-                <button type="button" class="btn danger" (click)="leave(true)">
-                    <i class="material-symbols-outlined">delete</i>
-                    {{ 'remark.closeClear' | translate }}
-                </button>
-            </div>
-        } @else {
-            <div class="mt-3 flex gap-2">
-                <button type="button" class="btn" (click)="close()">
-                    <i class="material-symbols-outlined">close</i>
-                    {{ 'common.cancel' | translate }}
-                </button>
-                <button type="button" class="btn primary grow" [disabled]="!canSend()" (click)="send()">
-                    <i class="material-symbols-outlined">send</i>
-                    {{ 'remark.send' | translate }}
-                </button>
-            </div>
-        }
+        <div class="mt-3 flex gap-2">
+            <button
+                type="button"
+                class="btn basis-0 grow"
+                [attr.aria-label]="'remark.closeKeep' | translate"
+                (click)="close()"
+            >
+                <i class="material-symbols-outlined">bottom_panel_close</i>
+            </button>
+            <button
+                type="button"
+                class="btn danger basis-0 grow"
+                [attr.aria-label]="'remark.closeClear' | translate"
+                (click)="leave(true)"
+            >
+                <i class="material-symbols-outlined">delete</i>
+            </button>
+            <button
+                type="button"
+                class="btn primary basis-0 grow"
+                [attr.aria-label]="'remark.send' | translate"
+                [disabled]="!canSend()"
+                (click)="send()"
+            >
+                <i class="material-symbols-outlined">send</i>
+            </button>
+        </div>
     </app-sheet>
 }

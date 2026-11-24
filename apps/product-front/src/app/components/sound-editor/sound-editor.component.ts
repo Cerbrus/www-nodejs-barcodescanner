@@ -67,6 +67,7 @@ export class SoundEditorComponent {
     protected readonly name = linkedSignal(() => this.shownName());
     protected readonly blocks = linkedSignal<Array<SoundBlock>>(() => this.sound()?.blocks ?? [NEW_BLOCK.beep]);
     protected readonly busy = signal(false);
+    protected readonly confirmingDelete = signal(false);
     protected readonly total = computed(() => this.blocks().reduce((sum, block) => sum + block.ms, 0));
     protected readonly problem = computed(() => {
         if (this.total() > MAX_SOUND_MILLISECONDS) {

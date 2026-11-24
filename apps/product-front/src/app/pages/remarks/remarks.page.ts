@@ -38,7 +38,7 @@ const PROGRESS_REFRESH = 60 * 1000;
 type RemarkAction = 'handle' | 'reopen' | 'edit' | 'toGitHub' | 'reject';
 
 const ACTION_ICONS: Record<RemarkAction, IconName> = {
-    handle: 'check',
+    handle: 'verified',
     reopen: 'undo',
     edit: 'edit',
     toGitHub: 'outbox',

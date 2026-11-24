@@ -42,5 +42,5 @@ test('make a sound from blocks, rename it and choose it for an event', async ({ 
 
     await page.locator('.row.preset', { hasText: 'Claxon' }).getByRole('button', { name: 'Bewerken' }).click();
     await expect(editor.locator('button.danger')).toBeDisabled();
-    await expect(editor.locator('button.danger')).toContainText('In gebruik');
+    await expect(editor.locator('button.danger')).toHaveAttribute('title', 'In gebruik');
 });

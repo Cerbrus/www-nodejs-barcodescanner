@@ -37,7 +37,7 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     await expect.poll(() => toBuy(request, product.id)).toBe(0);
 
     await page.locator('a.recipe-link', { hasText: NAME }).click();
-    await page.locator('button.primary', { hasText: 'Op lijst' }).click();
+    await page.getByRole('button', { name: 'Op lijst', exact: true }).click();
     await expect(page.locator('app-recipe-sheet input[type=checkbox]')).toBeChecked();
     await page.locator('app-recipe-sheet button.primary').click();
     await expect.poll(() => toBuy(request, product.id)).toBe(2);

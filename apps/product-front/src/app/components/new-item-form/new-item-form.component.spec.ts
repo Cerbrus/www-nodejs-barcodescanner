@@ -93,7 +93,7 @@ describe('NewItemFormComponent', () => {
 
     it('adds an icon chosen in the picker', async () => {
         await open('Melk');
-        click(page, 'button.btn');
+        click(page, 'button.icon-choice');
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
@@ -128,7 +128,7 @@ describe('NewItemFormComponent', () => {
 
     it('reports a cancel', async () => {
         await open('Melk');
-        click(page, '.mt-3 button.btn');
+        click(page, 'button.btn');
 
         expect(cancelled).toBe(1);
         expect(store.createItem).not.toHaveBeenCalled();

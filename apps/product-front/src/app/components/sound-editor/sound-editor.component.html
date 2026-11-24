@@ -108,26 +108,68 @@
         <p class="problem mt-3 text-sm">{{ problem | translate }}</p>
     }
 
-    <div class="mt-4 flex flex-wrap gap-2">
-        <button type="button" class="btn play" [disabled]="problem() !== undefined" (click)="play()">
-            <i class="material-symbols-outlined">volume_up</i>
-            {{ 'sound.play' | translate }}
-        </button>
-        <button type="button" class="btn primary save grow" [disabled]="!canSave() || busy()" (click)="save(false)">
-            <i class="material-symbols-outlined">check</i>
-            {{ 'sound.save' | translate }}
-        </button>
-    </div>
-    @if (sound()) {
-        <div class="mt-2 flex flex-wrap gap-2">
-            <button type="button" class="btn save-new grow" [disabled]="!canSave() || busy()" (click)="save(true)">
-                <i class="material-symbols-outlined">content_copy</i>
-                {{ 'sound.saveAsNew' | translate }}
+    @if (confirmingDelete()) {
+        <p class="mt-4">{{ 'sound.deleteConfirm' | translate }}</p>
+        <div class="mt-2 flex gap-2">
+            <button
+                type="button"
+                class="btn basis-0 grow"
+                [attr.aria-label]="'common.cancel' | translate"
+                (click)="confirmingDelete.set(false)"
+            >
+                <i class="material-symbols-outlined">arrow_back</i>
             </button>
-            <button type="button" class="btn danger grow" [disabled]="inUse() || busy()" (click)="delete()">
-                <i class="material-symbols-outlined">delete</i>
-                {{ (inUse() ? 'sound.inUse' : 'sound.delete') | translate }}
+            <button
+                type="button"
+                class="btn danger confirm basis-0 grow"
+                [attr.aria-label]="'sound.delete' | translate"
+                [disabled]="busy()"
+                (click)="delete()"
+            >
+                <i class="material-symbols-outlined">check</i>
             </button>
+        </div>
+    } @else {
+        <div class="mt-4 flex gap-2">
+            <button
+                type="button"
+                class="btn play"
+                [attr.aria-label]="'sound.play' | translate"
+                [disabled]="problem() !== undefined"
+                (click)="play()"
+            >
+                <i class="material-symbols-outlined">volume_up</i>
+            </button>
+            <button
+                type="button"
+                class="btn primary save grow"
+                [attr.aria-label]="'sound.save' | translate"
+                [disabled]="!canSave() || busy()"
+                (click)="save(false)"
+            >
+                <i class="material-symbols-outlined">save</i>
+            </button>
+            @if (sound()) {
+                <button
+                    type="button"
+                    class="btn save-new"
+                    [attr.aria-label]="'sound.saveAsNew' | translate"
+                    [disabled]="!canSave() || busy()"
+                    (click)="save(true)"
+                >
+                    <i class="material-symbols-outlined">content_copy</i>
+                </button>
+                <button
+                    type="button"
+                    class="btn danger"
+                    [attr.aria-label]="'sound.delete' | translate"
+                    [attr.title]="inUse() ? ('sound.inUse' | translate) : null"
+                    [disabled]="inUse() || busy()"
+                    (click)="confirmingDelete.set(true)"
+                >
+                    <i class="material-symbols-outlined">delete</i>
+                </button>
+            }
         </div>
     }
 </app-sheet>

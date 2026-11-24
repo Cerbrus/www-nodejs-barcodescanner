@@ -27,7 +27,6 @@ export class RemarkSheetComponent {
     protected readonly kind = signal<RemarkKind>('wish');
     protected readonly text = signal('');
     protected readonly busy = signal(false);
-    protected readonly asking = signal(false);
 
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
@@ -46,11 +45,7 @@ export class RemarkSheetComponent {
     }
 
     protected close(): void {
-        if (this.text().trim()) {
-            this.asking.set(true);
-        } else {
-            this.leave(true);
-        }
+        this.leave(!this.text().trim());
     }
 
     protected leave(clear: boolean): void {
@@ -58,7 +53,7 @@ export class RemarkSheetComponent {
             this.text.set('');
             this.kind.set('wish');
         }
-        this.asking.set(false);
+
         this.remarks.cancel();
     }
 

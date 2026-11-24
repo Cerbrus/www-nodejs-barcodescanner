@@ -52,7 +52,9 @@
         [ngModel]="manualCode()"
         (ngModelChange)="manualCode.set($event)"
     />
-    <button type="submit" class="btn primary">{{ 'scan.manualSubmit' | translate }}</button>
+    <button type="submit" class="btn primary" [attr.aria-label]="'scan.manualSubmit' | translate">
+        <i class="material-symbols-outlined">add</i>
+    </button>
 </form>
 
 @if (namingCode(); as code) {

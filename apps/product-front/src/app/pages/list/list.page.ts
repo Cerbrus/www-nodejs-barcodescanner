@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -47,6 +47,7 @@ export class ListPage {
 
     protected readonly creatingName = signal<string | undefined>(undefined);
     protected readonly confirmingRemove = signal(false);
+    protected readonly entryNote = viewChild<ElementRef<HTMLInputElement>>('note');
 
     protected readonly canCreate = computed(() => {
         const term = this.search().trim().toLowerCase();
@@ -89,6 +90,7 @@ export class ListPage {
                             name: this.nameOf(entry)
                         }),
                         actionLabel: this.translate.instant('history.undo'),
+                        actionIcon: 'undo',
                         action: () => this.putBack(entry)
                     })
                 )

@@ -1,5 +1,10 @@
 <app-sheet (closed)="closed.emit()">
-    <h2 class="page-title">{{ 'icons.title' | translate }}</h2>
+    <div class="flex items-start gap-2">
+        <h2 class="page-title min-w-0 grow">{{ 'icons.title' | translate }}</h2>
+        <button type="button" class="btn" [attr.aria-label]="'common.close' | translate" (click)="closed.emit()">
+            <i class="material-symbols-outlined">close</i>
+        </button>
+    </div>
     <div class="clearable">
         <input
             #field
@@ -55,9 +60,4 @@
             <p class="empty col-span-full">{{ 'icons.noResults' | translate }}</p>
         }
     </div>
-
-    <button type="button" class="btn mt-3 w-full" (click)="closed.emit()">
-        <i class="material-symbols-outlined">close</i>
-        {{ 'common.cancel' | translate }}
-    </button>
 </app-sheet>

@@ -45,9 +45,9 @@ export class SystemPage {
     protected readonly push = inject(PushService);
     protected readonly auth = inject(AuthService);
     protected readonly remarks = inject(RemarkService);
-    protected readonly touch = window.matchMedia?.('(pointer: coarse)').matches ?? false;
     protected readonly confirmingLogout = signal(false);
     protected readonly languages = LANGUAGES;
+    protected readonly flags: Record<string, string> = { nl: '🇳🇱', en: '🇬🇧' };
     protected readonly themeOptions = THEME_OPTIONS;
     protected readonly managementLinks = MANAGEMENT_LINKS;
     protected readonly currentLanguage = signal(inject(TranslateService).getCurrentLang() || 'nl');

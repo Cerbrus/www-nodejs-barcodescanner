@@ -134,7 +134,7 @@ describe('SystemPage', () => {
 
         expect(use).toHaveBeenCalledWith('en');
         expect(localStorage.getItem('language')).toBe('en');
-        expect(texts(row('system.language'), '.segment.chosen')).toEqual(['language.en']);
+        expect(row('system.language').querySelector('.segment.chosen')?.getAttribute('aria-label')).toBe('language.en');
     });
 
     it('switches appearance, applies it to the page and remembers it', async () => {
@@ -150,10 +150,10 @@ describe('SystemPage', () => {
         expect(document.documentElement.dataset['theme']).toBeUndefined();
     });
 
-    it('offers to turn notifications on with an explanation, and says so when that fails', async () => {
+    it('offers to turn notifications on, and says so when that fails', async () => {
         await open(GUEST);
         expect(texts(row('push.title'), '.hint')).toEqual(['push.state.off']);
-        expect(texts(page, '.note')).toEqual(['push.intro', 'remark.hintPointer']);
+        expect(texts(page, '.note')).toEqual([]);
 
         push.enable.mockReturnValueOnce(Promise.reject(new Error('refused')));
         click(row('push.title'), 'button.primary');
@@ -171,31 +171,22 @@ describe('SystemPage', () => {
         push.status.set('denied');
         await open(GUEST);
 
-        expect(texts(page, '.note')).toEqual(['push.denied', 'remark.hintPointer']);
+        expect(texts(page, '.note')).toEqual(['push.denied']);
         expect(row('push.title').querySelector('button')).toBeNull();
 
         push.status.set('unsupported');
         await settle();
 
-        expect(texts(page, '.note')).toEqual(['push.unsupported', 'remark.hintPointer']);
-    });
-
-    it('shows the pointer hint on a computer and the touch hint on a touch screen', async () => {
-        push.status.set('on');
-        await open(GUEST);
-        expect(texts(page, '.note')).toEqual(['remark.hintPointer']);
-        fixture.destroy();
-
-        vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(pointer: coarse)' }));
-        await open(GUEST);
-        expect(texts(page, '.note')).toEqual(['remark.hintTouch']);
+        expect(texts(page, '.note')).toEqual(['push.unsupported']);
     });
 
     it('lets everyone turn notifications off, and only the owner send a test notification', async () => {
         push.status.set('on');
         await open(GUEST);
-        expect(texts(row('push.title'), 'button')).toEqual(['notifications_off push.disable']);
-        expect(texts(page, '.note')).toEqual(['remark.hintPointer']);
+        expect(
+            Array.from(row('push.title').querySelectorAll('button')).map((button) => button.getAttribute('aria-label'))
+        ).toEqual(['push.disable']);
+        expect(texts(page, '.note')).toEqual([]);
 
         click(row('push.title'), 'button');
         expect(push.disable).toHaveBeenCalledTimes(1);
@@ -209,7 +200,11 @@ describe('SystemPage', () => {
 
     it('lets every account write a remark, point at a part, and open its remarks', async () => {
         await open(GUEST);
-        expect(texts(row('remark.title'), 'button')).toEqual(['ads_click remark.point', 'add_comment remark.write']);
+        expect(
+            Array.from(row('remark.title').querySelectorAll('button')).map((button) =>
+                button.getAttribute('aria-label')
+            )
+        ).toEqual(['remark.point', 'remark.write']);
         expect(texts(page, 'a.row.link .label')).toEqual(['remark.mine', 'changelog.title']);
 
         click(row('remark.title'), 'button', 1);
@@ -247,7 +242,7 @@ describe('SystemPage', () => {
 
         (
             Array.from(page.querySelectorAll('button')).find((button) =>
-                (button.textContent ?? '').includes('common.cancel')
+                `${button.textContent} ${button.getAttribute('aria-label')}`.includes('common.cancel')
             ) as HTMLElement
         ).click();
         await settle();

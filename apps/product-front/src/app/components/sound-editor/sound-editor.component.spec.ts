@@ -193,6 +193,11 @@ describe('SoundEditorComponent', () => {
         await settle();
         click(page, 'button.danger');
         await settle();
+        expect(api.deleteSound).not.toHaveBeenCalled();
+        expect(texts(page, 'p.mt-4')).toEqual(['sound.deleteConfirm']);
+
+        click(page, 'button.danger.confirm');
+        await settle();
 
         expect(api.deleteSound).toHaveBeenCalledWith('double');
         expect(saved.length).toBe(1);

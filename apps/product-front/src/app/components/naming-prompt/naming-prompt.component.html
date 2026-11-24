@@ -68,13 +68,13 @@
             </span>
             @if (proposedItem(); as item) {
                 <button
+                    [attr.aria-label]="'naming.link' | translate"
                     type="button"
                     class="btn primary"
                     [disabled]="busy()"
                     (click)="choose(item, typedVariant() ?? proposal.note)"
                 >
                     <i class="material-symbols-outlined">add_link</i>
-                    {{ 'naming.link' | translate }}
                 </button>
             } @else if (!proposal.catalogItemId) {
                 <button type="button" class="btn primary" (click)="createProposed(proposal.name)">

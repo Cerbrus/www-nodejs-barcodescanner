@@ -12,6 +12,7 @@ export const ICON_NAMES = [
     'barcode_reader',
     'barcode_scanner',
     'block',
+    'bottom_panel_close',
     'brightness_auto',
     'bug_report',
     'cancel',
@@ -68,6 +69,7 @@ export const ICON_NAMES = [
     'terminal',
     'undo',
     'unfold_more',
+    'verified',
     'volume_up'
 ] as const;
 

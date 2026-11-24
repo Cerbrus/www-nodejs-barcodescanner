@@ -35,7 +35,7 @@ In daily-use shape and running on the Pi:
     6. **Without a connection**: a recipe addition waits in the outbox ([0107](decisions/0107-recipe-additions-wait-in-the-outbox.md), [0110](decisions/0110-offline-recipe-addition-is-always-applied.md)). Done 2026-11-23 18:44.
 5. **Later**: several accounts with working invites, replacing `ALLOWED_EMAILS` (milestone 10). It settles whether other accounts get their own list and what they may do with products and the inbox; for now those are shared.
 
-After the recipes (owner, 2026-11-23): go through every button in the app with the owner. Many need no text, only their icon.
+After the recipes (owner, 2026-11-23): go through every button in the app with the owner. Many need no text, only their icon. Done 2026-11-24 01:10 ([0111](decisions/0111-buttons-show-an-icon-only.md)).
 
 Deferred or blocked:
 
@@ -53,6 +53,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 
 ## Never tested
 
+- After the buttons became icons (2026-11-24): the notification buttons, logging out and the popup that sends a remark to GitHub were changed without being seen on a screen; the test build has no login and no notifications. The other screens were checked on screenshots at phone size.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - A reboot with the firewall service since it was added.
 - Push notifications in a desktop browser, which takes the service worker path.

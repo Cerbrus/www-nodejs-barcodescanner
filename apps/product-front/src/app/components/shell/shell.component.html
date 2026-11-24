@@ -17,8 +17,13 @@
     <div class="pointing" role="status">
         <i class="material-symbols-outlined">ads_click</i>
         <span class="grow">{{ 'remark.pointing' | translate }}</span>
-        <button type="button" class="pointing-cancel" (click)="remarks.cancel()">
-            {{ 'common.cancel' | translate }}
+        <button
+            type="button"
+            class="pointing-cancel"
+            [attr.aria-label]="'common.cancel' | translate"
+            (click)="remarks.cancel()"
+        >
+            <i class="material-symbols-outlined">arrow_back</i>
         </button>
     </div>
 }
@@ -36,8 +41,17 @@
         <div class="toast" [class]="toast.kind">
             <span class="grow">{{ toast.text }}</span>
             @if (toast.action; as action) {
-                <button type="button" class="toast-action" (click)="action(); toasts.dismiss(toast.id)">
-                    {{ toast.actionLabel }}
+                <button
+                    type="button"
+                    class="toast-action"
+                    [attr.aria-label]="toast.actionIcon ? toast.actionLabel : null"
+                    (click)="action(); toasts.dismiss(toast.id)"
+                >
+                    @if (toast.actionIcon; as icon) {
+                        <i class="material-symbols-outlined">{{ icon }}</i>
+                    } @else {
+                        {{ toast.actionLabel }}
+                    }
                 </button>
             }
         </div>

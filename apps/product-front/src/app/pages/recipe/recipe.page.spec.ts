@@ -46,7 +46,7 @@ describe('RecipePage', () => {
     };
     const button = (label: string, index = 0): HTMLButtonElement =>
         Array.from(page.querySelectorAll('button')).filter((candidate) =>
-            (candidate.textContent ?? '').includes(label)
+            `${candidate.textContent} ${candidate.getAttribute('aria-label')}`.includes(label)
         )[index] as HTMLButtonElement;
     const edit = async (): Promise<void> => {
         click(page, 'button[aria-label="recipe.edit"]');

@@ -67,7 +67,7 @@ describe('RemarksPage', () => {
     const press = async (label: string, root: Element = page): Promise<void> => {
         (
             Array.from(root.querySelectorAll('button')).find((button) =>
-                (button.textContent ?? '').includes(label)
+                `${button.textContent} ${button.getAttribute('aria-label')}`.includes(label)
             ) as HTMLElement
         ).click();
         await settle();
@@ -205,13 +205,13 @@ describe('RemarksPage', () => {
         await open(OWNER, [remark(1)]);
         await openMenu();
         await press('remark.close', page.querySelector('.menu') as Element);
-        expect(document.activeElement?.textContent).toContain('remark.close');
+        expect(document.activeElement?.getAttribute('aria-label')).toBe('remark.close');
         expect(document.activeElement?.closest('app-sheet')).not.toBeNull();
 
         await press('common.cancel');
         await openMenu();
         await press('remark.reject');
-        expect(document.activeElement?.textContent).toContain('remark.reject');
+        expect(document.activeElement?.getAttribute('aria-label')).toBe('remark.reject');
         expect(document.activeElement?.closest('article')).not.toBeNull();
     });
 
@@ -252,7 +252,7 @@ describe('RemarksPage', () => {
         expect(buttons(1)).toEqual([]);
 
         await open(OWNER, [remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
-        expect(buttons(0)).toEqual(['check remark.close']);
+        expect(buttons(0)).toEqual(['verified remark.close']);
         await press('remark.close');
         expect(api.setRemarkState).not.toHaveBeenCalled();
         await press('remark.close', page.querySelector('app-sheet') as Element);
@@ -262,19 +262,19 @@ describe('RemarksPage', () => {
     it('offers "to GitHub" only when a token is set and the remark is not there yet, and links to the issue once it is', async () => {
         await open(OWNER, [remark(1), remark(2, { issueNumber: 12, issueUrl: 'https://github.example/issues/12' })]);
         expect(buttons(0)).toEqual(['more_vert']);
-        expect(buttons(1)).toEqual(['check remark.close']);
+        expect(buttons(1)).toEqual(['verified remark.close']);
         await openMenu();
         expect(menuItems()).toEqual([
             'outbox remark.toGitHub',
             'edit remark.edit',
-            'check remark.close',
+            'verified remark.close',
             'block remark.reject'
         ]);
         expect(page.querySelector('a.issue')?.getAttribute('href')).toBe('https://github.example/issues/12');
 
         await open(OWNER, [remark(1)], false);
         await openMenu();
-        expect(menuItems()).toEqual(['edit remark.edit', 'check remark.close', 'block remark.reject']);
+        expect(menuItems()).toEqual(['edit remark.edit', 'verified remark.close', 'block remark.reject']);
     });
 
     it('shows exactly what would be sent, warns that it is public, and asks the agent to look at it unless unticked', async () => {
@@ -355,7 +355,7 @@ describe('RemarksPage', () => {
         await settle();
 
         const save = Array.from(page.querySelectorAll('button')).find((button) =>
-            (button.textContent ?? '').includes('remark.save')
+            `${button.textContent} ${button.getAttribute('aria-label')}`.includes('remark.save')
         ) as HTMLButtonElement;
         expect(save.disabled).toBe(true);
 
@@ -449,7 +449,7 @@ describe('RemarksPage', () => {
         expect(
             (
                 Array.from(page.querySelectorAll('button')).find((button) =>
-                    (button.textContent ?? '').includes('remark.sendToGitHub')
+                    `${button.textContent} ${button.getAttribute('aria-label')}`.includes('remark.sendToGitHub')
                 ) as HTMLButtonElement
             ).disabled
         ).toBe(false);

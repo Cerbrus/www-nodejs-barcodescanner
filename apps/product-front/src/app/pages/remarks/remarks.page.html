@@ -5,9 +5,8 @@
     </a>
     <div class="flex items-center justify-between gap-3">
         <h1 class="page-title">{{ 'remark.listTitle' | translate }}</h1>
-        <button type="button" class="btn" (click)="remarks.write()">
+        <button [attr.aria-label]="'remark.write' | translate" type="button" class="btn" (click)="remarks.write()">
             <i class="material-symbols-outlined">add_comment</i>
-            {{ 'remark.write' | translate }}
         </button>
     </div>
 
@@ -114,18 +113,22 @@
                 (keydown)="onEditKey($event, remark)"
             ></textarea>
             <div class="mt-2 flex gap-2">
-                <button type="button" class="btn" (click)="editing.set(undefined)">
-                    <i class="material-symbols-outlined">close</i>
-                    {{ 'common.cancel' | translate }}
+                <button
+                    [attr.aria-label]="'common.cancel' | translate"
+                    type="button"
+                    class="btn basis-0 grow"
+                    (click)="editing.set(undefined)"
+                >
+                    <i class="material-symbols-outlined">arrow_back</i>
                 </button>
                 <button
+                    [attr.aria-label]="'remark.save' | translate"
                     type="button"
-                    class="btn primary"
+                    class="btn primary basis-0 grow"
                     [disabled]="busy() || !draftText().trim()"
                     (click)="saveEdit(remark)"
                 >
-                    <i class="material-symbols-outlined">check</i>
-                    {{ 'remark.save' | translate }}
+                    <i class="material-symbols-outlined">save</i>
                 </button>
             </div>
         } @else {
@@ -164,13 +167,22 @@
         @if (rejecting() === remark.id) {
             <p class="mt-2 text-sm">{{ 'remark.rejectConfirm' | translate }}</p>
             <div class="mt-2 flex gap-2">
-                <button type="button" class="btn danger" appFocusOnShow (click)="reject(remark)">
-                    <i class="material-symbols-outlined">block</i>
-                    {{ 'remark.reject' | translate }}
+                <button
+                    type="button"
+                    class="btn basis-0 grow"
+                    [attr.aria-label]="'common.cancel' | translate"
+                    (click)="rejecting.set(undefined)"
+                >
+                    <i class="material-symbols-outlined">arrow_back</i>
                 </button>
-                <button type="button" class="btn" (click)="rejecting.set(undefined)">
-                    <i class="material-symbols-outlined">close</i>
-                    {{ 'common.cancel' | translate }}
+                <button
+                    type="button"
+                    class="btn danger basis-0 grow"
+                    appFocusOnShow
+                    [attr.aria-label]="'remark.reject' | translate"
+                    (click)="reject(remark)"
+                >
+                    <i class="material-symbols-outlined">check</i>
                 </button>
             </div>
         }
@@ -182,13 +194,22 @@
         <h2 class="page-title">{{ 'remark.close' | translate }}</h2>
         <p class="text-sm">{{ 'remark.closeConfirm' | translate }}</p>
         <div class="mt-3 flex gap-2">
-            <button type="button" class="btn" (click)="closing.set(undefined)">
-                <i class="material-symbols-outlined">close</i>
-                {{ 'common.cancel' | translate }}
+            <button
+                type="button"
+                class="btn basis-0 grow"
+                [attr.aria-label]="'common.cancel' | translate"
+                (click)="closing.set(undefined)"
+            >
+                <i class="material-symbols-outlined">arrow_back</i>
             </button>
-            <button type="button" class="btn primary" appFocusOnShow (click)="close(remark)">
+            <button
+                [attr.aria-label]="'remark.close' | translate"
+                type="button"
+                class="btn primary basis-0 grow"
+                appFocusOnShow
+                (click)="close(remark)"
+            >
                 <i class="material-symbols-outlined">check</i>
-                {{ 'remark.close' | translate }}
             </button>
         </div>
     </app-sheet>
@@ -218,9 +239,13 @@
         }
 
         <div class="mt-3 flex gap-2">
-            <button type="button" class="btn" (click)="sending.set(undefined)">
-                <i class="material-symbols-outlined">close</i>
-                {{ 'common.cancel' | translate }}
+            <button
+                [attr.aria-label]="'common.cancel' | translate"
+                type="button"
+                class="btn"
+                (click)="sending.set(undefined)"
+            >
+                <i class="material-symbols-outlined">arrow_back</i>
             </button>
             <button
                 type="button"

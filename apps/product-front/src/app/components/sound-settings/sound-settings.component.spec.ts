@@ -148,7 +148,7 @@ describe('SoundSettingsComponent', () => {
         await settle();
 
         expect((page.querySelector('#sound-name') as HTMLInputElement).value).toBe('sound.name.beep');
-        expect(texts(page, 'app-sound-editor button.danger')).toEqual(['delete sound.inUse']);
+        expect(page.querySelector('app-sound-editor button.danger')?.getAttribute('title')).toBe('sound.inUse');
     });
 
     it('opens the editor on the copy after saving a sound as new', async () => {

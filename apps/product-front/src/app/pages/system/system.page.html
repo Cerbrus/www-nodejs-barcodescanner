@@ -11,9 +11,10 @@
                         type="button"
                         class="segment"
                         [class.chosen]="currentLanguage() === language"
+                        [attr.aria-label]="'language.' + language | translate"
                         (click)="useLanguage(language)"
                     >
-                        {{ 'language.' + language | translate }}
+                        {{ flags[language] }}
                     </button>
                 }
             </div>
@@ -23,13 +24,16 @@
             <div class="segments">
                 @for (option of themeOptions; track option.theme) {
                     <button
+                        [attr.aria-label]="'theme.' + option.theme | translate"
                         type="button"
                         class="segment"
                         [class.chosen]="theme.theme() === option.theme"
                         (click)="theme.use(option.theme)"
                     >
                         <i class="material-symbols-outlined">{{ option.icon }}</i>
-                        {{ 'theme.' + option.theme | translate }}
+                        @if (option.theme === 'auto') {
+                            {{ 'theme.autoShort' | translate }}
+                        }
                     </button>
                 }
             </div>
@@ -40,9 +44,14 @@
                 <span class="hint">{{ 'push.state.' + push.status() | translate }}</span>
             </span>
             @if (push.status() === 'off') {
-                <button type="button" class="btn primary" [disabled]="push.busy()" (click)="enablePush()">
+                <button
+                    type="button"
+                    class="btn primary"
+                    [attr.aria-label]="'push.turnOn' | translate"
+                    [disabled]="push.busy()"
+                    (click)="enablePush()"
+                >
                     <i class="material-symbols-outlined">notifications_active</i>
-                    {{ 'push.turnOn' | translate }}
                 </button>
             } @else if (push.status() === 'on') {
                 <div class="flex gap-2">
@@ -52,17 +61,19 @@
                             {{ 'push.test' | translate }}
                         </button>
                     }
-                    <button type="button" class="btn" (click)="push.disable()">
+                    <button
+                        type="button"
+                        class="btn danger"
+                        [attr.aria-label]="'push.disable' | translate"
+                        (click)="push.disable()"
+                    >
                         <i class="material-symbols-outlined">notifications_off</i>
-                        {{ 'push.disable' | translate }}
                     </button>
                 </div>
             }
         </div>
-        @if (push.status() !== 'on') {
-            <p class="note">
-                {{ (push.status() === 'off' ? 'push.intro' : 'push.' + push.status()) | translate }}
-            </p>
+        @if (push.status() === 'denied' || push.status() === 'unsupported') {
+            <p class="note">{{ 'push.' + push.status() | translate }}</p>
         }
         <div class="row">
             <span class="label">
@@ -72,17 +83,25 @@
                 }
             </span>
             <div class="flex gap-2">
-                <button type="button" class="btn" (click)="remarks.startPointing()">
+                <button
+                    [attr.aria-label]="'remark.point' | translate"
+                    type="button"
+                    class="btn"
+                    (click)="remarks.startPointing()"
+                >
                     <i class="material-symbols-outlined">ads_click</i>
-                    {{ 'remark.point' | translate }}
                 </button>
-                <button type="button" class="btn primary" (click)="remarks.write()">
+                <button
+                    [attr.aria-label]="'remark.write' | translate"
+                    type="button"
+                    class="btn primary"
+                    (click)="remarks.write()"
+                >
                     <i class="material-symbols-outlined">add_comment</i>
-                    {{ 'remark.write' | translate }}
                 </button>
             </div>
         </div>
-        <p class="note">{{ (touch ? 'remark.hintTouch' : 'remark.hintPointer') | translate }}</p>
+
         <a class="row link" routerLink="/remarks">
             <i class="material-symbols-outlined">forum</i>
             <span class="label">{{ (auth.owner() ? 'remark.listTitle' : 'remark.mine') | translate }}</span>
@@ -105,22 +124,35 @@
                 <i class="material-symbols-outlined muted">account_circle</i>
                 <span class="label truncate">{{ auth.state()?.email }}</span>
                 @if (!confirmingLogout()) {
-                    <button type="button" class="btn danger" (click)="confirmingLogout.set(true)">
+                    <button
+                        type="button"
+                        class="btn danger"
+                        [attr.aria-label]="'login.logout' | translate"
+                        (click)="confirmingLogout.set(true)"
+                    >
                         <i class="material-symbols-outlined">logout</i>
-                        {{ 'login.logout' | translate }}
                     </button>
                 }
             </div>
             @if (confirmingLogout()) {
                 <p class="note">{{ 'login.logoutConfirm' | translate }}</p>
                 <div class="row">
-                    <button type="button" class="btn danger basis-0 grow" appFocusOnShow (click)="logout()">
-                        <i class="material-symbols-outlined">logout</i>
-                        {{ 'login.logout' | translate }}
+                    <button
+                        [attr.aria-label]="'common.cancel' | translate"
+                        type="button"
+                        class="btn basis-0 grow"
+                        (click)="confirmingLogout.set(false)"
+                    >
+                        <i class="material-symbols-outlined">arrow_back</i>
                     </button>
-                    <button type="button" class="btn basis-0 grow" (click)="confirmingLogout.set(false)">
-                        <i class="material-symbols-outlined">close</i>
-                        {{ 'common.cancel' | translate }}
+                    <button
+                        [attr.aria-label]="'login.logout' | translate"
+                        type="button"
+                        class="btn danger basis-0 grow"
+                        appFocusOnShow
+                        (click)="logout()"
+                    >
+                        <i class="material-symbols-outlined">check</i>
                     </button>
                 </div>
             }
