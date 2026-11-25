@@ -1,0 +1,31 @@
+@font-face {
+    font-family: 'Pixelify Sans';
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('../assets/fonts/PixelifySans.woff2') format('woff2');
+}
+
+:root[data-skin='gameboy'] {
+    --page: light-dark(#9bbc0f, #0f380f);
+    --surface: light-dark(#8bac0f, #306230);
+    --text: light-dark(#0f380f, #9bbc0f);
+    --text-muted: light-dark(#306230, #8bac0f);
+    --line: light-dark(#306230, #0f380f);
+    --accent: light-dark(#0f380f, #9bbc0f);
+    --accent-text: light-dark(#9bbc0f, #0f380f);
+    --tile-buy: light-dark(#0f380f, #9bbc0f);
+    --tile-recent: #306230;
+    --tile-neutral: light-dark(#306230, #8bac0f);
+    --tile-recent-text: #9bbc0f;
+    --tile-recent-icon-invert: 0;
+    --tile-text: light-dark(#9bbc0f, #0f380f);
+    --tile-icon-invert: var(--dark);
+    --warning: light-dark(#0f380f, #9bbc0f);
+    --warning-text: light-dark(#9bbc0f, #0f380f);
+    --danger: light-dark(#0f380f, #9bbc0f);
+    --toast: light-dark(#0f380f, #9bbc0f);
+    --toast-text: light-dark(#9bbc0f, #0f380f);
+    --font: 'Pixelify Sans', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --corner: 0;
+    --border-width: 2px;
+}

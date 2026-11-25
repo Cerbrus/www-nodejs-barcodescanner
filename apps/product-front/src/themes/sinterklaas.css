@@ -1,0 +1,14 @@
+:root[data-skin='sinterklaas'] {
+    --page: light-dark(#fdf3e3, #2a0d0d);
+    --surface: light-dark(#fff, #3d1414);
+    --text: light-dark(#3a1010, #fdf0d5);
+    --text-muted: light-dark(#7a4a3a, #d1a88a);
+    --line: light-dark(#ecd3a6, #6b2a22);
+    --accent: light-dark(#b3121d, #f2c14e);
+    --accent-text: light-dark(#fff, #2a0d0d);
+    --tile-buy: #b3121d;
+    --tile-recent: #8a5a2b;
+    --tile-neutral: light-dark(#a6801c, #6b4a22);
+    --warning: #f2c14e;
+    --warning-text: #3a1010;
+}

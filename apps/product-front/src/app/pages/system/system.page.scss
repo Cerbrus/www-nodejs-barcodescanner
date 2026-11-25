@@ -13,7 +13,7 @@
 .row + .row,
 .note + .row,
 .row + .note + .link {
-    border-top: 1px solid var(--line);
+    border-top: 1px var(--border-style) var(--line);
 }
 .label {
     display: flex;
@@ -21,6 +21,35 @@
     flex-direction: column;
     min-width: 0;
     font-weight: 600;
+}
+.look {
+    flex-wrap: nowrap;
+
+    .label {
+        flex: 0 0 auto;
+    }
+
+    gap: 6px;
+
+    app-skin-select {
+        flex: 1 1 0;
+        --skin-select-padding: 0 26px 0 8px;
+        --skin-select-chevron: 6px;
+        --skin-select-height: 36px;
+    }
+
+    .season {
+        height: 36px;
+        padding: 0 6px;
+    }
+
+    .segments {
+        height: 36px;
+    }
+
+    .segment {
+        padding: 0 8px;
+    }
 }
 .hint {
     color: var(--text-muted);
@@ -46,7 +75,7 @@
 .count {
     min-width: 22px;
     padding: 0 7px;
-    border-radius: 11px;
+    border-radius: calc(11px * var(--corner));
     background: var(--danger);
     color: #fff;
     font-size: 0.75rem;

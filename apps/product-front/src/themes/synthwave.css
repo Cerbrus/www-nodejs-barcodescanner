@@ -1,0 +1,21 @@
+:root[data-skin='synthwave'] {
+    --page: light-dark(#ffe9f3, #1a0b2e);
+    --surface: light-dark(#fff, #2a1245);
+    --text: light-dark(#2a0b3d, #fbe9ff);
+    --text-muted: light-dark(#7a4b8f, #b79acb);
+    --line: light-dark(#f3bfdc, #4a2470);
+    --accent: light-dark(#e0457b, #ffb347);
+    --accent-text: light-dark(#fff, #1a0b2e);
+    --tile-buy: light-dark(#e0457b, #ff3d9a);
+    --tile-recent: #7b3fe4;
+    --tile-neutral: light-dark(#a26bd6, #4a2470);
+    --page-image: linear-gradient(to bottom, transparent 45%, color-mix(in srgb, var(--tile-buy) 40%, transparent));
+    --page-image-size: 100% 100%;
+    --corner: 0.6;
+}
+
+:root[data-skin='synthwave'] .page-title {
+    font-style: italic;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}

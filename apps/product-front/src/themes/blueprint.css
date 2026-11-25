@@ -1,0 +1,30 @@
+:root[data-skin='blueprint'] {
+    --page: light-dark(#f4f8ff, #0d3b82);
+    --surface: light-dark(#fff, #124794);
+    --text: light-dark(#0d3b82, #eaf2ff);
+    --text-muted: light-dark(#5a7bb5, #a9c3ea);
+    --line: light-dark(#8fb0e6, #7fa6e0);
+    --accent: light-dark(#0d3b82, #fff);
+    --accent-text: light-dark(#fff, #0d3b82);
+    --tile-buy: light-dark(#0d3b82, #2f6fd6);
+    --tile-recent: light-dark(#dbe8ff, #0a2f69);
+    --tile-recent-text: light-dark(#0d3b82, #fff);
+    --tile-recent-icon-invert: calc(1 - var(--dark));
+    --tile-neutral: light-dark(#5a7bb5, #3b5f9e);
+    --warning: #ffd60a;
+    --warning-text: #0d3b82;
+    --danger: light-dark(#c0392b, #ffb3a7);
+    --toast: light-dark(#0d3b82, #fff);
+    --toast-text: light-dark(#fff, #0d3b82);
+    --font: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --corner: 0;
+    --tile-border-width: 1px;
+    --page-image:
+        linear-gradient(color-mix(in srgb, var(--line) 30%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--line) 30%, transparent) 1px, transparent 1px);
+    --page-image-size: 24px 24px;
+}
+
+:root[data-skin='blueprint'] .page-title {
+    text-transform: uppercase;
+}

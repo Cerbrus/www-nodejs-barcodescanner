@@ -1,0 +1,23 @@
+:root[data-skin='lcd'] {
+    --page: light-dark(#c5cdb8, #1c2118);
+    --surface: light-dark(#b7c0a9, #262c21);
+    --text: light-dark(#1d2419, #b7c0a9);
+    --text-muted: light-dark(#4d5646, #7f8a72);
+    --line: light-dark(#8d9781, #3d4636);
+    --accent: light-dark(#1d2419, #b7c0a9);
+    --accent-text: light-dark(#c5cdb8, #1c2118);
+    --tile-buy: light-dark(#1d2419, #b7c0a9);
+    --tile-recent: light-dark(#8d9781, #4d5646);
+    --tile-neutral: light-dark(#4d5646, #3d4636);
+    --tile-recent-text: light-dark(#1d2419, #c5cdb8);
+    --tile-recent-icon-invert: calc(1 - var(--dark));
+    --tile-text: light-dark(#c5cdb8, #1c2118);
+    --tile-icon-invert: var(--dark);
+    --warning: light-dark(#1d2419, #b7c0a9);
+    --warning-text: light-dark(#c5cdb8, #1c2118);
+    --danger: light-dark(#1d2419, #b7c0a9);
+    --toast: light-dark(#1d2419, #b7c0a9);
+    --toast-text: light-dark(#c5cdb8, #1c2118);
+    --font: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --corner: 0.3;
+}

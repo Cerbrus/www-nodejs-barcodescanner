@@ -1,6 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block&icon_names=account_circle,add,add_circle,add_comment,add_link,add_shopping_cart,ads_click,arrow_back,arrow_downward,arrow_upward,barcode_reader,barcode_scanner,block,bottom_panel_close,brightness_auto,bug_report,cancel,category,check,check_circle,checklist,chevron_right,close,cloud_off,content_copy,dark_mode,delete,edit,expand_less,expand_more,fact_check,forum,help,history,image,inbox,inventory_2,light_mode,lightbulb,link_off,local_shipping,login,logout,manage_search,menu_book,merge_type,more_horiz,more_vert,new_releases,no_photography,notifications_active,notifications_off,open_in_new,outbox,photo_camera,print,rate_review,refresh,remove,remove_shopping_cart,save,schedule,send,settings,shopping_cart,smartphone,sticky_note_2,swap_horiz,terminal,undo,unfold_more,verified,volume_up')
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block&icon_names=account_circle,add,add_circle,add_comment,add_link,add_shopping_cart,ads_click,arrow_back,arrow_downward,arrow_upward,barcode_reader,barcode_scanner,block,bottom_panel_close,brightness_auto,bug_report,cancel,category,celebration,check,check_circle,checklist,chevron_right,close,cloud_off,content_copy,dark_mode,delete,edit,expand_less,expand_more,fact_check,forum,help,history,image,inbox,inventory_2,light_mode,lightbulb,link_off,local_shipping,login,logout,manage_search,menu_book,merge_type,more_horiz,more_vert,new_releases,no_photography,notifications_active,notifications_off,open_in_new,outbox,photo_camera,print,rate_review,refresh,remove,remove_shopping_cart,save,schedule,send,settings,shopping_cart,smartphone,sticky_note_2,swap_horiz,terminal,undo,unfold_more,verified,volume_up')
 layer(base);
 @import 'tailwindcss' source('../');
+@import './themes/contrast.css' screen;
+@import './themes/darcula.css' screen;
+@import './themes/solarized.css' screen;
+@import './themes/nord.css' screen;
+@import './themes/ah.css' screen;
+@import './themes/jumbo.css' screen;
+@import './themes/console.css' screen;
+@import './themes/neon.css' screen;
+@import './themes/tron.css' screen;
+@import './themes/synthwave.css' screen;
+@import './themes/gameboy.css' screen;
+@import './themes/commodore.css' screen;
+@import './themes/lcd.css' screen;
+@import './themes/windows.css' screen;
+@import './themes/receipt.css' screen;
+@import './themes/comic.css' screen;
+@import './themes/ink.css' screen;
+@import './themes/blueprint.css' screen;
+@import './themes/newspaper.css' screen;
+@import './themes/chalkboard.css' screen;
+@import './themes/sticky.css' screen;
+@import './themes/sixties.css' screen;
+@import './themes/seventies.css' screen;
+@import './themes/memphis.css' screen;
+@import './themes/koningsdag.css' screen;
+@import './themes/easter.css' screen;
+@import './themes/pride.css' screen;
+@import './themes/halloween.css' screen;
+@import './themes/sinterklaas.css' screen;
+@import './themes/christmas.css' screen;
+@import './themes/comic-shape.css' screen;
 
 @layer base {
     *,
@@ -27,55 +58,69 @@ layer(base);
     src: url('./assets/fonts/OCRB Regular.otf') format('opentype');
 }
 
+@property --accent {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #0f766e;
+}
+
+@theme {
+    --radius-sm: calc(0.25rem * var(--corner));
+    --radius-lg: calc(0.5rem * var(--corner));
+    --radius-2xl: calc(1rem * var(--corner));
+}
+
 :root {
     --print-paper: #ffffff;
     --print-ink: #000000;
-    --page: #f3f4f6;
-    --surface: #fff;
-    --text: #1c2330;
-    --text-muted: #6b7280;
-    --line: #e2e5ea;
-    --accent: #0f766e;
-    --accent-text: #fff;
-    --tile-buy: #c0392b;
-    --tile-recent: #2f855a;
-    --tile-neutral: #5b6779;
+    --page: light-dark(#f3f4f6, #111418);
+    --surface: light-dark(#fff, #1a1f26);
+    --text: light-dark(#1c2330, #e8eaed);
+    --text-muted: light-dark(#6b7280, #9aa3af);
+    --line: light-dark(#e2e5ea, #2a313b);
+    --accent: light-dark(#0f766e, #2dd4bf);
+    --accent-text: light-dark(#fff, #0b1512);
+    --tile-buy: light-dark(#c0392b, #b03a2e);
+    --tile-recent: light-dark(#2f855a, #2a7a52);
+    --tile-neutral: light-dark(#5b6779, #465163);
     --tile-text: #fff;
     --warning: #fbbf24;
     --warning-text: #1c2330;
     --danger: #dc2626;
     --toast: #1f2937;
     --toast-text: #fff;
-    color-scheme: light;
+    --font:
+        ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --corner: 1;
+    --border-width: 1px;
+    --border-style: solid;
+    --tile-border-width: 0px;
+    --shadow: 0 0 transparent;
+    --shadow-control: 0 0 transparent;
+    --shadow-float: 0 6px 20px rgb(0 0 0 / 25%);
+    --page-image: none;
+    --page-image-size: auto;
+    --section-prefix: none;
+    --dark: 0;
+    --tile-icon-invert: 0;
+    --tile-recent-text: var(--tile-text);
+    --tile-recent-icon-invert: var(--tile-icon-invert);
+    color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) {
-        --page: #111418;
-        --surface: #1a1f26;
-        --text: #e8eaed;
-        --text-muted: #9aa3af;
-        --line: #2a313b;
-        --accent: #2dd4bf;
-        --accent-text: #0b1512;
-        --tile-buy: #b03a2e;
-        --tile-recent: #2a7a52;
-        --tile-neutral: #465163;
-        color-scheme: dark;
+        --dark: 1;
     }
 }
 
+:root[data-theme='light'] {
+    color-scheme: light;
+}
+
 :root[data-theme='dark'] {
-    --page: #111418;
-    --surface: #1a1f26;
-    --text: #e8eaed;
-    --text-muted: #9aa3af;
-    --line: #2a313b;
-    --accent: #2dd4bf;
-    --accent-text: #0b1512;
-    --tile-buy: #b03a2e;
-    --tile-recent: #2a7a52;
-    --tile-neutral: #465163;
+    --dark: 1;
     color-scheme: dark;
 }
 
@@ -90,6 +135,7 @@ layer(base);
         margin: 0;
         background: var(--page);
         color: var(--text);
+        font-family: var(--font);
         -webkit-tap-highlight-color: transparent;
     }
 
@@ -142,6 +188,10 @@ app-recipe-print {
         user-select: none;
     }
 
+    .tile-icon {
+        filter: invert(var(--tile-icon-invert));
+    }
+
     .page {
         max-width: 720px;
         margin: 0 auto;
@@ -178,6 +228,10 @@ app-recipe-print {
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
+
+        &::before {
+            content: var(--section-prefix);
+        }
     }
 
     .tile-grid {
@@ -188,22 +242,25 @@ app-recipe-print {
 
     .card {
         padding: 12px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
+        border: var(--border-width) var(--border-style) var(--line);
+        border-radius: calc(14px * var(--corner));
         background: var(--surface);
+        box-shadow: var(--shadow);
     }
 
     .card.selected {
         border-color: var(--accent);
-        box-shadow: 0 0 0 2px var(--accent);
+        box-shadow:
+            0 0 0 2px var(--accent),
+            var(--shadow);
     }
 
     .field {
         display: block;
         width: 100%;
         padding: 10px 12px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: var(--border-width) var(--border-style) var(--line);
+        border-radius: calc(10px * var(--corner));
         background: var(--surface);
         color: var(--text);
         font-size: 1rem;
@@ -239,9 +296,10 @@ app-recipe-print {
         justify-content: center;
         gap: 6px;
         padding: 10px 14px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: var(--border-width) var(--border-style) var(--line);
+        border-radius: calc(10px * var(--corner));
         background: var(--surface);
+        box-shadow: var(--shadow-control);
         color: var(--text);
         font-size: 0.95rem;
         font-weight: 600;
@@ -323,7 +381,7 @@ app-recipe-print {
         max-height: 92dvh;
         padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
         overflow-y: auto;
-        border-radius: 18px 18px 0 0;
+        border-radius: calc(18px * var(--corner)) calc(18px * var(--corner)) 0 0;
         background: var(--surface);
         color: var(--text);
     }
@@ -331,8 +389,8 @@ app-recipe-print {
     .segments {
         display: flex;
         padding: 2px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: var(--border-width) var(--border-style) var(--line);
+        border-radius: calc(10px * var(--corner));
         background: var(--page);
 
         &.wide .segment {
@@ -346,7 +404,7 @@ app-recipe-print {
         align-items: center;
         gap: 4px;
         padding: 6px 10px;
-        border-radius: 8px;
+        border-radius: calc(8px * var(--corner));
         font-size: 0.85rem;
         font-weight: 600;
 

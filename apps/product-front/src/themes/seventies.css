@@ -1,0 +1,29 @@
+@font-face {
+    font-family: Shrikhand;
+    font-display: swap;
+    src: url('../assets/fonts/Shrikhand-Regular.woff2') format('woff2');
+}
+
+:root[data-skin='seventies'] {
+    --page: light-dark(#f3e3c3, #2b1a0e);
+    --surface: light-dark(#fbf1dc, #3b2514);
+    --text: light-dark(#3b2010, #f3e3c3);
+    --text-muted: light-dark(#7a5a3a, #c2a47c);
+    --line: light-dark(#d9bf8f, #5c3b1e);
+    --accent: light-dark(#c2570c, #e8892b);
+    --accent-text: light-dark(#fff8e8, #2b1a0e);
+    --tile-buy: #c2570c;
+    --tile-recent: #6b7a1f;
+    --tile-neutral: light-dark(#8a5a2b, #6b4423);
+    --warning: #d9a520;
+    --warning-text: #3b2010;
+    --font: ui-rounded, 'Arial Rounded MT Bold', 'Varela Round', system-ui, sans-serif;
+    --corner: 1.8;
+}
+
+:root[data-skin='seventies'] .page-title {
+    color: var(--accent);
+    font-family: Shrikhand, var(--font);
+    font-size: 1.8rem;
+    font-weight: 400;
+}

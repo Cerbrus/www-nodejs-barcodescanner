@@ -163,6 +163,7 @@ export class RemarkService {
             viewport: `${window.innerWidth} × ${window.innerHeight}`,
             language: this.translate.getCurrentLang() ?? undefined,
             theme: this.theme.theme(),
+            skin: this.theme.shown(),
             installed: window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true,
             online: navigator.onLine,
             waitingChanges: this.store.pending().length,

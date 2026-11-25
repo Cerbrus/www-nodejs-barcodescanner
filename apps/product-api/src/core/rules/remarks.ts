@@ -36,7 +36,7 @@ const MAX_FIELD_LENGTH = 300;
 const MAX_MESSAGES = 5;
 const MAX_TITLE_LENGTH = 80;
 const TARGET_FIELDS = ['component', 'label', 'text', 'path'] as const;
-const CONTEXT_TEXT_FIELDS = ['version', 'commit', 'userAgent', 'viewport', 'language', 'theme'] as const;
+const CONTEXT_TEXT_FIELDS = ['version', 'commit', 'userAgent', 'viewport', 'language', 'theme', 'skin'] as const;
 const CONTEXT_FLAG_FIELDS = ['installed', 'online'] as const;
 const AUTHORITY =
     'Sent to GitHub by the owner (admin) of this app. It is his decision that this is to be done, not a suggestion: implement it unless a real question is open.';
@@ -183,6 +183,7 @@ function deviceLines(context: RemarkContext): Array<string> {
         context.installed === undefined ? undefined : `- Installed as app: ${context.installed ? 'yes' : 'no'}`,
         context.language ? `- Language: ${context.language}` : undefined,
         context.theme ? `- Appearance: ${context.theme}` : undefined,
+        context.skin ? `- Theme: ${context.skin}` : undefined,
         context.online === undefined ? undefined : `- Connected: ${context.online ? 'yes' : 'no'}`,
         context.waitingChanges ? `- Changes waiting: ${context.waitingChanges}` : undefined,
         ...(context.recentMessages ?? []).map((message) => `- Message on screen: "${message}"`)

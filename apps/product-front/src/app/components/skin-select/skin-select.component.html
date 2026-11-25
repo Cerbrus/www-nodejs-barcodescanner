@@ -1,0 +1,9 @@
+<select class="field" [attr.aria-label]="'system.skin' | translate" (change)="use($event)">
+    @for (group of groups; track group.name) {
+        <optgroup [label]="'skinGroup.' + group.name | translate">
+            @for (skin of group.skins; track skin) {
+                <option [value]="skin" [selected]="theme.skin() === skin">{{ 'skin.' + skin | translate }}</option>
+            }
+        </optgroup>
+    }
+</select>

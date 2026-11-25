@@ -3,7 +3,7 @@
     grid-template-columns: 1fr auto;
     gap: 4px 8px;
     padding: 8px 0;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px var(--border-style) var(--line);
 }
 .slider {
     display: flex;
@@ -23,7 +23,7 @@
 .icon {
     display: flex;
     padding: 4px;
-    border-radius: 8px;
+    border-radius: calc(8px * var(--corner));
     color: var(--text-muted);
 }
 .icon:disabled {

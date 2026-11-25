@@ -1,0 +1,30 @@
+:root[data-skin='console'] {
+    --page: light-dark(#e8eee4, #050805);
+    --surface: light-dark(#f6faf3, #0b100b);
+    --text: light-dark(#0b3d17, #33ff66);
+    --text-muted: light-dark(#4b6b52, #1f9d43);
+    --line: light-dark(#a9c1ad, #1a5c2c);
+    --accent: light-dark(#0b6b25, #33ff66);
+    --accent-text: light-dark(#f6faf3, #000);
+    --tile-buy: light-dark(#0b6b25, #33ff66);
+    --tile-recent: light-dark(#d5e6d3, #10301a);
+    --tile-recent-text: light-dark(#0b3d17, #33ff66);
+    --tile-recent-icon-invert: calc(1 - var(--dark));
+    --tile-neutral: light-dark(#4b6b52, #178a37);
+    --tile-text: light-dark(#f6faf3, #000);
+    --tile-icon-invert: var(--dark);
+    --warning: light-dark(#9a6b00, #ffb000);
+    --warning-text: light-dark(#f6faf3, #000);
+    --danger: light-dark(#a3261e, #f55);
+    --toast: light-dark(#0b3d17, #33ff66);
+    --toast-text: light-dark(#f6faf3, #000);
+    --font: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --corner: 0;
+    --tile-border-width: 1px;
+    --shadow-float: 0 0 0 1px var(--line);
+    --section-prefix: '>';
+}
+
+:root[data-skin='console'] .page-title {
+    text-transform: uppercase;
+}

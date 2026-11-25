@@ -1,0 +1,14 @@
+:root[data-skin='koningsdag'] {
+    --page: light-dark(#fff4e6, #1f1206);
+    --surface: light-dark(#fff, #2e1b0a);
+    --text: light-dark(#2b1a08, #fff1e0);
+    --text-muted: light-dark(#7a5a3a, #c9a27a);
+    --line: light-dark(#ffd4a3, #5a3614);
+    --accent: light-dark(#ff6f00, #ff8f1f);
+    --accent-text: light-dark(#2b1a08, #1f1206);
+    --tile-buy: #f26a00;
+    --tile-recent: light-dark(#21468b, #2a55a8);
+    --tile-neutral: light-dark(#ae1c28, #8f1722);
+    --warning: #ff8f1f;
+    --warning-text: #2b1a08;
+}

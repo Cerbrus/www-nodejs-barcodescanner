@@ -1,0 +1,52 @@
+@font-face {
+    font-family: 'Patrick Hand';
+    font-display: swap;
+    src: url('../assets/fonts/PatrickHand-Regular.woff2') format('woff2');
+}
+
+:root[data-skin='sticky'] {
+    --page: light-dark(#c89f6a, #3a2a1a);
+    --surface: light-dark(#fff8dc, #4a3724);
+    --text: light-dark(#3a2a12, #f5e9c8);
+    --text-muted: light-dark(#5c4526, #c2a878);
+    --line: light-dark(#b08a55, #6b5030);
+    --accent: light-dark(#d2452f, #ffd84d);
+    --accent-text: light-dark(#fff, #3a2a1a);
+    --tile-buy: light-dark(#ffe45c, #f2d43f);
+    --tile-recent: light-dark(#ffb3c7, #f29bb5);
+    --tile-neutral: light-dark(#9ad1f5, #7fb8de);
+    --tile-text: #3a2a12;
+    --tile-icon-invert: 1;
+    --font: 'Patrick Hand', 'Chalkboard SE', 'Segoe Print', sans-serif;
+    --corner: 0.2;
+    --page-image: radial-gradient(color-mix(in srgb, var(--text) 18%, transparent) 1px, transparent 1.5px);
+    --page-image-size: 7px 7px;
+}
+
+:root[data-skin='sticky'] .tile {
+    position: relative;
+    background: linear-gradient(315deg, transparent 12px, var(--tone) 12px);
+    filter: drop-shadow(2px 3px 3px rgb(0 0 0 / 30%));
+}
+
+:root[data-skin='sticky'] .tile::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 17px;
+    height: 17px;
+    background: linear-gradient(
+        315deg,
+        transparent calc(50% - 1px),
+        color-mix(in srgb, var(--tone) 72%, #000) calc(50% - 1px)
+    );
+    content: '';
+}
+
+:root[data-skin='sticky'] app-item-tile {
+    rotate: -1.2deg;
+}
+
+:root[data-skin='sticky'] :is(.flow-cell:nth-child(even) app-item-tile, .tile-grid app-item-tile:nth-child(even)) {
+    rotate: 1deg;
+}

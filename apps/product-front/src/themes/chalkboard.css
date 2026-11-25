@@ -1,0 +1,22 @@
+@font-face {
+    font-family: 'Patrick Hand';
+    font-display: swap;
+    src: url('../assets/fonts/PatrickHand-Regular.woff2') format('woff2');
+}
+
+:root[data-skin='chalkboard'] {
+    --page: light-dark(#f2f4f5, #24402f);
+    --surface: light-dark(#fff, #2c4a38);
+    --text: light-dark(#1c2a3a, #f4f1e6);
+    --text-muted: light-dark(#5a6b7c, #b9c4b4);
+    --line: light-dark(#1c2a3a, #d8d6c8);
+    --accent: light-dark(#1565c0, #ffe27a);
+    --accent-text: light-dark(#fff, #24402f);
+    --tile-buy: light-dark(#d32f2f, #c9584f);
+    --tile-recent: light-dark(#2e7d32, #3a5a46);
+    --tile-neutral: light-dark(#5a6b7c, #4f6a58);
+    --font: 'Patrick Hand', 'Chalkboard SE', 'Segoe Print', sans-serif;
+    --corner: 0.6;
+    --border-width: 2px;
+    --tile-border-width: 2px;
+}

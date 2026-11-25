@@ -1,0 +1,18 @@
+:root[data-skin='easter'] {
+    --page: light-dark(#fffbe8, #2a1f33);
+    --surface: light-dark(#fff, #382a45);
+    --text: light-dark(#4a3a55, #fdf3ff);
+    --text-muted: light-dark(#8a7a95, #c4b3d0);
+    --line: light-dark(#f0e2b8, #55426a);
+    --accent: light-dark(#8a5cc4, #c9a7f5);
+    --accent-text: light-dark(#fff, #2a1f33);
+    --tile-buy: #f7a8c0;
+    --tile-recent: #a8e0c2;
+    --tile-neutral: light-dark(#d5c3f0, #bca8e0);
+    --tile-text: #4a3a55;
+    --tile-icon-invert: 1;
+    --warning: #ffe27a;
+    --warning-text: #4a3a55;
+    --font: ui-rounded, 'Arial Rounded MT Bold', 'Varela Round', system-ui, sans-serif;
+    --corner: 1.6;
+}

@@ -10,10 +10,12 @@
     height: 100%;
     min-height: 108px;
     padding: 10px 6px 6px;
-    border-radius: 14px;
+    border: var(--tile-border-width) var(--border-style) var(--line);
+    border-radius: calc(14px * var(--corner));
     --tone: var(--tile-neutral);
     background: var(--tone);
     color: var(--tile-text);
+    box-shadow: var(--shadow);
     transition:
         transform 80ms ease,
         background-color 120ms ease;
@@ -26,6 +28,12 @@
 }
 .tile.recent {
     --tone: var(--tile-recent);
+    --tile-text: var(--tile-recent-text);
+    --tile-icon-invert: var(--tile-recent-icon-invert);
+}
+.tile.recent ~ .details,
+.tile.recent ~ .waiting {
+    color: var(--tile-recent-text);
 }
 .icon {
     flex: 0 0 auto;
@@ -62,7 +70,7 @@
     left: 6px;
     min-width: 22px;
     padding: 1px 6px;
-    border-radius: 11px;
+    border-radius: calc(11px * var(--corner));
     background: var(--tile-text);
     color: var(--tone);
     font-size: 0.75rem;
@@ -75,7 +83,7 @@
     right: 2px;
     display: flex;
     padding: 4px;
-    border-radius: 12px;
+    border-radius: calc(12px * var(--corner));
     color: var(--tile-text);
     opacity: 0.8;
 }

@@ -1,5 +1,5 @@
 @if (imageUrl(); as url) {
-    <img class="h-full w-full object-contain" [src]="url" alt="" (error)="imageFailed.set(true)" />
+    <img class="tile-icon h-full w-full object-contain" [src]="url" alt="" (error)="imageFailed.set(true)" />
 } @else if (item().emoji) {
     <span class="emoji">{{ item().emoji }}</span>
 } @else {

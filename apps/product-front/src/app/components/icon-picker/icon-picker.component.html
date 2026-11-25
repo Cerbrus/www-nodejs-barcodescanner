@@ -41,7 +41,7 @@
                 [title]="name"
                 (click)="picked.emit(name)"
             >
-                <img alt="" [src]="iconsUrl + '/' + name + '.png'" />
+                <img class="tile-icon" alt="" [src]="iconsUrl + '/' + name + '.png'" />
                 <span>{{ 'icons.standard' | translate }}</span>
             </button>
         }
@@ -53,7 +53,7 @@
                 [title]="name"
                 (click)="picked.emit(name)"
             >
-                <img loading="lazy" alt="" [src]="iconsUrl + '/' + name + '.png'" />
+                <img class="tile-icon" loading="lazy" alt="" [src]="iconsUrl + '/' + name + '.png'" />
                 <span>{{ label(name) }}</span>
             </button>
         } @empty {

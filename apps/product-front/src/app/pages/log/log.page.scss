@@ -11,7 +11,7 @@
     height: 100%;
     overflow: hidden;
     border: 1px solid #1f2a30;
-    border-radius: 10px;
+    border-radius: calc(10px * var(--corner));
     background: #0b1114;
     box-shadow: 0 10px 30px rgb(0 0 0 / 50%);
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;

@@ -19,8 +19,20 @@
                 }
             </div>
         </div>
-        <div class="row choice">
-            <span class="label">{{ 'system.theme' | translate }}</span>
+        <div class="row choice look">
+            <span class="label">{{ 'system.skin' | translate }}</span>
+            <app-skin-select />
+            <button
+                type="button"
+                class="btn season"
+                [class.primary]="theme.seasonal()"
+                [attr.aria-label]="'system.seasonal' | translate"
+                [attr.aria-pressed]="theme.seasonal()"
+                [title]="theme.season() ? ('skin.' + theme.season() | translate) : ('system.seasonal' | translate)"
+                (click)="theme.useSeasonal(!theme.seasonal())"
+            >
+                <i class="material-symbols-outlined">celebration</i>
+            </button>
             <div class="segments">
                 @for (option of themeOptions; track option.theme) {
                     <button

@@ -26,7 +26,7 @@
     width: min(84cqw, 72cqh, 560px);
     aspect-ratio: 1;
     border: 3px solid rgb(255 255 255 / 85%);
-    border-radius: 16px;
+    border-radius: calc(16px * var(--corner));
     box-shadow: 0 0 0 100vmax rgb(0 0 0 / 35%);
     transform: translate(-50%, -50%);
 }
@@ -76,7 +76,7 @@
     justify-content: space-between;
     gap: 12px;
     padding: 8px 12px;
-    border-radius: 10px;
+    border-radius: calc(10px * var(--corner));
     background: rgb(0 0 0 / 65%);
     color: #fff;
     font-size: 0.85rem;

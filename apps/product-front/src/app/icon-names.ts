@@ -17,6 +17,7 @@ export const ICON_NAMES = [
     'bug_report',
     'cancel',
     'category',
+    'celebration',
     'check',
     'check_circle',
     'checklist',

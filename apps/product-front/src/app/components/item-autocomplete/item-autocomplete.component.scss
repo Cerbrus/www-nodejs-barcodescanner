@@ -4,8 +4,8 @@
 .options {
     margin-top: 4px;
     padding: 4px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
+    border: var(--border-width) var(--border-style) var(--line);
+    border-radius: calc(12px * var(--corner));
     background: var(--surface);
 }
 .option {
@@ -14,7 +14,7 @@
     gap: 10px;
     width: 100%;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: calc(8px * var(--corner));
     font-weight: 600;
     text-align: left;
 }
@@ -27,7 +27,7 @@
     height: 32px;
     flex: 0 0 auto;
     padding: 4px;
-    border-radius: 8px;
+    border-radius: calc(8px * var(--corner));
     background: var(--tile-neutral);
     color: var(--tile-text);
 }

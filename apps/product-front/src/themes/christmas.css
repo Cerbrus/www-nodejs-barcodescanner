@@ -1,0 +1,16 @@
+:root[data-skin='christmas'] {
+    --page: light-dark(#f7faf7, #0c1f14);
+    --surface: light-dark(#fff, #143021);
+    --text: light-dark(#14301f, #f3f7f0);
+    --text-muted: light-dark(#55705e, #9db8a5);
+    --line: light-dark(#d5e3d6, #24503a);
+    --accent: light-dark(#b3121d, #f2c14e);
+    --accent-text: light-dark(#fff, #0c1f14);
+    --tile-buy: light-dark(#b3121d, #c21824);
+    --tile-recent: light-dark(#1b6b3a, #1f7a43);
+    --tile-neutral: light-dark(#8a6d1f, #3a5a48);
+    --warning: #f2c14e;
+    --warning-text: #14301f;
+    --page-image: radial-gradient(light-dark(#cfe0d3, rgb(255 255 255 / 45%)) 1.5px, transparent 2px);
+    --page-image-size: 26px 26px;
+}

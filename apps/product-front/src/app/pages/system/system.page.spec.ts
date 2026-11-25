@@ -58,6 +58,7 @@ describe('SystemPage', () => {
         vi.clearAllMocks();
         localStorage.clear();
         delete document.documentElement.dataset['theme'];
+        delete document.documentElement.dataset['skin'];
         events = fakeEvents();
         remarks = fakeRemarks();
         push.status.set('off');
@@ -137,22 +138,69 @@ describe('SystemPage', () => {
 
     it('switches appearance, applies it to the page and remembers it', async () => {
         await open(GUEST);
-        click(row('system.theme'), '.segment', 2);
+        const chosen = (): string | null | undefined =>
+            row('system.skin').querySelector('.segment.chosen')?.getAttribute('aria-label');
+
+        click(row('system.skin'), '.segment', 2);
         await settle();
 
         expect(document.documentElement.dataset['theme']).toBe('dark');
         expect(localStorage.getItem('theme')).toBe('dark');
-        expect(texts(row('system.theme'), '.segment').filter((text) => text.includes('theme.'))).toEqual([
-            expect.stringContaining('theme.dark')
-        ]);
+        expect(chosen()).toBe('theme.dark');
 
-        click(row('system.theme'), '.segment', 0);
+        click(row('system.skin'), '.segment', 0);
         await settle();
 
         expect(document.documentElement.dataset['theme']).toBeUndefined();
-        expect(texts(row('system.theme'), '.segment').filter((text) => text.includes('theme.'))).toEqual([
-            expect.stringContaining('theme.autoShort')
+        expect(chosen()).toBe('theme.auto');
+    });
+
+    it('offers the theme and the appearance on one row, with a name on the chosen appearance only', async () => {
+        localStorage.setItem('skin', 'nord');
+        await open(GUEST);
+        const look = row('system.skin');
+        const list = look.querySelector('app-skin-select select') as HTMLSelectElement;
+
+        expect(list.value).toBe('nord');
+        expect(texts(look, '.segment')).toEqual(['brightness_auto theme.autoShort', 'light_mode', 'dark_mode']);
+
+        list.value = 'comic';
+        list.dispatchEvent(new Event('change'));
+        await settle();
+
+        expect(document.documentElement.dataset['skin']).toBe('comic');
+        expect(page.querySelectorAll('.row.choice').length).toBe(2);
+    });
+
+    it('shows the theme of the season while the seasonal switch is on, and the chosen theme again when it is off', async () => {
+        vi.useFakeTimers({ toFake: ['Date'], now: new Date(2026, 10, 25, 12) });
+        localStorage.setItem('skin', 'nord');
+        await open(GUEST);
+        const seasonal = row('system.skin').querySelector('button.season') as HTMLButtonElement;
+
+        expect(document.documentElement.dataset['skin']).toBe('nord');
+        expect([seasonal.getAttribute('aria-label'), seasonal.getAttribute('aria-pressed'), seasonal.title]).toEqual([
+            'system.seasonal',
+            'false',
+            'system.seasonal'
         ]);
+
+        seasonal.click();
+        await settle();
+
+        expect(document.documentElement.dataset['skin']).toBe('sinterklaas');
+        expect([seasonal.classList.contains('primary'), seasonal.getAttribute('aria-pressed'), seasonal.title]).toEqual(
+            [true, 'true', 'skin.sinterklaas']
+        );
+        expect((row('system.skin').querySelector('select') as HTMLSelectElement).value).toBe('nord');
+        expect(localStorage.getItem('seasonal')).toBe('on');
+
+        seasonal.click();
+        await settle();
+
+        expect(document.documentElement.dataset['skin']).toBe('nord');
+        expect(localStorage.getItem('seasonal')).toBe('off');
+        vi.useRealTimers();
     });
 
     it('offers to turn notifications on, and says so when that fails', async () => {

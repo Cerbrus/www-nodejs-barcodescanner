@@ -1,0 +1,17 @@
+:root[data-skin='solarized'] {
+    --page: light-dark(#eee8d5, #002b36);
+    --surface: light-dark(#fdf6e3, #073642);
+    --text: light-dark(#073642, #eee8d5);
+    --text-muted: light-dark(#657b83, #93a1a1);
+    --line: light-dark(#d9d2bd, #164450);
+    --accent: #268bd2;
+    --accent-text: light-dark(#fdf6e3, #002b36);
+    --tile-buy: #cb4b16;
+    --tile-recent: #1f8a82;
+    --tile-neutral: light-dark(#657b83, #586e75);
+    --warning: #b58900;
+    --warning-text: #002b36;
+    --danger: light-dark(#dc322f, #e8605d);
+    --toast: light-dark(#073642, #eee8d5);
+    --toast-text: light-dark(#eee8d5, #073642);
+}

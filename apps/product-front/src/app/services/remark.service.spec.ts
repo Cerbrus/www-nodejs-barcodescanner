@@ -106,6 +106,7 @@ describe('RemarkService', () => {
                 commit: '5ed181e',
                 language: 'nl',
                 theme: 'auto',
+                skin: 'default',
                 online: true,
                 waitingChanges: 1,
                 recentMessages: ['Melk afgevinkt']

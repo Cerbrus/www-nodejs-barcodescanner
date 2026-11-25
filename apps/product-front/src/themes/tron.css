@@ -1,0 +1,45 @@
+@font-face {
+    font-family: Orbitron;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../assets/fonts/Orbitron-Bold.woff2') format('woff2');
+}
+
+:root[data-skin='tron'] {
+    --page: light-dark(#f2f7fa, #000);
+    --surface: light-dark(#fff, #050d12);
+    --text: light-dark(#06202b, #d9f7ff);
+    --text-muted: light-dark(#4d6b78, #5fa8b8);
+    --line: light-dark(#9fd4e3, #0e5a6b);
+    --accent: light-dark(#007f99, #18e0ff);
+    --accent-text: light-dark(#fff, #000);
+    --tile-buy: light-dark(#d96a00, #ff9a1f);
+    --tile-recent: light-dark(#007f99, #18e0ff);
+    --tile-neutral: light-dark(#d5e9f0, #0d2a33);
+    --tile-text: light-dark(#06202b, #fff);
+    --tile-icon-invert: calc(1 - var(--dark));
+    --tile-border-width: 1px;
+    --corner: 0.3;
+    --shadow-float: 0 0 0 1px var(--accent);
+    --page-image:
+        linear-gradient(color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px);
+    --page-image-size: 32px 32px;
+}
+
+:root[data-skin='tron'] .tile {
+    border-color: var(--tone);
+    background: color-mix(in srgb, var(--tone) 16%, var(--page));
+    box-shadow: 0 0 4px var(--tone);
+}
+
+:root[data-skin='tron'] .page-title {
+    font-family: Orbitron, var(--font);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+:root[data-skin='tron'] .section-title {
+    font-family: Orbitron, var(--font);
+    letter-spacing: 0.1em;
+}

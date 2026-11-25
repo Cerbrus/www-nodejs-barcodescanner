@@ -1,0 +1,26 @@
+:root[data-skin='newspaper'] {
+    --page: light-dark(#f4f1ea, #161514);
+    --surface: light-dark(#fbf9f4, #1f1e1c);
+    --text: light-dark(#1a1a1a, #ece8df);
+    --text-muted: light-dark(#5e5a52, #a39e93);
+    --line: light-dark(#3a3a3a, #8a857a);
+    --accent: light-dark(#1a1a1a, #ece8df);
+    --accent-text: light-dark(#fbf9f4, #161514);
+    --tile-buy: #a61b1b;
+    --tile-recent: light-dark(#4a4a48, #3a3936);
+    --tile-neutral: light-dark(#6e6a62, #55524c);
+    --warning: light-dark(#1a1a1a, #ece8df);
+    --warning-text: light-dark(#fbf9f4, #161514);
+    --danger: light-dark(#a61b1b, #e8605d);
+    --toast: light-dark(#1a1a1a, #ece8df);
+    --toast-text: light-dark(#fbf9f4, #161514);
+    --font: Georgia, 'Times New Roman', serif;
+    --corner: 0;
+}
+
+:root[data-skin='newspaper'] .page-title {
+    padding-bottom: 4px;
+    border-bottom: 3px double var(--text);
+    font-size: 1.7rem;
+    font-weight: 900;
+}

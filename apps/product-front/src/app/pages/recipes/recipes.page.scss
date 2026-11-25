@@ -3,7 +3,7 @@
     overflow: hidden;
 }
 .recipe + .recipe {
-    border-top: 1px solid var(--line);
+    border-top: 1px var(--border-style) var(--line);
 }
 .recipe {
     display: flex;
@@ -62,7 +62,7 @@
     height: 22px;
     flex: none;
     padding: 2px;
-    border-radius: 6px;
+    border-radius: calc(6px * var(--corner));
     background: var(--tile-neutral);
     color: var(--tile-text);
 }

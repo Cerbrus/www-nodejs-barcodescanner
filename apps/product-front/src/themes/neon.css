@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'Tilt Neon';
+    font-display: swap;
+    src: url('../assets/fonts/TiltNeon-Regular.woff2') format('woff2');
+}
+
+:root[data-skin='neon'] {
+    --page: light-dark(#fdf7ff, #0a0014);
+    --surface: light-dark(#fff, #150726);
+    --text: light-dark(#1a0626, #f5e9ff);
+    --text-muted: light-dark(#6b4d80, #a78bbd);
+    --line: light-dark(#e3c9f5, #3d1f5c);
+    --accent: light-dark(#d6009f, #ff2bd6);
+    --accent-text: light-dark(#fff, #0a0014);
+    --tile-buy: light-dark(#d6009f, #ff2bd6);
+    --tile-recent: light-dark(#0090b0, #00e5ff);
+    --tile-neutral: light-dark(#e6d4ff, #3a1f66);
+    --tile-text: light-dark(#1a0626, #fff);
+    --tile-icon-invert: calc(1 - var(--dark));
+    --tile-border-width: 2px;
+    --shadow: 0 0 10px color-mix(in srgb, var(--accent) 25%, transparent);
+    --shadow-float: 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+:root[data-skin='neon'] .tile {
+    border-color: var(--tone);
+    background: color-mix(in srgb, var(--tone) 16%, var(--page));
+    box-shadow:
+        0 0 10px color-mix(in srgb, var(--tone) 70%, transparent),
+        inset 0 0 10px color-mix(in srgb, var(--tone) 30%, transparent);
+}
+
+:root[data-skin='neon'] .page-title {
+    color: var(--accent);
+    font-family: 'Tilt Neon', var(--font);
+    font-size: 1.7rem;
+    font-weight: 400;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+}

@@ -1,0 +1,30 @@
+@font-face {
+    font-family: 'Pixelify Sans';
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('../assets/fonts/PixelifySans.woff2') format('woff2');
+}
+
+:root[data-skin='commodore'] {
+    --page: light-dark(#a5a5ff, #352879);
+    --surface: light-dark(#bcbaff, #40318d);
+    --text: light-dark(#352879, #b3a9ff);
+    --text-muted: light-dark(#50459b, #9a90ea);
+    --line: light-dark(#352879, #7c70da);
+    --accent: light-dark(#352879, #b3a9ff);
+    --accent-text: light-dark(#a5a5ff, #352879);
+    --tile-buy: light-dark(#352879, #7c70da);
+    --tile-recent: light-dark(#6a5fc4, #2a1f66);
+    --tile-neutral: #50459b;
+    --danger: light-dark(#8a1f2e, #ff9aa8);
+    --toast: light-dark(#352879, #b3a9ff);
+    --toast-text: light-dark(#a5a5ff, #352879);
+    --font: 'Pixelify Sans', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --corner: 0;
+    --border-width: 2px;
+    --tile-border-width: 2px;
+}
+
+:root[data-skin='commodore'] .page-title {
+    text-transform: uppercase;
+}

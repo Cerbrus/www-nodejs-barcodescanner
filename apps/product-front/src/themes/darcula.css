@@ -1,0 +1,16 @@
+:root[data-skin='darcula'] {
+    --page: light-dark(#f2f2f2, #2b2b2b);
+    --surface: light-dark(#fff, #3c3f41);
+    --text: light-dark(#1f1f1f, #a9b7c6);
+    --text-muted: light-dark(#6c707e, #8a9199);
+    --line: light-dark(#d3d5db, #555);
+    --accent: light-dark(#0033b3, #cc7832);
+    --accent-text: light-dark(#fff, #2b2b2b);
+    --tile-buy: light-dark(#0033b3, #b5652a);
+    --tile-recent: light-dark(#067d17, #5a7a4b);
+    --tile-neutral: light-dark(#6c707e, #5a5d5f);
+    --warning: light-dark(#f0b429, #ffc66d);
+    --warning-text: #2b2b2b;
+    --danger: light-dark(#c7222d, #ff6b68);
+    --toast: light-dark(#3c3f41, #4e5254);
+}

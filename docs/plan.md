@@ -54,6 +54,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 
 ## Never tested
 
+- The themes (2026-11-25): seen on screenshots of the list, the Recipes tab and the System page in headless Chrome, not on the iPhone. Not looked at per theme: the other pages, dialogs, toasts, the launch image (it stays in the standard colours) and the colour of the browser's bar.
 - After the buttons became icons (2026-11-24): the notification buttons, logging out and the popup that sends a remark to GitHub were changed without being seen on a screen; the test build has no login and no notifications. The other screens were checked on screenshots at phone size.
 - The restore procedure on a second machine. A dump was loaded into a scratch database on the Pi and matched the live row counts.
 - A reboot with the firewall service since it was added.
@@ -120,3 +121,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Recipes, part 3: the Recipes tab and pages, recipes kept by the API, a recipe on the list at once or through a tick sheet, one history line and one undo                                                                                                                                      | 2026-11-23 13:47 | 1.2.33                        |
 | Recipes, part 4: a recipe shows its QR code, and the codes of chosen recipes print on A4, twelve to a page                                                                                                                                                                                    | 2026-11-23 15:53 |                               |
 | A toggle on the scan page makes a phone scan collect the product from the list instead of adding it (issue 71)                                                                                                                                                                                | 2026-11-23 16:26 |                               |
+| Themes: thirty more beside the standard one, each in light and dark, chosen from a grouped list on the System page, and a switch for the season's theme ([0120](decisions/0120-themes-beside-light-and-dark.md)). Seen on screenshots at phone size only                                      | 2026-11-25 16:37 |                               |

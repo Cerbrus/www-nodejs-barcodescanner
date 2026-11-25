@@ -12,13 +12,13 @@
 .logo {
     width: 96px;
     height: 96px;
-    border-radius: 22px;
+    border-radius: calc(22px * var(--corner));
 }
 .error {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid var(--danger);
-    border-radius: 10px;
+    border: var(--border-width) var(--border-style) var(--danger);
+    border-radius: calc(10px * var(--corner));
     color: var(--danger);
     font-size: 0.9rem;
     text-align: center;

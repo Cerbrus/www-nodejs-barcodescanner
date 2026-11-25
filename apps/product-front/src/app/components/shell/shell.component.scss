@@ -3,6 +3,9 @@
     flex-direction: column;
     height: 100dvh;
     background: var(--page);
+    background-image: var(--page-image);
+    background-size: var(--page-image-size);
+    background-attachment: fixed;
     color: var(--text);
 }
 
@@ -39,8 +42,8 @@
 
 .pointing-cancel {
     padding: 4px 10px;
-    border: 1px solid currentcolor;
-    border-radius: 8px;
+    border: var(--border-width) var(--border-style) currentcolor;
+    border-radius: calc(8px * var(--corner));
     font-weight: 700;
 }
 
@@ -85,6 +88,9 @@
 .pull-body {
     height: 100%;
     background: var(--page);
+    background-image: var(--page-image);
+    background-size: var(--page-image-size);
+    background-attachment: fixed;
 }
 
 .content.pulling .pull-indicator,
@@ -140,10 +146,10 @@
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
-    border-radius: 12px;
+    border-radius: calc(12px * var(--corner));
     background: #1f7a4d;
     color: #fff;
-    box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+    box-shadow: var(--shadow-float);
     font-size: 0.9rem;
     pointer-events: auto;
 
@@ -160,8 +166,8 @@
 
 .toast-action {
     padding: 4px 10px;
-    border: 1px solid currentcolor;
-    border-radius: 8px;
+    border: var(--border-width) var(--border-style) currentcolor;
+    border-radius: calc(8px * var(--corner));
     font-weight: 700;
 }
 
@@ -169,7 +175,7 @@
     display: flex;
     flex: 0 0 auto;
     padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line);
+    border-top: 1px var(--border-style) var(--line);
     background: var(--surface);
 }
 
@@ -180,7 +186,7 @@
     align-items: center;
     gap: 2px;
     padding: 6px 2px;
-    border-radius: 10px;
+    border-radius: calc(10px * var(--corner));
     color: var(--text-muted);
     font-size: 0.7rem;
     font-weight: 600;
@@ -205,7 +211,7 @@
     right: -12px;
     min-width: 18px;
     padding: 0 5px;
-    border-radius: 9px;
+    border-radius: calc(9px * var(--corner));
     background: var(--danger);
     color: #fff;
     font-size: 0.7rem;

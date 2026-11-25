@@ -1,0 +1,17 @@
+:root[data-skin='nord'] {
+    --page: light-dark(#e5e9f0, #2e3440);
+    --surface: light-dark(#f7f9fb, #3b4252);
+    --text: light-dark(#2e3440, #eceff4);
+    --text-muted: light-dark(#5e6b82, #a3adbf);
+    --line: light-dark(#d8dee9, #4c566a);
+    --accent: light-dark(#5e81ac, #88c0d0);
+    --accent-text: light-dark(#fff, #2e3440);
+    --tile-buy: #5e81ac;
+    --tile-recent: #4f8583;
+    --tile-neutral: light-dark(#4c566a, #56617a);
+    --warning: #ebcb8b;
+    --warning-text: #2e3440;
+    --danger: light-dark(#b04a55, #e0868f);
+    --toast: light-dark(#3b4252, #4c566a);
+    --toast-text: #eceff4;
+}

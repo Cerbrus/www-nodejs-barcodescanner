@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, interval, merge, of, startWith, switchMap, tap } from 'rxjs';
 
+import { SkinSelectComponent } from '../../components/skin-select/skin-select.component';
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { IconName } from '../../icon-names';
 import { ApiService } from '../../services/api.service';
@@ -34,7 +35,7 @@ const THEME_OPTIONS: Array<{ theme: Theme; icon: IconName }> = [
 @Component({
     selector: 'app-system-page',
     standalone: true,
-    imports: [DatePipe, LowerCasePipe, RouterLink, TranslatePipe, FocusOnShowDirective],
+    imports: [DatePipe, LowerCasePipe, RouterLink, TranslatePipe, FocusOnShowDirective, SkinSelectComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './system.page.html',
     styleUrl: './system.page.scss'

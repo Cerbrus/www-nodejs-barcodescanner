@@ -1,6 +1,6 @@
 .result {
     padding: 2px 8px;
-    border-radius: 8px;
+    border-radius: calc(8px * var(--corner));
     background: var(--line);
     font-size: 0.75rem;
     font-weight: 700;

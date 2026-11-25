@@ -1,0 +1,48 @@
+:root[data-skin='pride'] {
+    --page: light-dark(#f5f5f8, #14141a);
+    --surface: light-dark(#fff, #1f1f29);
+    --text: light-dark(#1a1a22, #f5f5f8);
+    --text-muted: light-dark(#5f5f70, #a8a8ba);
+    --line: light-dark(#dcdce6, #34344a);
+    --accent: light-dark(#750787, #c77dff);
+    --accent-text: light-dark(#fff, #14141a);
+    --tile-buy: #750787;
+    --tile-recent: light-dark(#6b6b7a, #4a4a5c);
+    --tile-neutral: light-dark(#77778a, #3d3d50);
+}
+
+:root[data-skin='pride'] .flow-cell:nth-child(6n + 1) {
+    --tile-buy: #e40303;
+    --tile-text: #fff;
+    --tile-icon-invert: 0;
+}
+
+:root[data-skin='pride'] .flow-cell:nth-child(6n + 2) {
+    --tile-buy: #ff8c00;
+    --tile-text: #1a1a22;
+    --tile-icon-invert: 1;
+}
+
+:root[data-skin='pride'] .flow-cell:nth-child(6n + 3) {
+    --tile-buy: #ffed00;
+    --tile-text: #1a1a22;
+    --tile-icon-invert: 1;
+}
+
+:root[data-skin='pride'] .flow-cell:nth-child(6n + 4) {
+    --tile-buy: #008026;
+    --tile-text: #fff;
+    --tile-icon-invert: 0;
+}
+
+:root[data-skin='pride'] .flow-cell:nth-child(6n + 5) {
+    --tile-buy: #004dff;
+    --tile-text: #fff;
+    --tile-icon-invert: 0;
+}
+
+:root[data-skin='pride'] .flow-cell:nth-child(6n + 6) {
+    --tile-buy: #750787;
+    --tile-text: #fff;
+    --tile-icon-invert: 0;
+}

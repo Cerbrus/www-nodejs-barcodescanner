@@ -43,7 +43,8 @@ export default defineConfig({
                 'naming.e2e.ts',
                 'sounds.e2e.ts',
                 'recipes.e2e.ts',
-                'collect-toggle.e2e.ts'
+                'collect-toggle.e2e.ts',
+                'themes.e2e.ts'
             ],
             use: { launchOptions: { args: FAKE_CAMERA } }
         },

@@ -1,0 +1,18 @@
+:root[data-skin='sixties'] {
+    --page: light-dark(#fff, #1f0a2e);
+    --surface: light-dark(#fff7fb, #2e1245);
+    --text: light-dark(#2a0a3a, #fff);
+    --text-muted: light-dark(#7a4a8a, #c9a8d9);
+    --line: light-dark(#ffc2e0, #5a2a7a);
+    --accent: light-dark(#ff2d95, #ff6ab8);
+    --accent-text: light-dark(#fff, #1f0a2e);
+    --tile-buy: #f04e00;
+    --tile-recent: #009494;
+    --tile-neutral: light-dark(#b0399e, #8a2a7a);
+    --font: ui-rounded, 'Arial Rounded MT Bold', 'Varela Round', system-ui, sans-serif;
+    --corner: 2;
+    --page-image:
+        radial-gradient(circle at 24px 24px, color-mix(in srgb, #ff2d95 22%, transparent) 10px, transparent 11px),
+        radial-gradient(circle at 72px 72px, color-mix(in srgb, #f04e00 22%, transparent) 10px, transparent 11px);
+    --page-image-size: 96px 96px;
+}

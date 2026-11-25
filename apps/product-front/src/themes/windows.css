@@ -1,0 +1,52 @@
+:root[data-skin='windows'] {
+    --page: light-dark(#008080, #003c3c);
+    --surface: light-dark(#c0c0c0, #3a3a3a);
+    --text: light-dark(#000, #f0f0f0);
+    --text-muted: light-dark(#404040, #b0b0b0);
+    --line: light-dark(#808080, #1a1a1a);
+    --accent: light-dark(#000080, #1084d0);
+    --accent-text: #fff;
+    --tile-buy: light-dark(#000080, #0a4a9a);
+    --tile-recent: light-dark(#808080, #5a5a5a);
+    --tile-neutral: light-dark(#606060, #4a4a4a);
+    --font: Tahoma, 'MS Sans Serif', 'Segoe UI', Arial, sans-serif;
+    --corner: 0;
+    --border-width: 0px;
+    --shadow:
+        inset -1px -1px light-dark(#0a0a0a, #000), inset 1px 1px light-dark(#fff, #6a6a6a),
+        inset -2px -2px light-dark(#808080, #1f1f1f), inset 2px 2px light-dark(#dfdfdf, #505050);
+    --shadow-control:
+        inset -1px -1px light-dark(#0a0a0a, #000), inset 1px 1px light-dark(#fff, #6a6a6a),
+        inset -2px -2px light-dark(#808080, #1f1f1f), inset 2px 2px light-dark(#dfdfdf, #505050);
+    --shadow-float:
+        inset -1px -1px light-dark(#0a0a0a, #000), inset 1px 1px light-dark(#fff, #6a6a6a),
+        inset -2px -2px light-dark(#808080, #1f1f1f), inset 2px 2px light-dark(#dfdfdf, #505050);
+}
+
+:root[data-skin='windows'] .field {
+    background: light-dark(#fff, #1f1f1f);
+    box-shadow:
+        inset 1px 1px light-dark(#808080, #1f1f1f),
+        inset -1px -1px light-dark(#fff, #6a6a6a),
+        inset 2px 2px light-dark(#0a0a0a, #000),
+        inset -2px -2px light-dark(#dfdfdf, #505050);
+}
+
+:root[data-skin='windows'] .segments {
+    box-shadow:
+        inset 1px 1px light-dark(#808080, #1f1f1f),
+        inset -1px -1px light-dark(#fff, #6a6a6a),
+        inset 2px 2px light-dark(#0a0a0a, #000),
+        inset -2px -2px light-dark(#dfdfdf, #505050);
+}
+
+:root[data-skin='windows'] .page-title {
+    padding: 4px 8px;
+    background: linear-gradient(90deg, #000080, #1084d0);
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+:root[data-skin='windows'] :is(.section-title, .back-bar, .empty, .version) {
+    color: light-dark(#fff, #b0b0b0);
+}

@@ -30,6 +30,10 @@
                 if (theme === 'light' || theme === 'dark') {
                     document.documentElement.dataset.theme = theme;
                 }
+                var skin = localStorage.getItem('shownSkin') || localStorage.getItem('skin');
+                if (skin && skin !== 'default' && /^[a-z]+$/.test(skin)) {
+                    document.documentElement.dataset.skin = skin;
+                }
             } catch (error) {}
             if (location.pathname !== '/') {
                 history.replaceState(null, '', '/#' + location.pathname + location.search);
@@ -37,22 +41,167 @@
         </script>
         <style>
             html {
-                --boot-page: #f3f4f6;
-                --boot-surface: #fff;
-                --boot-line: #e2e5ea;
+                --boot-page: light-dark(#f3f4f6, #111418);
+                --boot-surface: light-dark(#fff, #1a1f26);
+                --boot-line: light-dark(#e2e5ea, #2a313b);
                 background: var(--boot-page);
+                color-scheme: light dark;
+            }
+            html[data-theme='light'] {
+                color-scheme: light;
             }
             html[data-theme='dark'] {
-                --boot-page: #111418;
-                --boot-surface: #1a1f26;
-                --boot-line: #2a313b;
+                color-scheme: dark;
             }
-            @media (prefers-color-scheme: dark) {
-                html:not([data-theme='light']) {
-                    --boot-page: #111418;
-                    --boot-surface: #1a1f26;
-                    --boot-line: #2a313b;
-                }
+            html[data-skin='contrast'] {
+                --boot-page: light-dark(#fff, #000);
+                --boot-surface: light-dark(#fff, #000);
+                --boot-line: light-dark(#000, #fff);
+            }
+            html[data-skin='darcula'] {
+                --boot-page: light-dark(#f2f2f2, #2b2b2b);
+                --boot-surface: light-dark(#fff, #3c3f41);
+                --boot-line: light-dark(#d3d5db, #555);
+            }
+            html[data-skin='solarized'] {
+                --boot-page: light-dark(#eee8d5, #002b36);
+                --boot-surface: light-dark(#fdf6e3, #073642);
+                --boot-line: light-dark(#d9d2bd, #164450);
+            }
+            html[data-skin='nord'] {
+                --boot-page: light-dark(#e5e9f0, #2e3440);
+                --boot-surface: light-dark(#f7f9fb, #3b4252);
+                --boot-line: light-dark(#d8dee9, #4c566a);
+            }
+            html[data-skin='ah'] {
+                --boot-page: light-dark(#eef7fc, #06131c);
+                --boot-surface: light-dark(#fff, #0e2230);
+                --boot-line: light-dark(#d3e4ee, #1d3a4d);
+            }
+            html[data-skin='jumbo'] {
+                --boot-page: light-dark(#fdc513, #141204);
+                --boot-surface: light-dark(#fff, #211e10);
+                --boot-line: light-dark(#e3c75a, #3a351c);
+            }
+            html[data-skin='console'] {
+                --boot-page: light-dark(#e8eee4, #050805);
+                --boot-surface: light-dark(#f6faf3, #0b100b);
+                --boot-line: light-dark(#a9c1ad, #1a5c2c);
+            }
+            html[data-skin='neon'] {
+                --boot-page: light-dark(#fdf7ff, #0a0014);
+                --boot-surface: light-dark(#fff, #150726);
+                --boot-line: light-dark(#e3c9f5, #3d1f5c);
+            }
+            html[data-skin='tron'] {
+                --boot-page: light-dark(#f2f7fa, #000);
+                --boot-surface: light-dark(#fff, #050d12);
+                --boot-line: light-dark(#9fd4e3, #0e5a6b);
+            }
+            html[data-skin='synthwave'] {
+                --boot-page: light-dark(#ffe9f3, #1a0b2e);
+                --boot-surface: light-dark(#fff, #2a1245);
+                --boot-line: light-dark(#f3bfdc, #4a2470);
+            }
+            html[data-skin='gameboy'] {
+                --boot-page: light-dark(#9bbc0f, #0f380f);
+                --boot-surface: light-dark(#8bac0f, #306230);
+                --boot-line: light-dark(#306230, #0f380f);
+            }
+            html[data-skin='commodore'] {
+                --boot-page: light-dark(#a5a5ff, #352879);
+                --boot-surface: light-dark(#bcbaff, #40318d);
+                --boot-line: light-dark(#352879, #7c70da);
+            }
+            html[data-skin='lcd'] {
+                --boot-page: light-dark(#c5cdb8, #1c2118);
+                --boot-surface: light-dark(#b7c0a9, #262c21);
+                --boot-line: light-dark(#8d9781, #3d4636);
+            }
+            html[data-skin='windows'] {
+                --boot-page: light-dark(#008080, #003c3c);
+                --boot-surface: light-dark(#c0c0c0, #3a3a3a);
+                --boot-line: light-dark(#808080, #1a1a1a);
+            }
+            html[data-skin='receipt'] {
+                --boot-page: light-dark(#e4e1d9, #0d0d0d);
+                --boot-surface: light-dark(#fbfaf5, #181818);
+                --boot-line: light-dark(#8f8b82, #6b6860);
+            }
+            html[data-skin='comic'] {
+                --boot-page: light-dark(#fff4cc, #2b2b40);
+                --boot-surface: light-dark(#fff, #3a3a55);
+                --boot-line: light-dark(#111, #fff);
+            }
+            html[data-skin='ink'] {
+                --boot-page: light-dark(#fff, #0a0a0a);
+                --boot-surface: light-dark(#fff, #141414);
+                --boot-line: light-dark(#000, #fff);
+            }
+            html[data-skin='blueprint'] {
+                --boot-page: light-dark(#f4f8ff, #0d3b82);
+                --boot-surface: light-dark(#fff, #124794);
+                --boot-line: light-dark(#8fb0e6, #7fa6e0);
+            }
+            html[data-skin='newspaper'] {
+                --boot-page: light-dark(#f4f1ea, #161514);
+                --boot-surface: light-dark(#fbf9f4, #1f1e1c);
+                --boot-line: light-dark(#3a3a3a, #8a857a);
+            }
+            html[data-skin='chalkboard'] {
+                --boot-page: light-dark(#f2f4f5, #24402f);
+                --boot-surface: light-dark(#fff, #2c4a38);
+                --boot-line: light-dark(#1c2a3a, #d8d6c8);
+            }
+            html[data-skin='sticky'] {
+                --boot-page: light-dark(#c89f6a, #3a2a1a);
+                --boot-surface: light-dark(#fff8dc, #4a3724);
+                --boot-line: light-dark(#b08a55, #6b5030);
+            }
+            html[data-skin='sixties'] {
+                --boot-page: light-dark(#fff, #1f0a2e);
+                --boot-surface: light-dark(#fff7fb, #2e1245);
+                --boot-line: light-dark(#ffc2e0, #5a2a7a);
+            }
+            html[data-skin='seventies'] {
+                --boot-page: light-dark(#f3e3c3, #2b1a0e);
+                --boot-surface: light-dark(#fbf1dc, #3b2514);
+                --boot-line: light-dark(#d9bf8f, #5c3b1e);
+            }
+            html[data-skin='memphis'] {
+                --boot-page: light-dark(#fdf6ec, #1c1630);
+                --boot-surface: light-dark(#fff, #2a2145);
+                --boot-line: light-dark(#231a3a, #fff6ec);
+            }
+            html[data-skin='koningsdag'] {
+                --boot-page: light-dark(#fff4e6, #1f1206);
+                --boot-surface: light-dark(#fff, #2e1b0a);
+                --boot-line: light-dark(#ffd4a3, #5a3614);
+            }
+            html[data-skin='easter'] {
+                --boot-page: light-dark(#fffbe8, #2a1f33);
+                --boot-surface: light-dark(#fff, #382a45);
+                --boot-line: light-dark(#f0e2b8, #55426a);
+            }
+            html[data-skin='pride'] {
+                --boot-page: light-dark(#f5f5f8, #14141a);
+                --boot-surface: light-dark(#fff, #1f1f29);
+                --boot-line: light-dark(#dcdce6, #34344a);
+            }
+            html[data-skin='halloween'] {
+                --boot-page: light-dark(#fff3e0, #120a18);
+                --boot-surface: light-dark(#fff, #1f1229);
+                --boot-line: light-dark(#e6cfa8, #3a2447);
+            }
+            html[data-skin='sinterklaas'] {
+                --boot-page: light-dark(#fdf3e3, #2a0d0d);
+                --boot-surface: light-dark(#fff, #3d1414);
+                --boot-line: light-dark(#ecd3a6, #6b2a22);
+            }
+            html[data-skin='christmas'] {
+                --boot-page: light-dark(#f7faf7, #0c1f14);
+                --boot-surface: light-dark(#fff, #143021);
+                --boot-line: light-dark(#d5e3d6, #24503a);
             }
             .boot-bar {
                 position: fixed;

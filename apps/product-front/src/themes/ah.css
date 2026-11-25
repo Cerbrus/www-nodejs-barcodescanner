@@ -1,0 +1,15 @@
+:root[data-skin='ah'] {
+    --page: light-dark(#eef7fc, #06131c);
+    --surface: light-dark(#fff, #0e2230);
+    --text: light-dark(#1f2d36, #e6f1f7);
+    --text-muted: light-dark(#5f7482, #8fa6b5);
+    --line: light-dark(#d3e4ee, #1d3a4d);
+    --accent: light-dark(#0090d4, #00ade6);
+    --accent-text: light-dark(#fff, #04121a);
+    --tile-buy: light-dark(#0090d4, #0087c7);
+    --tile-recent: light-dark(#e06a00, #c25c00);
+    --tile-neutral: light-dark(#5b7083, #2f4a5c);
+    --warning: light-dark(#ff7900, #ff8f1f);
+    --warning-text: #1f2d36;
+    --danger: light-dark(#d6332a, #ff6b5e);
+}

@@ -1,0 +1,12 @@
+:host {
+    display: block;
+    min-width: 0;
+}
+select {
+    height: var(--skin-select-height, auto);
+    padding: var(--skin-select-padding, 6px 40px 6px 10px);
+    background-position: right var(--skin-select-chevron, 12px) center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+}

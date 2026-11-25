@@ -1,0 +1,22 @@
+:root[data-skin='ink'] {
+    --page: light-dark(#fff, #0a0a0a);
+    --surface: light-dark(#fff, #141414);
+    --text: light-dark(#000, #fff);
+    --text-muted: light-dark(#444, #c4c4c4);
+    --line: light-dark(#000, #fff);
+    --accent: light-dark(#000, #fff);
+    --accent-text: light-dark(#fff, #000);
+    --tile-buy: light-dark(#000, #fff);
+    --tile-recent: light-dark(#555, #1f1f1f);
+    --tile-recent-text: #fff;
+    --tile-recent-icon-invert: 0;
+    --tile-neutral: #8a8a8a;
+    --tile-text: light-dark(#fff, #000);
+    --tile-icon-invert: var(--dark);
+    --warning: light-dark(#000, #fff);
+    --warning-text: light-dark(#fff, #000);
+    --danger: light-dark(#d00000, #ff5c5c);
+    --toast: light-dark(#000, #fff);
+    --toast-text: light-dark(#fff, #000);
+    --ink: var(--line);
+}

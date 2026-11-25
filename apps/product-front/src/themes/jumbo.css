@@ -1,0 +1,20 @@
+:root[data-skin='jumbo'] {
+    --page: light-dark(#fdc513, #141204);
+    --surface: light-dark(#fff, #211e10);
+    --text: light-dark(#1a1a1a, #f5efd6);
+    --text-muted: light-dark(#5c5320, #a69f84);
+    --line: light-dark(#e3c75a, #3a351c);
+    --accent: light-dark(#1a1a1a, #fdc513);
+    --accent-text: light-dark(#fdc513, #1a1a1a);
+    --tile-buy: light-dark(#fff, #fdc513);
+    --tile-recent: light-dark(#ffe9a0, #3a3210);
+    --tile-recent-text: light-dark(#1a1a1a, #f5efd6);
+    --tile-recent-icon-invert: calc(1 - var(--dark));
+    --tile-neutral: light-dark(#e0ac00, #8a7a3a);
+    --tile-text: #1a1a1a;
+    --tile-icon-invert: 1;
+    --warning: light-dark(#1a1a1a, #fdc513);
+    --warning-text: light-dark(#fdc513, #1a1a1a);
+    --danger: light-dark(#c62828, #ff6b5e);
+    --toast: light-dark(#1a1a1a, #3a351c);
+}

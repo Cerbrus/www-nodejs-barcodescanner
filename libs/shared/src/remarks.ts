@@ -15,6 +15,7 @@ export interface RemarkContext {
     viewport?: string;
     language?: string;
     theme?: string;
+    skin?: string;
     installed?: boolean;
     online?: boolean;
     waitingChanges?: number;

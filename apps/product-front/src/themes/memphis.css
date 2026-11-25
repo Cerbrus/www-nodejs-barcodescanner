@@ -1,0 +1,22 @@
+:root[data-skin='memphis'] {
+    --page: light-dark(#fdf6ec, #1c1630);
+    --surface: light-dark(#fff, #2a2145);
+    --text: light-dark(#231a3a, #fff6ec);
+    --text-muted: light-dark(#6b5f85, #b3a8cc);
+    --line: light-dark(#231a3a, #fff6ec);
+    --accent: light-dark(#6a2bd9, #19d3c5);
+    --accent-text: light-dark(#fff, #1c1630);
+    --tile-buy: #ff3d8b;
+    --tile-recent: #008f85;
+    --tile-neutral: #6a2bd9;
+    --warning: #ffd23f;
+    --warning-text: #231a3a;
+    --border-width: 2px;
+    --tile-border-width: 2px;
+    --corner: 1.2;
+    --shadow: 3px 3px 0 #ffd23f;
+    --shadow-control: 2px 2px 0 #19d3c5;
+    --shadow-float: 5px 5px 0 #ff3d8b;
+    --page-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' opacity='.45'%3E%3Cpath d='M8 22l7-7 7 7 7-7 7 7' fill='none' stroke='%23ff3d8b' stroke-width='3'/%3E%3Ccircle cx='70' cy='20' r='6' fill='%23ffd23f'/%3E%3Cpath d='M58 76l9-16 9 16z' fill='%2300a99d'/%3E%3Ccircle cx='22' cy='68' r='4' fill='%236a2bd9'/%3E%3C/svg%3E");
+    --page-image-size: 96px 96px;
+}

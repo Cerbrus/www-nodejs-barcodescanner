@@ -1,0 +1,20 @@
+:root[data-skin='comic'] {
+    --page: light-dark(#fff4cc, #2b2b40);
+    --surface: light-dark(#fff, #3a3a55);
+    --text: light-dark(#111, #fff);
+    --text-muted: light-dark(#444, #c9c9d4);
+    --line: light-dark(#111, #fff);
+    --accent: light-dark(#1554f0, #ffd60a);
+    --accent-text: light-dark(#fff, #111);
+    --tile-buy: #ffd60a;
+    --tile-recent: #5cc8ff;
+    --tile-neutral: light-dark(#e6e6e6, #b8b8cc);
+    --tile-text: #111;
+    --tile-icon-invert: 1;
+    --warning: #ffd60a;
+    --warning-text: #111;
+    --danger: light-dark(#c81e23, #ff7a7d);
+    --toast: light-dark(#111, #fff);
+    --toast-text: light-dark(#fff, #111);
+    --ink: light-dark(#111, #000);
+}

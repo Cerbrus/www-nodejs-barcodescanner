@@ -1,0 +1,24 @@
+:root[data-skin='receipt'] {
+    --page: light-dark(#e4e1d9, #0d0d0d);
+    --surface: light-dark(#fbfaf5, #181818);
+    --text: light-dark(#111, #f5f2e8);
+    --text-muted: light-dark(#5c5a54, #a8a59c);
+    --line: light-dark(#8f8b82, #6b6860);
+    --accent: light-dark(#111, #f5f2e8);
+    --accent-text: light-dark(#fbfaf5, #111);
+    --tile-buy: light-dark(#111, #f5f2e8);
+    --tile-recent: light-dark(#6f6b62, #45433e);
+    --tile-recent-text: #fbfaf5;
+    --tile-recent-icon-invert: 0;
+    --tile-neutral: light-dark(#8a867c, #8f8b82);
+    --tile-text: light-dark(#fbfaf5, #111);
+    --tile-icon-invert: var(--dark);
+    --warning: light-dark(#111, #f5f2e8);
+    --warning-text: light-dark(#fbfaf5, #111);
+    --danger: light-dark(#b3261e, #ff6b5e);
+    --toast: light-dark(#111, #f5f2e8);
+    --toast-text: light-dark(#fbfaf5, #111);
+    --font: 'Courier New', Courier, ui-monospace, monospace;
+    --corner: 0;
+    --border-style: dashed;
+}

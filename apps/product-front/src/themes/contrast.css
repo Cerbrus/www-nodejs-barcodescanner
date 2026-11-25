@@ -1,0 +1,23 @@
+:root[data-skin='contrast'] {
+    --page: light-dark(#fff, #000);
+    --surface: light-dark(#fff, #000);
+    --text: light-dark(#000, #fff);
+    --text-muted: light-dark(#3d3d3d, #d0d0d0);
+    --line: light-dark(#000, #fff);
+    --accent: light-dark(#000, #ffeb00);
+    --accent-text: light-dark(#ffeb00, #000);
+    --tile-buy: light-dark(#000, #ffeb00);
+    --tile-recent: #fff;
+    --tile-recent-text: #000;
+    --tile-recent-icon-invert: 1;
+    --tile-neutral: light-dark(#6b6b6b, #bdbdbd);
+    --tile-text: light-dark(#fff, #000);
+    --tile-icon-invert: var(--dark);
+    --warning: #ffeb00;
+    --warning-text: #000;
+    --danger: light-dark(#b00000, #ff6b6b);
+    --toast: light-dark(#000, #fff);
+    --toast-text: light-dark(#fff, #000);
+    --border-width: 2px;
+    --tile-border-width: 2px;
+}
