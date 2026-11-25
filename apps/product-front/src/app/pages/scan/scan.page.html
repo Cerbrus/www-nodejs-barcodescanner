@@ -54,24 +54,26 @@
         </svg>
         <i class="material-symbols-outlined">{{ manualOpen() ? 'expand_more' : 'expand_less' }}</i>
     </button>
-    @if (manualOpen()) {
-        <form class="manual" (ngSubmit)="submitManual()">
-            <input
-                class="field"
-                type="text"
-                name="code"
-                inputmode="numeric"
-                autocomplete="off"
-                pattern="[0-9]*"
-                [placeholder]="'scan.manualPlaceholder' | translate"
-                [ngModel]="manualCode()"
-                (ngModelChange)="manualCode.set($event)"
-            />
-            <button type="submit" class="btn primary" [attr.aria-label]="'scan.manualSubmit' | translate">
-                <i class="material-symbols-outlined">add</i>
-            </button>
-        </form>
-    }
+    <div class="fold" [class.open]="manualOpen()" [attr.inert]="manualOpen() ? null : ''">
+        <div class="fold-inner">
+            <form class="manual" (ngSubmit)="submitManual()">
+                <input
+                    class="field"
+                    type="text"
+                    name="code"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    pattern="[0-9]*"
+                    [placeholder]="'scan.manualPlaceholder' | translate"
+                    [ngModel]="manualCode()"
+                    (ngModelChange)="manualCode.set($event)"
+                />
+                <button type="submit" class="btn primary" [attr.aria-label]="'scan.manualSubmit' | translate">
+                    <i class="material-symbols-outlined">add</i>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 @if (namingCode(); as code) {

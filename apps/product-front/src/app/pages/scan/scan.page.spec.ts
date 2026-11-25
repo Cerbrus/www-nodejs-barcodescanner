@@ -342,14 +342,20 @@ describe('ScanPage', () => {
         const page = await open();
         const handle = page.querySelector('button.handle') as HTMLButtonElement;
 
-        expect(page.querySelector('form.manual')).toBeNull();
+        const fold = page.querySelector('.fold') as HTMLElement;
+
+        expect(fold.classList.contains('open')).toBe(false);
+        expect(fold.hasAttribute('inert')).toBe(true);
         expect(handle.getAttribute('aria-expanded')).toBe('false');
 
         await openField(page);
-        expect(page.querySelector('form.manual input')).not.toBeNull();
+        expect(fold.classList.contains('open')).toBe(true);
+        expect(fold.hasAttribute('inert')).toBe(false);
+        expect(page.querySelector('.fold form.manual input')).not.toBeNull();
         expect(handle.getAttribute('aria-expanded')).toBe('true');
 
         await openField(page);
-        expect(page.querySelector('form.manual')).toBeNull();
+        expect(fold.classList.contains('open')).toBe(false);
+        expect(fold.hasAttribute('inert')).toBe(true);
     });
 });

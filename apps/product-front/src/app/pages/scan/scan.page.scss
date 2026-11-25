@@ -115,6 +115,34 @@
     }
 }
 
+.fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    background: var(--surface);
+    transition:
+        grid-template-rows 0.25s ease,
+        visibility 0s linear 0.25s;
+
+    &.open {
+        grid-template-rows: 1fr;
+        visibility: visible;
+        transition: grid-template-rows 0.25s ease;
+    }
+}
+
+.fold-inner {
+    min-height: 0;
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fold,
+    .fold.open {
+        transition: none;
+    }
+}
+
 .manual {
     display: flex;
     gap: 8px;
