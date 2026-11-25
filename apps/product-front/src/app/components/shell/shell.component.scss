@@ -67,6 +67,7 @@
     align-items: center;
     justify-content: center;
     height: 56px;
+    overflow: hidden;
     color: var(--text-muted);
     opacity: 0;
     pointer-events: none;
@@ -88,15 +89,13 @@
     height: 100%;
 }
 
-.content:is(.pulling, .refreshing) .pull-body {
-    background: var(--page);
-    background-image: var(--page-image);
-    background-size: var(--page-image-size);
-}
-
 .content.pulling .pull-indicator,
 .content.refreshing .pull-indicator {
     opacity: 1;
+}
+
+.content.pulling .pull-indicator {
+    height: var(--pull);
 }
 
 .content.pulling .pull-body {
