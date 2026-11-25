@@ -66,6 +66,7 @@ describe('remarks over HTTP', () => {
     let githubIssue: Record<string, unknown> = { state: 'open', labels: [{ name: 'investigate' }] };
     let githubTimeline: Array<unknown> = [];
     let githubReads = 0;
+    let githubDelay = 0;
     const mergeCommit = 'abc';
     let taggedVersions: Array<string> = [];
     const received: Array<ReceivedIssue> = [];
@@ -121,10 +122,12 @@ describe('remarks over HTTP', () => {
             request.on('end', () => {
                 if (request.method === 'GET') {
                     githubReads++;
-                    response.writeHead(githubStatus === 201 ? 200 : githubStatus, {
-                        'content-type': 'application/json'
-                    });
-                    response.end(JSON.stringify(githubAnswer(request.url ?? '')));
+                    setTimeout(() => {
+                        response.writeHead(githubStatus === 201 ? 200 : githubStatus, {
+                            'content-type': 'application/json'
+                        });
+                        response.end(JSON.stringify(githubAnswer(request.url ?? '')));
+                    }, githubDelay);
 
                     return;
                 }
@@ -437,6 +440,25 @@ describe('remarks over HTTP', () => {
         (app.get(AppConfig) as { version: string }).version = '1.1.132';
         forget();
         assert.equal((await progress())?.stage, 'live');
+    });
+
+    it('does not make the list wait for a slow GitHub, and shows the last answer meanwhile', async () => {
+        const service = app.get(RemarkService);
+        const sent = (await service.list({ email: OWNER, owner: true })).filter((remark) => remark.issueNumber);
+        const cache = (service as unknown as { progressCache: Map<number, { at: number }> }).progressCache;
+        const forget = (): void => cache.forEach((entry) => (entry.at = 0));
+        const before = await service.progressOf(sent);
+        assert.ok(before.size > 0);
+
+        githubDelay = 400;
+        forget();
+        const started = Date.now();
+        const slow = await service.progressOf(sent, Date.now(), 50);
+        const took = Date.now() - started;
+        githubDelay = 0;
+
+        assert.ok(took < 300, `waited ${took} ms`);
+        assert.deepEqual([...slow.entries()], [...before.entries()]);
     });
 
     it('stops an account after thirty remarks in an hour, without stopping the others', async () => {

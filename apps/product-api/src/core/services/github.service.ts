@@ -62,8 +62,10 @@ export class GitHubService {
     }
 
     public async issueSnapshot(number: number): Promise<IssueSnapshot | undefined> {
-        const issue = await this.get<{ state: string; labels: Array<{ name: string } | string> }>(`issues/${number}`);
-        const timeline = await this.get<Array<TimelineEvent>>(`issues/${number}/timeline?per_page=100`);
+        const [issue, timeline] = await Promise.all([
+            this.get<{ state: string; labels: Array<{ name: string } | string> }>(`issues/${number}`),
+            this.get<Array<TimelineEvent>>(`issues/${number}/timeline?per_page=100`)
+        ]);
         if (!issue || !timeline) {
             return undefined;
         }

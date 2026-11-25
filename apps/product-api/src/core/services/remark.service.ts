@@ -46,12 +46,14 @@ export interface RemarkWriter {
 const HOUR_MILLISECONDS = 60 * 60 * 1000;
 const MAX_PAGE_LENGTH = 200;
 const PROGRESS_MAX_AGE = 60 * 1000;
+const PROGRESS_WAIT = 2000;
 
 @Injectable()
 export class RemarkService {
     private readonly logger = new Logger('Remarks');
     private readonly releases = new Map<number, string>();
     private readonly progressCache = new Map<number, { progress: IssueProgress; at: number }>();
+    private readonly refreshing = new Map<number, Promise<IssueProgress | undefined>>();
 
     constructor(
         @InjectRepository(RemarkEntity) private readonly remarks: Repository<RemarkEntity>,
@@ -100,22 +102,32 @@ export class RemarkService {
         });
     }
 
-    public async progressOf(remarks: Array<RemarkEntity>, now = Date.now()): Promise<Map<number, IssueProgress>> {
+    public async progressOf(
+        remarks: Array<RemarkEntity>,
+        now = Date.now(),
+        wait = PROGRESS_WAIT
+    ): Promise<Map<number, IssueProgress>> {
         const known = new Map<number, IssueProgress>();
         if (!this.github.enabled) {
             return known;
         }
 
-        await Promise.all(
-            remarks
-                .filter((remark) => remark.issueNumber)
-                .map(async (remark) => {
-                    const progress = await this.progressOfIssue(remark.issueNumber as number, now);
-                    if (progress) {
-                        known.set(remark.id, progress);
-                    }
-                })
-        );
+        let timer: NodeJS.Timeout | undefined;
+        const deadline = new Promise<void>((resolve) => (timer = setTimeout(resolve, wait)));
+        const reads = remarks
+            .filter((remark) => remark.issueNumber)
+            .map(async (remark) => {
+                const number = remark.issueNumber as number;
+                const progress = await Promise.race([
+                    this.progressOfIssue(number, now),
+                    deadline.then(() => this.progressCache.get(number)?.progress)
+                ]);
+                if (progress) {
+                    known.set(remark.id, progress);
+                }
+            });
+        await Promise.all(reads);
+        clearTimeout(timer);
 
         return known;
     }
@@ -172,12 +184,24 @@ export class RemarkService {
         return this.remarks.save({ ...remark, issueNumber: issue.number, issueUrl: issue.url });
     }
 
-    private async progressOfIssue(number: number, now: number): Promise<IssueProgress | undefined> {
+    private progressOfIssue(number: number, now: number): Promise<IssueProgress | undefined> {
         const cached = this.progressCache.get(number);
         if (cached && (isFinalStage(cached.progress.stage) || now - cached.at < PROGRESS_MAX_AGE)) {
-            return cached.progress;
+            return Promise.resolve(cached.progress);
         }
 
+        const running = this.refreshing.get(number);
+        if (running) {
+            return running;
+        }
+        const refresh = this.refreshProgress(number, now).finally(() => this.refreshing.delete(number));
+        this.refreshing.set(number, refresh);
+
+        return refresh;
+    }
+
+    private async refreshProgress(number: number, now: number): Promise<IssueProgress | undefined> {
+        const cached = this.progressCache.get(number);
         const snapshot = await this.github.issueSnapshot(number);
         if (!snapshot) {
             return cached?.progress;
