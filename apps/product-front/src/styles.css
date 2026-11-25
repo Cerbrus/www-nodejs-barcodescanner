@@ -58,10 +58,10 @@ layer(base);
     src: url('./assets/fonts/OCRB Regular.otf') format('opentype');
 }
 
-@property --accent {
+@property --page {
     syntax: '<color>';
     inherits: true;
-    initial-value: #0f766e;
+    initial-value: #f3f4f6;
 }
 
 @theme {

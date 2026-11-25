@@ -5,7 +5,6 @@
     background: var(--page);
     background-image: var(--page-image);
     background-size: var(--page-image-size);
-    background-attachment: fixed;
     color: var(--text);
 }
 
@@ -87,10 +86,12 @@
 
 .pull-body {
     height: 100%;
+}
+
+.content:is(.pulling, .refreshing) .pull-body {
     background: var(--page);
     background-image: var(--page-image);
     background-size: var(--page-image-size);
-    background-attachment: fixed;
 }
 
 .content.pulling .pull-indicator,

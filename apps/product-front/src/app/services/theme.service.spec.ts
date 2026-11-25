@@ -36,7 +36,7 @@ describe('ThemeService', () => {
         localStorage.clear();
         delete root.dataset['theme'];
         delete root.dataset['skin'];
-        root.style.removeProperty('--accent');
+        root.style.removeProperty('--page');
         document.querySelector('meta[name="theme-color"]')?.remove();
     });
 
@@ -101,19 +101,19 @@ describe('ThemeService', () => {
         vi.useRealTimers();
     });
 
-    it("paints the browser's bar in the accent colour of the theme", () => {
+    it("paints the browser's bar in the page colour of the theme", () => {
         const meta = document.createElement('meta');
         meta.name = 'theme-color';
-        meta.content = '#0f766e';
+        meta.content = '#f3f4f6';
         document.head.append(meta);
         const service = TestBed.inject(ThemeService);
 
-        expect(browserBar()).toBe('#0f766e');
+        expect(browserBar()).toBe('#f3f4f6');
 
-        root.style.setProperty('--accent', 'rgb(51, 255, 102)');
+        root.style.setProperty('--page', 'rgb(5, 8, 5)');
         service.useSkin('console');
 
-        expect(browserBar()).toBe('rgb(51, 255, 102)');
+        expect(browserBar()).toBe('rgb(5, 8, 5)');
     });
 
     it('has a file of its own with its colours, a name in both languages and start colours for every theme', () => {

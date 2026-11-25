@@ -16,17 +16,17 @@ test('pick a theme, switch it between light and dark, and find it again after a 
     await expect(themes).toHaveValue('default');
     const standard = await look(page);
 
-    expect(standard).toMatchObject({ background: 'rgb(243, 244, 246)', border: '1px', bar: 'rgb(15, 118, 110)' });
+    expect(standard).toMatchObject({ background: 'rgb(243, 244, 246)', border: '1px', bar: 'rgb(243, 244, 246)' });
 
     await themes.selectOption('comic');
 
     await expect.poll(() => look(page)).toMatchObject({ background: 'rgb(255, 244, 204)', border: '3px' });
     expect((await look(page)).font).toContain('Comic Neue');
-    expect((await look(page)).bar).toBe('rgb(21, 84, 240)');
+    expect((await look(page)).bar).toBe('rgb(255, 244, 204)');
 
     await appearance.nth(2).click();
 
-    await expect.poll(() => look(page)).toMatchObject({ background: 'rgb(43, 43, 64)', bar: 'rgb(255, 214, 10)' });
+    await expect.poll(() => look(page)).toMatchObject({ background: 'rgb(43, 43, 64)', bar: 'rgb(43, 43, 64)' });
 
     await page.reload();
 

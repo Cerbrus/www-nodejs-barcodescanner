@@ -95,10 +95,10 @@ export class ThemeService {
     }
 
     private paintBrowserBar(): void {
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+        const page = getComputedStyle(document.documentElement).getPropertyValue('--page').trim();
 
-        if (accent) {
-            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', accent);
+        if (page) {
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', page);
         }
     }
 }
