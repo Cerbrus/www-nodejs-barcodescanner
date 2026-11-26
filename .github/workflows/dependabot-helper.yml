@@ -19,85 +19,20 @@ concurrency:
     group: dependabot-helper
     cancel-in-progress: false
 
-env:
-    MINIMUM_AGE_HOURS: ${{ inputs.minimum_age_hours || '24' }}
-    ONLY_PULL_REQUEST: ${{ inputs.pull_request }}
-    PULL_REQUESTS_PER_RUN: 3
-    REVIEWS_PER_PULL_REQUEST: 3
-
 jobs:
-    find:
-        name: Find pull requests that are due for review
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            pull-requests: read
-            checks: read
-            statuses: read
-        outputs:
-            numbers: ${{ steps.find.outputs.numbers }}
-            count: ${{ steps.find.outputs.count }}
-        steps:
-            - name: List Dependabot pull requests that are old enough and not reviewed yet
-              id: find
-              env:
-                  GH_TOKEN: ${{ github.token }}
-                  GH_REPO: ${{ github.repository }}
-              run: |
-                  gh pr list --author 'app/dependabot' --state open --limit 30 \
-                      --json number,title,createdAt,headRefOid,statusCheckRollup,comments > open.json
-
-                  jq -c --argjson age "$MINIMUM_AGE_HOURS" --argjson reviews "$REVIEWS_PER_PULL_REQUEST" --argjson limit "$PULL_REQUESTS_PER_RUN" --arg only "$ONLY_PULL_REQUEST" '
-                      def checks: [.statusCheckRollup[]? | (.conclusion // .state // "")];
-                      def reviewed: [.comments[]? | select(.body | contains("<!-- dependabot-helper"))];
-                      [ .[]
-                        | select(if $only != "" then (.number | tostring) == $only else (.createdAt | fromdateiso8601) < (now - $age * 3600) end)
-                        | select(checks | all(. != "" and . != "PENDING" and . != "EXPECTED"))
-                        | select((reviewed | length) < $reviews)
-                        | select(.headRefOid as $head | reviewed | all(.body | contains($head) | not))
-                        | .number
-                      ] | .[:$limit]' open.json > numbers.json
-
-                  echo "numbers=$(cat numbers.json)" >> "$GITHUB_OUTPUT"
-                  echo "count=$(jq length numbers.json)" >> "$GITHUB_OUTPUT"
-                  {
-                      echo "Open Dependabot pull requests: $(jq length open.json)"
-                      echo
-                      echo "Due for review now: $(cat numbers.json)"
-                  } >> "$GITHUB_STEP_SUMMARY"
-
     review:
-        name: Review pull request ${{ matrix.number }}
-        needs: find
-        if: needs.find.outputs.count != '0'
-        runs-on: ubuntu-latest
-        timeout-minutes: 30
-        strategy:
-            fail-fast: false
-            max-parallel: 1
-            matrix:
-                number: ${{ fromJson(needs.find.outputs.numbers) }}
+        uses: Cerbrus/workflows/.github/workflows/dependabot-helper.yml@master
         permissions:
             contents: write
             pull-requests: write
             issues: write
             actions: read
+            checks: read
+            statuses: read
             id-token: write
-        steps:
-            - uses: actions/checkout@v7
-              with:
-                  fetch-depth: 0
-            - uses: actions/setup-node@v7
-              with:
-                  node-version: 26
-            - uses: anthropics/claude-code-action@v1
-              with:
-                  claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-                  claude_args: |
-                      --model claude-sonnet-5-5
-                      --max-turns 60
-                      --allowedTools "Bash(git:*),Bash(gh pr:*),Bash(yarn:*),Bash(node:*),Bash(python3:*),Read,Edit,Write,Glob,Grep"
-                  prompt: |
-                      Review Dependabot pull request #${{ matrix.number }} of this repository: find out whether it would change or break what the product does, repair what is small and clear, and tell the owner whether to merge.
-
-                      Read CLAUDE.md first and follow its code style. Then read `.github/dependabot-helper.md` and follow it exactly.
+        with:
+            minimum_age_hours: ${{ inputs.minimum_age_hours || '24' }}
+            pull_request: ${{ inputs.pull_request }}
+            node_version: '26'
+        secrets:
+            CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0121 or higher: the highest number plus one.
+- Number the next record 0122 or higher: the highest number plus one.
 
 ## Product
 
@@ -98,6 +98,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0091](0091-firewall-to-proxy-only.md)     | The app's port is closed to everything but the reverse proxy                            | accepted (found afterwards) | not recorded |
 | [0092](0092-updater-checks-and-lock.md)    | The updater does nothing when nothing changed, and shares a lock with the other updater | accepted (found afterwards) | not recorded |
 | [0093](0093-rollback-by-image-tag.md)      | Rollback by setting IMAGE_TAG in .env                                                   | accepted (found afterwards) | not recorded |
+| [0121](0121-shared-dependabot-reviewer.md) | The Dependabot reviewer is a shared workflow                                            | accepted                    | 2026-11-26   |
 
 ## Access and security
 
