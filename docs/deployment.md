@@ -166,8 +166,9 @@ Add a proxy host:
 - **Domain name**: `shopping.<your domain>`.
 - **Forward to**: scheme `http`, the wired LAN address of the server Pi, port `3020`. Nginx Proxy Manager runs as an add-on in Home Assistant on another machine, so give the server Pi a fixed address.
 - **Firewall on the server Pi**: set `ALLOWED_SOURCE` in `.env` to the proxy's address. `deployment/firewall.sh` then drops every other source for the app's port; it runs at boot (`barcodescanner-firewall.service`) and with every run of the updater, each minute, so a rule that got lost comes back by itself. Without this anything on the LAN can reach the port directly, around the proxy. Requests made on the Pi itself, such as `curl http://127.0.0.1:3020/api/v1/health`, keep working.
-- **SSL**: request a certificate, force SSL.
-- **Access List**: only needed while the app's own login is off (see "Login with Google"). With login on, attach none. Never expose port 3020 directly either way.
+- **Options**: Block Common Exploits on.
+- **SSL**: request a certificate, Force SSL on, HSTS on, HSTS Subdomains off.
+- **Access List**: "Blocked", as on every public host (see "What the proxy does for every host"). While the app's own login is off (see "Login with Google"), use an access list with a login instead. A host that only the administrator uses gets "LAN only". Never expose port 3020 directly either way.
 - **Advanced**, for the live event stream:
 
 ```nginx
@@ -177,6 +178,16 @@ location /api/v1/events {
     proxy_read_timeout 1h;
 }
 ```
+
+### What the proxy does for every host
+
+In place since 2026-11-26. The set-up and its reasons are in the `Cerbrus/HomeAssistant` repository: `docs/apps.md` and `docs/adr/0028` to `0035`. A new hobby app follows the same pattern.
+
+- **Access list "Blocked"** sits on every public proxy host: deny entries for blocked addresses, then allow all. It asks for no login. An admin-only host gets "LAN only".
+- **Password guessing**: an app with its own password login is added to `GUARDED_HOSTS` in `scripts/proxy_block.py` of that repository. Three refused logins from one outside address on such a host within an hour block that address on every public host for seven days. A refused login is a `POST` that the app answers with 401 or 403. An app that only signs in with Google needs no entry.
+- **This app** signs in with Google, yet `shopping` is in `GUARDED_HOSTS`. While it is, every `POST` from outside without a valid session counts as a refused login, because the API answers it with 401: a phone away from home whose session ended can block the address it is on by sending three changes. Lifting a block is done in Home Assistant.
+- **Error pages**: a 403, 502 or 504 that the proxy itself produces shows the page of `error.cerbrus.nl`, with the address and status code unchanged. An app needs no page of its own for those. Its own error answers pass through untouched.
+- **Probe count**: every request from outside that gets a 4xx answer is counted as a probe on the Security view in Home Assistant, whoever sent it. An app that answers 401 or 404 to its own clients in normal use inflates that count, so keep such answers out of the normal flow of a new app. This app answers 401 to a client that is not logged in.
 
 ## Reaching the site from inside the home network
 
@@ -238,7 +249,7 @@ The app has its own login. Set it up once:
 2. On the consent screen (Google Auth Platform, Audience) set the user type to "External" and the publishing status to "Testing", and add the Google accounts that will log in as test users. With user type "Internal", which is offered when the project sits under an organisation, a normal Google account is refused with `Error 403: org_internal`. In testing mode the first login shows "Google hasn't verified this app"; continue past it.
 3. Put the client id and secret in `.env` as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, and set `PUBLIC_URL` and `ALLOWED_EMAILS`. Check that `AGENT_TOKEN` has a value.
 4. Restart both containers: `sudo docker compose up -d --force-recreate`.
-5. Open the site: it shows the login page. After logging in, remove the access list from the proxy host, otherwise there are two logins.
+5. Open the site: it shows the login page. After logging in, set the proxy host's access list back to "Blocked", otherwise there are two logins.
 
 Check: `curl -i http://127.0.0.1:3020/api/v1/list` on the Pi answers `401`; the system log says "login is on for 1 Google account(s)"; a handheld scan still arrives, which proves the agent token works.
 
@@ -246,7 +257,7 @@ Notes:
 
 - The client secret, the agent token and the session secret (`data/session-secret`) exist only on the Pi. `.env` is readable by root only.
 - Logging everyone out: delete `data/session-secret` and restart the app.
-- Locked out, for example after a typo in `ALLOWED_EMAILS`: fix `.env` over SSH and restart. Emptying `GOOGLE_CLIENT_ID` switches login off; put the proxy access list back first.
+- Locked out, for example after a typo in `ALLOWED_EMAILS`: fix `.env` over SSH and restart. Emptying `GOOGLE_CLIENT_ID` switches login off; put an access list with a login on the proxy host first.
 - The firewall rule stays: only the reverse proxy reaches the app's port.
 
 ## Buzzer
