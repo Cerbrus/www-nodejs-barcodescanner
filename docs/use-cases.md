@@ -146,7 +146,7 @@ For the owner, when the Pi has a key for the AI service. Without one the button 
 
 1. The Recipes page has a button with a link sign beside "New recipe". It opens a sheet with one text field: paste a link to a recipe page, or the text of a recipe.
 2. The import button sends it. It takes a few seconds, up to a minute; the button shows a clock meanwhile and the sheet stays.
-3. The recipe is saved and opens in edit mode: the name, a description with the ingredient lines as the recipe gave them and the steps, and one row per ingredient. Something that is counted is the quantity; an amount that is weighed or measured is in the note, after the variant: "Bruin, 500g". Change what is wrong, or delete the recipe.
+3. The recipe is saved and opens: the name, a description with the ingredient lines as the recipe gave them and the steps, and one row per ingredient. Something that is counted is the quantity; an amount that is weighed or measured is in the note, after the variant: "Bruin, 500g". The pencil changes what is wrong; the recipe can be deleted there too.
 4. An ingredient the app has no product for became a draft product (UC-27).
 5. A recipe of the same name exists already: the new one gets a number behind its name.
 6. No recipe could be read, which happens when a site refuses to be fetched: the sheet stays with the text in it and the app says to paste the recipe text instead of the link. When the AI service fails, the app says the import failed.

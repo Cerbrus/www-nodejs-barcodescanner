@@ -247,7 +247,7 @@ flowchart TD
     row -- "neither" --> drop["Leave the row out"]
     use --> save["Save the recipe<br/>a taken name gets a number"]
     draft --> save
-    save --> edit["Recipe opens in edit mode"]
+    save --> edit["The saved recipe opens"]
     draft -.-> inbox["Draft waits in the owner's inbox"]
     inbox --> review{"Review on the product page"}
     review -- confirm --> product["Ordinary product"]

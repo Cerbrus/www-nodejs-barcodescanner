@@ -316,7 +316,7 @@ describe('RecipesPage', () => {
         await settle();
 
         expect(page.querySelector('app-sheet')).toBeNull();
-        expect(navigate).toHaveBeenCalledWith(['/recipes', 12], { queryParams: { edit: true } });
+        expect(navigate).toHaveBeenCalledWith(['/recipes', 12]);
 
         importButton()?.click();
         await settle();

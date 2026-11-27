@@ -89,7 +89,7 @@ export class RecipesPage {
                 tap((recipe) => {
                     this.importing.set(false);
                     this.source.set('');
-                    void this.router.navigate(['/recipes', recipe.id], { queryParams: { edit: true } });
+                    void this.router.navigate(['/recipes', recipe.id]);
                 }),
                 catchError(() => of(undefined)),
                 finalize(() => this.busy.set(false))

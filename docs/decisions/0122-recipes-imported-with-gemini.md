@@ -44,7 +44,7 @@ What was found on 2026-11-26 and 2026-11-27:
 
 **An ingredient without a product** becomes a new product, marked as a draft ([0123](0123-draft-products.md)).
 
-**After the import.** The recipe is saved and opens in edit mode, where the owner changes it or deletes it.
+**After the import.** The recipe is saved and opens as it was saved; the owner changes it with the pencil or deletes it. It first opened in edit mode, where the save button stays off until something changes, which looked like a failure.
 
 **Who.** Only the owner imports.
 
