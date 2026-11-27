@@ -44,8 +44,8 @@ In daily-use shape and running on the Pi:
 
     Open: the wider idea this started as, a field or chat that takes any request, with an MCP server for an assistant outside the app.
 
-8. **Recipe categories** (owner, 2026-11-27, to do next): a recipe gets a category such as dessert, soup, pie, cake or dinner. Nothing is decided: a fixed set or the owner's own, one per recipe or several, how the Recipes page groups or filters by it, and whether the import proposes one.
-9. **The picture of an imported recipe** (owner, 2026-11-27, an idea for later): keep the image of the recipe page with the recipe.
+8. **Recipe categories** (owner, 2026-11-27): a recipe has one category from a fixed set of nine, the Recipes page groups by it and narrows to one with a row of buttons, and the import proposes one that the app checks ([0127](decisions/0127-recipe-categories.md)). Done 2026-11-27 23:02. With it, the link a recipe came from became a field of its own instead of the last line of the description ([0128](decisions/0128-recipe-source-link.md)); done 2026-11-27 23:10. Not tried on the phone, and not with a real import: whether the model picks a sensible category is not known. A recipe imported before this keeps its link in the description until it is imported again.
+9. **The picture of an imported recipe** (owner, 2026-11-27, an idea for later): keep the image of the recipe page with the recipe. The owner thinks of recipes as tiles then, laid out like the shopping list with its sections; the groups per category of [0127](decisions/0127-recipe-categories.md) are the start of that.
 10. **Look up barcodes for a product** (owner, 2026-11-27, an idea to investigate): while editing a product, search for barcodes that belong to it and assign them by hand, without scanning a package. To find out: whether the sources behind the connectors can be searched by name as well as by barcode, and what such a search gives back.
 
 After the recipes (owner, 2026-11-23): go through every button in the app with the owner. Many need no text, only their icon. Done 2026-11-24 01:10 ([0111](decisions/0111-buttons-show-an-icon-only.md)).
