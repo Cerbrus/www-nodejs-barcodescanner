@@ -113,6 +113,8 @@
         "name": "Naam",
         "description": "Beschrijving",
         "ingredients": "Producten",
+        "ingredientList": "Ingrediënten",
+        "ingredientText": "Ingrediëntregel",
         "noIngredients": "Nog geen producten in dit recept",
         "addProduct": "Product toevoegen…",
         "note": "Notitie",

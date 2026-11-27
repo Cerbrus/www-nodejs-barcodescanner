@@ -11,14 +11,16 @@ import {
     signal,
     untracked
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { tap } from 'rxjs';
+import { merge, tap } from 'rxjs';
 
 import {
     MAX_INGREDIENT_NOTE_LENGTH,
     MAX_INGREDIENT_QUANTITY,
+    MAX_INGREDIENT_TEXT_LENGTH,
     MAX_RECIPE_DESCRIPTION_LENGTH,
     MAX_RECIPE_INGREDIENTS,
     MAX_RECIPE_NAME_LENGTH,
@@ -46,6 +48,11 @@ const plain = ({ catalogItemId, quantity, note }: RecipeIngredient): RecipeIngre
     catalogItemId,
     quantity,
     note
+});
+
+const written = (ingredient: RecipeIngredient): RecipeIngredient => ({
+    ...plain(ingredient),
+    text: ingredient.text?.trim() ?? ''
 });
 
 @Component({
@@ -83,6 +90,7 @@ export class RecipePage {
         name: MAX_RECIPE_NAME_LENGTH,
         description: MAX_RECIPE_DESCRIPTION_LENGTH,
         note: MAX_INGREDIENT_NOTE_LENGTH,
+        text: MAX_INGREDIENT_TEXT_LENGTH,
         quantity: MAX_INGREDIENT_QUANTITY,
         ingredients: MAX_RECIPE_INGREDIENTS
     };
@@ -117,12 +125,22 @@ export class RecipePage {
         return recipe !== undefined && this.store.holdsDraft(recipe);
     });
 
-    protected readonly shown = computed(() =>
-        (this.editing() ? this.ingredients() : (this.recipe()?.ingredients ?? [])).map((ingredient) => ({
-            ingredient,
-            item: this.store.itemById(ingredient.catalogItemId)
-        }))
-    );
+    protected readonly shown = computed(() => {
+        this.language();
+
+        return (this.editing() ? this.ingredients() : (this.recipe()?.ingredients ?? [])).map((ingredient) => {
+            const item = this.store.itemById(ingredient.catalogItemId);
+            const name =
+                item?.name ?? this.translate.instant('recipe.unknownProduct', { id: ingredient.catalogItemId });
+            const described = [name, ingredient.note].filter((part) => part).join(', ');
+
+            return {
+                ingredient,
+                item,
+                fallback: ingredient.quantity > 1 ? `${described} ×${ingredient.quantity}` : described
+            };
+        });
+    });
 
     protected readonly canSave = computed(() => {
         const recipe = this.recipe();
@@ -130,7 +148,7 @@ export class RecipePage {
             !recipe ||
             this.name().trim() !== recipe.name ||
             this.description().trim() !== recipe.description ||
-            JSON.stringify(this.ingredients()) !== JSON.stringify(recipe.ingredients.map(plain));
+            JSON.stringify(this.ingredients().map(written)) !== JSON.stringify(recipe.ingredients.map(written));
 
         return this.name().trim().length > 0 && changed;
     });
@@ -139,6 +157,7 @@ export class RecipePage {
     private openedForEdit = false;
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
+    private readonly language = toSignal(merge(this.translate.onLangChange, this.translate.onTranslationChange));
 
     constructor() {
         effect(() => {
@@ -158,7 +177,7 @@ export class RecipePage {
         const recipe = this.recipe();
         this.name.set(recipe?.name ?? '');
         this.description.set(recipe?.description ?? '');
-        this.ingredients.set(recipe?.ingredients.map(plain) ?? []);
+        this.ingredients.set(recipe?.ingredients.map(written) ?? []);
         this.search.set('');
         this.confirmingDelete.set(false);
         this.editing.set(true);
@@ -178,7 +197,7 @@ export class RecipePage {
             .saveRecipe(this.id(), {
                 name: this.name().trim(),
                 description: this.description().trim(),
-                ingredients: this.ingredients()
+                ingredients: this.ingredients().map(written)
             })
             .pipe(
                 tap((saved) => {
@@ -209,7 +228,7 @@ export class RecipePage {
         this.creatingName.set(undefined);
         const index = this.ingredients().findIndex((row) => row.catalogItemId === item.id && !row.note);
         if (index < 0) {
-            this.ingredients.update((rows) => [...rows, { catalogItemId: item.id, quantity: 1, note: '' }]);
+            this.ingredients.update((rows) => [...rows, { catalogItemId: item.id, quantity: 1, note: '', text: '' }]);
         } else {
             this.changeQuantity(index, 1);
         }
@@ -224,6 +243,10 @@ export class RecipePage {
 
     protected setNote(index: number, note: string): void {
         this.change(index, (row) => ({ ...row, note: note.trim() }));
+    }
+
+    protected setText(index: number, text: string): void {
+        this.change(index, (row) => ({ ...row, text }));
     }
 
     protected moveIngredient({ previousIndex, currentIndex }: CdkDragDrop<unknown>): void {

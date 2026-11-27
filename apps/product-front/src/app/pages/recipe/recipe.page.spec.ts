@@ -68,14 +68,141 @@ describe('RecipePage', () => {
         });
     });
 
-    it('opens a recipe to read: its name, its description as markdown and its products', async () => {
+    it('opens a recipe to read: its name, then its ingredient lines and its description as one text', async () => {
+        store.recipes.set([
+            {
+                ...PANCAKES,
+                ingredients: [
+                    { catalogItemId: 1, quantity: 2, note: 'vol', text: '' },
+                    { catalogItemId: 3, quantity: 1, note: 'patent', text: '250 g bloem' },
+                    { catalogItemId: 2, quantity: 1, note: '' },
+                    { catalogItemId: 99, quantity: 3, note: '', text: '' }
+                ]
+            }
+        ]);
         await open('7');
 
         expect(texts(page, 'h1')).toEqual(['Pannenkoeken']);
-        expect(page.querySelector('app-markdown strong')?.textContent).toBe('beslag');
-        expect(texts(page, '.ingredient')).toEqual(['MMelkvol× 2', 'EEieren']);
+        expect(texts(page, '.card h2')).toEqual(['recipe.ingredientList']);
+        expect(texts(page, '.ingredient-lines li')).toEqual([
+            'Melk, vol ×2',
+            '250 g bloem',
+            'Eieren',
+            'recipe.unknownProduct ×3'
+        ]);
+        expect(page.querySelector('.ingredient-lines + app-markdown strong')?.textContent).toBe('beslag');
+        expect(page.querySelector('.ingredient, app-item-icon, .draft-mark')).toBeNull();
         expect(page.querySelector('#recipe-name')).toBeNull();
         expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/recipes');
+    });
+
+    it('shows an ingredient line as it was typed, never as markdown or html', async () => {
+        const typed = '*x* <b>y</b> [z](http://a)';
+        store.recipes.set([{ ...PANCAKES, ingredients: [{ catalogItemId: 1, quantity: 1, note: '', text: typed }] }]);
+        await open('7');
+
+        expect(texts(page, '.ingredient-lines li')).toEqual([typed]);
+        expect(page.querySelector('.ingredient-lines :is(em, b, a)')).toBeNull();
+    });
+
+    it('marks the line of a draft product with a warning', async () => {
+        store.items.set([item(1, 'Melk'), draft(2, 'Eieren')]);
+        await open('7');
+
+        const marks = Array.from(page.querySelectorAll('.ingredient-lines li'), (line) =>
+            line.querySelector('.draft-mark[role="img"]')?.getAttribute('aria-label')
+        );
+
+        expect(marks).toEqual([undefined, 'item.draft']);
+    });
+
+    it('leaves the ingredient heading out of a recipe without products, and the whole text when there is none', async () => {
+        store.recipes.set([{ ...PANCAKES, ingredients: [] }]);
+        await open('7');
+
+        expect(page.querySelector('.ingredient-lines, .card h2')).toBeNull();
+        expect(page.querySelector('.card app-markdown')).not.toBeNull();
+        expect(button('recipe.toList').disabled).toBe(true);
+
+        store.recipes.set([{ ...PANCAKES, description: '', ingredients: [] }]);
+        await settle();
+
+        expect(page.querySelector('.card')).toBeNull();
+    });
+
+    it('has a field for the ingredient line under each product, with the product as its placeholder', async () => {
+        store.recipes.set([
+            {
+                ...PANCAKES,
+                ingredients: [
+                    { catalogItemId: 1, quantity: 2, note: 'vol', text: '5 dl melk' },
+                    { catalogItemId: 2, quantity: 1, note: '', text: '' }
+                ]
+            }
+        ]);
+        await open('7');
+        await edit();
+        const fields = (): Array<HTMLInputElement> =>
+            Array.from(page.querySelectorAll<HTMLInputElement>('.ingredient input.ingredient-text'));
+
+        expect(fields().map((field) => field.value)).toEqual(['5 dl melk', '']);
+        expect(fields().map((field) => field.placeholder)).toEqual(['Melk, vol ×2', 'Eieren']);
+        expect(fields().map((field) => field.getAttribute('maxlength'))).toEqual(['200', '200']);
+        expect(fields().map((field) => field.getAttribute('aria-label'))).toEqual([
+            'recipe.ingredientText',
+            'recipe.ingredientText'
+        ]);
+
+        click(page, 'button[aria-label="recipe.more"]', 1);
+        const note = page.querySelector('#ingredient-note-1') as HTMLInputElement;
+        note.value = 'scharrel';
+        note.dispatchEvent(new Event('change'));
+        await settle();
+
+        expect(fields()[1].placeholder).toBe('Eieren, scharrel ×2');
+    });
+
+    it('allows a save once an ingredient line differs, and sends every line trimmed', async () => {
+        await open('7');
+        await edit();
+
+        type(page, '#ingredient-text-1', '   ');
+        await settle();
+        expect(button('common.save').disabled).toBe(true);
+
+        type(page, '#ingredient-text-1', '  2 eieren ');
+        await settle();
+        expect(button('common.save').disabled).toBe(false);
+
+        button('common.save').click();
+
+        expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
+            { catalogItemId: 1, quantity: 2, note: 'vol', text: '' },
+            { catalogItemId: 2, quantity: 1, note: '', text: '2 eieren' }
+        ]);
+    });
+
+    it('keeps the line with its product when rows are dragged or taken out', async () => {
+        await open('7');
+        await edit();
+        type(page, '#ingredient-text-0', '5 dl melk');
+        type(page, '#ingredient-text-1', '2 eieren');
+        await settle();
+
+        fixture.debugElement
+            .query(By.directive(CdkDropList))
+            .triggerEventHandler('cdkDropListDropped', { previousIndex: 0, currentIndex: 1 });
+        await settle();
+
+        expect((page.querySelector('#ingredient-text-0') as HTMLInputElement).value).toBe('2 eieren');
+
+        click(page, 'button[aria-label="recipe.removeProduct"]', 0);
+        await settle();
+        button('common.save').click();
+
+        expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
+            { catalogItemId: 1, quantity: 2, note: 'vol', text: '5 dl melk' }
+        ]);
     });
 
     it('shows the code of the saved recipe while reading, not in the form, and prints it from the button', async () => {
@@ -193,8 +320,8 @@ describe('RecipePage', () => {
             name: 'Flensjes',
             description: PANCAKES.description,
             ingredients: [
-                { catalogItemId: 1, quantity: 1, note: 'vol' },
-                { catalogItemId: 2, quantity: 2, note: 'scharrel' }
+                { catalogItemId: 1, quantity: 1, note: 'vol', text: '' },
+                { catalogItemId: 2, quantity: 2, note: 'scharrel', text: '' }
             ]
         });
         expect(TestBed.inject(ToastService).toasts().at(-1)?.text).toBe('recipe.saved');
@@ -205,10 +332,12 @@ describe('RecipePage', () => {
     it('adds a product from the search, counts one up when it is there already, and takes out one that is down to one', async () => {
         await open('7');
         await edit();
+        type(page, '#ingredient-text-1', '2 eieren');
         type(page, 'app-item-autocomplete input', 'bloem');
         await settle();
         click(page, 'app-item-autocomplete .option');
         await settle();
+        expect((page.querySelector('#ingredient-text-2') as HTMLInputElement).value).toBe('');
         type(page, 'app-item-autocomplete input', 'eieren');
         await settle();
         click(page, 'app-item-autocomplete .option');
@@ -225,8 +354,8 @@ describe('RecipePage', () => {
         button('common.save').click();
 
         expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
-            { catalogItemId: 1, quantity: 2, note: 'vol' },
-            { catalogItemId: 2, quantity: 2, note: '' }
+            { catalogItemId: 1, quantity: 2, note: 'vol', text: '' },
+            { catalogItemId: 2, quantity: 2, note: '', text: '2 eieren' }
         ]);
     });
 
@@ -257,8 +386,8 @@ describe('RecipePage', () => {
         button('common.save').click();
 
         expect(store.saveRecipe.mock.calls[0][1].ingredients).toEqual([
-            { catalogItemId: 2, quantity: 1, note: '' },
-            { catalogItemId: 1, quantity: 2, note: 'vol' }
+            { catalogItemId: 2, quantity: 1, note: '', text: '' },
+            { catalogItemId: 1, quantity: 2, note: 'vol', text: '' }
         ]);
     });
 
@@ -298,7 +427,10 @@ describe('RecipePage', () => {
         expect(navigate).toHaveBeenCalledWith(['/recipes']);
     });
 
-    it('asks which products go on the list, and puts the ticked ones there', async () => {
+    it('asks which products go on the list, and puts the ticked ones there without their lines', async () => {
+        store.recipes.set([
+            { ...PANCAKES, ingredients: PANCAKES.ingredients.map((row) => ({ ...row, text: 'een regel' })) }
+        ]);
         await open('7');
         button('recipe.toList').click();
         await settle();

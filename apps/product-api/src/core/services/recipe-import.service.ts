@@ -52,8 +52,13 @@ export class RecipeImportService {
 
         const drafts = new Map<string, number>();
         const ingredients: Array<RecipeIngredient> = [];
-        for (const { catalogItemId, product, quantity, note } of read.rows) {
-            ingredients.push({ catalogItemId: catalogItemId ?? (await this.draftOf(product, drafts)), quantity, note });
+        for (const { catalogItemId, product, quantity, note, text } of read.rows) {
+            ingredients.push({
+                catalogItemId: catalogItemId ?? (await this.draftOf(product, drafts)),
+                quantity,
+                note,
+                text
+            });
         }
         const recipe = await this.recipes.create({
             name: freeName(

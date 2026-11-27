@@ -1,3 +1,5 @@
+@use '../../components/markdown/markdown-text' as *;
+
 .code {
     width: 200px;
     max-width: 100%;
@@ -9,8 +11,22 @@
     padding: 0;
     overflow: hidden;
 }
+.ingredient-lines {
+    @include markdown-text;
+}
+.ingredient-lines:last-child > :last-child {
+    margin-bottom: 0;
+}
+.draft-mark {
+    color: var(--danger);
+}
+.draft-mark i {
+    font-size: 1.2em;
+    vertical-align: text-bottom;
+}
 .ingredient {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     min-height: 44px;
@@ -57,23 +73,8 @@
     flex: 0 1 auto;
     min-width: 0;
     overflow: hidden;
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.ingredient-name.grow {
-    flex-grow: 1;
-}
-.ingredient-name:not(.grow) {
     max-width: 38%;
-}
-.ingredient-remark {
-    flex: 0 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    text-align: right;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -82,6 +83,14 @@
     width: auto;
     min-width: 0;
     padding-block: 6px;
+}
+.ingredient-text {
+    flex: 1 0 calc(100% - 36px);
+    width: auto;
+    min-width: 0;
+    margin-left: 36px;
+    padding-block: 6px;
+    font-size: 0.9rem;
 }
 .step {
     display: inline-flex;

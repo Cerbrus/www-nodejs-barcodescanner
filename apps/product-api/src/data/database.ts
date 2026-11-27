@@ -15,6 +15,7 @@ import { Recipes1763600000000 } from './migrations/1763600000000-recipes';
 import { CollectingScans1763700000000 } from './migrations/1763700000000-collecting-scans';
 import { RecipeOffers1763800000000 } from './migrations/1763800000000-recipe-offers';
 import { DraftProducts1763900000000 } from './migrations/1763900000000-draft-products';
+import { IngredientText1764000000000 } from './migrations/1764000000000-ingredient-text';
 import { SnakeNamingStrategy } from './snake-naming.strategy';
 
 export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
@@ -36,7 +37,8 @@ export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
             Recipes1763600000000,
             CollectingScans1763700000000,
             RecipeOffers1763800000000,
-            DraftProducts1763900000000
+            DraftProducts1763900000000,
+            IngredientText1764000000000
         ],
         migrationsRun: true,
         synchronize: false,

@@ -606,13 +606,22 @@ describe('scan flow against a real database', () => {
     it('imports a recipe from what the AI service answers, with a draft for a product the app has not', async () => {
         const imports = app.get(RecipeImportService);
         const asked: Array<Question> = [];
-        const blank = { productId: 0, newName: '', sectionId: '', icon: '', emoji: '', quantity: 1, note: '' };
+        const blank = {
+            line: '',
+            productId: 0,
+            newName: '',
+            sectionId: '',
+            icon: '',
+            emoji: '',
+            quantity: 1,
+            note: ''
+        };
         let answer: object = {
             found: true,
             name: 'Zalmwraps',
             description: '1. Rol op.',
             ingredients: [
-                { ...blank, productId: milkId, note: '500ml' },
+                { ...blank, line: '500 ml melk', productId: milkId, newName: 'Melk', note: '500ml' },
                 {
                     ...blank,
                     newName: 'zalmflakes',
@@ -621,7 +630,7 @@ describe('scan flow against a real database', () => {
                     emoji: '🐟',
                     note: '150g'
                 },
-                { ...blank, newName: 'Zalmflakes', quantity: 2 },
+                { ...blank, line: '2 zalmflakes', productId: milkId, newName: 'Zalmflakes', quantity: 2 },
                 { ...blank, productId: 999999 }
             ]
         };
@@ -653,6 +662,10 @@ describe('scan flow against a real database', () => {
                 [draft.id, 1, '150g'],
                 [draft.id, 2, '']
             ]
+        );
+        assert.deepEqual(
+            recipe.ingredients?.map(({ text }) => text),
+            ['500 ml melk', '', '2 zalmflakes']
         );
 
         assert.equal(recipe.description, '1. Rol op.\n\n[example.com](https://example.com/recept/zalmwraps)');

@@ -22,11 +22,18 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     await page.locator('app-item-autocomplete input').fill(product.name);
     await page.locator('app-item-autocomplete .option').first().click();
     await page.getByRole('button', { name: 'Eén meer' }).click();
+    await expect(page.locator('input.ingredient-text')).toHaveAttribute('placeholder', `${product.name} ×2`);
     await page.getByRole('button', { name: 'Opslaan' }).click();
 
     await expect(page.getByRole('heading', { name: NAME, exact: true })).toBeVisible();
     await expect(page.locator('app-markdown strong')).toHaveText('roeren');
-    await expect(page.locator('.ingredient')).toContainText(product.name);
+    await expect(page.locator('.ingredient-lines li')).toHaveText(`${product.name} ×2`);
+    await expect(page.locator('.ingredient')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Recept bewerken' }).click();
+    await page.locator('input.ingredient-text').fill('2 flessen *afwasmiddel*');
+    await page.getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('.ingredient-lines li')).toHaveText('2 flessen *afwasmiddel*');
 
     await page.goto('/#/recipes');
     await page.getByRole('button', { name: `Alles van ${NAME} op de lijst zetten` }).click();

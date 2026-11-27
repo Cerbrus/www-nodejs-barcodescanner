@@ -98,6 +98,23 @@ describe('the ingredients of a recipe', () => {
         ]);
     });
 
+    it('keeps the ingredient lines of rows that become one, joined, and leaves a row without one as it is', () => {
+        const cleaned = cleanIngredients([
+            { catalogItemId: 4, quantity: 2, note: '', text: ' 2 eieren ' },
+            { catalogItemId: 9, quantity: 1, note: '', text: '  ' },
+            { catalogItemId: 4, quantity: 2, note: '', text: '2 eieren voor de vulling' },
+            { catalogItemId: 4, quantity: 1, note: '' },
+            { catalogItemId: 7, quantity: 1, note: '', text: 'a'.repeat(150) },
+            { catalogItemId: 7, quantity: 1, note: '', text: 'b'.repeat(150) }
+        ]);
+
+        assert.deepEqual(cleaned.slice(0, 2), [
+            { catalogItemId: 4, quantity: 5, note: '', text: '2 eieren; 2 eieren voor de vulling' },
+            { catalogItemId: 9, quantity: 1, note: '' }
+        ]);
+        assert.equal(cleaned[2].text?.length, 200);
+    });
+
     it('never counts past the highest quantity', () => {
         const [total] = cleanIngredients([
             { catalogItemId: 4, quantity: 60, note: '' },

@@ -16,6 +16,7 @@ const CHOICES = {
 };
 
 const row = (change: object): object => ({
+    line: '',
     productId: 0,
     newName: '',
     sectionId: '',
@@ -49,16 +50,23 @@ describe('recipe import', () => {
         assert.equal(readPage(undefined), undefined);
     });
 
-    it('keeps a known product, and a new one with a checked section and icon', () => {
+    it('keeps a picked product whose name is in the line, and a new one with a checked section and icon', () => {
         const read = readImport(
             {
                 found: true,
                 name: '  Zalmwraps ',
                 description: ' 1. Rol op. ',
                 ingredients: [
-                    row({ productId: 2, quantity: 3, note: ' Fijn ' }),
-                    row({ newName: 'zalmflakes', sectionId: 'zuivel', icon: 'vis', emoji: '🐟', note: '150g' }),
-                    row({ newName: 'Veldsla', sectionId: 'nergens', icon: 'sla' })
+                    row({ line: ' 3 rode uien ', productId: 2, newName: 'Ui', quantity: 3, note: ' Fijn ' }),
+                    row({
+                        line: '150 g zalmflakes',
+                        newName: 'zalmflakes',
+                        sectionId: 'zuivel',
+                        icon: 'vis',
+                        emoji: '🐟',
+                        note: '150g'
+                    }),
+                    row({ line: '75 g veldsla', newName: 'Veldsla', sectionId: 'nergens', icon: 'sla' })
                 ]
             },
             CHOICES
@@ -68,19 +76,65 @@ describe('recipe import', () => {
             name: 'Zalmwraps',
             description: '1. Rol op.',
             rows: [
-                { catalogItemId: 2, quantity: 3, note: 'Fijn' },
+                { catalogItemId: 2, quantity: 3, note: 'Fijn', text: '3 rode uien' },
                 {
                     product: { name: 'Zalmflakes', sectionId: 'zuivel', icon: 'vis', emoji: '🐟' },
                     quantity: 1,
-                    note: '150g'
+                    note: '150g',
+                    text: '150 g zalmflakes'
                 },
                 {
                     product: { name: 'Veldsla', sectionId: 'eigen-items', icon: undefined, emoji: undefined },
                     quantity: 1,
-                    note: ''
+                    note: '',
+                    text: '75 g veldsla'
                 }
             ]
         });
+    });
+
+    it('refuses a picked product whose name is not in the line, and makes the named product instead', () => {
+        const rows = (ingredients: Array<object>): unknown =>
+            readImport({ found: true, name: 'Schotel', description: '', ingredients }, CHOICES)?.rows;
+
+        assert.deepEqual(
+            rows([
+                row({
+                    line: '3 el milde harissa',
+                    productId: 1,
+                    newName: 'Harissa',
+                    sectionId: 'zuivel',
+                    note: 'Mild, 3el'
+                }),
+                row({ line: '250 g romaatjes', productId: 1, newName: 'Melk', note: 'Romaatjes, 250g' }),
+                row({ line: '1 rode ui', productId: 1, newName: 'rode ui' }),
+                row({ line: '200 ml volle melk', productId: 2, newName: 'Melk' }),
+                row({ line: '2 tenen knoflook', productId: 1 }),
+                row({ line: '', productId: 1 })
+            ]),
+            [
+                {
+                    product: { name: 'Harissa', sectionId: 'zuivel', icon: undefined, emoji: undefined },
+                    quantity: 1,
+                    note: 'Mild, 3el',
+                    text: '3 el milde harissa'
+                },
+                {
+                    product: { name: 'Romaatjes', sectionId: 'eigen-items', icon: undefined, emoji: undefined },
+                    quantity: 1,
+                    note: '250g',
+                    text: '250 g romaatjes'
+                },
+                { catalogItemId: 2, quantity: 1, note: '', text: '1 rode ui' },
+                { catalogItemId: 1, quantity: 1, note: '', text: '200 ml volle melk' },
+                {
+                    product: { name: 'Knoflook', sectionId: 'eigen-items', icon: undefined, emoji: undefined },
+                    quantity: 1,
+                    note: '',
+                    text: '2 tenen knoflook'
+                }
+            ]
+        );
     });
 
     it('takes the existing product for a new name that exists, bounds quantities and drops what it cannot place', () => {
@@ -91,8 +145,8 @@ describe('recipe import', () => {
                 description: '',
                 ingredients: [
                     row({ newName: 'melk', quantity: 500 }),
-                    row({ productId: 1, quantity: 0 }),
-                    row({ productId: 1, quantity: 1.5 }),
+                    row({ line: 'melk', productId: 1, quantity: 0 }),
+                    row({ line: 'melk', productId: 1, quantity: 1.5 }),
                     row({ productId: 99 }),
                     undefined
                 ]
@@ -101,14 +155,14 @@ describe('recipe import', () => {
         );
 
         assert.deepEqual(read?.rows, [
-            { catalogItemId: 1, quantity: 99, note: '' },
-            { catalogItemId: 1, quantity: 1, note: '' },
-            { catalogItemId: 1, quantity: 1, note: '' }
+            { catalogItemId: 1, quantity: 99, note: '', text: '' },
+            { catalogItemId: 1, quantity: 1, note: '', text: 'melk' },
+            { catalogItemId: 1, quantity: 1, note: '', text: 'melk' }
         ]);
     });
 
     it('reads nothing from an answer without a recipe', () => {
-        const ingredients = [row({ productId: 1 })];
+        const ingredients = [row({ line: '1 l melk', productId: 1 })];
 
         assert.equal(readImport({ found: false, name: 'Soep', description: '', ingredients }, CHOICES), undefined);
         assert.equal(readImport({ found: true, name: ' ', description: '', ingredients }, CHOICES), undefined);

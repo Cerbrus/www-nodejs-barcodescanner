@@ -194,10 +194,11 @@ export class RecipeService {
                 await rows.delete({ recipeId });
                 await this.writeIngredients(
                     recipeId,
-                    ingredients.map(({ catalogItemId, quantity, note }) => ({
+                    ingredients.map(({ catalogItemId, quantity, note, text }) => ({
                         catalogItemId: catalogItemId === id ? targetId : catalogItemId,
                         quantity,
-                        note
+                        note,
+                        text
                     })),
                     manager
                 );
@@ -292,6 +293,7 @@ export class RecipeService {
     ): Promise<void> {
         const rows = cleanIngredients(ingredients).map((ingredient, position) => ({
             ...ingredient,
+            text: ingredient.text ?? '',
             recipeId,
             position
         }));

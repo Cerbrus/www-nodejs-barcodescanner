@@ -29,6 +29,9 @@ export class RecipeIngredientEntity {
     @Column({ type: 'text', default: '' })
     public note: string;
 
+    @Column({ type: 'text', default: '' })
+    public text: string;
+
     @Column({ type: 'integer' })
     public position: number;
 }

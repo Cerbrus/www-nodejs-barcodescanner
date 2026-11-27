@@ -1,10 +1,13 @@
 import {
     MAX_INGREDIENT_NOTE_LENGTH,
     MAX_INGREDIENT_QUANTITY,
+    MAX_INGREDIENT_TEXT_LENGTH,
     MAX_RECIPE_DESCRIPTION_LENGTH,
     MAX_RECIPE_INGREDIENTS,
     MAX_RECIPE_NAME_LENGTH
 } from '@barcodescanner/shared';
+
+import { fits, mostSpecific } from './product-match';
 
 const MAX_PRODUCT_NAME_LENGTH = 80;
 const MAX_EMOJI_LENGTH = 16;
@@ -28,6 +31,7 @@ export interface ImportedRow {
     product?: NewProduct;
     quantity: number;
     note: string;
+    text: string;
 }
 
 export interface ImportedRecipe {
@@ -47,6 +51,7 @@ export const IMPORT_SCHEMA = {
             items: {
                 type: 'object',
                 properties: {
+                    line: { type: 'string' },
                     productId: { type: 'integer' },
                     newName: { type: 'string' },
                     sectionId: { type: 'string' },
@@ -55,7 +60,7 @@ export const IMPORT_SCHEMA = {
                     quantity: { type: 'integer' },
                     note: { type: 'string' }
                 },
-                required: ['productId', 'newName', 'sectionId', 'icon', 'emoji', 'quantity', 'note']
+                required: ['line', 'productId', 'newName', 'sectionId', 'icon', 'emoji', 'quantity', 'note']
             }
         }
     },
@@ -105,15 +110,16 @@ ${source.trim()}
 YOUR ANSWER
 - found: false when there is no recipe in it or the page could not be read; leave the rest empty then.
 - name: the name of the recipe, in the language of the recipe.
-- description: Markdown in the language of the recipe. First the number of servings when given, then a heading and the ingredient lines exactly as the recipe gives them, as a list, then a heading and the preparation steps as a numbered list.
+- description: Markdown in the language of the recipe. First the number of servings when given, then the preparation steps as a numbered list, then whatever else the recipe says that a cook wants to know. The ingredients are not in it: they are the rows.
 - ingredients: one row for each ingredient line, in the order of the recipe.
 
 EACH ROW
-- productId: the id of the product from PRODUCTS that a shopper would put in the basket for this ingredient. Products have generic names. Pick the most specific product that fits: "rode ui" is "Rode ui" when that exists, otherwise "Ui" or "Uien". A broader product fits when the ingredient is a kind of it, and the kind then goes in the note: "rodewijnazijn" is "Azijn" with the note "Rodewijn". A product that is merely similar does not fit: "veldsla" is not "Rucola", "kwark" is not "Yoghurt". 0 when no product fits; when in doubt, 0.
-- newName: only when productId is 0, otherwise "". The generic Dutch name a shopper would write on a list: no brand, no amount, starting with a capital, as short as the products in PRODUCTS.
-- sectionId: only when productId is 0, the id from SECTIONS where a supermarket keeps it; otherwise "".
-- icon: only when productId is 0, the name from ICONS that pictures it best, or "" when none does; otherwise "".
-- emoji: only when productId is 0, one emoji for it; otherwise "".
+- line: the ingredient line exactly as the recipe gives it, amount included: "150 g warmgerookte zalmflakes".
+- productId: the id of the product from PRODUCTS that a shopper would put in the basket for this ingredient. Products have generic names. Pick the most specific product that fits: "rode ui" is "Rode ui" when that exists, otherwise "Ui" or "Uien". A product that is merely similar or related does not fit: "veldsla" is not "Rucola", "kwark" is not "Yoghurt", "harissa" is not "Pikante saus". 0 when no product fits; when in doubt, 0.
+- newName: always, also when you picked a product: the generic Dutch name a shopper would write on a list for this ingredient, as if PRODUCTS did not exist. No brand, no amount, starting with a capital, as short as the products in PRODUCTS: "Harissa", "Veldsla", "Koekjes".
+- sectionId: always: the id from SECTIONS where a supermarket keeps newName.
+- icon: always: the name from ICONS that pictures newName best, or "" when none does.
+- emoji: always: one emoji for newName.
 - quantity: for things that are counted whole, the count: "2 avocado's" is 2. For anything weighed or measured, 1.
 - note: what a shopper needs besides the product. First the variant, starting with a capital ("Light", "Warmgerookt", "Bruin"), then the amount when it is weighed or measured, written without a space ("150g", "500ml", "2el"), separated by a comma and a space. "" when there is neither. Words that are already in the product's name are not repeated. Whatever the ingredient line says more than the product's name does is the variant, a brand or a kind included: "308 g Oreo-koekjes" on the product "Koekjes" has the note "Oreo, 308g", and "gecondenseerde volle melk" is never plain "Melk" without "Gecondenseerd" in the note.
 
@@ -131,6 +137,7 @@ ${icons.join(', ')}`;
 }
 
 interface AnsweredRow {
+    line?: unknown;
     productId?: unknown;
     newName?: unknown;
     sectionId?: unknown;
@@ -145,21 +152,32 @@ const text = (value: unknown, limit: number): string => (typeof value === 'strin
 const count = (value: unknown): number =>
     typeof value === 'number' && Number.isInteger(value) ? Math.min(MAX_INGREDIENT_QUANTITY, Math.max(1, value)) : 1;
 
+const AMOUNT =
+    /^[\d¼½¾.,/\s-]+((kg|g|gram|ml|dl|cl|l|liter|el|tl|stuks?|blik(je)?s?|zakjes?|bosjes?|mespunt(je)?|snuf(je)?|tenen|teen(tje)?s?|takjes?)\s+)?/i;
+
+function nameIn(line: string): string {
+    const name = line.replace(AMOUNT, '').trim().slice(0, MAX_PRODUCT_NAME_LENGTH);
+
+    return /\p{L}/u.test(name) ? name : '';
+}
+
 function readRow(row: AnsweredRow, choices: ImportChoices, fallbackSection: string): ImportedRow | undefined {
     const quantity = count(row.quantity);
     const note = text(row.note, MAX_INGREDIENT_NOTE_LENGTH);
-    const known = choices.products.find(({ id }) => id === row.productId);
-    if (known) {
-        return { catalogItemId: known.id, quantity, note };
+    const line = text(row.line, MAX_INGREDIENT_TEXT_LENGTH);
+    const picked = choices.products.find(({ id }) => id === row.productId);
+    if (picked && fits(line, picked.name)) {
+        return { catalogItemId: mostSpecific(line, picked, choices.products).id, quantity, note, text: line };
     }
 
-    const name = text(row.newName, MAX_PRODUCT_NAME_LENGTH);
+    const proposed = text(row.newName, MAX_PRODUCT_NAME_LENGTH);
+    const name = proposed && (!line || fits(line, proposed)) ? proposed : nameIn(line);
     if (!name) {
         return undefined;
     }
     const sameName = choices.products.find((product) => product.name.toLowerCase() === name.toLowerCase());
     if (sameName) {
-        return { catalogItemId: sameName.id, quantity, note };
+        return { catalogItemId: sameName.id, quantity, note, text: line };
     }
 
     const icon = text(row.icon, MAX_PRODUCT_NAME_LENGTH);
@@ -174,7 +192,11 @@ function readRow(row: AnsweredRow, choices: ImportChoices, fallbackSection: stri
             emoji: text(row.emoji, MAX_EMOJI_LENGTH) || undefined
         },
         quantity,
-        note
+        note: note
+            .split(', ')
+            .filter((part) => part.toLowerCase() !== name.toLowerCase())
+            .join(', '),
+        text: line
     };
 }
 

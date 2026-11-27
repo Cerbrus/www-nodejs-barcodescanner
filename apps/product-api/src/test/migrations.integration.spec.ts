@@ -16,6 +16,7 @@ import { Recipes1763600000000 } from '../data/migrations/1763600000000-recipes';
 import { CollectingScans1763700000000 } from '../data/migrations/1763700000000-collecting-scans';
 import { RecipeOffers1763800000000 } from '../data/migrations/1763800000000-recipe-offers';
 import { DraftProducts1763900000000 } from '../data/migrations/1763900000000-draft-products';
+import { IngredientText1764000000000 } from '../data/migrations/1764000000000-ingredient-text';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -144,13 +145,24 @@ describe('migrations', () => {
         const ingredients = (): Promise<Array<{ id: number }>> =>
             database.query('SELECT "id" FROM "recipe_ingredient"');
 
+        const ingredientColumns = async (): Promise<Array<string>> =>
+            ((await database.query('PRAGMA table_info("recipe_ingredient")')) as Array<{ name: string }>).map(
+                ({ name }) => name
+            );
+
         await useVanilla();
         const runner = database.createQueryRunner();
+        await new IngredientText1764000000000().down(runner);
+        assert.ok(!(await ingredientColumns()).includes('text'));
         await new DraftProducts1763900000000().down(runner);
         assert.ok(!(await columns()).includes('draft'));
         assert.equal((await ingredients()).length, 1);
         await new DraftProducts1763900000000().up(runner);
+        await new IngredientText1764000000000().up(runner);
         await runner.release();
+
+        assert.ok((await ingredientColumns()).includes('text'));
+        assert.deepEqual(await database.query('SELECT "text" FROM "recipe_ingredient"'), [{ text: '' }]);
 
         assert.ok((await columns()).includes('draft'));
         assert.equal((await ingredients()).length, 1);

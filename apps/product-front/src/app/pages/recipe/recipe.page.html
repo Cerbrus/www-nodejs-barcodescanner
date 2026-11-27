@@ -95,6 +95,20 @@
                                 <i class="material-symbols-outlined">add</i>
                             </button>
                         </span>
+                        <input
+                            #text
+                            class="field ingredient-text"
+                            type="text"
+                            autocomplete="off"
+                            [id]="'ingredient-text-' + $index"
+                            [attr.maxlength]="limits.text"
+                            [placeholder]="row.fallback"
+                            [attr.aria-label]="'recipe.ingredientText' | translate"
+                            [value]="row.ingredient.text ?? ''"
+                            (input)="setText($index, text.value)"
+                            (mousedown)="$event.stopPropagation()"
+                            (touchstart)="$event.stopPropagation()"
+                        />
                     </div>
                 }
             </div>
@@ -184,34 +198,33 @@
             </button>
         </div>
 
-        @if (recipe.description) {
+        @if (shown().length || recipe.description) {
             <div class="card">
-                <app-markdown [text]="recipe.description" />
-            </div>
-        }
-
-        <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>
-        @if (shown().length) {
-            <div class="card ingredients">
-                @for (row of shown(); track $index) {
-                    <div class="ingredient">
-                        <span class="ingredient-icon">
-                            @if (row.item; as item) {
-                                <app-item-icon [item]="item" />
+                @if (shown().length) {
+                    <div class="ingredient-lines">
+                        <h2>{{ 'recipe.ingredientList' | translate }}</h2>
+                        <ul>
+                            @for (row of shown(); track $index) {
+                                <li>
+                                    {{ row.ingredient.text || row.fallback }}
+                                    @if (row.item?.draft) {
+                                        <span
+                                            class="draft-mark"
+                                            role="img"
+                                            [attr.aria-label]="'item.draft' | translate"
+                                        >
+                                            <i class="material-symbols-outlined" aria-hidden="true">warning</i>
+                                        </span>
+                                    }
+                                </li>
                             }
-                        </span>
-                        <span class="ingredient-name grow">{{ row.item?.name }}</span>
-                        @if (row.ingredient.note) {
-                            <span class="ingredient-remark">{{ row.ingredient.note }}</span>
-                        }
-                        @if (row.ingredient.quantity > 1) {
-                            <span class="quantity">× {{ row.ingredient.quantity }}</span>
-                        }
+                        </ul>
                     </div>
                 }
+                @if (recipe.description) {
+                    <app-markdown [text]="recipe.description" />
+                }
             </div>
-        } @else {
-            <p class="empty">{{ 'recipe.noIngredients' | translate }}</p>
         }
 
         <button

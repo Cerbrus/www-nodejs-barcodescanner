@@ -1,6 +1,10 @@
-import { IsInt, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
-import { MAX_INGREDIENT_NOTE_LENGTH, MAX_INGREDIENT_QUANTITY } from '@barcodescanner/shared';
+import {
+    MAX_INGREDIENT_NOTE_LENGTH,
+    MAX_INGREDIENT_QUANTITY,
+    MAX_INGREDIENT_TEXT_LENGTH
+} from '@barcodescanner/shared';
 
 export class RecipeIngredientDto {
     @IsInt()
@@ -15,4 +19,9 @@ export class RecipeIngredientDto {
     @IsString()
     @MaxLength(MAX_INGREDIENT_NOTE_LENGTH)
     public note: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(MAX_INGREDIENT_TEXT_LENGTH)
+    public text?: string;
 }

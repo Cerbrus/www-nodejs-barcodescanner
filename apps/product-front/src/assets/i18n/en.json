@@ -113,6 +113,8 @@
         "name": "Name",
         "description": "Description",
         "ingredients": "Products",
+        "ingredientList": "Ingredients",
+        "ingredientText": "Ingredient line",
         "noIngredients": "No products in this recipe yet",
         "addProduct": "Add a product…",
         "note": "Note",
