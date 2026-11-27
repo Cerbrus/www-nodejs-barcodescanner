@@ -66,7 +66,7 @@ The inbox page lists every waiting barcode and opens the same prompt.
 The products page is for the owner and is reached from the Management group of the System page. It lists every catalog item as a tile, in collapsible shop sections, with a search field. Each catalog item has its own management page, which every account can still open from a product on the list:
 
 - It shows the item's name, section and icon, and every barcode attached to it. Each barcode is drawn as a scannable image with its number, the product title a connector suggested, how often it was scanned and when it was last scanned.
-- Rename the item, change its section, emoji or icon, or delete it. The bin sits next to Save and asks first, in the same row. Deleting a product that recipes use says how many, and takes it out of them. A tap on the product's icon, marked with a small pencil, opens the icon picker. The icon picker shows the icons as a searchable grid; "none" comes first, then the product's standard icon from the seed data when it has one.
+- Rename the item, change its section, emoji or icon, or delete it. The bin sits next to Save and asks first, in the same row. A product that recipes use cannot be deleted: the bin then says in how many recipes it is, and offers only the way back. A tap on the product's icon, marked with a small pencil, opens the icon picker. The icon picker shows the icons as a searchable grid; "none" comes first, then the product's standard icon from the seed data when it has one.
 - Move a barcode to a different catalog item, or detach it. A detached barcode returns to the inbox on its next scan.
 
 The drawn barcode is there to recognise which package a number belongs to, and to rescan it from the screen with the handheld scanner when testing.
@@ -129,6 +129,16 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 2. On the Recipes tab, the choose button turns the rows into tick boxes. The print button, which shows how many are ticked, prints the codes of the ticked recipes; the cross leaves choosing.
 3. The sheet is A4 with three codes across and four down, each 50 mm wide with the recipe's name below it. Short marks at the edge of the page show where to cut, so a cut-out code has no line on it. More than twelve go on to the next page. In the app on the home screen of an iPhone the button opens the share sheet with the sheet as pictures, one per page; Print is among its choices.
 4. A code holds the recipe as it was saved. After a change to the recipe it has to be printed again.
+
+### UC-27 Review a draft product
+
+A draft is a product that a recipe import made because the app had none for an ingredient. Nothing makes one yet: the import is not built.
+
+1. A draft lives only in recipes. The list search and the search for naming or moving a barcode leave it out, and the app refuses it on the list and for a barcode. The product search of a recipe does offer it.
+2. Putting a recipe on the list leaves its drafts out. The tick sheet shows a draft greyed, with its icon and name and no tick box; the button on a row of the Recipes page adds the rest and says how many were left out.
+3. While a recipe holds a draft, its code is drawn with a large warning sign over it, the print button on its page is off, and it cannot be picked for the sheet of codes.
+4. The owner finds every draft in the inbox, as a row with its icon, name and section; the inbox count of the owner includes them. Other accounts do not see these rows.
+5. The row opens the product page, which marks the product as a draft and shows no barcodes. The owner changes the name, section and icon there, and then either confirms it, which makes it an ordinary product, or replaces it by an existing product. Replacing puts that product in every recipe that used the draft, quantities added where the recipe already had it with the same note, removes the draft and opens the page of the chosen product.
 
 ## Oversight
 
