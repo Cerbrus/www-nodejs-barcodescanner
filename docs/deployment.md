@@ -149,6 +149,7 @@ The least that must be set: `SCANNER_DEVICE`. For login also `GOOGLE_CLIENT_ID`,
 | `OWNER_EMAIL`                              | The account that also gets the system parts (log, history, scanner status, sounds, test notification). Empty: the first address of `ALLOWED_EMAILS`                                              |
 | `GITHUB_ISSUES_TOKEN`                      | Lets the owner send feedback from the app to GitHub as an issue. A fine-grained personal access token for the one repository, with read and write on issues only. Empty: the button is not shown |
 | `GITHUB_REPOSITORY`                        | The repository the issues go to, as `owner/name`. Default: this project's                                                                                                                        |
+| `GEMINI_API_KEY`                           | Lets the owner import a recipe from a link or pasted text. An API key of Google's Gemini, made in Google AI Studio on the free tier, without a billing account. Empty: the button is not shown   |
 | `AGENT_TOKEN`                              | Secret the hardware agent uses instead of a login; `install.sh` creates it                                                                                                                       |
 | `CSP_MODE`                                 | Content security policy: `report` (default) writes to the system log what the policy would block, `enforce` blocks it, `off` sends no policy. Restart the app after changing it                  |
 | `FEEDBACK_OUTPUT`                          | `none` (default) or `buzzer`: sound at the scanner, see "Buzzer" below                                                                                                                           |
@@ -157,7 +158,7 @@ The least that must be set: `SCANNER_DEVICE`. For login also `GOOGLE_CLIENT_ID`,
 | `BUZZER_ACTIVE_LOW`                        | `true` for modules that sound when the pin is low, default `false`                                                                                                                               |
 | `PUSH_SUBJECT`                             | Contact address sent to the push services with every notification: `mailto:you@your-domain` or an `https` address. Set your own; some push services refuse placeholder addresses.                |
 
-Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional and not in the template: `CONNECTORS` (default `ah,off`) picks the product lookup sources, `LOG_LEVEL` (default `INFO`) sets how much the hardware agent logs, and `GPIO_CHIP` (default `/dev/gpiochip0`) names the GPIO device of the buzzer.
+Find the scanner path with `ls -l /dev/input/by-id/` after plugging in the dongle. Optional and not in the template: `GEMINI_MODEL` (default `gemini-3.5-flash-lite`) picks the model that reads a recipe, `CONNECTORS` (default `ah,off`) picks the product lookup sources, `LOG_LEVEL` (default `INFO`) sets how much the hardware agent logs, and `GPIO_CHIP` (default `/dev/gpiochip0`) names the GPIO device of the buzzer.
 
 ## Reverse proxy (Nginx Proxy Manager)
 

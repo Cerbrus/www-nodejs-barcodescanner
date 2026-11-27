@@ -132,13 +132,24 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 ### UC-27 Review a draft product
 
-A draft is a product that a recipe import made because the app had none for an ingredient. Nothing makes one yet: the import is not built.
+A draft is a product that a recipe import (UC-28) made because the app had none for an ingredient.
 
 1. A draft lives only in recipes. The list search and the search for naming or moving a barcode leave it out, and the app refuses it on the list and for a barcode. The product search of a recipe does offer it.
 2. Putting a recipe on the list leaves its drafts out. The tick sheet shows a draft greyed, with its icon and name and no tick box; the button on a row of the Recipes page adds the rest and says how many were left out.
 3. While a recipe holds a draft, its code is drawn with a large warning sign over it, the print button on its page is off, and it cannot be picked for the sheet of codes.
 4. The owner finds every draft in the inbox, as a row with its icon, name and section; the inbox count of the owner includes them. Other accounts do not see these rows.
 5. The row opens the product page, which marks the product as a draft and shows no barcodes. The owner changes the name, section and icon there, and then either confirms it, which makes it an ordinary product, or replaces it by an existing product. Replacing puts that product in every recipe that used the draft, quantities added where the recipe already had it with the same note, removes the draft and opens the page of the chosen product.
+
+### UC-28 Import a recipe from a link or text
+
+For the owner, when the Pi has a key for the AI service. Without one the button is not there.
+
+1. The Recipes page has a button with a link sign beside "New recipe". It opens a sheet with one text field: paste a link to a recipe page, or the text of a recipe.
+2. The import button sends it. It takes a few seconds, up to a minute; the button shows a clock meanwhile and the sheet stays.
+3. The recipe is saved and opens in edit mode: the name, a description with the ingredient lines as the recipe gave them and the steps, and one row per ingredient. Something that is counted is the quantity; an amount that is weighed or measured is in the note, after the variant: "Bruin, 500g". Change what is wrong, or delete the recipe.
+4. An ingredient the app has no product for became a draft product (UC-27).
+5. A recipe of the same name exists already: the new one gets a number behind its name.
+6. No recipe could be read, which happens when a site refuses to be fetched: the sheet stays with the text in it and the app says to paste the recipe text instead of the link. When the AI service fails, the app says the import failed.
 
 ## Oversight
 

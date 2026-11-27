@@ -22,6 +22,7 @@ When a decision changes, update `docs/decisions.md` first, then the affected doc
 - One `hardware-agent` container: Python `evdev`, reads the scanner, posts scans and its log lines to the API.
 - Product lookup through `ProductConnector` classes, all queried in parallel; results are suggestions, the user names each barcode once.
 - Web push for unknown handheld scans; the service worker (`src/sw.js`) keeps the web app's files so it starts from the device, and never touches API calls.
+- Recipe import for the owner: `GeminiService` asks Google's Gemini (free tier, key in `GEMINI_API_KEY`) to read a link or pasted text, `core/rules/recipe-import.ts` checks the answer, and a product the app has not becomes a draft (`catalog_item.draft`) that lives only in recipes until the owner confirms or replaces it. Nothing the model answers is used unchecked, and a failure never saves half a recipe.
 - Login with Google for an allowlist of accounts: one global guard, signed session cookie, a token for the hardware agent. New routes are for logged-in users by default; mark one `@Public()` only when it must work without login, `@Agent()` only when the hardware agent needs it, and `@OwnerOnly()` when it belongs to the system parts that only the owner account gets.
 - Feedback from inside the app is called a remark in the code (`RemarkService`, `/api/v1/remarks`, the `remark` table), because "feedback" already means the sounds at the scanner. Every account writes remarks; only the owner sends one to GitHub.
 - No Bring, no PostgreSQL, no CQRS, no user table.

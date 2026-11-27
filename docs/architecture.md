@@ -223,6 +223,43 @@ interface ProductSuggestion {
 - The naming rules (`core/rules/naming.ts`, used by `NamingService`) turn the suggestions into one proposal. Each title loses its brand, a shop name at the start (AH, Jumbo and the like) and amounts; then the existing product whose whole words appear in it wins, the one with the most words first, and the remaining words become the note. Without a match the cleaned title is proposed as a new name. Whole words only: a compound such as "Hazelnootpasta" is not taken for "Pasta". Across sources, a title that names a product exactly wins over one that needs a note.
 - Built: Albert Heijn (unofficial API, anonymous token) and Open Food Facts (official open API, with a generic User-Agent). Adding a source is one new class, plus its logo in `apps/product-front/src/assets/connectors/` and a line in the naming prompt's connector table; without a logo the prompt shows the connector's id as text.
 
+## Recipe import
+
+The owner hands the app a link or pasted recipe text and gets a saved recipe ([0122](decisions/0122-recipes-imported-with-gemini.md)). Google's Gemini does the reading; the app checks everything it answers.
+
+```mermaid
+flowchart TD
+    field["Owner pastes a link or recipe text<br/>on the Recipes page"] --> post["POST /api/v1/recipes/imports"]
+    post --> question["Question for Gemini:<br/>the source, every product name with its id,<br/>the sections, the icon names"]
+    question --> link{"A link in the source?"}
+    link -- yes --> fetch["Gemini fetches the page itself"]
+    link -- no --> answer
+    fetch --> wasRead{"Did the fetch run?"}
+    wasRead -- "no, asked twice" --> refused["422: no recipe read<br/>the app says to paste the text"]
+    wasRead -- yes --> answer["Answer in a fixed shape:<br/>name, description, one row per ingredient"]
+    answer --> found{"A recipe with rows?"}
+    found -- no --> refused
+    found -- yes --> row{"Per row: a product of the app?"}
+    row -- "its id exists" --> use["Use that product"]
+    row -- "new name equals a product" --> use
+    row -- "new name" --> draft["Make a draft product:<br/>name, section, icon, emoji"]
+    row -- "neither" --> drop["Leave the row out"]
+    use --> save["Save the recipe<br/>a taken name gets a number"]
+    draft --> save
+    save --> edit["Recipe opens in edit mode"]
+    draft -.-> inbox["Draft waits in the owner's inbox"]
+    inbox --> review{"Review on the product page"}
+    review -- confirm --> product["Ordinary product"]
+    review -- replace --> moved["Existing product takes its place<br/>in every recipe, draft removed"]
+```
+
+- **`GeminiService`** is the only code that talks to Gemini: one `POST` to its Interactions API with the key from `GEMINI_API_KEY`, the model from `GEMINI_MODEL`, the answer forced into a JSON shape, and the tool that fetches a link when the source holds one. It gives up after 25 seconds. Without a key it is off and the web app shows no button.
+- **`core/rules/recipe-import.ts`** writes the question and reads the answer. The question holds the name and id of every product, the sections and the icon names, and the household's way of writing quantities and notes: a counted thing is the quantity, a weighed or measured amount goes in the note without a space, after the variant (`Bruin, 500g`). Nothing else leaves the app.
+- **What is checked.** A product id that does not exist is not used. A new name that equals a product's name, whatever the capitals, is that product. A section that does not exist becomes the last section, an icon that is no file is dropped, a quantity is brought between 1 and 99, and texts are cut to their limits. An answer without a name or without a usable row is no recipe.
+- **A link that was not read.** The model sometimes answers without fetching the page and then makes a recipe up from the words in the address (seen 2026-11-27). An answer for a link therefore only counts when the fetch step is in the response; otherwise the question is asked once more, and then the import is refused.
+- **`RecipeImportService`** makes the draft products, one per new name, with the icon the seed file gives that name before the one the model picked, and saves the recipe through `RecipeService`. When saving fails after drafts were made, the drafts stay; they are in the inbox and can be deleted there.
+- **A draft** is a product with `draft` set ([0123](decisions/0123-draft-products.md), [0124](decisions/0124-replacing-a-draft-product.md)): refused on the list and for a barcode, left out when a recipe goes on the list, and its recipes show their code with a warning sign and cannot be printed.
+
 ## API
 
 | Method and path                                                                 | Purpose                                                                                                                                                                                                                                                                                                        |
@@ -234,6 +271,8 @@ interface ProductSuggestion {
 | `GET /api/v1/recipes/offers`                                                    | Scanned recipes the app does not have: name, number of products, the product ids it does not know, and whether a recipe of that name exists                                                                                                                                                                    |
 | `POST /api/v1/recipes/offers/:id/save`, `DELETE /api/v1/recipes/offers/:id`     | Keep the offered recipe with the products that exist, or drop the offer                                                                                                                                                                                                                                        |
 | `POST /api/v1/recipes/additions`                                                | Put the given products of a recipe on the list as one scan with the source `app`. With the `code` the camera read, the source is `phone` and an unknown recipe is offered, or stored with `save`. With `addedAt` the scan gets that moment, and a second request with the same content and moment adds nothing |
+| `GET /api/v1/recipes/imports`                                                   | `available`: whether this account can import a recipe, which takes the owner and a key for the AI service                                                                                                                                                                                                      |
+| `POST /api/v1/recipes/imports`                                                  | For the owner. Reads a recipe from `source`, a link or pasted text of at most 20,000 characters, saves it and gives it back. 422 when no recipe could be read, 502 when the AI service failed, 503 without a key                                                                                               |
 | `GET /api/v1/list`                                                              | List entries with their catalog items                                                                                                                                                                                                                                                                          |
 | `PATCH /api/v1/list/:id`                                                        | State, quantity, note of an entry; with `catalogItemId` it creates the entry under that id. A note another entry of the product already has merges the two                                                                                                                                                     |
 | `POST /api/v1/list/offline-changes`                                             | Changes made without a connection, each with its time; answers how many were applied and which entries the server kept                                                                                                                                                                                         |
