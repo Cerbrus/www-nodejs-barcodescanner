@@ -4,6 +4,8 @@ import { CatalogService } from '../../core/services/catalog.service';
 import { RecipeService } from '../../core/services/recipe.service';
 import { CatalogItemEntity } from '../../data/entities';
 import { CatalogItemCreateDto, CatalogItemUpdateDto } from '../dto/catalog-item.dto';
+import { DraftReplacementDto } from '../dto/draft-replacement.dto';
+import { OwnerOnly } from '../guards/owner.decorator';
 
 @Controller({ path: 'catalog', version: '1' })
 export class CatalogController {
@@ -41,6 +43,22 @@ export class CatalogController {
         @Body() item: CatalogItemUpdateDto
     ): Promise<CatalogItemEntity> {
         return this.catalog.updateItem(id, item);
+    }
+
+    @Post(':id/confirmation')
+    @OwnerOnly()
+    public confirmDraft(@Param('id', ParseIntPipe) id: number): Promise<CatalogItemEntity> {
+        return this.catalog.confirmDraft(id);
+    }
+
+    @Post(':id/replacement')
+    @OwnerOnly()
+    @HttpCode(204)
+    public replaceDraft(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() { catalogItemId }: DraftReplacementDto
+    ): Promise<void> {
+        return this.recipes.replaceDraft(id, catalogItemId);
     }
 
     @Delete(':id')

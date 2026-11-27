@@ -19,7 +19,7 @@ export class RecipeIngredientEntity {
     @Column({ type: 'integer' })
     public catalogItemId: number;
 
-    @ManyToOne(() => CatalogItemEntity, { onDelete: 'CASCADE' })
+    @ManyToOne(() => CatalogItemEntity, { onDelete: 'RESTRICT' })
     @JoinColumn({ name: 'catalog_item_id' })
     public catalogItem?: CatalogItemEntity;
 

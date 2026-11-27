@@ -173,6 +173,47 @@ export class RecipeService {
         return new Set(rows.map(({ recipeId }) => recipeId)).size;
     }
 
+    public async replaceDraft(id: number, targetId: number): Promise<void> {
+        const [draft, target] = [await this.catalog.getItem(id), await this.catalog.getItem(targetId)];
+        if (!draft.draft) {
+            throw new ConflictException(`Catalog item ${id} is not a draft`);
+        }
+        if (target.draft) {
+            throw new ConflictException(`Catalog item ${targetId} is a draft itself`);
+        }
+
+        const recipeIds = await this.transactions.run(async (manager) => {
+            const rows = manager.getRepository(RecipeIngredientEntity);
+            const using = new Set(
+                (await rows.find({ where: { catalogItemId: id }, select: { recipeId: true } })).map(
+                    ({ recipeId }) => recipeId
+                )
+            );
+            for (const recipeId of using) {
+                const ingredients = await rows.find({ where: { recipeId }, order: { position: 'ASC' } });
+                await rows.delete({ recipeId });
+                await this.writeIngredients(
+                    recipeId,
+                    ingredients.map(({ catalogItemId, quantity, note }) => ({
+                        catalogItemId: catalogItemId === id ? targetId : catalogItemId,
+                        quantity,
+                        note
+                    })),
+                    manager
+                );
+                await manager.getRepository(RecipeEntity).update(recipeId, { updatedAt: new Date() });
+            }
+            await this.catalog.removeReplaced(id, manager);
+
+            return [...using];
+        });
+        for (const recipeId of recipeIds) {
+            await this.forgetOffersOf(recipeId);
+            this.events.emit('recipe', { recipeId });
+        }
+        this.events.emit('catalog', { catalogItemId: id, deleted: true });
+    }
+
     private async createFrom(recipe: RecipeContent): Promise<RecipeEntity> {
         const unknown = await this.catalog.unknownIds(recipe.ingredients.map(({ catalogItemId }) => catalogItemId));
 

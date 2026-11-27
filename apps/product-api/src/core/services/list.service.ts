@@ -94,7 +94,11 @@ export class ListService {
             }
             const changedOnServerSince = (lastServerChange.get(entryId) ?? 0) > changedAt.getTime();
             const catalogItemId = current?.catalogItemId ?? change.catalogItemId;
-            if (changedOnServerSince || !catalogItemId || !(await this.items.existsBy({ id: catalogItemId }))) {
+            if (
+                changedOnServerSince ||
+                !catalogItemId ||
+                !(await this.items.existsBy({ id: catalogItemId, draft: false }))
+            ) {
                 skipped.add(entryId);
                 continue;
             }
@@ -111,7 +115,10 @@ export class ListService {
             const entries = manager.getRepository(ListEntryEntity);
             const current = await entries.findOneBy({ id });
             const catalogItemId = current?.catalogItemId ?? change.catalogItemId;
-            if (!catalogItemId || !(await manager.getRepository(CatalogItemEntity).existsBy({ id: catalogItemId }))) {
+            if (
+                !catalogItemId ||
+                !(await manager.getRepository(CatalogItemEntity).existsBy({ id: catalogItemId, draft: false }))
+            ) {
                 throw new NotFoundException(`List entry ${id} does not exist`);
             }
 

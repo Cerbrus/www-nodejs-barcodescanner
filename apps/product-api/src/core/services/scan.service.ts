@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, IsNull, Not, Repository } from 'typeorm';
 
@@ -149,7 +149,9 @@ export class ScanService {
     }
 
     public async nameBarcode(code: string, catalogItemId: number, note = ''): Promise<BarcodeEntity> {
-        await this.catalog.getItem(catalogItemId);
+        if ((await this.catalog.getItem(catalogItemId)).draft) {
+            throw new ConflictException(`Catalog item ${catalogItemId} is a draft and cannot get a barcode`);
+        }
         const variant = cleanNote(note);
         const applied = await this.transactions.run(async (manager) => {
             await this.barcodes.link(code, catalogItemId, variant, manager);
@@ -239,7 +241,7 @@ export class ScanService {
         manager: EntityManager
     ): Promise<ScanOutcome> {
         const ingredients = cleanIngredients(recipe.ingredients);
-        const unknown = await this.catalog.unknownIds(
+        const unknown = await this.catalog.notForList(
             ingredients.map(({ catalogItemId }) => catalogItemId),
             manager
         );

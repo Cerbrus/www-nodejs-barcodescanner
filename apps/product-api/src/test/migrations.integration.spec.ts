@@ -15,6 +15,7 @@ import { SoundPresets1763500000000 } from '../data/migrations/1763500000000-soun
 import { Recipes1763600000000 } from '../data/migrations/1763600000000-recipes';
 import { CollectingScans1763700000000 } from '../data/migrations/1763700000000-collecting-scans';
 import { RecipeOffers1763800000000 } from '../data/migrations/1763800000000-recipe-offers';
+import { DraftProducts1763900000000 } from '../data/migrations/1763900000000-draft-products';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -121,6 +122,42 @@ describe('migrations', () => {
             { event: 'error', sound_id: 'trill8' },
             { event: 'ignored', sound_id: 'none' }
         ]);
+    });
+
+    it('adds the draft mark of a product and keeps a product that a recipe uses, and takes both away again', async () => {
+        const columns = async (): Promise<Array<string>> =>
+            ((await database.query('PRAGMA table_info("catalog_item")')) as Array<{ name: string }>).map(
+                ({ name }) => name
+            );
+        const useVanilla = async (): Promise<void> => {
+            await database.query(`INSERT INTO "catalog_item" ("name", "section_id") VALUES ('Vanille', 'huishouden')`);
+            await database.query(
+                `INSERT INTO "recipe" ("name", "created_at", "updated_at") VALUES ('Taart', '2026-11-27 12:00:00', '2026-11-27 12:00:00')`
+            );
+            await database.query(
+                `INSERT INTO "recipe_ingredient" ("recipe_id", "catalog_item_id", "position")
+                SELECT "recipe"."id", "catalog_item"."id", 0 FROM "recipe", "catalog_item"
+                WHERE "recipe"."name" = 'Taart' AND "catalog_item"."name" = 'Vanille'`
+            );
+        };
+        const deleteVanilla = `DELETE FROM "catalog_item" WHERE "name" = 'Vanille'`;
+        const ingredients = (): Promise<Array<{ id: number }>> =>
+            database.query('SELECT "id" FROM "recipe_ingredient"');
+
+        await useVanilla();
+        const runner = database.createQueryRunner();
+        await new DraftProducts1763900000000().down(runner);
+        assert.ok(!(await columns()).includes('draft'));
+        assert.equal((await ingredients()).length, 1);
+        await new DraftProducts1763900000000().up(runner);
+        await runner.release();
+
+        assert.ok((await columns()).includes('draft'));
+        assert.equal((await ingredients()).length, 1);
+        await assert.rejects(database.query(deleteVanilla));
+        await database.query(`DELETE FROM "recipe" WHERE "name" = 'Taart'`);
+        assert.deepEqual(await ingredients(), []);
+        await database.query(deleteVanilla);
     });
 
     it('adds the table of offered recipes, with a code only once, and takes it away again', async () => {

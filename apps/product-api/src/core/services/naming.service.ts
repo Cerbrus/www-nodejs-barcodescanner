@@ -22,7 +22,10 @@ export class NamingService {
             return barcode;
         }
 
-        const proposal = proposeFromShops(barcode.suggestions, await this.catalog.getItems());
+        const proposal = proposeFromShops(
+            barcode.suggestions,
+            (await this.catalog.getItems()).filter(({ draft }) => !draft)
+        );
 
         return proposal ? { ...barcode, proposal } : barcode;
     }

@@ -267,6 +267,15 @@ describe('data routes over HTTP', () => {
         assert.equal(created.body.custom, true);
 
         assert.equal((await call('PATCH', `/catalog/${created.body.id}`, asUser, { name: 'Melk' })).status, 409);
+
+        const replacement = `/catalog/${created.body.id}/replacement`;
+        const confirmation = `/catalog/${created.body.id}/confirmation`;
+        assert.equal((await call('POST', replacement, asGuest, { catalogItemId: created.body.id })).status, 403);
+        assert.equal((await call('POST', confirmation, asGuest)).status, 403);
+        assert.equal((await call('POST', replacement, asUser, {})).status, 400);
+        assert.equal((await call('POST', replacement, asUser, { catalogItemId: created.body.id })).status, 409);
+        assert.equal((await call<{ draft: boolean }>('POST', confirmation, asUser)).body.draft, false);
+
         assert.equal((await call('DELETE', `/catalog/${created.body.id}`, asUser)).status, 204);
         assert.equal((await call('GET', `/catalog/${created.body.id}`, asUser)).status, 404);
     });

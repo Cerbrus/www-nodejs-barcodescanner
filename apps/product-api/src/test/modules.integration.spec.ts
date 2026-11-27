@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
 
-import { INestApplicationContext, Module } from '@nestjs/common';
+import { ConflictException, INestApplicationContext, Module, NotFoundException } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -496,7 +496,7 @@ describe('scan flow against a real database', () => {
         assert.equal(await list.getSnapshot(butterId, 'roomboter'), undefined);
     });
 
-    it('takes a deleted product out of the recipes that use it', async () => {
+    it('refuses to delete a product that a recipe uses, and deletes it once it is taken out', async () => {
         const made = await catalog.createItem({ name: 'Vanillestokje', sectionId: 'zuivel' });
         const [recipe] = await recipes.getAll();
         await recipes.update(recipe.id, {
@@ -508,11 +508,74 @@ describe('scan flow against a real database', () => {
         });
         assert.equal(await recipes.countUsing(made.id), 1);
 
+        await assert.rejects(catalog.deleteItem(made.id), ConflictException);
+        assert.equal((await recipes.get(recipe.id)).ingredients?.length, 2);
+
+        await recipes.update(recipe.id, {
+            name: recipe.name,
+            ingredients: [{ catalogItemId: milkId, quantity: 1, note: '' }]
+        });
         await catalog.deleteItem(made.id);
+        await assert.rejects(catalog.getItem(made.id), NotFoundException);
+    });
+
+    it('keeps a draft product off the list and away from barcodes, and leaves it out of a recipe on the list', async () => {
+        const code = '8712345678944';
+        const draft = await catalog.createItem({ name: 'Zalmflakes', sectionId: 'zuivel', draft: true });
+        const [recipe] = await recipes.getAll();
+        await recipes.update(recipe.id, {
+            name: recipe.name,
+            ingredients: [
+                { catalogItemId: draft.id, quantity: 1, note: '150g' },
+                { catalogItemId: milkId, quantity: 1, note: 'recept' }
+            ]
+        });
+
+        await assert.rejects(list.change(randomUUID(), { catalogItemId: draft.id }), NotFoundException);
+        assert.equal((await scans.register(code, 'phone')).result, 'needs_name');
+        await assert.rejects(scans.nameBarcode(code, draft.id), ConflictException);
+        await scans.discardBarcode(code);
+
+        const { ingredients = [] } = await recipes.get(recipe.id);
+        const outcome = await scans.addRecipe({ name: recipe.name, ingredients }, 'app');
+        assert.deepEqual([outcome.result, outcome.added, outcome.unknown], ['recipe_partial', 1, [draft.id]]);
+        assert.equal(await list.getSnapshot(draft.id, '150g'), undefined);
+        await scans.undo();
+        assert.equal(await list.getSnapshot(milkId, 'recept'), undefined);
+    });
+
+    it('replaces a draft by another product in every recipe, quantities added, and confirms another draft', async () => {
+        const draft = (await catalog.getItems('Zalmflakes'))[0];
+        const [recipe] = await recipes.getAll();
+        await recipes.update(recipe.id, {
+            name: recipe.name,
+            ingredients: [
+                { catalogItemId: draft.id, quantity: 2, note: 'recept' },
+                { catalogItemId: milkId, quantity: 1, note: 'recept' },
+                { catalogItemId: draft.id, quantity: 1, note: '150g' }
+            ]
+        });
+        await assert.rejects(recipes.replaceDraft(milkId, draft.id), ConflictException);
+
+        await recipes.replaceDraft(draft.id, milkId);
         assert.deepEqual(
-            (await recipes.get(recipe.id)).ingredients?.map(({ catalogItemId }) => catalogItemId),
-            [milkId]
+            (await recipes.get(recipe.id)).ingredients?.map(({ catalogItemId, quantity, note }) => [
+                catalogItemId,
+                quantity,
+                note
+            ]),
+            [
+                [milkId, 3, 'recept'],
+                [milkId, 1, '150g']
+            ]
         );
+        await assert.rejects(catalog.getItem(draft.id), NotFoundException);
+
+        const other = await catalog.createItem({ name: 'Veldsla', sectionId: 'zuivel', draft: true });
+        assert.equal((await catalog.confirmDraft(other.id)).draft, false);
+        await list.change(randomUUID(), { catalogItemId: other.id });
+        assert.equal((await list.getSnapshot(other.id, ''))?.state, 'to_buy');
+        await catalog.deleteItem(other.id);
         await recipes.delete(recipe.id);
         assert.equal((await recipes.getAll()).length, 0);
     });

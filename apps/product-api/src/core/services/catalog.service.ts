@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, In, Like, Repository } from 'typeorm';
+import { EntityManager, In, Like, QueryFailedError, Repository } from 'typeorm';
 
 import { AppConfig } from '../../config/app.config';
 import { CatalogItemEntity, SectionEntity } from '../../data/entities';
@@ -15,6 +15,15 @@ export interface CatalogItemInput {
     icon?: string;
     emoji?: string;
 }
+
+export type NewCatalogItem = Required<Pick<CatalogItemInput, 'name' | 'sectionId'>> &
+    CatalogItemInput & { draft?: boolean };
+
+const usedElsewhere = (error: unknown): boolean =>
+    error instanceof QueryFailedError &&
+    ['SQLITE_CONSTRAINT_FOREIGNKEY', 'SQLITE_CONSTRAINT_TRIGGER'].includes(
+        (error.driverError as { code?: string }).code ?? ''
+    );
 
 @Injectable()
 export class CatalogService {
@@ -54,9 +63,16 @@ export class CatalogService {
         return [...new Set(ids)].filter((id) => !known.has(id));
     }
 
-    public async createItem(
-        input: Required<Pick<CatalogItemInput, 'name' | 'sectionId'>> & CatalogItemInput
-    ): Promise<CatalogItemEntity> {
+    public async notForList(ids: Array<number>, manager?: EntityManager): Promise<Array<number>> {
+        const items = manager ? manager.getRepository(CatalogItemEntity) : this.items;
+        const listable = new Set(
+            (await items.find({ where: { id: In(ids), draft: false }, select: { id: true } })).map(({ id }) => id)
+        );
+
+        return [...new Set(ids)].filter((id) => !listable.has(id));
+    }
+
+    public async createItem(input: NewCatalogItem): Promise<CatalogItemEntity> {
         await this.assertValid(input);
         const item = await this.items.save({ ...input, custom: true });
         this.events.emit('catalog', { catalogItemId: item.id });
@@ -73,10 +89,29 @@ export class CatalogService {
         return this.getItem(id);
     }
 
+    public async confirmDraft(id: number): Promise<CatalogItemEntity> {
+        await this.getItem(id);
+        await this.items.update(id, { draft: false });
+        this.events.emit('catalog', { catalogItemId: id });
+
+        return this.getItem(id);
+    }
+
     public async deleteItem(id: number): Promise<void> {
         await this.getItem(id);
-        await this.items.delete(id);
+        try {
+            await this.items.delete(id);
+        } catch (error) {
+            if (usedElsewhere(error)) {
+                throw new ConflictException(`Catalog item ${id} is used by a recipe`);
+            }
+            throw error;
+        }
         this.events.emit('catalog', { catalogItemId: id, deleted: true });
+    }
+
+    public async removeReplaced(id: number, manager: EntityManager): Promise<void> {
+        await manager.getRepository(CatalogItemEntity).delete(id);
     }
 
     public async getIconNames(): Promise<Array<string>> {
