@@ -230,13 +230,14 @@ The owner hands the app a link or pasted recipe text and gets a saved recipe ([0
 ```mermaid
 flowchart TD
     field["Owner pastes a link or recipe text<br/>on the Recipes page"] --> post["POST /api/v1/recipes/imports"]
-    post --> question["Question for Gemini:<br/>the source, every product name with its id,<br/>the sections, the icon names"]
-    question --> link{"A link in the source?"}
-    link -- yes --> fetch["Gemini fetches the page itself"]
-    link -- no --> answer
-    fetch --> wasRead{"Did the fetch run?"}
-    wasRead -- "no, asked twice" --> refused["422: no recipe read<br/>the app says to paste the text"]
-    wasRead -- yes --> answer["Answer in a fixed shape:<br/>name, description, one row per ingredient"]
+    post --> link{"A link in the source?"}
+    link -- yes --> fetch["First question for Gemini:<br/>fetch the page and copy its recipe as text"]
+    link -- no --> question
+    fetch --> wasRead{"Did the fetch run,<br/>and is there a recipe?"}
+    wasRead -- "no fetch, asked twice" --> refused["422: no recipe read<br/>the app says to paste the text"]
+    wasRead -- "no recipe" --> refused
+    wasRead -- yes --> question["Question for Gemini:<br/>the recipe text, every product name with its id,<br/>the sections, the icon names"]
+    question --> answer["Answer in a fixed shape:<br/>name, description, one row per ingredient"]
     answer --> found{"A recipe with rows?"}
     found -- no --> refused
     found -- yes --> row{"Per row: a product of the app?"}
@@ -253,10 +254,10 @@ flowchart TD
     review -- replace --> moved["Existing product takes its place<br/>in every recipe, draft removed"]
 ```
 
-- **`GeminiService`** is the only code that talks to Gemini: one `POST` to its Interactions API with the key from `GEMINI_API_KEY`, the model from `GEMINI_MODEL`, the answer forced into a JSON shape, and the tool that fetches a link when the source holds one. It gives up after 25 seconds. Without a key it is off and the web app shows no button.
+- **`GeminiService`** is the only code that talks to Gemini: one `POST` to its Interactions API with the key from `GEMINI_API_KEY`, the model from `GEMINI_MODEL`, the answer forced into a JSON shape, and the tool that fetches a link when the question is about one. It gives up after 25 seconds. Without a key it is off and the web app shows no button.
 - **`core/rules/recipe-import.ts`** writes the question and reads the answer. The question holds the name and id of every product, the sections and the icon names, and the household's way of writing quantities and notes: a counted thing is the quantity, a weighed or measured amount goes in the note without a space, after the variant (`Bruin, 500g`). Nothing else leaves the app.
 - **What is checked.** A product id that does not exist is not used. A new name that equals a product's name, whatever the capitals, is that product. A section that does not exist becomes the last section, an icon that is no file is dropped, a quantity is brought between 1 and 99, and texts are cut to their limits. An answer without a name or without a usable row is no recipe.
-- **A link that was not read.** The model sometimes answers without fetching the page and then makes a recipe up from the words in the address (seen 2026-11-27). An answer for a link therefore only counts when the fetch step is in the response; otherwise the question is asked once more, and then the import is refused.
+- **A link takes two questions.** The first only fetches the page and copies the recipe as text; the second turns text into rows, the same as for pasted text. Asked in one question with the long list of products, the model skipped the fetch in half the trials and made a recipe up from the words in the address (seen 2026-11-27); with the short first question it fetched every time. An answer to the first question still only counts when the fetch step is in the response; otherwise it is asked once more, and then the import is refused.
 - **`RecipeImportService`** makes the draft products, one per new name, with the icon the seed file gives that name before the one the model picked, and saves the recipe through `RecipeService`. When saving fails after drafts were made, the drafts stay; they are in the inbox and can be deleted there.
 - **A draft** is a product with `draft` set ([0123](decisions/0123-draft-products.md), [0124](decisions/0124-replacing-a-draft-product.md)): refused on the list and for a barcode, left out when a recipe goes on the list, and its recipes show their code with a warning sign and cannot be printed.
 

@@ -626,16 +626,22 @@ describe('scan flow against a real database', () => {
             ]
         };
         let linkRead = true;
+        let page: object = { found: true, recipe: 'Zalmwraps\n500 ml melk\nzalmflakes' };
         app.get(GeminiService).ask = (question: Question): Promise<Answer> => {
             asked.push(question);
 
-            return Promise.resolve({ value: answer, linkRead });
+            return Promise.resolve({ value: question.readLinks ? page : answer, linkRead });
         };
 
         const recipe = await imports.import('https://example.com/recept/zalmwraps');
         const [draft] = await catalog.getItems('Zalmflakes');
-        assert.equal(asked[0].readLinks, true);
-        assert.match(asked[0].input, new RegExp(`${milkId}	Melk`));
+        assert.deepEqual(
+            asked.map(({ readLinks }) => readLinks),
+            [true, false]
+        );
+        assert.match(asked[0].input, /example\.com\/recept\/zalmwraps/);
+        assert.match(asked[1].input, /<recipe>\nZalmwraps\n500 ml melk\nzalmflakes\n<\/recipe>/);
+        assert.ok(asked[1].input.includes(`${milkId}\tMelk`));
         assert.deepEqual(
             [draft.draft, draft.sectionId, draft.icon ?? undefined, draft.emoji],
             [true, 'vlees-vis', undefined, '🐟']
@@ -650,14 +656,19 @@ describe('scan flow against a real database', () => {
         );
 
         const again = await imports.import('Zalmwraps: 500 ml melk, zalmflakes');
-        assert.equal(asked[1].readLinks, false);
+        assert.equal(asked[2].readLinks, false);
         assert.equal(again.name, 'Zalmwraps (2)');
         assert.equal((await catalog.getItems('Zalmflakes')).length, 1);
 
         linkRead = false;
         await assert.rejects(imports.import('https://example.com/recept/verzonnen'), UnprocessableEntityException);
-        assert.equal(asked.length, 4);
+        assert.equal(asked.length, 5);
         assert.equal((await recipes.getAll()).length, 2);
+
+        linkRead = true;
+        page = { found: false, recipe: '' };
+        await assert.rejects(imports.import('https://example.com/geen-recept'), UnprocessableEntityException);
+        assert.equal(asked.length, 6);
 
         answer = { found: false, name: '', description: '', ingredients: [] };
         await assert.rejects(imports.import('geen recept'), UnprocessableEntityException);

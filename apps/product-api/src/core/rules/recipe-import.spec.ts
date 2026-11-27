@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { freeName, holdsLink, importPrompt, readImport } from './recipe-import';
+import { freeName, holdsLink, importPrompt, pagePrompt, readImport, readPage } from './recipe-import';
 
 const CHOICES = {
     products: [
@@ -37,7 +37,16 @@ describe('recipe import', () => {
         assert.match(prompt, /2\tRode ui/);
         assert.match(prompt, /eigen-items\tEigen items/);
         assert.match(prompt, /melk, vis/);
-        assert.match(importPrompt('https://example.com/r', CHOICES), /Read the recipe at the link below/);
+    });
+
+    it('asks for the page of a link apart, and takes its recipe only when the page was found', () => {
+        assert.match(pagePrompt(' https://example.com/r '), /<link>\nhttps:\/\/example.com\/r\n<\/link>/);
+
+        assert.equal(readPage({ found: true, recipe: ' Soep\n1 ui ' }), 'Soep\n1 ui');
+        assert.equal(readPage({ found: false, recipe: 'Soep' }), undefined);
+        assert.equal(readPage({ found: true, recipe: ' ' }), undefined);
+        assert.equal(readPage({ found: true }), undefined);
+        assert.equal(readPage(undefined), undefined);
     });
 
     it('keeps a known product, and a new one with a checked section and icon', () => {

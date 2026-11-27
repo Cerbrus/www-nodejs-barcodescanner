@@ -3,9 +3,19 @@ import { Injectable, Logger, UnprocessableEntityException } from '@nestjs/common
 import { RecipeIngredient } from '@barcodescanner/shared';
 
 import { RecipeEntity } from '../../data/entities';
-import { IMPORT_SCHEMA, NewProduct, freeName, holdsLink, importPrompt, readImport } from '../rules/recipe-import';
+import {
+    IMPORT_SCHEMA,
+    NewProduct,
+    PAGE_SCHEMA,
+    freeName,
+    holdsLink,
+    importPrompt,
+    pagePrompt,
+    readImport,
+    readPage
+} from '../rules/recipe-import';
 import { CatalogService } from './catalog.service';
-import { GeminiService, Question } from './gemini.service';
+import { GeminiService } from './gemini.service';
 import { RecipeService } from './recipe.service';
 
 const LINK_ATTEMPTS = 2;
@@ -30,14 +40,11 @@ export class RecipeImportService {
             sections: (await this.catalog.getSections()).map(({ id, name }) => ({ id, name })),
             icons: await this.catalog.getIconNames()
         };
-        const read = readImport(
-            await this.answerTo({
-                input: importPrompt(source, choices),
-                schema: IMPORT_SCHEMA,
-                readLinks: holdsLink(source)
-            }),
-            choices
-        );
+        const text = holdsLink(source) ? await this.pageOf(source) : source;
+        const answer = text
+            ? await this.gemini.ask({ input: importPrompt(text, choices), schema: IMPORT_SCHEMA, readLinks: false })
+            : undefined;
+        const read = readImport(answer?.value, choices);
         if (!read) {
             throw new UnprocessableEntityException('No recipe could be read from this');
         }
@@ -60,11 +67,15 @@ export class RecipeImportService {
         return recipe;
     }
 
-    private async answerTo(question: Question): Promise<unknown> {
+    private async pageOf(source: string): Promise<string | undefined> {
         for (let attempt = 0; attempt < LINK_ATTEMPTS; attempt++) {
-            const { value, linkRead } = await this.gemini.ask(question);
-            if (linkRead || !question.readLinks) {
-                return value;
+            const { value, linkRead } = await this.gemini.ask({
+                input: pagePrompt(source),
+                schema: PAGE_SCHEMA,
+                readLinks: true
+            });
+            if (linkRead) {
+                return readPage(value);
             }
             this.logger.warn('the answer was made without reading the link');
         }
