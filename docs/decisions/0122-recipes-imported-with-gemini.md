@@ -56,4 +56,4 @@ What was found on 2026-11-26 and 2026-11-27:
 - The key is a setting on the Pi, read through `AppConfig`, and gets a place in the settings table of the deployment doc and in the template.
 - The content security policy stays as it is: the call leaves from the API, not from the browser.
 - Deleting an imported recipe leaves the draft products it brought. They wait in the inbox, and one that no recipe uses any more can be deleted there.
-- Free limits are not published and have been cut before. The limits of the project are visible only in Google AI Studio.
+- Free limits are not published and have been cut before. The limits of the project are visible only in Google AI Studio. Read there on 2026-11-28: the default model `gemini-3.5-flash-lite` gets 15 requests a minute, 250,000 input tokens a minute and 500 requests a day; the larger free models get 5 requests a minute, 250,000 tokens a minute and 20 requests a day, so a larger model suits an occasional retry and not the default.
