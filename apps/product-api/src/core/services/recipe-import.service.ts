@@ -13,10 +13,12 @@ import {
     linkIn,
     pagePrompt,
     readImport,
-    readPage
+    readPage,
+    readPagePicture
 } from '../rules/recipe-import';
 import { CatalogService } from './catalog.service';
 import { GeminiService } from './gemini.service';
+import { RecipePictureService } from './recipe-picture.service';
 import { RecipeService } from './recipe.service';
 
 const LINK_ATTEMPTS = 2;
@@ -28,7 +30,8 @@ export class RecipeImportService {
     constructor(
         private readonly gemini: GeminiService,
         private readonly catalog: CatalogService,
-        private readonly recipes: RecipeService
+        private readonly recipes: RecipeService,
+        private readonly pictures: RecipePictureService
     ) {}
 
     public get available(): boolean {
@@ -41,7 +44,8 @@ export class RecipeImportService {
             sections: (await this.catalog.getSections()).map(({ id, name }) => ({ id, name })),
             icons: await this.catalog.getIconNames()
         };
-        const text = holdsLink(source) ? await this.pageOf(source) : source;
+        const page = holdsLink(source) ? await this.pageOf(source) : { text: source, picture: '' };
+        const text = page?.text;
         const answer = text
             ? await this.gemini.ask({ input: importPrompt(text, choices), schema: IMPORT_SCHEMA, readLinks: false })
             : undefined;
@@ -72,10 +76,20 @@ export class RecipeImportService {
         });
         this.logger.log(`recipe "${recipe.name}" imported, ${drafts.size} draft product(s) made`);
 
-        return recipe;
+        return page?.picture ? this.withPicture(recipe, page.picture) : recipe;
     }
 
-    private async pageOf(source: string): Promise<string | undefined> {
+    private async withPicture(recipe: RecipeEntity, address: string): Promise<RecipeEntity> {
+        try {
+            return await this.recipes.setPicture(recipe.id, await this.pictures.download(address), address);
+        } catch (error) {
+            this.logger.warn(`recipe "${recipe.name}" is kept without its picture: ${error}`);
+
+            return recipe;
+        }
+    }
+
+    private async pageOf(source: string): Promise<{ text?: string; picture: string } | undefined> {
         for (let attempt = 0; attempt < LINK_ATTEMPTS; attempt++) {
             const { value, linkRead } = await this.gemini.ask({
                 input: pagePrompt(source),
@@ -83,7 +97,7 @@ export class RecipeImportService {
                 readLinks: true
             });
             if (linkRead) {
-                return readPage(value);
+                return { text: readPage(value), picture: readPagePicture(value) };
             }
             this.logger.warn('the answer was made without reading the link');
         }

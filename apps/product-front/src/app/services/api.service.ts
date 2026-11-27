@@ -2,7 +2,14 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { IssueDraft, IssueOptions, RecipeContent, RemarkKind, SoundBlock } from '@barcodescanner/shared';
+import {
+    IssueDraft,
+    IssueOptions,
+    RecipeContent,
+    RecipePictureSize,
+    RemarkKind,
+    SoundBlock
+} from '@barcodescanner/shared';
 
 import {
     AgentStatus,
@@ -54,6 +61,13 @@ export class ApiService {
 
     public get baseUrl(): string {
         return `${this.settings.getApiUrl('core')}/v1`;
+    }
+
+    public recipePictureUrl(
+        { id, picture }: Pick<Recipe, 'id' | 'picture'>,
+        size: RecipePictureSize
+    ): string | undefined {
+        return picture ? `${this.baseUrl}/recipes/${id}/picture?size=${size}&v=${picture}` : undefined;
     }
 
     public get iconsUrl(): string {
@@ -140,6 +154,14 @@ export class ApiService {
 
     public deleteRecipe(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/recipes/${id}`);
+    }
+
+    public setRecipePicture(id: number, picture: Blob): Observable<Recipe> {
+        return this.http.put<Recipe>(`${this.baseUrl}/recipes/${id}/picture`, picture);
+    }
+
+    public removeRecipePicture(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/recipes/${id}/picture`);
     }
 
     public getRecipeOffers(): Observable<Array<RecipeOffer>> {

@@ -50,3 +50,33 @@
 :root[data-skin='sticky'] :is(.flow-cell:nth-child(even) app-item-tile, .tile-grid app-item-tile:nth-child(even)) {
     rotate: 1deg;
 }
+
+:root[data-skin='sticky'] .recipe {
+    border: 0;
+    border-radius: 0;
+    background: none;
+    filter: drop-shadow(2px 3px 3px rgb(0 0 0 / 30%));
+    rotate: -1.2deg;
+}
+
+:root[data-skin='sticky'] .recipe:nth-child(even) {
+    rotate: 1deg;
+}
+
+:root[data-skin='sticky'] :is(.recipe-picture, .recipe-band) {
+    mask: linear-gradient(315deg, transparent 12px, #000 12px);
+}
+
+:root[data-skin='sticky'] .recipe::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 17px;
+    height: 17px;
+    background: linear-gradient(
+        315deg,
+        transparent calc(50% - 1px),
+        color-mix(in srgb, var(--tile-neutral) 72%, #000) calc(50% - 1px)
+    );
+    content: '';
+}

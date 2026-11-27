@@ -16,6 +16,11 @@
     --toast-text: light-dark(#fbf9f4, #161514);
     --font: Georgia, 'Times New Roman', serif;
     --corner: 0;
+    --photo-fade: #1a1a1a;
+    --photo-text: #fbf9f4;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) contrast(1.15);
 }
 
 :root[data-skin='newspaper'] .page-title {

@@ -19,6 +19,7 @@
     --warning-text: #3b2010;
     --font: ui-rounded, 'Arial Rounded MT Bold', 'Varela Round', system-ui, sans-serif;
     --corner: 1.8;
+    --photo-filter: sepia(0.5) saturate(1.2) hue-rotate(-8deg);
 }
 
 :root[data-skin='seventies'] .page-title {

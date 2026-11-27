@@ -36,6 +36,7 @@ export class AppConfig {
     public readonly sessionSecretPath = setting('SESSION_SECRET_PATH') ?? join(this.dataFolder, 'session-secret');
     public readonly seedPath = setting('SEED_PATH') ?? join(process.cwd(), 'data', 'seed-items.json');
     public readonly iconsPath = setting('ICONS_PATH') ?? join(process.cwd(), 'data', 'icons');
+    public readonly recipePicturesPath = setting('RECIPE_PICTURES_PATH') ?? join(this.dataFolder, 'recipe-pictures');
     public readonly frontendPath = setting('FRONTEND_PATH') ?? join(__dirname, 'public');
 
     public readonly connectors = list(setting('CONNECTORS') ?? DEFAULT_CONNECTORS);

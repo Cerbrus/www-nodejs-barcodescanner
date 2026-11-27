@@ -7,6 +7,7 @@ import {
     RecipeCategory,
     RecipeContent,
     RecipeIngredient,
+    RecipePictureSize,
     cleanIngredients,
     readRecipeCode,
     writeRecipeCode
@@ -16,6 +17,7 @@ import { RecipeEntity, RecipeIngredientEntity, RecipeOfferEntity } from '../../d
 import { TransactionRunner } from '../../data/transaction.runner';
 import { CatalogService } from './catalog.service';
 import { EventsService } from './events.service';
+import { RecipePictureService } from './recipe-picture.service';
 
 export interface RecipeInput {
     name: string;
@@ -45,6 +47,7 @@ export class RecipeService {
         @InjectRepository(RecipeOfferEntity) private readonly offers: Repository<RecipeOfferEntity>,
         private readonly transactions: TransactionRunner,
         private readonly catalog: CatalogService,
+        private readonly pictures: RecipePictureService,
         private readonly events: EventsService
     ) {}
 
@@ -113,7 +116,34 @@ export class RecipeService {
     public async delete(id: number): Promise<void> {
         await this.get(id);
         await this.recipes.delete(id);
+        await this.pictures.remove(id);
         this.events.emit('recipe', { recipeId: id, deleted: true });
+    }
+
+    public async getPicture(id: number, size: RecipePictureSize): Promise<Buffer> {
+        const { picture } = await this.get(id);
+        const file = picture ? await this.pictures.read(id, size) : undefined;
+        if (!file) {
+            throw new NotFoundException(`Recipe ${id} has no picture`);
+        }
+
+        return file;
+    }
+
+    public async setPicture(id: number, bytes: Buffer, pictureSource = ''): Promise<RecipeEntity> {
+        await this.get(id);
+        const picture = await this.pictures.keep(id, bytes);
+        await this.recipes.update(id, { picture, pictureSource, updatedAt: new Date() });
+        this.events.emit('recipe', { recipeId: id });
+
+        return this.get(id);
+    }
+
+    public async removePicture(id: number): Promise<void> {
+        await this.get(id);
+        await this.recipes.update(id, { picture: '', pictureSource: '', updatedAt: new Date() });
+        await this.pictures.remove(id);
+        this.events.emit('recipe', { recipeId: id });
     }
 
     public async offerIfUnknown(recipe: RecipeContent): Promise<boolean> {

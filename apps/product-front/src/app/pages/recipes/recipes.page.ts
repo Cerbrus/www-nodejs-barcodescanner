@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -7,9 +8,7 @@ import { catchError, finalize, map, of, tap } from 'rxjs';
 
 import { MAX_RECIPE_SOURCE_LENGTH, RECIPE_CATEGORIES, RecipeCategory, recipeCategoryOf } from '@barcodescanner/shared';
 
-import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
-import { OverflowingDirective } from '../../directives/overflowing.directive';
 import { Recipe } from '../../models';
 import { RECIPE_CATEGORY_ICONS } from '../../recipe-categories';
 import { ApiService } from '../../services/api.service';
@@ -20,13 +19,17 @@ import { ShoppingStore } from '../../services/shopping.store';
 @Component({
     selector: 'app-recipes-page',
     standalone: true,
-    imports: [FormsModule, RouterLink, TranslatePipe, ItemIconComponent, OverflowingDirective, SheetComponent],
+    imports: [FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './recipes.page.html',
     styleUrl: './recipes.page.scss'
 })
 export class RecipesPage {
     protected readonly store = inject(ShoppingStore);
+    private readonly printing = inject(RecipePrintService);
+    private readonly router = inject(Router);
+    private readonly api = inject(ApiService);
+
     protected readonly search = signal('');
     protected readonly selecting = signal(false);
     protected readonly selected = signal<ReadonlySet<number>>(new Set());
@@ -35,6 +38,7 @@ export class RecipesPage {
     protected readonly busy = signal(false);
     protected readonly source = signal('');
 
+    protected readonly failedPictures = signal<ReadonlySet<number>>(new Set());
     protected readonly category = signal<RecipeCategory | undefined>(undefined);
     protected readonly categoryIcons = RECIPE_CATEGORY_ICONS;
 
@@ -51,6 +55,7 @@ export class RecipesPage {
     protected readonly groups = computed(() => {
         const term = this.search().trim().toLowerCase();
         const only = this.shownCategory();
+        const failed = this.failedPictures();
         const rows = this.store
             .recipes()
             .filter((recipe) => recipe.name.toLowerCase().includes(term))
@@ -58,18 +63,22 @@ export class RecipesPage {
             .map((recipe) => ({
                 recipe,
                 category: recipeCategoryOf(recipe.category),
+                categoryIcon: RECIPE_CATEGORY_ICONS[recipeCategoryOf(recipe.category)],
                 printable: !this.store.holdsDraft(recipe),
-                icons: recipe.ingredients.flatMap(({ catalogItemId }) => this.store.itemById(catalogItemId) ?? [])
+                picture: failed.has(recipe.id) ? undefined : this.api.recipePictureUrl(recipe, 'small'),
+                icons: recipe.ingredients
+                    .flatMap(({ catalogItemId }) => this.store.itemById(catalogItemId) ?? [])
+                    .map(({ id, name, icon, emoji }) => ({
+                        id,
+                        mask: icon ? `url("${this.api.iconsUrl}/${encodeURIComponent(icon)}.png")` : undefined,
+                        sign: emoji || name.charAt(0).toUpperCase()
+                    }))
             }));
 
         return RECIPE_CATEGORIES.filter((category) => !only || category === only)
             .map((category) => ({ category, rows: rows.filter((row) => row.category === category) }))
             .filter(({ rows: inCategory }) => inCategory.length);
     });
-
-    private readonly printing = inject(RecipePrintService);
-    private readonly router = inject(Router);
-    private readonly api = inject(ApiService);
 
     protected readonly importable = toSignal(
         inject(AuthService).owner()
@@ -92,6 +101,10 @@ export class RecipesPage {
                 }))
             })
             .subscribe();
+    }
+
+    protected pictureFailed(recipeId: number): void {
+        this.failedPictures.update((failed) => new Set(failed).add(recipeId));
     }
 
     protected choose(category: RecipeCategory): void {

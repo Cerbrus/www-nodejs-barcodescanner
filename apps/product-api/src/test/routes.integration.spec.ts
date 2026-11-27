@@ -9,6 +9,7 @@ import { after, before, describe, it } from 'node:test';
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import sharp from 'sharp';
 
 import { ApiModule } from '../api/api.module';
 import { configureApi } from '../api/configure-api';
@@ -373,6 +374,56 @@ describe('data routes over HTTP', () => {
         assert.equal((await call('DELETE', `/recipes/${made.body.id}`, asUser)).status, 204);
         assert.equal((await call('GET', `/recipes/${made.body.id}`, asUser)).status, 404);
         assert.deepEqual((await call('GET', '/recipes', asUser)).body, []);
+    });
+
+    it('takes a picture for a recipe, serves it in two sizes and removes it', async () => {
+        const made = await call<{ id: number; picture: string }>('POST', '/recipes', asGuest, {
+            name: 'Tosti',
+            ingredients: []
+        });
+        const path = `/recipes/${made.body.id}/picture`;
+        const send = (body: BodyInit, type: string, headers = asGuest): Promise<Response> =>
+            fetch(`${base}${path}`, { method: 'PUT', headers: { ...headers, 'content-type': type }, body });
+        const photo = await sharp({ create: { width: 900, height: 900, channels: 4, background: '#33669980' } })
+            .png()
+            .toBuffer();
+
+        assert.equal(made.body.picture, '');
+        assert.equal((await call('GET', path, asGuest)).status, 404);
+        assert.equal((await send(photo, 'image/png', asAgent)).status, 403);
+        assert.equal((await send(photo, 'application/octet-stream')).status, 400);
+        assert.equal((await send('geen plaatje', 'image/png')).status, 400);
+        assert.equal((await send(Buffer.alloc(10 * 1024 * 1024 + 1), 'image/png')).status, 413);
+        assert.equal(
+            (await fetch(`${base}/recipes/999999/picture`, { method: 'PUT', headers: asGuest, body: photo })).status,
+            400
+        );
+
+        const kept = await send(photo, 'image/png');
+        const { picture, pictureSource } = (await kept.json()) as { picture: string; pictureSource: string };
+        assert.equal(kept.status, 200);
+        assert.match(picture, /^[0-9a-f]{12}$/);
+        assert.equal(pictureSource, '');
+
+        for (const [query, width, height] of [
+            ['', 600, 450],
+            ['?size=small', 600, 450],
+            ['?size=large', 900, 900]
+        ] as Array<[string, number, number]>) {
+            const answer = await fetch(`${base}${path}${query}`, { headers: asGuest });
+            const facts = await sharp(Buffer.from(await answer.arrayBuffer())).metadata();
+            assert.equal(answer.status, 200);
+            assert.equal(answer.headers.get('content-type'), 'image/jpeg');
+            assert.equal(answer.headers.get('cache-control'), 'private, max-age=31536000, immutable');
+            assert.deepEqual([facts.format, facts.width, facts.height], ['jpeg', width, height], query);
+        }
+        assert.equal((await fetch(`${base}${path}`)).status, 401);
+
+        assert.equal((await call('DELETE', path, asGuest)).status, 204);
+        assert.equal((await call('GET', path, asGuest)).status, 404);
+        assert.equal((await call<{ picture: string }>('GET', `/recipes/${made.body.id}`, asGuest)).body.picture, '');
+        assert.equal((await call('DELETE', '/recipes/999999/picture', asGuest)).status, 404);
+        assert.equal((await call('DELETE', `/recipes/${made.body.id}`, asGuest)).status, 204);
     });
 
     it('takes a recipe code from the handheld scanner, offers an unknown recipe once, and keeps or drops the offer', async () => {

@@ -89,6 +89,7 @@ export interface Recipe {
     description: string;
     category: RecipeCategory;
     sourceUrl?: string;
+    picture?: string;
     ingredients: Array<RecipeIngredient>;
 }
 

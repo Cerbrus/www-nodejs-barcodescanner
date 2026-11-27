@@ -12,6 +12,9 @@
     --page-image: linear-gradient(to bottom, transparent 45%, color-mix(in srgb, var(--tile-buy) 40%, transparent));
     --page-image-size: 100% 100%;
     --corner: 0.6;
+    --photo-fade: #1a0b2e;
+    --photo-text: #fbe9ff;
+    --photo-filter: saturate(1.35) hue-rotate(-12deg) contrast(1.05);
 }
 
 :root[data-skin='synthwave'] .page-title {

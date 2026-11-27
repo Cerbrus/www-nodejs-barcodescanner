@@ -106,6 +106,16 @@ layer(base);
     --tile-icon-invert: 0;
     --tile-recent-text: var(--tile-text);
     --tile-recent-icon-invert: var(--tile-icon-invert);
+    --photo-fade: #000;
+    --photo-text: #fff;
+    --photo-filter: none;
+    --photo-band-top: 26px;
+    --photo-band: linear-gradient(
+        to top,
+        color-mix(in srgb, var(--photo-fade) 80%, transparent),
+        color-mix(in srgb, var(--photo-fade) 48%, transparent) 62%,
+        transparent
+    );
     color-scheme: light dark;
 }
 

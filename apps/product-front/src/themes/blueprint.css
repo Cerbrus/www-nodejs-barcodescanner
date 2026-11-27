@@ -23,6 +23,11 @@
         linear-gradient(color-mix(in srgb, var(--line) 30%, transparent) 1px, transparent 1px),
         linear-gradient(90deg, color-mix(in srgb, var(--line) 30%, transparent) 1px, transparent 1px);
     --page-image-size: 24px 24px;
+    --photo-fade: #0d3b82;
+    --photo-text: #eaf2ff;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) sepia(1) hue-rotate(175deg) saturate(3);
 }
 
 :root[data-skin='blueprint'] .page-title {

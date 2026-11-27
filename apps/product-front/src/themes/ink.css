@@ -19,4 +19,8 @@
     --toast: light-dark(#000, #fff);
     --toast-text: light-dark(#fff, #000);
     --ink: var(--line);
+    --photo-fade: #111;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) contrast(1.4);
 }

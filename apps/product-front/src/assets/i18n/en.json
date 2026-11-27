@@ -114,6 +114,13 @@
         "description": "Description",
         "category": "Category",
         "sourceUrl": "Link to the source",
+        "picture": "Picture",
+        "pictureChoose": "Choose or take a picture",
+        "pictureRemove": "Remove the picture",
+        "pictureCut": "Choose the cut",
+        "pictureZoom": "Zoom",
+        "pictureUse": "Use this cut",
+        "pictureUnreadable": "This picture cannot be read",
         "allCategories": "All categories",
         "categories": {
             "breakfast": "Breakfast",

@@ -234,6 +234,14 @@ export class ShoppingStore {
         return saved.pipe(switchMap((recipe) => this.refreshRecipes().pipe(map(() => recipe))));
     }
 
+    public changeRecipePicture(id: number, picture: Blob | null): Observable<void> {
+        const changed = picture
+            ? this.api.setRecipePicture(id, picture).pipe(map(() => undefined))
+            : this.api.removeRecipePicture(id);
+
+        return changed.pipe(switchMap(() => this.refreshRecipes()));
+    }
+
     public deleteRecipe(id: number): Observable<void> {
         return this.api.deleteRecipe(id).pipe(switchMap(() => this.refreshRecipes()));
     }

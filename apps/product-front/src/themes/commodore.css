@@ -23,6 +23,11 @@
     --corner: 0;
     --border-width: 2px;
     --tile-border-width: 2px;
+    --photo-fade: #352879;
+    --photo-text: #b3a9ff;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) sepia(1) hue-rotate(200deg) saturate(2);
 }
 
 :root[data-skin='commodore'] .page-title {

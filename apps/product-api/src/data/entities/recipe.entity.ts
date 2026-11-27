@@ -21,6 +21,12 @@ export class RecipeEntity {
     @Column({ type: 'varchar', default: '' })
     public sourceUrl: string;
 
+    @Column({ type: 'varchar', default: '' })
+    public picture: string;
+
+    @Column({ type: 'varchar', default: '' })
+    public pictureSource: string;
+
     @Column({ type: 'datetime' })
     public createdAt: Date;
 

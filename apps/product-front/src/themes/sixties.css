@@ -15,4 +15,5 @@
         radial-gradient(circle at 24px 24px, color-mix(in srgb, #ff2d95 22%, transparent) 10px, transparent 11px),
         radial-gradient(circle at 72px 72px, color-mix(in srgb, #f04e00 22%, transparent) 10px, transparent 11px);
     --page-image-size: 96px 96px;
+    --photo-filter: sepia(0.35) saturate(1.4);
 }

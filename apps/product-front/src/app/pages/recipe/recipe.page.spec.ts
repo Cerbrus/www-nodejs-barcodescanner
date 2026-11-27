@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 
 import { FakeStore, click, draft, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
+import { PictureCutComponent } from '../../components/picture-cut/picture-cut.component';
 import { Recipe } from '../../models';
 import { ApiService } from '../../services/api.service';
 import { RecipePrintService } from '../../services/recipe-print.service';
@@ -68,7 +69,15 @@ describe('RecipePage', () => {
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },
-                { provide: ApiService, useValue: { iconsUrl: '/icons', getIcons: () => of([]) } },
+                {
+                    provide: ApiService,
+                    useValue: {
+                        iconsUrl: '/icons',
+                        getIcons: () => of([]),
+                        recipePictureUrl: ({ id, picture }: Recipe, size: string): string | undefined =>
+                            picture ? `/recipes/${id}/picture?size=${size}&v=${picture}` : undefined
+                    }
+                },
                 { provide: RecipePrintService, useValue: printing }
             ]
         });
@@ -102,6 +111,102 @@ describe('RecipePage', () => {
         expect(page.querySelector('.ingredient, app-item-icon, .draft-mark')).toBeNull();
         expect(page.querySelector('#recipe-name')).toBeNull();
         expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/recipes');
+    });
+
+    it('shows the large picture of a recipe above its text, and nothing in that place without one or when it fails', async () => {
+        await open('7');
+        expect(page.querySelector('img.picture')).toBeNull();
+
+        store.recipes.set([{ ...PANCAKES, picture: 'abc123' }]);
+        await settle();
+        const picture = page.querySelector('img.picture') as HTMLImageElement;
+        expect(picture.getAttribute('src')).toBe('/recipes/7/picture?size=large&v=abc123');
+
+        picture.dispatchEvent(new Event('error'));
+        await settle();
+        expect(page.querySelector('img.picture')).toBeNull();
+    });
+
+    it('takes a picture for a recipe through the cut, shows it in the form and sends it after saving', async () => {
+        URL.createObjectURL = vi.fn(() => 'blob:new');
+        URL.revokeObjectURL = vi.fn();
+        const chosen = new File(['chosen'], 'koek.png', { type: 'image/png' });
+        const cut = new Blob(['cut'], { type: 'image/jpeg' });
+        await open('7');
+        await edit();
+        const field = page.querySelector('#recipe-picture') as HTMLInputElement;
+
+        expect(field.getAttribute('aria-label')).toBe('recipe.pictureChoose');
+        expect(page.querySelector('.picture-preview')).toBeNull();
+        expect(button('recipe.pictureRemove')).toBeUndefined();
+        expect(button('common.save').disabled).toBe(true);
+
+        Object.defineProperty(field, 'files', { value: [chosen], configurable: true });
+        field.dispatchEvent(new Event('change'));
+        await settle();
+        const sheet = fixture.debugElement.query(By.directive(PictureCutComponent));
+
+        expect(sheet.componentInstance.picture()).toBe(chosen);
+
+        sheet.componentInstance.finished.emit(cut);
+        await settle();
+
+        expect(fixture.debugElement.query(By.directive(PictureCutComponent))).toBeNull();
+        expect(page.querySelector('.picture-preview')?.getAttribute('src')).toBe('blob:new');
+        expect(button('common.save').disabled).toBe(false);
+
+        button('common.save').click();
+        await settle();
+
+        expect(store.saveRecipe).toHaveBeenCalled();
+        expect(store.changeRecipePicture).toHaveBeenCalledWith(7, cut);
+    });
+
+    it('leaves the picture alone when the cut is cancelled or nothing about it changed', async () => {
+        URL.createObjectURL = vi.fn(() => 'blob:new');
+        URL.revokeObjectURL = vi.fn();
+        store.recipes.set([{ ...PANCAKES, picture: 'abc123' }]);
+        await open('7');
+        await edit();
+        const field = page.querySelector('#recipe-picture') as HTMLInputElement;
+
+        expect(page.querySelector('.picture-preview')?.getAttribute('src')).toBe(
+            '/recipes/7/picture?size=small&v=abc123'
+        );
+
+        Object.defineProperty(field, 'files', { value: [new File(['x'], 'x.png')], configurable: true });
+        field.dispatchEvent(new Event('change'));
+        await settle();
+        fixture.debugElement.query(By.directive(PictureCutComponent)).componentInstance.cancelled.emit();
+        await settle();
+
+        expect(fixture.debugElement.query(By.directive(PictureCutComponent))).toBeNull();
+        expect(button('common.save').disabled).toBe(true);
+
+        type(page, '#recipe-name', 'Flensjes');
+        await settle();
+        button('common.save').click();
+        await settle();
+
+        expect(store.saveRecipe).toHaveBeenCalled();
+        expect(store.changeRecipePicture).not.toHaveBeenCalled();
+    });
+
+    it('removes the picture of a recipe with its button, after saving', async () => {
+        store.recipes.set([{ ...PANCAKES, picture: 'abc123' }]);
+        await open('7');
+        await edit();
+
+        button('recipe.pictureRemove').click();
+        await settle();
+
+        expect(page.querySelector('.picture-preview')).toBeNull();
+        expect(button('recipe.pictureRemove')).toBeUndefined();
+
+        button('common.save').click();
+        await settle();
+
+        expect(store.changeRecipePicture).toHaveBeenCalledWith(7, null);
     });
 
     it('shows an ingredient line as it was typed, never as markdown or html', async () => {

@@ -7,6 +7,7 @@ import {
     effect,
     inject,
     input,
+    linkedSignal,
     numberAttribute,
     signal,
     untracked
@@ -15,7 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { merge, tap } from 'rxjs';
+import { map, merge, of, switchMap, tap } from 'rxjs';
 
 import {
     MAX_INGREDIENT_NOTE_LENGTH,
@@ -36,12 +37,14 @@ import { ItemAutocompleteComponent } from '../../components/item-autocomplete/it
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
 import { MarkdownComponent } from '../../components/markdown/markdown.component';
 import { NewItemFormComponent } from '../../components/new-item-form/new-item-form.component';
+import { PictureCutComponent } from '../../components/picture-cut/picture-cut.component';
 import { RecipeCodeComponent } from '../../components/recipe-code/recipe-code.component';
 import { RecipeSheetComponent } from '../../components/recipe-sheet/recipe-sheet.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { CatalogItem } from '../../models';
 import { RECIPE_CATEGORY_ICONS } from '../../recipe-categories';
+import { ApiService } from '../../services/api.service';
 import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
@@ -74,6 +77,7 @@ const written = (ingredient: RecipeIngredient): RecipeIngredient => ({
         ItemIconComponent,
         MarkdownComponent,
         NewItemFormComponent,
+        PictureCutComponent,
         RecipeCodeComponent,
         RecipeSheetComponent,
         SheetComponent,
@@ -115,6 +119,10 @@ export class RecipePage {
     protected readonly ingredients = signal<Array<RecipeIngredient>>([]);
     protected readonly search = signal('');
     protected readonly creatingName = signal<string | undefined>(undefined);
+    protected readonly pictureChoice = signal<Blob | undefined>(undefined);
+    protected readonly newPicture = signal<Blob | undefined>(undefined);
+    protected readonly newPictureAddress = signal<string | undefined>(undefined);
+    protected readonly pictureRemoved = signal(false);
 
     protected readonly descriptionRows = computed(() => {
         const lines = this.description()
@@ -131,6 +139,21 @@ export class RecipePage {
     });
 
     protected readonly shownCategory = computed(() => recipeCategoryOf(this.recipe()?.category));
+    protected readonly pictureFailed = linkedSignal({ source: () => this.recipe()?.picture, computation: () => false });
+    protected readonly picture = computed(() => {
+        const recipe = this.recipe();
+
+        return recipe && !this.pictureFailed() ? this.api.recipePictureUrl(recipe, 'large') : undefined;
+    });
+
+    protected readonly editPicture = computed(() => {
+        const recipe = this.recipe();
+        if (this.pictureRemoved()) {
+            return undefined;
+        }
+
+        return this.newPictureAddress() ?? (recipe ? this.api.recipePictureUrl(recipe, 'small') : undefined);
+    });
 
     protected readonly source = computed(() => {
         const url = this.recipe()?.sourceUrl;
@@ -171,7 +194,8 @@ export class RecipePage {
             this.description().trim() !== recipe.description ||
             this.category() !== this.shownCategory() ||
             this.sourceUrl().trim() !== (recipe.sourceUrl ?? '') ||
-            JSON.stringify(this.ingredients().map(written)) !== JSON.stringify(recipe.ingredients.map(written));
+            JSON.stringify(this.ingredients().map(written)) !== JSON.stringify(recipe.ingredients.map(written)) ||
+            this.pictureChange() !== undefined;
 
         return (
             this.name().trim().length > 0 &&
@@ -181,13 +205,28 @@ export class RecipePage {
         );
     });
 
+    private readonly pictureChange = computed(() => {
+        const removed = this.pictureRemoved() && this.recipe()?.picture ? null : undefined;
+
+        return this.newPicture() ?? removed;
+    });
+
     private readonly router = inject(Router);
+    private readonly api = inject(ApiService);
     private openedForEdit = false;
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
     private readonly language = toSignal(merge(this.translate.onLangChange, this.translate.onTranslationChange));
 
     constructor() {
+        effect((onCleanup) => {
+            const picture = this.newPicture();
+            const address = picture ? URL.createObjectURL(picture) : undefined;
+            this.newPictureAddress.set(address);
+            if (address) {
+                onCleanup(() => URL.revokeObjectURL(address));
+            }
+        });
         effect(() => {
             if (this.id() === undefined) {
                 untracked(() => this.startEdit());
@@ -209,6 +248,9 @@ export class RecipePage {
         this.sourceUrl.set(recipe?.sourceUrl ?? '');
         this.ingredients.set(recipe?.ingredients.map(written) ?? []);
         this.search.set('');
+        this.pictureChoice.set(undefined);
+        this.newPicture.set(undefined);
+        this.pictureRemoved.set(false);
         this.confirmingDelete.set(false);
         this.editing.set(true);
     }
@@ -224,6 +266,7 @@ export class RecipePage {
     protected save(): void {
         const isNew = this.id() === undefined;
         const category = this.category();
+        const picture = this.pictureChange();
         if (!category) {
             return;
         }
@@ -237,6 +280,11 @@ export class RecipePage {
                 ingredients: this.ingredients().map(written)
             })
             .pipe(
+                switchMap((saved) =>
+                    picture === undefined
+                        ? of(saved)
+                        : this.store.changeRecipePicture(saved.id, picture).pipe(map(() => saved))
+                ),
                 tap((saved) => {
                     this.toasts.show({ kind: 'ok', text: this.translate.instant('recipe.saved') });
                     this.editing.set(false);
@@ -246,6 +294,25 @@ export class RecipePage {
                 })
             )
             .subscribe();
+    }
+
+    protected choosePicture(field: HTMLInputElement): void {
+        const file = field.files?.[0];
+        field.value = '';
+        if (file) {
+            this.pictureChoice.set(file);
+        }
+    }
+
+    protected usePicture(picture: Blob): void {
+        this.newPicture.set(picture);
+        this.pictureRemoved.set(false);
+        this.pictureChoice.set(undefined);
+    }
+
+    protected removePicture(): void {
+        this.newPicture.set(undefined);
+        this.pictureRemoved.set(true);
     }
 
     protected delete(): void {

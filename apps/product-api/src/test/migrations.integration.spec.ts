@@ -19,6 +19,7 @@ import { DraftProducts1763900000000 } from '../data/migrations/1763900000000-dra
 import { IngredientText1764000000000 } from '../data/migrations/1764000000000-ingredient-text';
 import { RecipeCategory1764100000000 } from '../data/migrations/1764100000000-recipe-category';
 import { RecipeSourceUrl1764200000000 } from '../data/migrations/1764200000000-recipe-source-url';
+import { RecipePicture1764300000000 } from '../data/migrations/1764300000000-recipe-picture';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -194,6 +195,28 @@ describe('migrations', () => {
 
         assert.deepEqual(await database.query('SELECT "description", "category", "source_url" FROM "recipe"'), [
             { description: soup, category: 'other', source_url: '' }
+        ]);
+        await database.query('DELETE FROM "recipe"');
+    });
+
+    it('gives every recipe an empty picture and picture source, and takes both columns away again', async () => {
+        const columns = async (): Promise<Array<string>> =>
+            ((await database.query('PRAGMA table_info("recipe")')) as Array<{ name: string }>).map(({ name }) => name);
+        const runner = database.createQueryRunner();
+        await new RecipePicture1764300000000().down(runner);
+
+        assert.ok(!(await columns()).some((name) => name === 'picture' || name === 'picture_source'));
+
+        await database.query('INSERT INTO "recipe" ("name", "created_at", "updated_at") VALUES (?, ?, ?)', [
+            'Soep',
+            '2026-11-28 00:00:00',
+            '2026-11-28 00:00:00'
+        ]);
+        await new RecipePicture1764300000000().up(runner);
+        await runner.release();
+
+        assert.deepEqual(await database.query('SELECT "picture", "picture_source" FROM "recipe"'), [
+            { picture: '', picture_source: '' }
         ]);
         await database.query('DELETE FROM "recipe"');
     });

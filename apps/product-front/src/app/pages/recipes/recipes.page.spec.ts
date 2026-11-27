@@ -38,7 +38,12 @@ describe('RecipesPage', () => {
     let store: FakeStore;
     const printing = { print: vi.fn() };
     const owner = signal(false);
-    const api = { iconsUrl: '/icons', getRecipeImport: vi.fn() };
+    const api = {
+        iconsUrl: '/icons',
+        getRecipeImport: vi.fn(),
+        recipePictureUrl: ({ id, picture }: Recipe): string | undefined =>
+            picture ? `/recipes/${id}/picture?v=${picture}` : undefined
+    };
     const importButton = (): HTMLButtonElement | null =>
         page.querySelector('.recipes-header button[aria-label="recipe.import"]');
     const sheetButton = (label: string): HTMLButtonElement =>
@@ -94,23 +99,45 @@ describe('RecipesPage', () => {
             '/recipes/2'
         ]);
         expect(
-            Array.from(page.querySelectorAll('.recipe'), (row) => row.querySelectorAll('app-item-icon').length)
+            Array.from(page.querySelectorAll('.recipe'), (row) => row.querySelectorAll('.recipe-icon').length)
         ).toEqual([0, 1, 1]);
         expect(page.querySelector('a.btn.primary')?.getAttribute('href')).toBe('/recipes/new');
     });
 
-    it('shows the recipes of a category as rows of one connected group under its name, in the fixed order', async () => {
+    it('shows a recipe as a tile with its small picture, or with the icon of its category when it has none', async () => {
+        store.recipes.set([{ ...SOUP, picture: 'abc123' }, PANCAKES]);
+        await open();
+        const tiles = Array.from(page.querySelectorAll('.recipe'));
+
+        expect(tiles.map((tile) => tile.querySelector('img.recipe-picture')?.getAttribute('src') ?? null)).toEqual([
+            null,
+            '/recipes/2/picture?v=abc123'
+        ]);
+        expect(texts(tiles[0] as HTMLElement, '.recipe-picture.none')).toEqual(['dinner_dining']);
+        expect(tiles[1].querySelector('.recipe-picture.none')).toBeNull();
+        expect(tiles.map((tile) => tile.querySelector('.recipe-name')?.textContent?.trim())).toEqual([
+            'Pannenkoeken',
+            'Soep'
+        ]);
+
+        tiles[1].querySelector('img')?.dispatchEvent(new Event('error'));
+        await settle();
+
+        expect(page.querySelector('img.recipe-picture')).toBeNull();
+        expect(texts(page, '.recipe-picture.none')).toEqual(['dinner_dining', 'soup_kitchen']);
+    });
+
+    it('shows the recipes of a category as a grid of tiles under its name, in the fixed order', async () => {
         await open();
 
         expect(texts(page, '.section-title')).toEqual([
             'dinner_dining recipe.categories.dinner',
             'soup_kitchen recipe.categories.soup'
         ]);
-        expect(page.querySelectorAll('.card.group')).toHaveLength(2);
+        expect(page.querySelectorAll('.recipe-grid')).toHaveLength(2);
         expect(
-            Array.from(page.querySelectorAll('.card.group'), (group) => group.querySelectorAll('.recipe').length)
+            Array.from(page.querySelectorAll('.recipe-grid'), (group) => group.querySelectorAll('.recipe').length)
         ).toEqual([2, 1]);
-        expect(page.querySelectorAll('.recipe.card')).toHaveLength(0);
     });
 
     it('narrows the page to one category with its button, and back with the same button or the first one', async () => {
@@ -273,7 +300,7 @@ describe('RecipesPage', () => {
 
         expect(boxes().map((box) => box.disabled)).toEqual([false, true, false]);
         expect(texts(page, '.recipe.unprintable .font-semibold')).toEqual(['Pannenkoeken']);
-        expect(page.querySelectorAll('.recipe.unprintable i[aria-label="recipe.holdsDraft"]').length).toBe(1);
+        expect(page.querySelectorAll('.recipe.unprintable [aria-label="recipe.holdsDraft"]').length).toBe(1);
 
         click(page, '.recipe input', 1);
         click(page, '.recipe input', 2);

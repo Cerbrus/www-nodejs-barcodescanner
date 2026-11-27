@@ -15,6 +15,11 @@
     color: var(--text-muted);
     font-size: 0.85rem;
 }
+.picture {
+    max-height: 320px;
+    border-radius: calc(14px * var(--corner));
+    filter: var(--photo-filter);
+}
 .category i {
     font-size: 18px;
 }

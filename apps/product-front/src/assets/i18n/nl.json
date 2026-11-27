@@ -114,6 +114,13 @@
         "description": "Beschrijving",
         "category": "Categorie",
         "sourceUrl": "Link naar de bron",
+        "picture": "Foto",
+        "pictureChoose": "Foto kiezen of maken",
+        "pictureRemove": "Foto verwijderen",
+        "pictureCut": "Uitsnede kiezen",
+        "pictureZoom": "Zoom",
+        "pictureUse": "Deze uitsnede gebruiken",
+        "pictureUnreadable": "Deze foto kan niet worden gelezen",
         "allCategories": "Alle categorieën",
         "categories": {
             "breakfast": "Ontbijt",

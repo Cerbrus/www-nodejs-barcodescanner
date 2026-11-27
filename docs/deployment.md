@@ -49,6 +49,7 @@ Consequences:
 |-- .env                  # local settings and secrets, never overwritten, readable by root only
 `-- data/                 # owned by user 1000
     |-- app.db            # SQLite database
+    |-- recipe-pictures/  # the picture of each recipe, in two sizes
     |-- push-keys.json    # key pair for notifications
     |-- session-secret    # signs the login cookies
     `-- logs/app.log      # log file with its rotated files
@@ -204,12 +205,12 @@ When the site's public name points at the router, some routers pass requests fro
 
 ## Database backup
 
-The database is the only state that cannot be rebuilt: the links between barcodes and products, your own products, the list and the scan history. `deployment/backup.sh` writes it as SQL text and pushes it to a private git repository, so a dead SD card costs at most an hour of changes.
+The database is the state that cannot be rebuilt: the links between barcodes and products, your own products, the list and the scan history. `deployment/backup.sh` writes it as SQL text and pushes it to a private git repository, so a dead SD card costs at most an hour of changes. The pictures of the recipes (`data/recipe-pictures/`) go along as files in a folder `recipe-pictures` beside the dump: a picture of your own cannot be rebuilt either, and one from a site only as long as the site keeps it.
 
 How it works:
 
 - `barcodescanner-backup.timer` runs `backup.sh` every hour, and once after boot when a run was missed.
-- The script first compares the database file's modification time with its last run and stops when nothing was written since. Otherwise it reads the database read-only with `sqlite3 .dump` while the app keeps running, writes `backup/app.sql`, and commits and pushes only when the content changed. A failed push is retried on the next run.
+- The script first compares the database file's modification time with its last run and stops when nothing was written since. Otherwise it reads the database read-only with `sqlite3 .dump` while the app keeps running, writes `backup/app.sql`, copies the recipe pictures over the ones in the backup, and commits and pushes only when the content changed. A changed picture also writes to the database, so it is never missed. A failed push is retried on the next run.
 - The repository's history is the retention: every change is a commit, and `git log -p app.sql` shows what changed.
 - It pushes with its own SSH key, `/opt/barcodescanner/backup_key`, which is a deploy key of the backup repository only. Nothing else on the Pi and no other repository can be reached with it.
 - The backup repository must be private. This repository and the images stay free of data and keys.
@@ -233,11 +234,13 @@ sudo docker compose stop app
 git clone git@github.com:<account>/barcodescanner-backup.git /tmp/restore
 sudo rm -f data/app.db data/app.db-wal data/app.db-shm
 sudo sqlite3 data/app.db < /tmp/restore/app.sql
-sudo chown 1000:1000 data/app.db
+sudo rm -rf data/recipe-pictures
+sudo cp -r /tmp/restore/recipe-pictures data/ 2>/dev/null || true
+sudo chown -R 1000:1000 data/app.db data/recipe-pictures 2>/dev/null || sudo chown 1000:1000 data/app.db
 sudo docker compose up -d
 ```
 
-The backup holds the database only. On a new card also fill in `.env` again: scanner device, proxy address, backup repository, the Google client id and secret, `PUBLIC_URL`, `ALLOWED_EMAILS`, the buzzer settings. The app makes new keys in `data/`, so everyone logs in once more and each device turns notifications off and on again.
+The backup holds the database and the recipe pictures, nothing else. A recipe whose picture files are missing shows as one without a picture. On a new card also fill in `.env` again: scanner device, proxy address, backup repository, the Google client id and secret, `PUBLIC_URL`, `ALLOWED_EMAILS`, the buzzer settings. The app makes new keys in `data/`, so everyone logs in once more and each device turns notifications off and on again.
 
 Clone with your own GitHub login, or add the new Pi's `backup_key.pub` as deploy key first and remove the old one. For an older state, check out an earlier commit of the backup repository before loading `app.sql`. The dump includes the migration table, so a newer app version migrates it forward at start.
 

@@ -1,0 +1,55 @@
+<app-sheet (closed)="cancelled.emit()">
+    <h2 class="page-title">{{ 'recipe.pictureCut' | translate }}</h2>
+    <div
+        class="frame"
+        (pointerdown)="pressed($event)"
+        (pointermove)="moved($event)"
+        (pointerup)="released($event)"
+        (pointercancel)="released($event)"
+    >
+        <img
+            #image
+            alt=""
+            draggable="false"
+            [src]="address()"
+            [class.placed]="place()"
+            [style.width.%]="place()?.width"
+            [style.height.%]="place()?.height"
+            [style.left.%]="place()?.left"
+            [style.top.%]="place()?.top"
+            (load)="loaded(image)"
+            (error)="failed.set(true)"
+        />
+    </div>
+    @if (failed()) {
+        <p class="empty mt-3">{{ 'recipe.pictureUnreadable' | translate }}</p>
+    } @else {
+        <input
+            #zoom
+            id="picture-zoom"
+            class="zoom"
+            type="range"
+            min="1"
+            step="0.01"
+            [max]="mostZoom"
+            [value]="chosen().zoom"
+            [attr.aria-label]="'recipe.pictureZoom' | translate"
+            (input)="zoomTo(zoom.valueAsNumber)"
+        />
+    }
+
+    <div class="mt-4 flex gap-2">
+        <button
+            type="button"
+            class="btn primary basis-0 grow"
+            [attr.aria-label]="'recipe.pictureUse' | translate"
+            [disabled]="!size() || failed()"
+            (click)="confirm()"
+        >
+            <i class="material-symbols-outlined">check</i>
+        </button>
+        <button type="button" class="btn" [attr.aria-label]="'common.cancel' | translate" (click)="cancelled.emit()">
+            <i class="material-symbols-outlined">close</i>
+        </button>
+    </div>
+</app-sheet>

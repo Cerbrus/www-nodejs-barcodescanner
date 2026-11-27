@@ -25,6 +25,8 @@
         linear-gradient(color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px),
         linear-gradient(90deg, color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px);
     --page-image-size: 32px 32px;
+    --photo-text: #d9f7ff;
+    --photo-filter: saturate(0.6) contrast(1.15);
 }
 
 :root[data-skin='tron'] .tile {

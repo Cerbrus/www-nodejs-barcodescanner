@@ -17,6 +17,7 @@ import { LogService } from './services/log.service';
 import { NamingService } from './services/naming.service';
 import { PushService } from './services/push.service';
 import { RecipeImportService } from './services/recipe-import.service';
+import { RecipePictureService } from './services/recipe-picture.service';
 import { RecipeService } from './services/recipe.service';
 import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
@@ -38,6 +39,7 @@ const services = [
     NamingService,
     PushService,
     RecipeImportService,
+    RecipePictureService,
     RecipeService,
     RemarkService,
     ScanService,

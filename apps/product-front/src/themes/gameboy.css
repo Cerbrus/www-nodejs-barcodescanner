@@ -28,4 +28,9 @@
     --font: 'Pixelify Sans', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     --corner: 0;
     --border-width: 2px;
+    --photo-fade: #0f380f;
+    --photo-text: #9bbc0f;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) sepia(1) hue-rotate(40deg) saturate(2.4) contrast(1.15);
 }

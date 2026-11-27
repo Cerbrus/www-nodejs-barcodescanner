@@ -20,4 +20,7 @@
     --toast-text: light-dark(#c5cdb8, #1c2118);
     --font: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     --corner: 0.3;
+    --photo-fade: #1c2118;
+    --photo-text: #e3ead6;
+    --photo-filter: grayscale(1) sepia(0.25) contrast(0.9);
 }

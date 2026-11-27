@@ -21,6 +21,9 @@
     --shadow-float:
         inset -1px -1px light-dark(#0a0a0a, #000), inset 1px 1px light-dark(#fff, #6a6a6a),
         inset -2px -2px light-dark(#808080, #1f1f1f), inset 2px 2px light-dark(#dfdfdf, #505050);
+    --photo-fade: #000080;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
 }
 
 :root[data-skin='windows'] .field {

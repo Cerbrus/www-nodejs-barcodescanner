@@ -97,25 +97,26 @@
             <i class="material-symbols-outlined">{{ categoryIcons[group.category] }}</i>
             {{ 'recipe.categories.' + group.category | translate }}
         </h2>
-        <div class="card group">
+        <div class="recipe-grid">
             @for (row of group.rows; track row.recipe.id) {
                 @if (selecting()) {
-                    <label class="recipe choosing" [class.unprintable]="!row.printable">
-                        <span class="recipe-link">
-                            <span class="block font-semibold">{{ row.recipe.name }}</span>
-                            <span class="recipe-facts">
-                                {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
-                            </span>
-                        </span>
+                    <label
+                        class="recipe choosing"
+                        [class.unprintable]="!row.printable"
+                        [class.chosen]="selected().has(row.recipe.id)"
+                    >
+                        <ng-container [ngTemplateOutlet]="face" [ngTemplateOutletContext]="{ $implicit: row }" />
                         @if (!row.printable) {
-                            <i
-                                class="material-symbols-outlined"
+                            <span
+                                class="recipe-mark warning"
                                 role="img"
                                 [attr.aria-label]="'recipe.holdsDraft' | translate"
-                                >warning</i
                             >
+                                <i class="material-symbols-outlined">warning</i>
+                            </span>
                         }
                         <input
+                            class="recipe-mark"
                             type="checkbox"
                             [id]="'recipe-select-' + row.recipe.id"
                             [disabled]="!row.printable"
@@ -126,21 +127,11 @@
                 } @else {
                     <div class="recipe">
                         <a class="recipe-link" [routerLink]="['/recipes', row.recipe.id]">
-                            <span class="block font-semibold">{{ row.recipe.name }}</span>
-                            <span class="recipe-facts">
-                                <span class="recipe-count">
-                                    {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
-                                </span>
-                                <span class="recipe-icons" appOverflowing>
-                                    @for (item of row.icons; track item.id) {
-                                        <span class="recipe-icon"><app-item-icon [item]="item" /></span>
-                                    }
-                                </span>
-                            </span>
+                            <ng-container [ngTemplateOutlet]="face" [ngTemplateOutletContext]="{ $implicit: row }" />
                         </a>
                         <button
                             type="button"
-                            class="btn primary"
+                            class="btn primary recipe-mark"
                             [disabled]="!row.recipe.ingredients.length"
                             [attr.aria-label]="'recipe.addAll' | translate: { name: row.recipe.name }"
                             (click)="add(row.recipe)"
@@ -160,6 +151,28 @@
         </p>
     }
 </div>
+
+<ng-template #face let-row>
+    @if (row.picture; as picture) {
+        <img class="recipe-picture" alt="" loading="lazy" [src]="picture" (error)="pictureFailed(row.recipe.id)" />
+    } @else {
+        <span class="recipe-picture none">
+            <i class="material-symbols-outlined">{{ row.categoryIcon }}</i>
+        </span>
+    }
+    <span class="recipe-band" [class.plain]="!row.picture">
+        <span class="recipe-name font-semibold">{{ row.recipe.name }}</span>
+        <span class="recipe-icons">
+            @for (item of row.icons; track item.id) {
+                @if (item.mask) {
+                    <span class="recipe-icon masked" [style.--icon]="item.mask"></span>
+                } @else {
+                    <span class="recipe-icon">{{ item.sign }}</span>
+                }
+            }
+        </span>
+    </span>
+</ng-template>
 
 @if (importing()) {
     <app-sheet (closed)="closeImport()">

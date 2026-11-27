@@ -51,6 +51,35 @@
                 [ngModel]="sourceUrl()"
                 (ngModelChange)="sourceUrl.set($event)"
             />
+
+            <span class="field-label">{{ 'recipe.picture' | translate }}</span>
+            <div class="flex items-center gap-2">
+                @if (editPicture(); as shown) {
+                    <img class="picture-preview h-[60px] w-20 rounded-lg object-cover" alt="" [src]="shown" />
+                }
+                <label class="btn">
+                    <i class="material-symbols-outlined">photo_camera</i>
+                    <input
+                        #file
+                        id="recipe-picture"
+                        class="sr-only"
+                        type="file"
+                        accept="image/*"
+                        [attr.aria-label]="'recipe.pictureChoose' | translate"
+                        (change)="choosePicture(file)"
+                    />
+                </label>
+                @if (editPicture()) {
+                    <button
+                        type="button"
+                        class="btn"
+                        [attr.aria-label]="'recipe.pictureRemove' | translate"
+                        (click)="removePicture()"
+                    >
+                        <i class="material-symbols-outlined">no_photography</i>
+                    </button>
+                }
+            </div>
         </div>
 
         <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>
@@ -224,6 +253,14 @@
             <i class="material-symbols-outlined">{{ categoryIcons[shownCategory()] }}</i>
             {{ 'recipe.categories.' + shownCategory() | translate }}
         </p>
+        @if (picture(); as picture) {
+            <img
+                class="picture mb-3 block w-full object-cover"
+                alt=""
+                [src]="picture"
+                (error)="pictureFailed.set(true)"
+            />
+        }
 
         @if (shown().length || recipe.description || source()) {
             <div class="card">
@@ -300,4 +337,8 @@
             (cancelled)="creatingName.set(undefined)"
         />
     </app-sheet>
+}
+
+@if (pictureChoice(); as chosen) {
+    <app-picture-cut [picture]="chosen" (finished)="usePicture($event)" (cancelled)="pictureChoice.set(undefined)" />
 }

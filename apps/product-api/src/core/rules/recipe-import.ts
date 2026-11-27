@@ -11,6 +11,7 @@ import {
     recipeCategoryOf
 } from '@barcodescanner/shared';
 
+import { pictureAddress } from './picture-source';
 import { fits, mostSpecific } from './product-match';
 
 const MAX_PRODUCT_NAME_LENGTH = 80;
@@ -79,9 +80,10 @@ export const PAGE_SCHEMA = {
     type: 'object',
     properties: {
         found: { type: 'boolean' },
-        recipe: { type: 'string' }
+        recipe: { type: 'string' },
+        picture: { type: 'string' }
     },
-    required: ['found', 'recipe']
+    required: ['found', 'recipe', 'picture']
 };
 
 export function pagePrompt(source: string): string {
@@ -92,7 +94,8 @@ ${source.trim()}
 </link>
 
 - found: true only when the page was fetched and holds a recipe.
-- recipe: the recipe as plain text, in its own language: its name on the first line, then the servings line as the page gives it, with its unit ("4 personen", "12 stuks"), when given, then every ingredient line exactly as the page gives it, each on its own line, then every preparation step. "" when found is false.`;
+- recipe: the recipe as plain text, in its own language: its name on the first line, then the servings line as the page gives it, with its unit ("4 personen", "12 stuks"), when given, then every ingredient line exactly as the page gives it, each on its own line, then every preparation step. "" when found is false.
+- picture: the full address of the main picture of the recipe, exactly as the fetched page gives it. "" when the page shows no such address or found is false; never make one up.`;
 }
 
 export function readPage(answer: unknown): string | undefined {
@@ -230,6 +233,12 @@ export function readImport(answer: unknown, choices: ImportChoices): ImportedRec
               rows
           }
         : undefined;
+}
+
+export function readPagePicture(answer: unknown): string {
+    const { found, picture } = (answer ?? {}) as Record<string, unknown>;
+
+    return found === true ? pictureAddress(picture) : '';
 }
 
 export function linkIn(source: string): string {

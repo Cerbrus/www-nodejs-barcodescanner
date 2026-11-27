@@ -9,7 +9,8 @@ import {
     linkIn,
     pagePrompt,
     readImport,
-    readPage
+    readPage,
+    readPagePicture
 } from './recipe-import';
 
 const CHOICES = {
@@ -57,6 +58,21 @@ describe('recipe import', () => {
         assert.equal(readPage({ found: true, recipe: ' ' }), undefined);
         assert.equal(readPage({ found: true }), undefined);
         assert.equal(readPage(undefined), undefined);
+    });
+
+    it('asks for the picture of the page, and takes only an https address of a page that was found', () => {
+        assert.match(pagePrompt('https://example.com/r'), /- picture: the full address of the main picture/);
+
+        const picture = 'https://static.example.com/soep.jpg';
+        assert.equal(readPagePicture({ found: true, recipe: 'Soep', picture }), picture);
+        assert.equal(readPagePicture({ found: false, recipe: '', picture }), '');
+        assert.equal(
+            readPagePicture({ found: true, recipe: 'Soep', picture: 'http://static.example.com/soep.jpg' }),
+            ''
+        );
+        assert.equal(readPagePicture({ found: true, recipe: 'Soep', picture: '' }), '');
+        assert.equal(readPagePicture({ found: true, recipe: 'Soep' }), '');
+        assert.equal(readPagePicture(undefined), '');
     });
 
     it('keeps a picked product whose name is in the line, and a new one with a checked section and icon', () => {

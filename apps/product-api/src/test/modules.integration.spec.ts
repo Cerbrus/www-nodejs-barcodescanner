@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import sharp from 'sharp';
 import { Repository } from 'typeorm';
 
 import { ProductSuggestion } from '@barcodescanner/shared';
@@ -34,6 +35,7 @@ import { Answer, GeminiService, Question } from '../core/services/gemini.service
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
 import { RecipeImportService } from '../core/services/recipe-import.service';
+import { RecipePictureService } from '../core/services/recipe-picture.service';
 import { RecipeService } from '../core/services/recipe.service';
 import { ScanService } from '../core/services/scan.service';
 import { FeedbackSettingEntity, SoundEntity } from '../data/entities';
@@ -709,6 +711,88 @@ describe('scan flow against a real database', () => {
         await recipes.delete(recipe.id);
         await recipes.delete(again.id);
         await catalog.deleteItem(draft.id);
+    });
+
+    it('keeps the picture of an imported page in two sizes, and keeps the recipe when the picture fails', async () => {
+        const imports = app.get(RecipeImportService);
+        const pictures = app.get(RecipePictureService);
+        const address = 'https://static.example.com/soep.jpg';
+        const blank = { productId: 0, newName: '', sectionId: '', icon: '', emoji: '', quantity: 1, note: '' };
+        const fetched: Array<string> = [];
+        let picture = address;
+        let photo: Buffer | undefined = await sharp({
+            create: { width: 2400, height: 1200, channels: 3, background: '#cc6633' }
+        })
+            .png()
+            .toBuffer();
+        app.get(GeminiService).ask = (question: Question): Promise<Answer> =>
+            Promise.resolve({
+                value: question.readLinks
+                    ? { found: true, recipe: 'Soep\n1 l melk', picture }
+                    : {
+                          found: true,
+                          name: 'Soep',
+                          description: '1. Roer.',
+                          category: 'soup',
+                          ingredients: [{ ...blank, line: '1 l melk', productId: milkId, newName: 'Melk' }]
+                      },
+                linkRead: true
+            });
+        pictures.download = (source: string): Promise<Buffer> => {
+            fetched.push(source);
+
+            return photo ? Promise.resolve(photo) : Promise.reject(new Error('answered 404'));
+        };
+
+        const soup = await imports.import('https://example.com/recept/soep');
+        assert.deepEqual(fetched, [address]);
+        assert.match(soup.picture, /^[0-9a-f]{12}$/);
+        assert.equal(soup.pictureSource, address);
+        const sizes = await Promise.all(
+            (['large', 'small'] as const).map(async (size) => {
+                const { format, width, height } = await sharp(await recipes.getPicture(soup.id, size)).metadata();
+
+                return [format, width, height];
+            })
+        );
+        assert.deepEqual(sizes, [
+            ['jpeg', 1600, 800],
+            ['jpeg', 600, 450]
+        ]);
+
+        await recipes.removePicture(soup.id);
+        assert.deepEqual([(await recipes.get(soup.id)).picture, (await recipes.get(soup.id)).pictureSource], ['', '']);
+        await assert.rejects(recipes.getPicture(soup.id, 'small'), NotFoundException);
+        await recipes.setPicture(soup.id, photo as Buffer);
+        await recipes.delete(soup.id);
+        assert.equal(await pictures.read(soup.id, 'large'), undefined);
+        assert.equal(await pictures.read(soup.id, 'small'), undefined);
+
+        photo = undefined;
+        const failed = await imports.import('https://example.com/recept/soep');
+        assert.deepEqual([failed.name, failed.picture, failed.pictureSource], ['Soep', '', '']);
+        await recipes.delete(failed.id);
+
+        photo = Buffer.from('<html>geen plaatje</html>');
+        const unreadable = await imports.import('https://example.com/recept/soep');
+        assert.equal(unreadable.picture, '');
+        await recipes.delete(unreadable.id);
+
+        picture = 'http://static.example.com/soep.jpg';
+        const refused = await imports.import('https://example.com/recept/soep');
+        assert.equal(refused.picture, '');
+        assert.equal(fetched.length, 3);
+        await recipes.delete(refused.id);
+    });
+
+    it('refuses to fetch a picture from inside the home network', async () => {
+        const pictures = new RecipePictureService(app.get(AppConfig));
+
+        await assert.rejects(pictures.download('https://127.0.0.1/a.jpg'), /may be fetched/);
+        await assert.rejects(pictures.download('https://192.168.1.86:3020/a.jpg'), /may be fetched/);
+        await assert.rejects(pictures.download('https://[::1]/a.jpg'), /may be fetched/);
+        await assert.rejects(pictures.download('https://localhost/a.jpg'), /may be fetched/);
+        await assert.rejects(pictures.download('http://example.com/a.jpg'), /may be fetched/);
     });
 
     it('handles scans that arrive at the same moment one after the other', async () => {

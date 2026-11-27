@@ -35,6 +35,11 @@ export const MAX_RECIPE_INGREDIENTS = 60;
 export const MAX_RECIPE_SOURCE_LENGTH = 20000;
 export const MAX_RECIPE_SOURCE_URL_LENGTH = 2000;
 export const RECIPE_SOURCE_URL = /^(https?:\/\/\S+)?$/i;
+export const MAX_RECIPE_PICTURE_BYTES = 10 * 1024 * 1024;
+export const RECIPE_PICTURE_SIZES = ['small', 'large'] as const;
+
+export type RecipePictureSize = (typeof RECIPE_PICTURE_SIZES)[number];
+
 export const MAX_INGREDIENT_QUANTITY = 99;
 export const MAX_INGREDIENT_NOTE_LENGTH = 200;
 export const MAX_INGREDIENT_TEXT_LENGTH = 200;

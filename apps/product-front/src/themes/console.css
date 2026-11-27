@@ -23,6 +23,11 @@
     --tile-border-width: 1px;
     --shadow-float: 0 0 0 1px var(--line);
     --section-prefix: '>';
+    --photo-fade: #050805;
+    --photo-text: #33ff66;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) sepia(1) hue-rotate(75deg) saturate(3) brightness(0.9);
 }
 
 :root[data-skin='console'] .page-title {

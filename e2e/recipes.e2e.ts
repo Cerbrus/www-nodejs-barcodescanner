@@ -1,4 +1,5 @@
 import { APIRequestContext, expect, test } from '@playwright/test';
+import sharp from 'sharp';
 
 import { listOf, productOffTheList } from './helpers';
 
@@ -13,6 +14,9 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     request
 }) => {
     const product = await productOffTheList(request);
+    const photo = await sharp({ create: { width: 800, height: 400, channels: 3, background: '#cc6633' } })
+        .png()
+        .toBuffer();
 
     await page.goto('/#/recipes');
     await expect(page.getByRole('heading', { name: 'Recepten', exact: true })).toBeVisible();
@@ -37,7 +41,20 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     await page.getByRole('button', { name: 'Opslaan' }).click();
     await expect(page.locator('.ingredient-lines li')).toHaveText('2 flessen *afwasmiddel*');
 
+    await page.getByRole('button', { name: 'Recept bewerken' }).click();
+    await page.locator('#recipe-picture').setInputFiles({ name: 'foto.png', mimeType: 'image/png', buffer: photo });
+    await expect(page.locator('app-picture-cut .frame img.placed')).toBeVisible();
+    await page.locator('#picture-zoom').fill('2');
+    await page.getByRole('button', { name: 'Deze uitsnede gebruiken' }).click();
+    await expect(page.locator('.picture-preview')).toBeVisible();
+    await page.getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('img.picture')).toBeVisible();
+    await expect
+        .poll(() => page.locator('img.picture').evaluate((image: HTMLImageElement) => image.naturalWidth))
+        .toBeGreaterThan(0);
+
     await page.goto('/#/recipes');
+    await expect(page.locator('.recipe', { hasText: NAME }).locator('img.recipe-picture')).toBeVisible();
     await expect(page.locator('.section-title')).toContainText(['Avondeten']);
     await page.getByRole('button', { name: `Alles van ${NAME} op de lijst zetten` }).click();
     await expect(page.getByText(`${NAME}: 1 product op de lijst`)).toBeVisible();

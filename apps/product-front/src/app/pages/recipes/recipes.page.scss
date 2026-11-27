@@ -1,7 +1,3 @@
-.group {
-    padding: 0;
-    overflow: hidden;
-}
 .categories .segment {
     min-width: 0;
     padding-inline: 0;
@@ -9,73 +5,139 @@
 .section-title i {
     font-size: 18px;
 }
-.recipe + .recipe {
-    border-top: 1px var(--border-style) var(--line);
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
 }
 .recipe {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
+    position: relative;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    border: var(--border-width) var(--border-style) var(--line);
+    border-radius: calc(14px * var(--corner));
+    background: var(--surface);
+    box-shadow: var(--shadow);
 }
 .recipe.choosing {
-    min-height: 62px;
     cursor: pointer;
 }
-.recipe.choosing input {
-    width: 22px;
-    height: 22px;
-    flex: none;
-    margin-right: 10px;
-    accent-color: var(--accent);
+.recipe.chosen {
+    border-color: var(--accent);
+    box-shadow:
+        0 0 0 2px var(--accent),
+        var(--shadow);
 }
 .recipe.unprintable {
-    color: var(--text-muted);
     cursor: default;
 }
+.recipe.unprintable .recipe-picture {
+    opacity: 0.45;
+}
 .recipe-link {
-    flex: 1 1 auto;
-    min-width: 0;
+    display: block;
     color: inherit;
     text-decoration: none;
 }
-.recipe-facts {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-muted);
-    font-size: 0.8rem;
+.recipe-picture {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    filter: var(--photo-filter);
 }
-.recipe-count {
-    flex: none;
+.recipe-picture.none {
+    display: grid;
+    place-items: center;
+    padding-bottom: 34px;
+    background: var(--tile-neutral);
+    color: var(--tile-text);
+    filter: none;
+}
+.recipe-picture.none i {
+    font-size: 48px;
+    opacity: 0.45;
+}
+.recipe-band {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    gap: 5px;
+    padding: var(--photo-band-top) 9px 8px;
+    background: var(--photo-band);
+    color: var(--photo-text);
+}
+.recipe-band.plain {
+    background: none;
+    color: var(--tile-text);
+}
+.recipe-name {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 .recipe-icons {
-    position: relative;
     display: flex;
-    flex: 1 1 0;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
+    min-height: 22px;
     overflow: hidden;
 }
-.recipe-icons.overflowing {
-    clip-path: inset(0 calc(100% - var(--fit)) 0 0);
-}
-.recipe-icons.overflowing::after {
-    position: absolute;
-    inset: 0 calc(100% - var(--fit)) 0 auto;
-    width: 50px;
-    background: linear-gradient(to right, transparent, var(--surface));
-    content: '';
-    pointer-events: none;
-}
 .recipe-icon {
+    position: relative;
+    display: grid;
     width: 22px;
     height: 22px;
     flex: none;
-    padding: 2px;
+    place-items: center;
     border-radius: calc(6px * var(--corner));
-    background: var(--tile-neutral);
-    color: var(--tile-text);
+    background: color-mix(in srgb, currentColor 22%, transparent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+.recipe-icon.masked::after {
+    position: absolute;
+    inset: 3px;
+    background: currentColor;
+    content: '';
+    mask: var(--icon) center / contain no-repeat;
+}
+.recipe-mark {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+.btn.recipe-mark {
+    padding: 8px;
+}
+input.recipe-mark {
+    width: 26px;
+    height: 26px;
+    margin: 0;
+    accent-color: var(--accent);
+}
+.recipe-mark.warning {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: calc(10px * var(--corner));
+    background: var(--warning);
+    color: var(--warning-text);
+}
+.recipe-mark.warning i {
+    font-size: 20px;
+}
+.recipe-mark.warning + input {
+    display: none;
 }
 textarea {
     resize: vertical;

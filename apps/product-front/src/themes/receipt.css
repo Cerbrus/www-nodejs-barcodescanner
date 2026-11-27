@@ -21,4 +21,9 @@
     --font: 'Courier New', Courier, ui-monospace, monospace;
     --corner: 0;
     --border-style: dashed;
+    --photo-fade: #111;
+    --photo-text: #fbfaf5;
+    --photo-band: linear-gradient(color-mix(in srgb, var(--photo-fade) 88%, transparent) 0 0);
+    --photo-band-top: 7px;
+    --photo-filter: grayscale(1) contrast(1.3);
 }

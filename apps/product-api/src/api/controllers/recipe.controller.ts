@@ -1,4 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Header,
+    HttpCode,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Put,
+    Query,
+    StreamableFile
+} from '@nestjs/common';
 
 import { RecipeImportService } from '../../core/services/recipe-import.service';
 import { RecipeOffer, RecipeService } from '../../core/services/recipe.service';
@@ -10,6 +25,9 @@ import { RecipeDto } from '../dto/recipe.dto';
 import { CurrentAccount } from '../guards/account.decorator';
 import { OwnerOnly } from '../guards/owner.decorator';
 import { Account } from '../http';
+
+const PICTURE_TYPE = 'image/jpeg';
+const PICTURE_CACHING = 'private, max-age=31536000, immutable';
 
 @Controller({ path: 'recipes', version: '1' })
 export class RecipeController {
@@ -59,6 +77,32 @@ export class RecipeController {
     @Get(':id')
     public get(@Param('id', ParseIntPipe) id: number): Promise<RecipeEntity> {
         return this.recipes.get(id);
+    }
+
+    @Get(':id/picture')
+    @Header('Cache-Control', PICTURE_CACHING)
+    public async getPicture(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('size') size?: string
+    ): Promise<StreamableFile> {
+        const file = await this.recipes.getPicture(id, size === 'large' ? 'large' : 'small');
+
+        return new StreamableFile(file, { type: PICTURE_TYPE, length: file.length });
+    }
+
+    @Put(':id/picture')
+    public setPicture(@Param('id', ParseIntPipe) id: number, @Body() picture: Buffer): Promise<RecipeEntity> {
+        if (!Buffer.isBuffer(picture) || !picture.length) {
+            throw new BadRequestException('The body must be a picture, sent as image/*');
+        }
+
+        return this.recipes.setPicture(id, picture);
+    }
+
+    @Delete(':id/picture')
+    @HttpCode(204)
+    public removePicture(@Param('id', ParseIntPipe) id: number): Promise<void> {
+        return this.recipes.removePicture(id);
     }
 
     @Post()

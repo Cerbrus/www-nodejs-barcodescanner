@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Dumps the database as SQL text and pushes it to the private backup repository.
+# Dumps the database as SQL text, copies the recipe pictures and pushes both to the private backup repository.
 # Run by barcodescanner-backup.timer; safe to run by hand. Does nothing while BACKUP_REPO is empty.
 set -euo pipefail
 
@@ -7,6 +7,7 @@ APP_DIR=/opt/barcodescanner
 BACKUP_DIR=$APP_DIR/backup
 KEY=$APP_DIR/backup_key
 DATABASE=$APP_DIR/data/app.db
+PICTURES=$APP_DIR/data/recipe-pictures
 
 cd "$APP_DIR"
 
@@ -55,7 +56,13 @@ else
     mv app.sql.new app.sql
     mv "$STAMP.new" "$STAMP"
 
-    git add app.sql
+    mkdir -p recipe-pictures
+    find recipe-pictures -type f -delete
+    if [ -d "$PICTURES" ]; then
+        find "$PICTURES" -maxdepth 1 -type f -name '*.jpg' -exec cp -t recipe-pictures {} +
+    fi
+
+    git add -A app.sql recipe-pictures
     if git diff --cached --quiet; then
         echo "no changes since the last backup"
     else

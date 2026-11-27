@@ -1,0 +1,26 @@
+.frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border: var(--border-width) var(--border-style) var(--line);
+    border-radius: calc(14px * var(--corner));
+    background: var(--tile-neutral);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+.frame img {
+    position: absolute;
+    max-width: none;
+    opacity: 0;
+    pointer-events: none;
+}
+.frame img.placed {
+    opacity: 1;
+}
+.zoom {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    accent-color: var(--accent);
+}
