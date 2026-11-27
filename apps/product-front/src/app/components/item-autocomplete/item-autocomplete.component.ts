@@ -21,6 +21,7 @@ export class ItemAutocompleteComponent {
     public readonly placeholder = input('');
     public readonly allowCreate = input(false);
     public readonly excludeId = input<number | undefined>(undefined);
+    public readonly includeDrafts = input(false);
 
     public readonly picked = output<CatalogItem>();
     public readonly create = output<string>();
@@ -36,7 +37,12 @@ export class ItemAutocompleteComponent {
 
         return this.store
             .items()
-            .filter((item) => item.id !== this.excludeId() && item.name.toLowerCase().includes(term))
+            .filter(
+                (item) =>
+                    item.id !== this.excludeId() &&
+                    (this.includeDrafts() || !item.draft) &&
+                    item.name.toLowerCase().includes(term)
+            )
             .sort((a, b) => this.rank(a, term) - this.rank(b, term) || a.name.localeCompare(b.name))
             .slice(0, MAX_OPTIONS);
     });

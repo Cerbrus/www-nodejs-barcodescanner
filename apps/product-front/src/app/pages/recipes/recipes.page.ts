@@ -32,6 +32,7 @@ export class RecipesPage {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((recipe) => ({
                 recipe,
+                printable: !this.store.holdsDraft(recipe),
                 icons: recipe.ingredients.flatMap(({ catalogItemId }) => this.store.itemById(catalogItemId) ?? [])
             }));
     });
@@ -71,7 +72,7 @@ export class RecipesPage {
         this.printing.print(
             this.store
                 .recipes()
-                .filter((recipe) => this.selected().has(recipe.id))
+                .filter((recipe) => this.selected().has(recipe.id) && !this.store.holdsDraft(recipe))
                 .sort((a, b) => a.name.localeCompare(b.name))
         );
     }

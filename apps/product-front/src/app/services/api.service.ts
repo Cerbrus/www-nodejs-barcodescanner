@@ -89,6 +89,14 @@ export class ApiService {
         return this.http.delete<void>(`${this.baseUrl}/catalog/${id}`);
     }
 
+    public confirmDraft(id: number): Observable<CatalogItem> {
+        return this.http.post<CatalogItem>(`${this.baseUrl}/catalog/${id}/confirmation`, {});
+    }
+
+    public replaceDraft(id: number, catalogItemId: number): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/catalog/${id}/replacement`, { catalogItemId });
+    }
+
     public getList(): Observable<Array<ListEntry>> {
         return this.http.get<Array<ListEntry>>(`${this.baseUrl}/list`);
     }

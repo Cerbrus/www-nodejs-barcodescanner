@@ -1,8 +1,9 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-import { FakeEvents, FakeStore, click, fakeEvents, fakeStore, item, texts, type } from '../../testing/fakes';
+import { FakeEvents, FakeStore, click, draft, fakeEvents, fakeStore, item, texts, type } from '../../testing/fakes';
 import { TranslateTesting } from '../../testing/translate';
 import { Scan } from '../models';
 import { ApiService } from '../services/api.service';
@@ -33,6 +34,7 @@ describe('the smaller pages', () => {
     let store: FakeStore;
     let events: FakeEvents;
     let page: HTMLElement;
+    const owner = signal(false);
     const api = {
         iconsUrl: '/icons',
         getIcons: () => of([]),
@@ -67,6 +69,7 @@ describe('the smaller pages', () => {
     beforeEach(() => {
         vi.useFakeTimers();
         vi.clearAllMocks();
+        owner.set(false);
         store = fakeStore([item(1, 'Melk'), item(2, 'Karnemelk'), item(3, 'Brood', 'brood-gebak')]);
         events = fakeEvents();
         api.getScans.mockReturnValue(of([]));
@@ -80,7 +83,7 @@ describe('the smaller pages', () => {
                 { provide: ShoppingStore, useValue: store },
                 { provide: EventsService, useValue: events },
                 { provide: ApiService, useValue: api },
-                { provide: AuthService, useValue: { loginUrl: '/api/v1/auth/google' } }
+                { provide: AuthService, useValue: { loginUrl: '/api/v1/auth/google', owner } }
             ]
         });
     });
@@ -141,6 +144,21 @@ describe('the smaller pages', () => {
             click(page, '.offer button:not(.primary)', 1);
 
             expect(store.dropRecipeOffer).toHaveBeenCalledWith(4);
+        });
+
+        it('lists the draft products for the owner only, each as a link to its product page', async () => {
+            store.items.set([item(1, 'Melk'), draft(4, 'Saffraan', 'dranken')]);
+            const fixture = await open(InboxPage);
+
+            expect(page.querySelector('a.draft')).toBeNull();
+            expect(texts(page, '.empty')).toEqual(['inbox.empty']);
+
+            owner.set(true);
+            await settle(fixture);
+
+            expect(texts(page, 'a.draft')).toEqual(['SSaffraanDrankenchevron_right']);
+            expect(page.querySelector('a.draft')?.getAttribute('href')).toBe('/catalog/4');
+            expect(page.querySelector('.empty')).toBeNull();
         });
 
         it('opens the naming prompt for a tapped barcode and closes it again', async () => {

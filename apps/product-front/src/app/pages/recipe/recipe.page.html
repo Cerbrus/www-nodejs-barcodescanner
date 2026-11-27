@@ -107,6 +107,7 @@
                 <app-item-autocomplete
                     [placeholder]="'recipe.addProduct' | translate"
                     [allowCreate]="true"
+                    [includeDrafts]="true"
                     [(text)]="search"
                     (picked)="addIngredient($event)"
                     (create)="creatingName.set($event)"
@@ -172,6 +173,7 @@
             <button
                 type="button"
                 class="btn"
+                [disabled]="holdsDraft()"
                 [attr.aria-label]="'recipe.print' | translate"
                 (click)="printing.print([recipe])"
             >
@@ -222,7 +224,7 @@
             <i class="material-symbols-outlined">add_shopping_cart</i>
         </button>
 
-        <app-recipe-code class="code" [recipe]="recipe" />
+        <app-recipe-code class="code" [recipe]="recipe" [unprintable]="holdsDraft()" />
     } @else {
         <p class="empty">{{ (store.loaded() ? 'recipe.notFound' : 'common.loading') | translate }}</p>
     }

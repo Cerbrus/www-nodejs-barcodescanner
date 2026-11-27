@@ -34,6 +34,7 @@ import {
     Section
 } from '../models';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 import { EventsService } from './events.service';
 import { PendingChange, loadOutbox, saveOutbox } from './outbox';
 import { loadSnapshot, saveSnapshot } from './snapshot';
@@ -57,7 +58,11 @@ export class ShoppingStore {
     public readonly inbox = signal<Array<Barcode>>([]);
     public readonly recipes = signal<Array<Recipe>>([]);
     public readonly recipeOffers = signal<Array<RecipeOffer>>([]);
-    public readonly waiting = computed(() => this.inbox().length + this.recipeOffers().length);
+    public readonly drafts = computed(() => this.items().filter((item) => item.draft));
+    public readonly waiting = computed(
+        () => this.inbox().length + this.recipeOffers().length + (this.auth.owner() ? this.drafts().length : 0)
+    );
+
     public readonly collecting = signal(false);
     public readonly loaded = signal(false);
     public readonly failed = signal(false);
@@ -76,6 +81,7 @@ export class ShoppingStore {
     public readonly online = computed(() => this.events.connected() && !this.failed());
 
     private readonly api = inject(ApiService);
+    private readonly auth = inject(AuthService);
     private readonly events = inject(EventsService);
     private readonly toasts = inject(ToastService);
     private readonly translate = inject(TranslateService);
@@ -127,6 +133,10 @@ export class ShoppingStore {
 
     public recipeById(id: number): Recipe | undefined {
         return this.recipes().find((recipe) => recipe.id === id);
+    }
+
+    public holdsDraft(recipe: RecipeContent): boolean {
+        return recipe.ingredients.some(({ catalogItemId }) => this.itemById(catalogItemId)?.draft);
     }
 
     public refreshAll(): Observable<void> {
@@ -277,6 +287,14 @@ export class ShoppingStore {
         return this.api.createCatalogItem(input).pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
     }
 
+    public confirmDraft(id: number): Observable<CatalogItem> {
+        return this.api.confirmDraft(id).pipe(switchMap((item) => this.refreshAll().pipe(map(() => item))));
+    }
+
+    public replaceDraft(id: number, targetId: number): Observable<void> {
+        return this.api.replaceDraft(id, targetId).pipe(switchMap(() => this.refreshAll()));
+    }
+
     private refreshRecipes(): Observable<void> {
         return forkJoin([this.api.getRecipes(), this.api.getRecipeOffers()]).pipe(
             tap(([recipes, recipeOffers]) => {
@@ -317,7 +335,11 @@ export class ShoppingStore {
             kind: 'ok',
             text: this.translate.instant('recipe.added', {
                 name: recipe.name,
-                count: recipe.ingredients.filter(({ catalogItemId }) => this.itemById(catalogItemId)).length
+                count: recipe.ingredients.filter(({ catalogItemId }) => {
+                    const item = this.itemById(catalogItemId);
+
+                    return item && !item.draft;
+                }).length
             })
         });
 
@@ -341,7 +363,7 @@ export class ShoppingStore {
     private withLocalChange(entries: Array<ListEntry>, id: string, change: ListEntryChange): Array<ListEntry> {
         const current = entries.find((entry) => entry.id === id);
         const catalogItem = current?.catalogItem ?? this.itemById(change.catalogItemId ?? -1);
-        if (!catalogItem) {
+        if (!catalogItem || catalogItem.draft) {
             return entries;
         }
 

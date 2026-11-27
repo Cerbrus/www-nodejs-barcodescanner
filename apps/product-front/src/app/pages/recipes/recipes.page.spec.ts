@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { FakeStore, click, draft, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { Recipe } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -178,5 +178,45 @@ describe('RecipesPage', () => {
         store.online.set(false);
         await settle();
         expect(addButtons().map((button) => button.disabled)).toEqual([true, false, false]);
+    });
+
+    it('cannot pick a recipe that holds a draft product for printing, and marks it with a warning', async () => {
+        store.items.set([item(1, 'Melk'), draft(2, 'Eieren')]);
+        await open();
+        click(page, 'button[aria-label="recipe.select"]');
+        await settle();
+        const boxes = (): Array<HTMLInputElement> => Array.from(page.querySelectorAll('.recipe input'));
+
+        expect(boxes().map((box) => box.disabled)).toEqual([false, true, false]);
+        expect(texts(page, '.recipe.unprintable .font-semibold')).toEqual(['Pannenkoeken']);
+        expect(page.querySelectorAll('.recipe.unprintable i[aria-label="recipe.holdsDraft"]').length).toBe(1);
+
+        click(page, '.recipe input', 1);
+        click(page, '.recipe input', 2);
+        await settle();
+        click(page, 'button[aria-label="recipe.print"]');
+
+        expect(printing.print).toHaveBeenCalledWith([SOUP]);
+    });
+
+    it('leaves a recipe out of the print when one of its products became a draft after it was picked', async () => {
+        await open();
+        click(page, 'button[aria-label="recipe.select"]');
+        await settle();
+        click(page, '.recipe input', 1);
+        click(page, '.recipe input', 2);
+        store.items.set([item(1, 'Melk'), draft(2, 'Eieren')]);
+        await settle();
+        click(page, 'button[aria-label="recipe.print"]');
+
+        expect(printing.print).toHaveBeenCalledWith([SOUP]);
+    });
+
+    it('still hands a recipe with a draft product to the list as a whole, where the server leaves the draft out', async () => {
+        store.items.set([draft(1, 'Melk'), item(2, 'Eieren')]);
+        await open();
+        click(page, '.recipe button.primary', 2);
+
+        expect(store.putRecipeOnList).toHaveBeenCalledWith({ name: 'Soep', ingredients: SOUP.ingredients });
     });
 });

@@ -27,6 +27,7 @@ export function recipeCodeModules(recipe: RecipeContent): Array<Array<boolean>> 
 })
 export class RecipeCodeComponent {
     public readonly recipe = input.required<RecipeContent>();
+    public readonly unprintable = input(false);
 
     protected readonly drawing = computed(() => {
         const modules = recipeCodeModules(this.recipe());

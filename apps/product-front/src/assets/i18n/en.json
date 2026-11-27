@@ -128,7 +128,8 @@
         "print": "Print codes",
         "select": "Choose recipes",
         "code": "Code of {name}",
-        "keep": "Keep the recipe"
+        "keep": "Keep the recipe",
+        "holdsDraft": "Holds a draft product: the code cannot be printed"
     },
     "item": {
         "name": "Name",
@@ -145,7 +146,11 @@
         "delete": "Delete product",
         "deleteConfirm": "Delete \"{name}\"? Linked barcodes go back to the inbox.",
         "chooseIcon": "Choose icon",
-        "deleteConfirmRecipes": "Delete \"{name}\"? Linked barcodes go back to the inbox. The product is in {count, plural, one {# recipe} other {# recipes}} and is taken out of them.",
+        "inRecipes": "\"{name}\" is in {count, plural, one {# recipe} other {# recipes}} and cannot be deleted.",
+        "draft": "Draft",
+        "confirmDraft": "Confirm as a product",
+        "replaceDraft": "Replace by another product",
+        "replaceSearch": "By which product?",
         "backToList": "List"
     },
     "history": {

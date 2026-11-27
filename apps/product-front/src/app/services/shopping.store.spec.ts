@@ -6,6 +6,7 @@ import { NEVER, Observable, Subject, filter, of, throwError } from 'rxjs';
 
 import { CatalogItem, ListEntry, Recipe, RecipeOffer, Section } from '../models';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 import { EventsService } from './events.service';
 import { loadOutbox } from './outbox';
 import { ShoppingStore } from './shopping.store';
@@ -15,8 +16,9 @@ import { ToastService } from './toast.service';
 const dairy: Section = { id: 'dairy', name: 'Zuivel', sortOrder: 2 };
 const bread: Section = { id: 'bread', name: 'Brood', sortOrder: 1 };
 const empty: Section = { id: 'empty', name: 'Leeg', sortOrder: 3 };
-const milk: CatalogItem = { id: 1, name: 'Melk', sectionId: 'dairy', custom: false };
-const loaf: CatalogItem = { id: 2, name: 'Brood', sectionId: 'bread', custom: false };
+const milk: CatalogItem = { id: 1, name: 'Melk', sectionId: 'dairy', custom: false, draft: false };
+const loaf: CatalogItem = { id: 2, name: 'Brood', sectionId: 'bread', custom: false, draft: false };
+const saffron: CatalogItem = { id: 3, name: 'Saffraan', sectionId: 'dairy', custom: true, draft: true };
 const entry = (catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1, note = ''): ListEntry => ({
     id: `e${catalogItem.id}${note}`,
     catalogItemId: catalogItem.id,
@@ -45,6 +47,7 @@ const pancakes: Recipe = {
 describe('ShoppingStore', () => {
     let events$: Subject<string>;
     let resumed$: Subject<void>;
+    const owner = signal(false);
     const api = {
         getSections: vi.fn(),
         getCatalog: vi.fn(),
@@ -60,13 +63,16 @@ describe('ShoppingStore', () => {
         addRecipe: vi.fn(),
         undoScan: vi.fn(),
         changeListEntry: vi.fn(),
-        sendOfflineChanges: vi.fn()
+        sendOfflineChanges: vi.fn(),
+        confirmDraft: vi.fn(),
+        replaceDraft: vi.fn()
     };
 
     const create = (): ShoppingStore => {
         TestBed.configureTestingModule({
             providers: [
                 { provide: ApiService, useValue: api },
+                { provide: AuthService, useValue: { owner } },
                 {
                     provide: EventsService,
                     useValue: {
@@ -89,6 +95,7 @@ describe('ShoppingStore', () => {
         resumed$ = new Subject<void>();
         localStorage.clear();
         vi.clearAllMocks();
+        owner.set(false);
         api.getSections.mockReturnValue(of([bread, dairy, empty]));
         api.getCatalog.mockReturnValue(of([milk, loaf]));
         api.getList.mockReturnValue(of([entry(milk, 'to_buy', 2), entry(loaf, 'recent')]));
@@ -148,6 +155,65 @@ describe('ShoppingStore', () => {
         expect(api.saveRecipeOffer).toHaveBeenCalledWith(3);
         expect(api.dropRecipeOffer).toHaveBeenCalledWith(4);
         expect(store.waiting()).toBe(0);
+    });
+
+    it('counts the draft products too, for the owner only', () => {
+        api.getCatalog.mockReturnValue(of([milk, loaf, saffron]));
+        const store = create();
+
+        expect(store.drafts()).toEqual([saffron]);
+        expect(store.waiting()).toBe(1);
+
+        owner.set(true);
+
+        expect(store.waiting()).toBe(2);
+    });
+
+    it('confirms a draft or replaces it by another product, and reloads everything after that', () => {
+        api.getCatalog.mockReturnValue(of([milk, loaf, saffron]));
+        const store = create();
+        api.confirmDraft.mockReturnValue(of({ ...saffron, draft: false }));
+        api.replaceDraft.mockReturnValue(of(undefined));
+        const confirmed: Array<boolean> = [];
+
+        store.confirmDraft(3).subscribe((item) => confirmed.push(item.draft));
+        store.replaceDraft(3, 1).subscribe();
+
+        expect(confirmed).toEqual([false]);
+        expect(api.confirmDraft).toHaveBeenCalledWith(3);
+        expect(api.replaceDraft).toHaveBeenCalledWith(3, 1);
+        expect(api.getCatalog).toHaveBeenCalledTimes(3);
+        expect(api.getRecipes).toHaveBeenCalledTimes(3);
+    });
+
+    it('knows whether a recipe holds a draft product', () => {
+        api.getCatalog.mockReturnValue(of([milk, loaf, saffron]));
+        const store = create();
+
+        expect(store.holdsDraft(pancakes)).toBe(false);
+        expect(store.holdsDraft({ name: 'Paella', ingredients: [{ catalogItemId: 3, quantity: 1, note: '' }] })).toBe(
+            true
+        );
+    });
+
+    it('leaves the drafts of a recipe off the list when it is kept for later', () => {
+        api.getCatalog.mockReturnValue(of([milk, loaf, saffron]));
+        const store = create();
+        const translate = vi.spyOn(TestBed.inject(TranslateService), 'instant');
+        api.addRecipe.mockReturnValue(throwError(noConnection));
+
+        store
+            .putRecipeOnList({
+                name: 'Paella',
+                ingredients: [
+                    { catalogItemId: 2, quantity: 1, note: 'wit' },
+                    { catalogItemId: 3, quantity: 1, note: '' }
+                ]
+            })
+            .subscribe();
+
+        expect(store.toBuy().map((row) => row.catalogItem.name)).toEqual(['Brood', 'Melk']);
+        expect(translate).toHaveBeenCalledWith('recipe.added', { name: 'Paella', count: 1 });
     });
 
     it('makes a new recipe or changes an existing one, and deletes one', () => {

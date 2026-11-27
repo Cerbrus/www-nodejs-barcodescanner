@@ -128,7 +128,8 @@
         "print": "Codes afdrukken",
         "select": "Recepten kiezen",
         "code": "Code van {name}",
-        "keep": "Recept bewaren"
+        "keep": "Recept bewaren",
+        "holdsDraft": "Bevat een conceptproduct: de code kan niet worden afgedrukt"
     },
     "item": {
         "name": "Naam",
@@ -145,7 +146,11 @@
         "delete": "Product verwijderen",
         "deleteConfirm": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox.",
         "chooseIcon": "Icoon kiezen",
-        "deleteConfirmRecipes": "\"{name}\" verwijderen? Gekoppelde barcodes gaan terug naar de inbox. Het product zit in {count, plural, one {# recept} other {# recepten}} en wordt daaruit gehaald.",
+        "inRecipes": "\"{name}\" zit in {count, plural, one {# recept} other {# recepten}} en kan niet worden verwijderd.",
+        "draft": "Concept",
+        "confirmDraft": "Bevestigen als product",
+        "replaceDraft": "Vervangen door een ander product",
+        "replaceSearch": "Door welk product?",
         "backToList": "Lijst"
     },
     "history": {

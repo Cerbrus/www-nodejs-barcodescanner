@@ -7,13 +7,20 @@ import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ItemAutocompleteComponent } from './item-autocomplete.component';
 
-const item = (id: number, name: string): CatalogItem => ({ id, name, sectionId: 'x', custom: false });
+const item = (id: number, name: string): CatalogItem => ({
+    id,
+    name,
+    sectionId: 'x',
+    custom: false,
+    draft: false
+});
 const CATALOG = [
     item(1, 'Roomkaas'),
     item(2, 'Kaas'),
     item(3, 'Kaasschaaf'),
     item(4, 'Melk'),
     item(5, 'Blauwe kaas'),
+    { ...item(6, 'Kaasfondue'), draft: true },
     ...Array.from({ length: 10 }, (_, index) => item(100 + index, `Pak ${index}`))
 ];
 
@@ -77,6 +84,15 @@ describe('ItemAutocompleteComponent', () => {
         type('kaas');
 
         expect(options()).not.toContain('Kaas');
+    });
+
+    it('leaves out a draft product, unless it is asked to offer drafts too', () => {
+        type('kaasf');
+        expect(options()).toEqual([]);
+
+        fixture.componentRef.setInput('includeDrafts', true);
+        type('kaasf');
+        expect(options()).toEqual(['Kaasfondue']);
     });
 
     it('offers to create a product only when allowed and when no product has exactly that name', () => {

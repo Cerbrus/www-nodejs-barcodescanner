@@ -57,6 +57,8 @@ describe('ApiService', () => {
                 { name: 'Kwark', sectionId: 'zuivel' }
             ],
             [() => api.deleteCatalogItem(7), 'DELETE', '/catalog/7'],
+            [() => api.confirmDraft(7), 'POST', '/catalog/7/confirmation', {}],
+            [() => api.replaceDraft(7, 3), 'POST', '/catalog/7/replacement', { catalogItemId: 3 }],
             [() => api.getList(), 'GET', '/list'],
             [() => api.changeListEntry('e7', { state: 'recent' }), 'PATCH', '/list/e7', { state: 'recent' }],
             [() => api.removeListEntry('e7'), 'DELETE', '/list/e7'],

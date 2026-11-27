@@ -111,6 +111,12 @@ export class RecipePage {
         return id === undefined ? undefined : this.store.recipeById(id);
     });
 
+    protected readonly holdsDraft = computed(() => {
+        const recipe = this.recipe();
+
+        return recipe !== undefined && this.store.holdsDraft(recipe);
+    });
+
     protected readonly shown = computed(() =>
         (this.editing() ? this.ingredients() : (this.recipe()?.ingredients ?? [])).map((ingredient) => ({
             ingredient,

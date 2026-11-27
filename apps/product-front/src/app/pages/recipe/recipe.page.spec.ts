@@ -4,7 +4,7 @@ import { By } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { FakeStore, click, draft, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { Recipe } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -91,6 +91,47 @@ describe('RecipePage', () => {
 
         expect(page.querySelector('app-recipe-code')).toBeNull();
         expect(page.querySelector('button[aria-label="recipe.print"]')).toBeNull();
+    });
+
+    it('draws a warning over the code and cannot print it while the recipe holds a draft product', async () => {
+        await open('7');
+        const print = (): HTMLButtonElement =>
+            page.querySelector('button[aria-label="recipe.print"]') as HTMLButtonElement;
+
+        expect(page.querySelector('app-recipe-code .unprintable')).toBeNull();
+        expect(print().disabled).toBe(false);
+
+        store.items.set([item(1, 'Melk'), draft(2, 'Eieren'), item(3, 'Bloem')]);
+        await settle();
+
+        expect(page.querySelector('app-recipe-code .unprintable')).not.toBeNull();
+        expect(print().disabled).toBe(true);
+
+        print().click();
+
+        expect(printing.print).not.toHaveBeenCalled();
+    });
+
+    it('offers a draft product in the search of the form, and leaves it off the list in the tick sheet', async () => {
+        store.items.set([item(1, 'Melk'), draft(2, 'Eieren'), draft(3, 'Bloem')]);
+        await open('7');
+        click(page, 'button[aria-label="recipe.toList"]');
+        await settle();
+
+        expect(texts(page, 'app-recipe-sheet .choice.draft')).toEqual(['EEieren']);
+
+        click(page, 'app-recipe-sheet button.primary');
+        expect(store.putRecipeOnList).toHaveBeenCalledWith({
+            name: 'Pannenkoeken',
+            ingredients: [{ catalogItemId: 1, quantity: 2, note: 'vol' }]
+        });
+
+        await settle();
+        await edit();
+        type(page, 'app-item-autocomplete input', 'bloem');
+        await settle();
+
+        expect(texts(page, 'app-item-autocomplete .option .grow')).toEqual(['Bloem']);
     });
 
     it('opens straight in the form when asked to, as after saving an offered recipe', async () => {

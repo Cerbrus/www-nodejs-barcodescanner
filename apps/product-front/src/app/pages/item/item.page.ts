@@ -58,6 +58,8 @@ export class ItemPage {
     protected readonly movingCode = signal<string | undefined>(undefined);
     protected readonly moveSearch = signal('');
     protected readonly pickingIcon = signal(false);
+    protected readonly replacing = signal(false);
+    protected readonly replaceSearch = signal('');
     protected readonly confirmingDelete = signal(false);
 
     protected readonly preview = computed(() => ({
@@ -65,6 +67,8 @@ export class ItemPage {
         icon: this.icon() || undefined,
         emoji: this.emoji() || undefined
     }));
+
+    protected readonly reviewing = computed(() => this.auth.owner() && this.item()?.draft);
 
     protected readonly changed = computed(() => {
         const item = this.item();
@@ -131,6 +135,21 @@ export class ItemPage {
         this.store
             .mapBarcode(code, target.id)
             .pipe(switchMap(() => this.load(this.id())))
+            .subscribe();
+    }
+
+    protected confirmDraft(): void {
+        this.store
+            .confirmDraft(this.id())
+            .pipe(switchMap(() => this.load(this.id())))
+            .subscribe();
+    }
+
+    protected replaceBy(target: CatalogItem): void {
+        this.replacing.set(false);
+        this.store
+            .replaceDraft(this.id(), target.id)
+            .pipe(tap(() => void this.router.navigate(['/catalog', target.id])))
             .subscribe();
     }
 

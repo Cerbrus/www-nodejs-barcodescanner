@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { FakeStore, click, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { FakeStore, click, draft, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { CatalogItem } from '../../models';
 import { ApiService } from '../../services/api.service';
@@ -27,6 +27,7 @@ const MILK: CatalogItem = {
         { code: '22223333', scanCount: 1, catalogItemId: 1 }
     ]
 };
+const SAFFRON: CatalogItem = { ...draft(1, 'Saffraan'), barcodes: [], recipeCount: 1 };
 
 describe('ItemPage', () => {
     let fixture: ComponentFixture<ItemPage>;
@@ -215,12 +216,89 @@ describe('ItemPage', () => {
         expect(texts(page, 'a.back-bar')[0]).toContain('item.backToList');
     });
 
-    it('says how many recipes lose the product before it is deleted', async () => {
+    it('says a product that recipes use cannot be deleted, and offers only the way back', async () => {
         api.getCatalogItem.mockReturnValue(of({ ...MILK, recipeCount: 2 }));
         await open();
         button('item.delete').click();
         await settle();
 
-        expect(texts(page, '.card p').join(' ')).toContain('item.deleteConfirmRecipes');
+        expect(texts(page, '.card p').join(' ')).toContain('item.inRecipes');
+        expect(button('item.delete')).toBeUndefined();
+
+        button('common.cancel').click();
+        await settle();
+
+        expect(button('item.delete')).not.toBeUndefined();
+        expect(api.deleteCatalogItem).not.toHaveBeenCalled();
+    });
+
+    it('shows no draft mark and no review buttons for an ordinary product', async () => {
+        await open();
+
+        expect(page.querySelector('.draft-mark')).toBeNull();
+        expect(page.querySelector('.review')).toBeNull();
+    });
+
+    it('marks a draft, hides its barcodes, and lets only the owner confirm or replace it', async () => {
+        api.getCatalogItem.mockReturnValue(of(SAFFRON));
+        await open();
+
+        expect(texts(page, '.draft-mark')).toEqual(['item.draft']);
+        expect(page.querySelector('.section-title')).toBeNull();
+        expect(page.querySelector('app-barcode')).toBeNull();
+        expect(texts(page, '.review button')).toEqual(['check', 'swap_horiz']);
+
+        owner = false;
+        await open();
+
+        expect(texts(page, '.draft-mark')).toEqual(['item.draft']);
+        expect(page.querySelector('.review')).toBeNull();
+    });
+
+    it('confirms a draft and stays on the page, which then shows an ordinary product', async () => {
+        api.getCatalogItem.mockReturnValueOnce(of(SAFFRON)).mockReturnValue(of({ ...SAFFRON, draft: false }));
+        await open();
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+        button('item.confirmDraft').click();
+        await settle();
+
+        expect(store.confirmDraft).toHaveBeenCalledWith(1);
+        expect(navigate).not.toHaveBeenCalled();
+        expect(page.querySelector('.draft-mark')).toBeNull();
+        expect(page.querySelector('.review')).toBeNull();
+        expect(texts(page, '.section-title')[0]).toBe('item.barcodes (0)');
+    });
+
+    it('replaces a draft by a product from the search, which offers no drafts and not the draft itself, and opens that product', async () => {
+        store.items.set([SAFFRON, item(2, 'Saffraandraadjes'), draft(3, 'Saffraanpoeder')]);
+        api.getCatalogItem.mockReturnValue(of(SAFFRON));
+        await open();
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+        button('item.replaceDraft').click();
+        await settle();
+        type(page, '.review app-item-autocomplete input', 'saffraan');
+        (page.querySelector('.review app-item-autocomplete input') as HTMLElement).dispatchEvent(new Event('focus'));
+        await settle();
+
+        expect(texts(page, '.review .option .grow')).toEqual(['Saffraandraadjes']);
+
+        click(page, '.review .option');
+        await settle();
+
+        expect(store.replaceDraft).toHaveBeenCalledWith(1, 2);
+        expect(navigate).toHaveBeenCalledWith(['/catalog', 2]);
+    });
+
+    it('can cancel replacing a draft', async () => {
+        api.getCatalogItem.mockReturnValue(of(SAFFRON));
+        await open();
+        button('item.replaceDraft').click();
+        await settle();
+        button('common.cancel').click();
+        await settle();
+
+        expect(page.querySelector('app-item-autocomplete')).toBeNull();
+        expect(texts(page, '.review button')).toEqual(['check', 'swap_horiz']);
+        expect(store.replaceDraft).not.toHaveBeenCalled();
     });
 });

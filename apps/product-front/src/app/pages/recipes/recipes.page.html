@@ -56,16 +56,25 @@
     <div class="mt-3" [class.card]="rows().length" [class.group]="rows().length">
         @for (row of rows(); track row.recipe.id) {
             @if (selecting()) {
-                <label class="recipe choosing">
+                <label class="recipe choosing" [class.unprintable]="!row.printable">
                     <span class="recipe-link">
                         <span class="block font-semibold">{{ row.recipe.name }}</span>
                         <span class="recipe-facts">
                             {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
                         </span>
                     </span>
+                    @if (!row.printable) {
+                        <i
+                            class="material-symbols-outlined"
+                            role="img"
+                            [attr.aria-label]="'recipe.holdsDraft' | translate"
+                            >warning</i
+                        >
+                    }
                     <input
                         type="checkbox"
                         [id]="'recipe-select-' + row.recipe.id"
+                        [disabled]="!row.printable"
                         [checked]="selected().has(row.recipe.id)"
                         (change)="toggle(row.recipe.id)"
                     />

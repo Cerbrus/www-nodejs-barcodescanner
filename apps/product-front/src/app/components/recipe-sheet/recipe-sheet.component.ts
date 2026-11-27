@@ -41,7 +41,7 @@ export class RecipeSheetComponent {
 
     protected readonly chosen = computed(() =>
         this.rows()
-            .filter((row) => row.item && !this.unticked().has(row.index))
+            .filter((row) => row.item && !row.item.draft && !this.unticked().has(row.index))
             .map((row) => row.ingredient)
     );
 

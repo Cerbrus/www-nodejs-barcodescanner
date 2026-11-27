@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RecipeIngredient } from '@barcodescanner/shared';
 
-import { click, fakeStore, item, texts } from '../../../testing/fakes';
+import { click, draft, fakeStore, item, texts } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -11,7 +11,8 @@ import { RecipeChoice, RecipeSheetComponent } from './recipe-sheet.component';
 const INGREDIENTS: Array<RecipeIngredient> = [
     { catalogItemId: 1, quantity: 2, note: 'vol' },
     { catalogItemId: 2, quantity: 1, note: '' },
-    { catalogItemId: 99, quantity: 1, note: 'weg' }
+    { catalogItemId: 99, quantity: 1, note: 'weg' },
+    { catalogItemId: 3, quantity: 1, note: 'draadjes' }
 ];
 
 describe('RecipeSheetComponent', () => {
@@ -28,7 +29,10 @@ describe('RecipeSheetComponent', () => {
         TestBed.configureTestingModule({
             imports: [RecipeSheetComponent, TranslateTesting],
             providers: [
-                { provide: ShoppingStore, useValue: fakeStore([item(1, 'Melk'), item(2, 'Eieren')]) },
+                {
+                    provide: ShoppingStore,
+                    useValue: fakeStore([item(1, 'Melk'), item(2, 'Eieren'), draft(3, 'Saffraan')])
+                },
                 { provide: ApiService, useValue: { iconsUrl: '/icons' } }
             ]
         });
@@ -52,6 +56,16 @@ describe('RecipeSheetComponent', () => {
     it('shows a product the app does not know greyed, without a tick box', () => {
         expect(texts(sheet, '.choice.unknown')).toEqual(['recipe.unknownProduct weg']);
         expect(sheet.querySelectorAll('.choice.unknown input').length).toBe(0);
+    });
+
+    it('shows a draft product greyed with its icon and name, without a tick box, and never hands it over', () => {
+        expect(texts(sheet, '.choice.draft')).toEqual(['SSaffraandraadjes']);
+        expect(sheet.querySelectorAll('.choice.draft app-item-icon').length).toBe(1);
+        expect(sheet.querySelectorAll('.choice.draft input').length).toBe(0);
+
+        confirm().click();
+
+        expect(confirmed[0].ingredients).toEqual([INGREDIENTS[0], INGREDIENTS[1]]);
     });
 
     it('hands over only what is still ticked', () => {

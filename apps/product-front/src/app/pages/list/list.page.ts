@@ -67,7 +67,7 @@ export class ListPage {
         const toBuy = this.store.toBuy();
         return this.store
             .items()
-            .filter((item) => item.name.toLowerCase().includes(term))
+            .filter((item) => !item.draft && item.name.toLowerCase().includes(term))
             .slice(0, MAX_SEARCH_RESULTS)
             .flatMap((item): Array<SearchResult> => {
                 const lines = toBuy

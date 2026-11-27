@@ -3,7 +3,15 @@
 
     <div class="choices">
         @for (row of rows(); track row.index) {
-            @if (row.item; as item) {
+            @if (row.item?.draft) {
+                <div class="choice draft">
+                    <span class="choice-icon"><app-item-icon [item]="row.item" /></span>
+                    <span class="choice-name">{{ row.item.name }}</span>
+                    @if (row.ingredient.note) {
+                        <span class="choice-note">{{ row.ingredient.note }}</span>
+                    }
+                </div>
+            } @else if (row.item; as item) {
                 <label class="choice">
                     <input
                         type="checkbox"

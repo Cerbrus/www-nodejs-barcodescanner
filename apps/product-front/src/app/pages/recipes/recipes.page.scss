@@ -22,6 +22,10 @@
     margin-right: 10px;
     accent-color: var(--accent);
 }
+.recipe.unprintable {
+    color: var(--text-muted);
+    cursor: default;
+}
 .recipe-link {
     flex: 1 1 auto;
     min-width: 0;

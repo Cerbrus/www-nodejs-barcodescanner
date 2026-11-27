@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { FakeStore, click, entry, fakeStore, item, texts, type } from '../../../testing/fakes';
+import { FakeStore, click, draft, entry, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { ApiService } from '../../services/api.service';
 import { ShoppingStore } from '../../services/shopping.store';
@@ -239,5 +239,13 @@ describe('ListPage', () => {
 
         expect(store.changeEntry).toHaveBeenCalledWith('entry-3', { state: 'to_buy', quantity: 1 });
         expect(page.querySelector('app-sheet')).toBeNull();
+    });
+
+    it('does not offer a draft product in the search', async () => {
+        store.items.set([milk, draft(5, 'Sojamelk')]);
+        await open();
+        await search('melk');
+
+        expect(texts(page, '.tile-grid .name')).toEqual(['Melk', 'Melk']);
     });
 });

@@ -72,7 +72,8 @@ export const ICON_NAMES = [
     'undo',
     'unfold_more',
     'verified',
-    'volume_up'
+    'volume_up',
+    'warning'
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

@@ -8,3 +8,8 @@
     <rect class="paper" width="100%" height="100%" />
     <path class="ink" [attr.d]="drawing().path" />
 </svg>
+@if (unprintable()) {
+    <span class="unprintable" role="img" [attr.aria-label]="'recipe.holdsDraft' | translate">
+        <i class="material-symbols-outlined" aria-hidden="true">warning</i>
+    </span>
+}

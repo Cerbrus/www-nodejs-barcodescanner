@@ -60,11 +60,16 @@
     flex: none;
     font-weight: 700;
 }
-.choice.unknown {
+.choice.unknown,
+.choice.draft {
     padding-left: 42px;
     color: var(--text-muted);
     cursor: default;
 }
-.choice.unknown .choice-name {
+.choice.unknown .choice-name,
+.choice.draft .choice-name {
     font-weight: 400;
+}
+.choice.draft .choice-icon {
+    opacity: 0.5;
 }

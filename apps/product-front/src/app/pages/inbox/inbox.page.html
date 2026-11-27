@@ -38,6 +38,19 @@
                 </button>
             </div>
         }
+        @for (row of drafts(); track row.item.id) {
+            <a class="card draft flex items-center gap-3" [routerLink]="['/catalog', row.item.id]">
+                <span
+                    class="h-8 w-8 shrink-0 rounded-lg p-1"
+                    style="background: var(--tile-neutral); color: var(--tile-text)"
+                >
+                    <app-item-icon [item]="row.item" />
+                </span>
+                <span class="min-w-0 grow truncate font-semibold">{{ row.item.name }}</span>
+                <span class="muted shrink-0 text-sm">{{ row.section?.name }}</span>
+                <i class="material-symbols-outlined muted">chevron_right</i>
+            </a>
+        }
         @for (barcode of store.inbox(); track barcode.code) {
             <button type="button" class="card flex items-center gap-3 text-left" (click)="namingCode.set(barcode.code)">
                 @if (barcode.suggestions?.[0]?.imageUrl; as imageUrl) {
@@ -58,7 +71,7 @@
                 <i class="material-symbols-outlined muted">chevron_right</i>
             </button>
         } @empty {
-            @if (!store.recipeOffers().length) {
+            @if (!store.recipeOffers().length && !drafts().length) {
                 <p class="empty">{{ 'inbox.empty' | translate }}</p>
             }
         }

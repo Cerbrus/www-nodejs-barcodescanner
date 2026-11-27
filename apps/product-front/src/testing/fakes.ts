@@ -1,7 +1,7 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 
-import { RemarkTarget } from '@barcodescanner/shared';
+import { RecipeContent, RemarkTarget } from '@barcodescanner/shared';
 
 import { Barcode, CatalogItem, ListEntry, Recipe, RecipeOffer, Section } from '../app/models';
 
@@ -12,7 +12,11 @@ export const SECTIONS: Array<Section> = [
 ];
 
 export function item(id: number, name: string, sectionId = 'zuivel'): CatalogItem {
-    return { id, name, sectionId, custom: false };
+    return { id, name, sectionId, custom: false, draft: false };
+}
+
+export function draft(id: number, name: string, sectionId = 'zuivel'): CatalogItem {
+    return { ...item(id, name, sectionId), draft: true };
 }
 
 export function entry(catalogItem: CatalogItem, state: ListEntry['state'], quantity = 1, note = ''): ListEntry {
@@ -30,6 +34,7 @@ export function entry(catalogItem: CatalogItem, state: ListEntry['state'], quant
 export interface FakeStore {
     sections: WritableSignal<Array<Section>>;
     items: WritableSignal<Array<CatalogItem>>;
+    drafts: Signal<Array<CatalogItem>>;
     entries: WritableSignal<Array<ListEntry>>;
     inbox: WritableSignal<Array<Barcode>>;
     recipes: WritableSignal<Array<Recipe>>;
@@ -50,6 +55,9 @@ export interface FakeStore {
     itemGroups: Signal<Array<{ section: Section; rows: Array<CatalogItem> }>>;
     itemById: (id: number) => CatalogItem | undefined;
     recipeById: (id: number) => Recipe | undefined;
+    holdsDraft: (recipe: RecipeContent) => boolean;
+    confirmDraft: ReturnType<typeof vi.fn>;
+    replaceDraft: ReturnType<typeof vi.fn>;
     saveRecipe: ReturnType<typeof vi.fn>;
     deleteRecipe: ReturnType<typeof vi.fn>;
     putRecipeOnList: ReturnType<typeof vi.fn>;
@@ -81,6 +89,7 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
     return {
         sections,
         items: catalog,
+        drafts: computed(() => catalog().filter((row) => row.draft)),
         entries: list,
         inbox,
         recipes,
@@ -101,6 +110,10 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         itemGroups: computed(() => group(catalog(), (row) => row.sectionId)),
         itemById: (id: number) => catalog().find((row) => row.id === id),
         recipeById: (id: number) => recipes().find((row) => row.id === id),
+        holdsDraft: (recipe: RecipeContent) =>
+            recipe.ingredients.some(({ catalogItemId }) => catalog().find((row) => row.id === catalogItemId)?.draft),
+        confirmDraft: vi.fn(() => of(undefined)),
+        replaceDraft: vi.fn(() => of(undefined)),
         saveRecipe: vi.fn(),
         deleteRecipe: vi.fn(() => of(undefined)),
         putRecipeOnList: vi.fn(() => of(undefined)),

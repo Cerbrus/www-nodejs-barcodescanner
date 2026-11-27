@@ -28,6 +28,7 @@ export interface CatalogItem {
     icon?: string;
     emoji?: string;
     custom: boolean;
+    draft: boolean;
     defaultIcon?: string;
     recipeCount?: number;
     section?: Section;

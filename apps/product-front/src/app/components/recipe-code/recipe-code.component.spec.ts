@@ -70,4 +70,21 @@ describe('RecipeCodeComponent', () => {
         expect(picture.getAttribute('aria-label')).toBe('recipe.code');
         expect(picture.querySelector('path')?.getAttribute('d')).toMatch(/^M4 4h1v1h-1z/);
     });
+
+    it('draws a large warning over the code only when it cannot be printed', () => {
+        TestBed.configureTestingModule({ imports: [RecipeCodeComponent, TranslateTesting] });
+        const fixture = TestBed.createComponent(RecipeCodeComponent);
+        fixture.componentRef.setInput('recipe', SMALL);
+        fixture.detectChanges();
+        const code = fixture.nativeElement as HTMLElement;
+
+        expect(code.querySelector('.unprintable')).toBeNull();
+
+        fixture.componentRef.setInput('unprintable', true);
+        fixture.detectChanges();
+
+        expect(code.querySelector('.unprintable')?.getAttribute('aria-label')).toBe('recipe.holdsDraft');
+        expect(code.querySelector('.unprintable i')?.textContent).toBe('warning');
+        expect(code.querySelector('svg path')).not.toBeNull();
+    });
 });
