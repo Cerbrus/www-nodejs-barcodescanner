@@ -65,7 +65,8 @@ describe('ShoppingStore', () => {
         changeListEntry: vi.fn(),
         sendOfflineChanges: vi.fn(),
         confirmDraft: vi.fn(),
-        replaceDraft: vi.fn()
+        replaceDraft: vi.fn(),
+        importRecipe: vi.fn()
     };
 
     const create = (): ShoppingStore => {
@@ -184,6 +185,32 @@ describe('ShoppingStore', () => {
         expect(api.replaceDraft).toHaveBeenCalledWith(3, 1);
         expect(api.getCatalog).toHaveBeenCalledTimes(3);
         expect(api.getRecipes).toHaveBeenCalledTimes(3);
+    });
+
+    it('imports a recipe, reloads everything for the draft products it brought, and gives the recipe back', () => {
+        const store = create();
+        api.importRecipe.mockReturnValue(of({ ...pancakes, id: 12 }));
+        api.getCatalog.mockReturnValue(of([milk, loaf, saffron]));
+        api.getRecipes.mockReturnValue(of([{ ...pancakes, id: 12 }]));
+        const imported: Array<number> = [];
+
+        store.importRecipe('https://food.example/paella').subscribe((recipe) => imported.push(recipe.id));
+
+        expect(api.importRecipe).toHaveBeenCalledWith('https://food.example/paella');
+        expect(imported).toEqual([12]);
+        expect(store.drafts()).toEqual([saffron]);
+        expect(store.recipeById(12)?.name).toBe('Pannenkoeken');
+    });
+
+    it('reloads nothing and passes the failure on when the import fails', () => {
+        const store = create();
+        api.importRecipe.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 422 })));
+        const failures: Array<number> = [];
+
+        store.importRecipe('niets').subscribe({ error: (error: HttpErrorResponse) => failures.push(error.status) });
+
+        expect(failures).toEqual([422]);
+        expect(api.getCatalog).toHaveBeenCalledTimes(1);
     });
 
     it('knows whether a recipe holds a draft product', () => {

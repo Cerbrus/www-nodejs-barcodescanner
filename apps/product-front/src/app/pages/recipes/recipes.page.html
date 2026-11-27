@@ -25,6 +25,16 @@
             >
                 <i class="material-symbols-outlined">checklist</i>
             </button>
+            @if (importable()) {
+                <button
+                    type="button"
+                    class="btn"
+                    [attr.aria-label]="'recipe.import' | translate"
+                    (click)="importing.set(true)"
+                >
+                    <i class="material-symbols-outlined">add_link</i>
+                </button>
+            }
             <a class="btn primary" routerLink="/recipes/new" [attr.aria-label]="'recipe.new' | translate">
                 <i class="material-symbols-outlined">add</i>
             </a>
@@ -115,3 +125,42 @@
         }
     </div>
 </div>
+
+@if (importing()) {
+    <app-sheet (closed)="closeImport()">
+        <h2 class="page-title">{{ 'recipe.import' | translate }}</h2>
+        <textarea
+            id="recipe-source"
+            class="field"
+            rows="6"
+            autocomplete="off"
+            [attr.maxlength]="sourceLimit"
+            [placeholder]="'recipe.importSource' | translate"
+            [attr.aria-label]="'recipe.importSource' | translate"
+            [ngModel]="source()"
+            (ngModelChange)="source.set($event)"
+        ></textarea>
+
+        <div class="mt-4 flex gap-2">
+            <button
+                type="button"
+                class="btn primary basis-0 grow"
+                [attr.aria-label]="'recipe.import' | translate"
+                [attr.aria-busy]="busy()"
+                [disabled]="busy() || !source().trim()"
+                (click)="importRecipe()"
+            >
+                <i class="material-symbols-outlined">{{ busy() ? 'schedule' : 'add_link' }}</i>
+            </button>
+            <button
+                type="button"
+                class="btn"
+                [attr.aria-label]="'common.cancel' | translate"
+                [disabled]="busy()"
+                (click)="closeImport()"
+            >
+                <i class="material-symbols-outlined">close</i>
+            </button>
+        </div>
+    </app-sheet>
+}

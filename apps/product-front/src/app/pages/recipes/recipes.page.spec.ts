@@ -1,10 +1,14 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
+import { Subject, of, throwError } from 'rxjs';
 
 import { FakeStore, click, draft, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
 import { Recipe } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { RecipesPage } from './recipes.page';
@@ -31,6 +35,20 @@ describe('RecipesPage', () => {
     let page: HTMLElement;
     let store: FakeStore;
     const printing = { print: vi.fn() };
+    const owner = signal(false);
+    const api = { iconsUrl: '/icons', getRecipeImport: vi.fn() };
+    const importButton = (): HTMLButtonElement | null =>
+        page.querySelector('.recipes-header button[aria-label="recipe.import"]');
+    const sheetButton = (label: string): HTMLButtonElement =>
+        page.querySelector(`app-sheet button[aria-label="${label}"]`) as HTMLButtonElement;
+    const openImport = async (text: string): Promise<void> => {
+        owner.set(true);
+        await open();
+        importButton()?.click();
+        await settle();
+        type(page, '#recipe-source', text);
+        await settle();
+    };
 
     const open = async (): Promise<void> => {
         fixture = TestBed.createComponent(RecipesPage);
@@ -46,6 +64,10 @@ describe('RecipesPage', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        owner.set(false);
+        api.getRecipeImport.mockReturnValue(of({ available: true }));
+        HTMLDialogElement.prototype.showModal ??= vi.fn();
+        HTMLDialogElement.prototype.close ??= vi.fn();
         store = fakeStore([item(1, 'Melk'), item(2, 'Eieren')]);
         store.recipes.set([SOUP, PANCAKES, NOTHING]);
         TestBed.configureTestingModule({
@@ -53,7 +75,8 @@ describe('RecipesPage', () => {
             providers: [
                 provideRouter([]),
                 { provide: ShoppingStore, useValue: store },
-                { provide: ApiService, useValue: { iconsUrl: '/icons' } },
+                { provide: ApiService, useValue: api },
+                { provide: AuthService, useValue: { owner } },
                 { provide: RecipePrintService, useValue: printing }
             ]
         });
@@ -218,5 +241,98 @@ describe('RecipesPage', () => {
         click(page, '.recipe button.primary', 2);
 
         expect(store.putRecipeOnList).toHaveBeenCalledWith({ name: 'Soep', ingredients: SOUP.ingredients });
+    });
+
+    it('offers the import to the owner only, and asks the server just for that account', async () => {
+        await open();
+
+        expect(importButton()).toBeNull();
+        expect(api.getRecipeImport).not.toHaveBeenCalled();
+
+        owner.set(true);
+        await open();
+
+        expect(importButton()?.textContent?.trim()).toBe('add_link');
+        expect(api.getRecipeImport).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers no import while the server has not answered, when it has no key, or when asking fails', async () => {
+        owner.set(true);
+        const answer = new Subject<{ available: boolean }>();
+        api.getRecipeImport.mockReturnValue(answer);
+        await open();
+        expect(importButton()).toBeNull();
+
+        answer.next({ available: true });
+        await settle();
+        expect(importButton()).not.toBeNull();
+
+        api.getRecipeImport.mockReturnValue(of({ available: false }));
+        await open();
+        expect(importButton()).toBeNull();
+
+        api.getRecipeImport.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+        await open();
+        expect(importButton()).toBeNull();
+    });
+
+    it('opens a sheet with a field for a link or text, and imports nothing while the field is empty', async () => {
+        await openImport('   ');
+
+        expect(page.querySelector('#recipe-source')?.getAttribute('placeholder')).toBe('recipe.importSource');
+        expect(sheetButton('recipe.import').disabled).toBe(true);
+
+        type(page, '#recipe-source', ' https://food.example/soep ');
+        await settle();
+
+        expect(sheetButton('recipe.import').disabled).toBe(false);
+
+        sheetButton('common.cancel').click();
+        await settle();
+
+        expect(page.querySelector('app-sheet')).toBeNull();
+        expect(store.importRecipe).not.toHaveBeenCalled();
+    });
+
+    it('shows that an import runs and stays open meanwhile, then opens the new recipe for editing', async () => {
+        const answer = new Subject<Recipe>();
+        store.importRecipe.mockReturnValue(answer);
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+        await openImport(' https://food.example/soep ');
+        sheetButton('recipe.import').click();
+        await settle();
+
+        expect(store.importRecipe).toHaveBeenCalledWith('https://food.example/soep');
+        expect(sheetButton('recipe.import').disabled).toBe(true);
+        expect(sheetButton('recipe.import').textContent?.trim()).toBe('schedule');
+        expect(sheetButton('common.cancel').disabled).toBe(true);
+
+        page.querySelector('dialog')?.dispatchEvent(new Event('cancel', { cancelable: true }));
+        await settle();
+        expect(page.querySelector('app-sheet')).not.toBeNull();
+
+        answer.next({ ...SOUP, id: 12 });
+        answer.complete();
+        await settle();
+
+        expect(page.querySelector('app-sheet')).toBeNull();
+        expect(navigate).toHaveBeenCalledWith(['/recipes', 12], { queryParams: { edit: true } });
+
+        importButton()?.click();
+        await settle();
+        expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).value).toBe('');
+    });
+
+    it('keeps the sheet and the typed text when the import fails, ready for another try', async () => {
+        store.importRecipe.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 422 })));
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+        await openImport('https://food.example/soep');
+        sheetButton('recipe.import').click();
+        await settle();
+
+        expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).value).toBe('https://food.example/soep');
+        expect(sheetButton('recipe.import').disabled).toBe(false);
+        expect(sheetButton('recipe.import').textContent?.trim()).toBe('add_link');
+        expect(navigate).not.toHaveBeenCalled();
     });
 });

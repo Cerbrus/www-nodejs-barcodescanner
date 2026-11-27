@@ -129,7 +129,13 @@
         "select": "Recepten kiezen",
         "code": "Code van {name}",
         "keep": "Recept bewaren",
-        "holdsDraft": "Bevat een conceptproduct: de code kan niet worden afgedrukt"
+        "holdsDraft": "Bevat een conceptproduct: de code kan niet worden afgedrukt",
+        "import": "Recept importeren",
+        "importSource": "Link of recepttekst",
+        "error": {
+            "noRecipeFound": "Geen recept in gevonden; plak de recepttekst in plaats van de link",
+            "importFailed": "Het importeren van het recept is mislukt; probeer het later opnieuw"
+        }
     },
     "item": {
         "name": "Naam",

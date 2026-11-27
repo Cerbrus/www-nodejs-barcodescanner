@@ -7,7 +7,13 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
 
-import { ConflictException, INestApplicationContext, Module, NotFoundException } from '@nestjs/common';
+import {
+    ConflictException,
+    INestApplicationContext,
+    Module,
+    NotFoundException,
+    UnprocessableEntityException
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -24,8 +30,10 @@ import { CatalogService } from '../core/services/catalog.service';
 import { ConnectorService } from '../core/services/connector.service';
 import { EventsService } from '../core/services/events.service';
 import { FeedbackService } from '../core/services/feedback.service';
+import { Answer, GeminiService, Question } from '../core/services/gemini.service';
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
+import { RecipeImportService } from '../core/services/recipe-import.service';
 import { RecipeService } from '../core/services/recipe.service';
 import { ScanService } from '../core/services/scan.service';
 import { FeedbackSettingEntity, SoundEntity } from '../data/entities';
@@ -593,6 +601,70 @@ describe('scan flow against a real database', () => {
         assert.equal((await scans.undo())?.code, code);
         assert.equal(await list.getSnapshot(made.id, ''), undefined);
         await scans.discardBarcode(code);
+    });
+
+    it('imports a recipe from what the AI service answers, with a draft for a product the app has not', async () => {
+        const imports = app.get(RecipeImportService);
+        const asked: Array<Question> = [];
+        const blank = { productId: 0, newName: '', sectionId: '', icon: '', emoji: '', quantity: 1, note: '' };
+        let answer: object = {
+            found: true,
+            name: 'Zalmwraps',
+            description: '1. Rol op.',
+            ingredients: [
+                { ...blank, productId: milkId, note: '500ml' },
+                {
+                    ...blank,
+                    newName: 'zalmflakes',
+                    sectionId: 'vlees-vis',
+                    icon: 'bestaat-niet',
+                    emoji: '🐟',
+                    note: '150g'
+                },
+                { ...blank, newName: 'Zalmflakes', quantity: 2 },
+                { ...blank, productId: 999999 }
+            ]
+        };
+        let linkRead = true;
+        app.get(GeminiService).ask = (question: Question): Promise<Answer> => {
+            asked.push(question);
+
+            return Promise.resolve({ value: answer, linkRead });
+        };
+
+        const recipe = await imports.import('https://example.com/recept/zalmwraps');
+        const [draft] = await catalog.getItems('Zalmflakes');
+        assert.equal(asked[0].readLinks, true);
+        assert.match(asked[0].input, new RegExp(`${milkId}	Melk`));
+        assert.deepEqual(
+            [draft.draft, draft.sectionId, draft.icon ?? undefined, draft.emoji],
+            [true, 'vlees-vis', undefined, '🐟']
+        );
+        assert.deepEqual(
+            recipe.ingredients?.map(({ catalogItemId, quantity, note }) => [catalogItemId, quantity, note]),
+            [
+                [milkId, 1, '500ml'],
+                [draft.id, 1, '150g'],
+                [draft.id, 2, '']
+            ]
+        );
+
+        const again = await imports.import('Zalmwraps: 500 ml melk, zalmflakes');
+        assert.equal(asked[1].readLinks, false);
+        assert.equal(again.name, 'Zalmwraps (2)');
+        assert.equal((await catalog.getItems('Zalmflakes')).length, 1);
+
+        linkRead = false;
+        await assert.rejects(imports.import('https://example.com/recept/verzonnen'), UnprocessableEntityException);
+        assert.equal(asked.length, 4);
+        assert.equal((await recipes.getAll()).length, 2);
+
+        answer = { found: false, name: '', description: '', ingredients: [] };
+        await assert.rejects(imports.import('geen recept'), UnprocessableEntityException);
+
+        await recipes.delete(recipe.id);
+        await recipes.delete(again.id);
+        await catalog.deleteItem(draft.id);
     });
 
     it('handles scans that arrive at the same moment one after the other', async () => {

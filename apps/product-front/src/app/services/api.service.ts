@@ -37,6 +37,13 @@ const REMARK_FAILURES = new HttpContext().set(FAILURE_TEXTS, {
     502: 'remark.error.gitHubFailed',
     503: 'remark.error.gitHubOff'
 });
+const IMPORT_FAILURES = new HttpContext().set(FAILURE_TEXTS, {
+    422: 'recipe.error.noRecipeFound',
+    500: 'recipe.error.importFailed',
+    502: 'recipe.error.importFailed',
+    503: 'recipe.error.importFailed',
+    504: 'recipe.error.importFailed'
+});
 const QUIET = new HttpContext().set(QUIET_FAILURE, true);
 const QUEUED_WITHOUT_CONNECTION = new HttpContext().set(QUIET_WITHOUT_CONNECTION, true);
 
@@ -145,6 +152,14 @@ export class ApiService {
 
     public dropRecipeOffer(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/recipes/offers/${id}`);
+    }
+
+    public getRecipeImport(): Observable<{ available: boolean }> {
+        return this.http.get<{ available: boolean }>(`${this.baseUrl}/recipes/imports`);
+    }
+
+    public importRecipe(source: string): Observable<Recipe> {
+        return this.http.post<Recipe>(`${this.baseUrl}/recipes/imports`, { source }, { context: IMPORT_FAILURES });
     }
 
     public addRecipe(recipe: RecipeContent, scanned?: ScannedRecipeCode, addedAt?: string): Observable<ScanOutcome> {

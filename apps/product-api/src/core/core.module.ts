@@ -10,11 +10,13 @@ import { ConnectorService } from './services/connector.service';
 import { ContentPolicyService } from './services/content-policy.service';
 import { EventsService } from './services/events.service';
 import { FeedbackService } from './services/feedback.service';
+import { GeminiService } from './services/gemini.service';
 import { GitHubService } from './services/github.service';
 import { ListService } from './services/list.service';
 import { LogService } from './services/log.service';
 import { NamingService } from './services/naming.service';
 import { PushService } from './services/push.service';
+import { RecipeImportService } from './services/recipe-import.service';
 import { RecipeService } from './services/recipe.service';
 import { RemarkService } from './services/remark.service';
 import { ScanService } from './services/scan.service';
@@ -29,11 +31,13 @@ const services = [
     ContentPolicyService,
     EventsService,
     FeedbackService,
+    GeminiService,
     GitHubService,
     ListService,
     LogService,
     NamingService,
     PushService,
+    RecipeImportService,
     RecipeService,
     RemarkService,
     ScanService,

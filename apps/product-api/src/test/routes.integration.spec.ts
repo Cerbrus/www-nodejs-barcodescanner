@@ -612,6 +612,14 @@ describe('data routes over HTTP', () => {
             assert.ok((await call(method, path, asUser, body)).status < 300, `${method} ${path} as owner`);
         }
 
+        const source = { source: 'https://example.com/recept' };
+        assert.equal((await call('POST', '/recipes/imports', asGuest, source)).status, 403);
+        assert.equal((await call('POST', '/recipes/imports', asUser, { source: ' ' })).status, 400);
+        assert.equal((await call('POST', '/recipes/imports', asUser, source)).status, 503);
+        for (const session of [asGuest, asUser]) {
+            assert.deepEqual((await call('GET', '/recipes/imports', session)).body, { available: false });
+        }
+
         assert.equal((await call('GET', '/list', asGuest)).status, 200);
         assert.equal((await call('GET', '/catalog', asGuest)).status, 200);
         assert.equal((await call('POST', '/scans', asGuest, { code: '22223333' })).status, 201);

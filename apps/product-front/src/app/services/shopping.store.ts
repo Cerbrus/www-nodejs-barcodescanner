@@ -242,6 +242,10 @@ export class ShoppingStore {
         return this.api.saveRecipeOffer(id).pipe(switchMap((recipe) => this.refreshRecipes().pipe(map(() => recipe))));
     }
 
+    public importRecipe(source: string): Observable<Recipe> {
+        return this.api.importRecipe(source).pipe(switchMap((recipe) => this.refreshAll().pipe(map(() => recipe))));
+    }
+
     public dropRecipeOffer(id: number): Observable<void> {
         return this.api.dropRecipeOffer(id).pipe(switchMap(() => this.refreshRecipes()));
     }

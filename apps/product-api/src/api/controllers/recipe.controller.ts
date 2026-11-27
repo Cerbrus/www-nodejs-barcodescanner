@@ -1,16 +1,22 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 
+import { RecipeImportService } from '../../core/services/recipe-import.service';
 import { RecipeOffer, RecipeService } from '../../core/services/recipe.service';
 import { ScanOutcome, ScanService } from '../../core/services/scan.service';
 import { RecipeEntity } from '../../data/entities';
 import { RecipeAdditionDto } from '../dto/recipe-addition.dto';
+import { RecipeImportDto } from '../dto/recipe-import.dto';
 import { RecipeDto } from '../dto/recipe.dto';
+import { CurrentAccount } from '../guards/account.decorator';
+import { OwnerOnly } from '../guards/owner.decorator';
+import { Account } from '../http';
 
 @Controller({ path: 'recipes', version: '1' })
 export class RecipeController {
     constructor(
         private readonly recipes: RecipeService,
-        private readonly scans: ScanService
+        private readonly scans: ScanService,
+        private readonly imports: RecipeImportService
     ) {}
 
     @Get()
@@ -21,6 +27,17 @@ export class RecipeController {
     @Post('additions')
     public add(@Body() { addedAt, ...addition }: RecipeAdditionDto): Promise<ScanOutcome> {
         return this.scans.addChosen({ ...addition, addedAt: addedAt ? new Date(addedAt) : undefined });
+    }
+
+    @Get('imports')
+    public canImport(@CurrentAccount() account: Account): { available: boolean } {
+        return { available: account.owner && this.imports.available };
+    }
+
+    @Post('imports')
+    @OwnerOnly()
+    public import(@Body() { source }: RecipeImportDto): Promise<RecipeEntity> {
+        return this.imports.import(source);
     }
 
     @Get('offers')

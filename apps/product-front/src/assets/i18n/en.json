@@ -129,7 +129,13 @@
         "select": "Choose recipes",
         "code": "Code of {name}",
         "keep": "Keep the recipe",
-        "holdsDraft": "Holds a draft product: the code cannot be printed"
+        "holdsDraft": "Holds a draft product: the code cannot be printed",
+        "import": "Import recipe",
+        "importSource": "Link or recipe text",
+        "error": {
+            "noRecipeFound": "No recipe found in it; paste the recipe text instead of the link",
+            "importFailed": "Importing the recipe failed; try again later"
+        }
     },
     "item": {
         "name": "Name",

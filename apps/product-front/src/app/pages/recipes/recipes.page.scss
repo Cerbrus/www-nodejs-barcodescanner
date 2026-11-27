@@ -70,3 +70,6 @@
     background: var(--tile-neutral);
     color: var(--tile-text);
 }
+textarea {
+    resize: vertical;
+}

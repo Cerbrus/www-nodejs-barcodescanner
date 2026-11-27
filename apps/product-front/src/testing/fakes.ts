@@ -59,6 +59,7 @@ export interface FakeStore {
     confirmDraft: ReturnType<typeof vi.fn>;
     replaceDraft: ReturnType<typeof vi.fn>;
     saveRecipe: ReturnType<typeof vi.fn>;
+    importRecipe: ReturnType<typeof vi.fn>;
     deleteRecipe: ReturnType<typeof vi.fn>;
     putRecipeOnList: ReturnType<typeof vi.fn>;
     undoLastScan: ReturnType<typeof vi.fn>;
@@ -115,6 +116,7 @@ export function fakeStore(items: Array<CatalogItem> = [], entries: Array<ListEnt
         confirmDraft: vi.fn(() => of(undefined)),
         replaceDraft: vi.fn(() => of(undefined)),
         saveRecipe: vi.fn(),
+        importRecipe: vi.fn(),
         deleteRecipe: vi.fn(() => of(undefined)),
         putRecipeOnList: vi.fn(() => of(undefined)),
         undoLastScan: vi.fn(),

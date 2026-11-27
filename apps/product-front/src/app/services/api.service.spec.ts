@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 
 import { ApiService } from './api.service';
-import { QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
+import { FAILURE_TEXTS, QUIET_FAILURE, QUIET_WITHOUT_CONNECTION } from './failed-change.interceptor';
 import { loadOutbox, saveOutbox } from './outbox';
 import { SettingsService } from './settings/settings.service';
 import { clearSnapshot, loadSnapshot, saveSnapshot } from './snapshot';
@@ -62,6 +62,8 @@ describe('ApiService', () => {
             [() => api.getList(), 'GET', '/list'],
             [() => api.changeListEntry('e7', { state: 'recent' }), 'PATCH', '/list/e7', { state: 'recent' }],
             [() => api.removeListEntry('e7'), 'DELETE', '/list/e7'],
+            [() => api.getRecipeImport(), 'GET', '/recipes/imports'],
+            [() => api.importRecipe('Soep: 2 uien'), 'POST', '/recipes/imports', { source: 'Soep: 2 uien' }],
             [() => api.getInbox(), 'GET', '/barcodes?unmapped=true'],
             [() => api.getBarcode('871'), 'GET', '/barcodes/871'],
             [() => api.mapBarcode('871', 7), 'PUT', '/barcodes/871', { catalogItemId: 7, note: '' }],
@@ -142,6 +144,17 @@ describe('ApiService', () => {
 
         expect(request.body).toEqual({ changes });
         expect(request.context.get(QUIET_FAILURE)).toBe(true);
+    });
+
+    it('gives a failed recipe import its own texts: no recipe found, or the import failed', () => {
+        api.importRecipe('Soep: 2 uien').subscribe();
+        const texts = server
+            .expectOne('https://shop.example/api/v1/recipes/imports')
+            .request.context.get(FAILURE_TEXTS);
+
+        expect(texts[422]).toBe('recipe.error.noRecipeFound');
+        expect([500, 502, 503, 504].map((status) => texts[status])).toEqual(Array(4).fill('recipe.error.importFailed'));
+        expect(texts[0]).toBeUndefined();
     });
 
     it('marks the calls whose failure the caller handles itself, so no second message appears', () => {
