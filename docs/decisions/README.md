@@ -40,7 +40,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0108](0108-collect-toggle-on-the-scan-page.md) | A toggle on the scan page makes a phone scan collect the product from the list                   | accepted                    | 2026-11-23   |
 | [0122](0122-recipes-imported-with-gemini.md)    | A recipe is imported from a link or pasted text, read by Google's Gemini on its free tier        | accepted                    | 2026-11-27   |
 | [0123](0123-draft-products.md)                  | A product made by a recipe import is a draft, reviewed in the inbox                              | accepted                    | 2026-11-27   |
-| [0124](0124-merge-products.md)                  | Merging products is built before the recipe import                                               | accepted                    | 2026-11-27   |
+| [0124](0124-replacing-a-draft-product.md)       | Only a draft product can be replaced by another product                                          | accepted                    | 2026-11-27   |
 
 ## Scanner and sounds
 

@@ -16,17 +16,19 @@ A recipe import ([0122](0122-recipes-imported-with-gemini.md)) meets ingredients
 
 ## Decision
 
-**The import creates the missing products**, each marked as a draft. A draft works like any product at once: in the recipe, on the list, in the search.
+**The import creates the missing products**, each marked as a draft.
+
+**A draft lives only in recipes.** It cannot go on the list and cannot get a barcode: it is left out of the list search and out of the products offered when a barcode is named. Putting a recipe on the list leaves its drafts out; the tick sheet shows them greyed, as it shows a product the app does not know ([0102](0102-putting-a-recipe-on-the-list.md)). A draft therefore never reaches the history.
 
 **Review in the inbox, by the owner.** A draft waits in the inbox until it is reviewed: its name, section and icon can be changed, and confirming it makes it an ordinary product. Only the owner imports, so only the owner sees drafts in the inbox and reviews them.
 
 **What a draft starts with.** The name and section come from the model. The icon is the one the seed file gives a product of that name; otherwise one the model picked from the existing icons, checked against the real files; otherwise the emoji the model gave; otherwise none ([0009](0009-own-icon-set.md)).
 
-**A product that a recipe uses cannot be deleted, draft or not.** The delete is refused and says how many recipes use it. The way out is merging it into another product ([0124](0124-merge-products.md)) or taking it out of those recipes first.
+**A product that a recipe uses cannot be deleted, draft or not.** The delete is refused and says how many recipes use it. A draft can be replaced by another product instead ([0124](0124-replacing-a-draft-product.md)); any other product has to be taken out of those recipes first.
 
 ## Consequences
 
 - The product table gets a mark for drafts, through a migration.
 - The inbox holds a third kind of item beside unnamed barcodes and unknown recipes. It is shown to the owner only, and only the owner's badge counts it.
-- Merging products has to exist before the import does.
+- Replacing a draft has to exist before the import does.
 - Deleting a product no longer removes it from recipes without a word, which it did until now for every product.
