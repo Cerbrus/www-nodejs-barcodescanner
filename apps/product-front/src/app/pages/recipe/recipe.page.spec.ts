@@ -89,14 +89,16 @@ describe('RecipePage', () => {
         await open('7');
 
         expect(texts(page, 'h1')).toEqual(['Pannenkoeken']);
-        expect(texts(page, '.card h2')).toEqual(['recipe.ingredientList']);
+        expect(texts(page, '.card h2')).toEqual(['recipe.ingredientList', 'recipe.preparation']);
         expect(texts(page, '.ingredient-lines li')).toEqual([
             'Melk, vol ×2',
             '250 g bloem',
             'Eieren',
             'recipe.unknownProduct ×3'
         ]);
-        expect(page.querySelector('.ingredient-lines + app-markdown strong')?.textContent).toBe('beslag');
+        expect(page.querySelector('.ingredient-lines + .preparation h2 + app-markdown strong')?.textContent).toBe(
+            'beslag'
+        );
         expect(page.querySelector('.ingredient, app-item-icon, .draft-mark')).toBeNull();
         expect(page.querySelector('#recipe-name')).toBeNull();
         expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/recipes');
@@ -122,11 +124,20 @@ describe('RecipePage', () => {
         expect(marks).toEqual([undefined, 'item.draft']);
     });
 
+    it('leaves the preparation heading out of a recipe without a description', async () => {
+        store.recipes.set([{ ...PANCAKES, description: '' }]);
+        await open('7');
+
+        expect(texts(page, '.card h2')).toEqual(['recipe.ingredientList']);
+        expect(page.querySelector('.preparation, .card app-markdown')).toBeNull();
+    });
+
     it('leaves the ingredient heading out of a recipe without products, and the whole text when there is none', async () => {
         store.recipes.set([{ ...PANCAKES, ingredients: [] }]);
         await open('7');
 
-        expect(page.querySelector('.ingredient-lines, .card h2')).toBeNull();
+        expect(page.querySelector('.ingredient-lines')).toBeNull();
+        expect(texts(page, '.card h2')).toEqual(['recipe.preparation']);
         expect(page.querySelector('.card app-markdown')).not.toBeNull();
         expect(button('recipe.toList').disabled).toBe(true);
 

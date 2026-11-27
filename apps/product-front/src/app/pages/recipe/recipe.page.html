@@ -249,7 +249,10 @@
                     </div>
                 }
                 @if (recipe.description) {
-                    <app-markdown [text]="recipe.description" />
+                    <div class="preparation">
+                        <h2>{{ 'recipe.preparation' | translate }}</h2>
+                        <app-markdown [text]="recipe.description" />
+                    </div>
                 }
                 @if (source(); as source) {
                     <a class="source" target="_blank" rel="noopener noreferrer" [href]="source.url">
