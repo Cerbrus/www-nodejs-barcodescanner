@@ -92,7 +92,7 @@ ${source.trim()}
 </link>
 
 - found: true only when the page was fetched and holds a recipe.
-- recipe: the recipe as plain text, in its own language: its name on the first line, then the number of servings when given, then every ingredient line exactly as the page gives it, each on its own line, then every preparation step. "" when found is false.`;
+- recipe: the recipe as plain text, in its own language: its name on the first line, then the servings line as the page gives it, with its unit ("4 personen", "12 stuks"), when given, then every ingredient line exactly as the page gives it, each on its own line, then every preparation step. "" when found is false.`;
 }
 
 export function readPage(answer: unknown): string | undefined {
@@ -116,7 +116,7 @@ ${source.trim()}
 YOUR ANSWER
 - found: false when there is no recipe in it or the page could not be read; leave the rest empty then.
 - name: the name of the recipe, in the language of the recipe.
-- description: Markdown in the language of the recipe. First the number of servings when given, then the preparation steps as a numbered list, then whatever else the recipe says that a cook wants to know. The ingredients are not in it: they are the rows.
+- description: Markdown in the language of the recipe. First, when given, the servings as a short line of their own with their unit, never a bare number: "4 personen", "12 stuks". Then the preparation steps as a numbered list, then whatever else the recipe says that a cook wants to know. The ingredients are not in it: they are the rows.
 - category: the one word from CATEGORIES for the dish as a whole. "dinner" is a main course, "baking" is cake, pie, cookies and bread, "snack" is a bite or a drink between meals. "other" when none fits.
 - ingredients: one row for each ingredient line, in the order of the recipe.
 
