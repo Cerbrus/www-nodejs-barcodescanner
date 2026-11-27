@@ -9,38 +9,40 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0125 or higher: the highest number plus one.
+- Number the next record 0127 or higher: the highest number plus one.
 
 ## Product
 
-| Number                                          | Title                                                                                            | Status                      | Date         |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------- | ------------ |
-| [0001](0001-own-shopping-list.md)               | Own shopping list, no Bring                                                                      | accepted                    | 2026-11-12   |
-| [0002](0002-generic-item-names.md)              | Items carry a generic name only                                                                  | accepted                    | 2026-11-12   |
-| [0003](0003-confirm-first-scan.md)              | The user confirms the catalog item at the first scan of a barcode                                | accepted                    | 2026-11-12   |
-| [0004](0004-unknown-barcode-inbox.md)           | An unknown barcode goes to the inbox                                                             | accepted                    | 2026-11-12   |
-| [0005](0005-parallel-connectors.md)             | Product lookup through parallel connectors                                                       | accepted                    | 2026-11-12   |
-| [0006](0006-repeat-scan-3-seconds.md)           | A repeat scan counts up, the same barcode within 3 seconds is ignored                            | superseded by 0007          | 2026-11-12   |
-| [0007](0007-repeat-scan-1-second.md)            | The repeat window is 1 second                                                                    | accepted                    | 2026-11-12   |
-| [0008](0008-fixed-shop-sections.md)             | A fixed set of shop sections                                                                     | accepted                    | 2026-11-12   |
-| [0009](0009-own-icon-set.md)                    | The user's own icon set, with emoji and letter tile as fallback                                  | accepted                    | 2026-11-12   |
-| [0010](0010-seeded-catalog.md)                  | The catalog is seeded from a file                                                                | accepted                    | 2026-11-12   |
-| [0011](0011-extras-version-one.md)              | Extras in version one: history, undo, mapping management                                         | accepted                    | 2026-11-12   |
-| [0012](0012-left-out-of-scope.md)               | Left out: store and price data, multiple lists, accounts with own data, live sync                | accepted                    | 2026-11-12   |
-| [0013](0013-continuous-phone-scan.md)           | Continuous scanning on the phone with an undo toast                                              | accepted                    | 2026-11-12   |
-| [0014](0014-online-first.md)                    | Online first, offline later                                                                      | accepted                    | 2026-11-12   |
-| [0040](0040-history-kept-forever.md)            | Scan history is kept forever                                                                     | accepted                    | 2026-11-13   |
-| [0056](0056-naming-sections-variants.md)        | Names, sections and variants of scanned products                                                 | accepted                    | 2026-11-15   |
-| [0057](0057-list-entry-ids-and-variants.md)     | List entries have their own id; product plus note is unique                                      | accepted                    | 2026-11-15   |
-| [0058](0058-bring-as-reference.md)              | Bring's web app is a functional reference                                                        | accepted                    | not recorded |
-| [0080](0080-failures-never-fail-a-scan.md)      | A connector failure or a failed push never fails a scan                                          | accepted (found afterwards) | not recorded |
-| [0090](0090-lookup-in-background.md)            | The product lookup runs in the background after the scan is answered                             | accepted (found afterwards) | not recorded |
-| [0100](0100-recipes-as-qr-codes.md)             | A recipe is a QR code that carries its whole ingredient list                                     | accepted                    | 2026-11-23   |
-| [0102](0102-putting-a-recipe-on-the-list.md)    | A recipe goes on the list at once or through a tick sheet, and counts as one line in the history | accepted                    | 2026-11-23   |
-| [0108](0108-collect-toggle-on-the-scan-page.md) | A toggle on the scan page makes a phone scan collect the product from the list                   | accepted                    | 2026-11-23   |
-| [0122](0122-recipes-imported-with-gemini.md)    | A recipe is imported from a link or pasted text, read by Google's Gemini on its free tier        | accepted                    | 2026-11-27   |
-| [0123](0123-draft-products.md)                  | A product made by a recipe import is a draft, reviewed in the inbox                              | accepted                    | 2026-11-27   |
-| [0124](0124-replacing-a-draft-product.md)       | Only a draft product can be replaced by another product                                          | accepted                    | 2026-11-27   |
+| Number                                          | Title                                                                                                 | Status                      | Date         |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------- | ------------ |
+| [0001](0001-own-shopping-list.md)               | Own shopping list, no Bring                                                                           | accepted                    | 2026-11-12   |
+| [0002](0002-generic-item-names.md)              | Items carry a generic name only                                                                       | accepted                    | 2026-11-12   |
+| [0003](0003-confirm-first-scan.md)              | The user confirms the catalog item at the first scan of a barcode                                     | accepted                    | 2026-11-12   |
+| [0004](0004-unknown-barcode-inbox.md)           | An unknown barcode goes to the inbox                                                                  | accepted                    | 2026-11-12   |
+| [0005](0005-parallel-connectors.md)             | Product lookup through parallel connectors                                                            | accepted                    | 2026-11-12   |
+| [0006](0006-repeat-scan-3-seconds.md)           | A repeat scan counts up, the same barcode within 3 seconds is ignored                                 | superseded by 0007          | 2026-11-12   |
+| [0007](0007-repeat-scan-1-second.md)            | The repeat window is 1 second                                                                         | accepted                    | 2026-11-12   |
+| [0008](0008-fixed-shop-sections.md)             | A fixed set of shop sections                                                                          | accepted                    | 2026-11-12   |
+| [0009](0009-own-icon-set.md)                    | The user's own icon set, with emoji and letter tile as fallback                                       | accepted                    | 2026-11-12   |
+| [0010](0010-seeded-catalog.md)                  | The catalog is seeded from a file                                                                     | accepted                    | 2026-11-12   |
+| [0011](0011-extras-version-one.md)              | Extras in version one: history, undo, mapping management                                              | accepted                    | 2026-11-12   |
+| [0012](0012-left-out-of-scope.md)               | Left out: store and price data, multiple lists, accounts with own data, live sync                     | accepted                    | 2026-11-12   |
+| [0013](0013-continuous-phone-scan.md)           | Continuous scanning on the phone with an undo toast                                                   | accepted                    | 2026-11-12   |
+| [0014](0014-online-first.md)                    | Online first, offline later                                                                           | accepted                    | 2026-11-12   |
+| [0040](0040-history-kept-forever.md)            | Scan history is kept forever                                                                          | accepted                    | 2026-11-13   |
+| [0056](0056-naming-sections-variants.md)        | Names, sections and variants of scanned products                                                      | accepted                    | 2026-11-15   |
+| [0057](0057-list-entry-ids-and-variants.md)     | List entries have their own id; product plus note is unique                                           | accepted                    | 2026-11-15   |
+| [0058](0058-bring-as-reference.md)              | Bring's web app is a functional reference                                                             | accepted                    | not recorded |
+| [0080](0080-failures-never-fail-a-scan.md)      | A connector failure or a failed push never fails a scan                                               | accepted (found afterwards) | not recorded |
+| [0090](0090-lookup-in-background.md)            | The product lookup runs in the background after the scan is answered                                  | accepted (found afterwards) | not recorded |
+| [0100](0100-recipes-as-qr-codes.md)             | A recipe is a QR code that carries its whole ingredient list                                          | accepted                    | 2026-11-23   |
+| [0102](0102-putting-a-recipe-on-the-list.md)    | A recipe goes on the list at once or through a tick sheet, and counts as one line in the history      | accepted                    | 2026-11-23   |
+| [0108](0108-collect-toggle-on-the-scan-page.md) | A toggle on the scan page makes a phone scan collect the product from the list                        | accepted                    | 2026-11-23   |
+| [0122](0122-recipes-imported-with-gemini.md)    | A recipe is imported from a link or pasted text, read by Google's Gemini on its free tier             | accepted                    | 2026-11-27   |
+| [0123](0123-draft-products.md)                  | A product made by a recipe import is a draft, reviewed in the inbox                                   | accepted                    | 2026-11-27   |
+| [0124](0124-replacing-a-draft-product.md)       | Only a draft product can be replaced by another product                                               | accepted                    | 2026-11-27   |
+| [0125](0125-ingredient-lines.md)                | A recipe row keeps its ingredient line, and a recipe reads as ingredients and description in one text | accepted                    | 2026-11-27   |
+| [0126](0126-app-checks-the-product-of-a-row.md) | The app checks the product an import picks, by the words in the ingredient line                       | accepted                    | 2026-11-27   |
 
 ## Scanner and sounds
 
