@@ -80,7 +80,6 @@ layer(base);
     --line: light-dark(#e2e5ea, #2a313b);
     --accent: light-dark(#0f766e, #2dd4bf);
     --accent-text: light-dark(#fff, #0b1512);
-    --accent-text-off: light-dark(var(--accent-text), var(--text));
     --tile-buy: light-dark(#c0392b, #b03a2e);
     --tile-recent: light-dark(#2f855a, #2a7a52);
     --tile-neutral: light-dark(#5b6779, #465163);
@@ -313,10 +312,6 @@ app-recipe-print {
             border-color: var(--accent);
             background: var(--accent);
             color: var(--accent-text);
-
-            &:disabled {
-                color: var(--accent-text-off);
-            }
         }
 
         &.danger {
