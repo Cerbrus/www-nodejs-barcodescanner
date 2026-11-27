@@ -18,6 +18,8 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     await expect(page.getByRole('heading', { name: 'Recepten', exact: true })).toBeVisible();
     await page.getByRole('link', { name: 'Nieuw recept' }).click();
     await page.locator('#recipe-name').fill(NAME);
+    await expect(page.getByRole('button', { name: 'Opslaan' })).toBeDisabled();
+    await page.locator('#recipe-category').selectOption({ label: 'Avondeten' });
     await page.locator('#recipe-description').fill('Eerst **roeren**.');
     await page.locator('app-item-autocomplete input').fill(product.name);
     await page.locator('app-item-autocomplete .option').first().click();
@@ -36,6 +38,7 @@ test('make a recipe, put it on the list from its row, undo, and add it again thr
     await expect(page.locator('.ingredient-lines li')).toHaveText('2 flessen *afwasmiddel*');
 
     await page.goto('/#/recipes');
+    await expect(page.locator('.section-title')).toContainText(['Avondeten']);
     await page.getByRole('button', { name: `Alles van ${NAME} op de lijst zetten` }).click();
     await expect(page.getByText(`${NAME}: 1 product op de lijst`)).toBeVisible();
     await expect.poll(() => toBuy(request, product.id)).toBe(2);

@@ -419,7 +419,10 @@ describe('scan flow against a real database', () => {
             ]
         });
 
-        assert.deepEqual([made.name, made.description], ['Pannenkoeken', '**Beslag** een uur laten rusten']);
+        assert.deepEqual(
+            [made.name, made.description, made.category],
+            ['Pannenkoeken', '**Beslag** een uur laten rusten', 'other']
+        );
         assert.deepEqual(
             made.ingredients?.map(({ catalogItemId, quantity, note }) => [catalogItemId, quantity, note]),
             [
@@ -448,6 +451,15 @@ describe('scan flow against a real database', () => {
             ]
         );
         assert.equal(changed.description, '');
+        assert.equal(changed.category, 'other');
+
+        const filed = await recipes.update(made.id, { name: 'Pannenkoeken', category: 'dinner', ingredients: [] });
+        assert.equal(filed.category, 'dinner');
+        assert.equal((await recipes.update(made.id, { name: 'Pannenkoeken', ingredients: [] })).category, 'dinner');
+        await recipes.update(made.id, {
+            name: 'Pannenkoeken',
+            ingredients: [{ catalogItemId: milkId, quantity: 2, note: '' }]
+        });
         assert.equal((await recipes.getAll()).length, 1);
         assert.equal(await recipes.countUsing(milkId), 1);
     });
@@ -620,6 +632,7 @@ describe('scan flow against a real database', () => {
             found: true,
             name: 'Zalmwraps',
             description: '1. Rol op.',
+            category: 'lunch',
             ingredients: [
                 { ...blank, line: '500 ml melk', productId: milkId, newName: 'Melk', note: '500ml' },
                 {
@@ -668,10 +681,14 @@ describe('scan flow against a real database', () => {
             ['500 ml melk', '', '2 zalmflakes']
         );
 
-        assert.equal(recipe.description, '1. Rol op.\n\n[example.com](https://example.com/recept/zalmwraps)');
+        assert.deepEqual(
+            [recipe.description, recipe.sourceUrl],
+            ['1. Rol op.', 'https://example.com/recept/zalmwraps']
+        );
+        assert.equal(recipe.category, 'lunch');
 
         const again = await imports.import('Zalmwraps: 500 ml melk, zalmflakes');
-        assert.equal(again.description, '1. Rol op.');
+        assert.deepEqual([again.description, again.sourceUrl], ['1. Rol op.', '']);
         assert.equal(asked[2].readLinks, false);
         assert.equal(again.name, 'Zalmwraps (2)');
         assert.equal((await catalog.getItems('Zalmflakes')).length, 1);

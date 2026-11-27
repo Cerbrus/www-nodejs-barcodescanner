@@ -19,6 +19,16 @@
                 (ngModelChange)="name.set($event)"
             />
 
+            <label class="field-label" for="recipe-category">{{ 'recipe.category' | translate }}</label>
+            <select id="recipe-category" class="field" [ngModel]="category()" (ngModelChange)="category.set($event)">
+                @if (!category()) {
+                    <option value="" disabled></option>
+                }
+                @for (option of categories; track option) {
+                    <option [value]="option">{{ 'recipe.categories.' + option | translate }}</option>
+                }
+            </select>
+
             <label class="field-label" for="recipe-description">{{ 'recipe.description' | translate }}</label>
             <textarea
                 id="recipe-description"
@@ -28,6 +38,19 @@
                 [ngModel]="description()"
                 (ngModelChange)="description.set($event)"
             ></textarea>
+
+            <label class="field-label" for="recipe-source-url">{{ 'recipe.sourceUrl' | translate }}</label>
+            <input
+                id="recipe-source-url"
+                class="field"
+                type="url"
+                inputmode="url"
+                autocomplete="off"
+                placeholder="https://"
+                [attr.maxlength]="limits.sourceUrl"
+                [ngModel]="sourceUrl()"
+                (ngModelChange)="sourceUrl.set($event)"
+            />
         </div>
 
         <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>
@@ -197,8 +220,12 @@
                 <i class="material-symbols-outlined">edit</i>
             </button>
         </div>
+        <p class="category">
+            <i class="material-symbols-outlined">{{ categoryIcons[shownCategory()] }}</i>
+            {{ 'recipe.categories.' + shownCategory() | translate }}
+        </p>
 
-        @if (shown().length || recipe.description) {
+        @if (shown().length || recipe.description || source()) {
             <div class="card">
                 @if (shown().length) {
                     <div class="ingredient-lines">
@@ -223,6 +250,12 @@
                 }
                 @if (recipe.description) {
                     <app-markdown [text]="recipe.description" />
+                }
+                @if (source(); as source) {
+                    <a class="source" target="_blank" rel="noopener noreferrer" [href]="source.url">
+                        <i class="material-symbols-outlined">open_in_new</i>
+                        {{ source.host }}
+                    </a>
                 }
             </div>
         }

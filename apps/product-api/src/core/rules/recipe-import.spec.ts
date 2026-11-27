@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { freeName, holdsLink, importPrompt, pagePrompt, readImport, readPage, withSource } from './recipe-import';
+import {
+    IMPORT_SCHEMA,
+    freeName,
+    holdsLink,
+    importPrompt,
+    linkIn,
+    pagePrompt,
+    readImport,
+    readPage
+} from './recipe-import';
 
 const CHOICES = {
     products: [
@@ -56,6 +65,7 @@ describe('recipe import', () => {
                 found: true,
                 name: '  Zalmwraps ',
                 description: ' 1. Rol op. ',
+                category: 'lunch',
                 ingredients: [
                     row({ line: ' 3 rode uien ', productId: 2, newName: 'Ui', quantity: 3, note: ' Fijn ' }),
                     row({
@@ -75,6 +85,7 @@ describe('recipe import', () => {
         assert.deepEqual(read, {
             name: 'Zalmwraps',
             description: '1. Rol op.',
+            category: 'lunch',
             rows: [
                 { catalogItemId: 2, quantity: 3, note: 'Fijn', text: '3 rode uien' },
                 {
@@ -91,6 +102,29 @@ describe('recipe import', () => {
                 }
             ]
         });
+    });
+
+    it('asks for one of the fixed categories, and files an answer outside them under other', () => {
+        const category = (answered?: unknown): unknown =>
+            readImport(
+                {
+                    found: true,
+                    name: 'Soep',
+                    description: '',
+                    category: answered,
+                    ingredients: [row({ line: '1 l melk', productId: 1 })]
+                },
+                CHOICES
+            )?.category;
+
+        assert.match(importPrompt('soep', CHOICES), /CATEGORIES\nbreakfast, lunch, dinner, soup, .*other\n/);
+        assert.deepEqual(IMPORT_SCHEMA.properties.category.enum.slice(0, 3), ['breakfast', 'lunch', 'dinner']);
+        assert.ok(IMPORT_SCHEMA.required.includes('category'));
+        assert.equal(category('soup'), 'soup');
+        assert.equal(category('Soup'), 'other');
+        assert.equal(category('stamppot'), 'other');
+        assert.equal(category(7), 'other');
+        assert.equal(category(), 'other');
     });
 
     it('refuses a picked product whose name is not in the line, and makes the named product instead', () => {
@@ -172,17 +206,14 @@ describe('recipe import', () => {
         assert.equal(readImport('Soep', CHOICES), undefined);
     });
 
-    it('puts the link a recipe came from under its description, and leaves pasted text as it is', () => {
+    it('takes the link a recipe came from out of what was pasted, and none out of plain text', () => {
         assert.equal(
-            withSource('1. Roer.', 'kijk: https://www.example.com/recept/soep_(oud).'),
-            '1. Roer.\n\n[www.example.com](https://www.example.com/recept/soep_%28oud%29)'
+            linkIn('kijk: https://www.example.com/recept/soep_(oud).'),
+            'https://www.example.com/recept/soep_(oud)'
         );
-        assert.equal(withSource('', 'https://example.com/r'), '[example.com](https://example.com/r)');
-        assert.equal(withSource('1. Roer.', '500 g bloem'), '1. Roer.');
-
-        const long = withSource('a'.repeat(10000), 'https://example.com/r');
-        assert.equal(long.length, 10000);
-        assert.ok(long.endsWith('\n\n[example.com](https://example.com/r)'));
+        assert.equal(linkIn('(https://example.com/r)'), 'https://example.com/r');
+        assert.equal(linkIn('500 g bloem'), '');
+        assert.equal(linkIn(`https://example.com/${'a'.repeat(2000)}`), '');
     });
 
     it('numbers a recipe name that is taken', () => {

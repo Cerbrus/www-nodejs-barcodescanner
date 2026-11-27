@@ -4,7 +4,11 @@ import {
     MAX_INGREDIENT_TEXT_LENGTH,
     MAX_RECIPE_DESCRIPTION_LENGTH,
     MAX_RECIPE_INGREDIENTS,
-    MAX_RECIPE_NAME_LENGTH
+    MAX_RECIPE_NAME_LENGTH,
+    MAX_RECIPE_SOURCE_URL_LENGTH,
+    RECIPE_CATEGORIES,
+    RecipeCategory,
+    recipeCategoryOf
 } from '@barcodescanner/shared';
 
 import { fits, mostSpecific } from './product-match';
@@ -37,6 +41,7 @@ export interface ImportedRow {
 export interface ImportedRecipe {
     name: string;
     description: string;
+    category: RecipeCategory;
     rows: Array<ImportedRow>;
 }
 
@@ -46,6 +51,7 @@ export const IMPORT_SCHEMA = {
         found: { type: 'boolean' },
         name: { type: 'string' },
         description: { type: 'string' },
+        category: { type: 'string', enum: [...RECIPE_CATEGORIES] },
         ingredients: {
             type: 'array',
             items: {
@@ -64,7 +70,7 @@ export const IMPORT_SCHEMA = {
             }
         }
     },
-    required: ['found', 'name', 'description', 'ingredients']
+    required: ['found', 'name', 'description', 'category', 'ingredients']
 };
 
 export const holdsLink = (source: string): boolean => LINK.test(source);
@@ -111,6 +117,7 @@ YOUR ANSWER
 - found: false when there is no recipe in it or the page could not be read; leave the rest empty then.
 - name: the name of the recipe, in the language of the recipe.
 - description: Markdown in the language of the recipe. First the number of servings when given, then the preparation steps as a numbered list, then whatever else the recipe says that a cook wants to know. The ingredients are not in it: they are the rows.
+- category: the one word from CATEGORIES for the dish as a whole. "dinner" is a main course, "baking" is cake, pie, cookies and bread, "snack" is a bite or a drink between meals. "other" when none fits.
 - ingredients: one row for each ingredient line, in the order of the recipe.
 
 EACH ROW
@@ -125,6 +132,9 @@ EACH ROW
 
 EXAMPLE of rows as the household writes them, for "500 ml melk", "500 g bloem", "500 g bruine basterdsuiker", "koekkruiden", "2 eieren":
 Melk, quantity 1, note "500ml"; Bloem, quantity 1, note "500g"; Basterdsuiker, quantity 1, note "Bruin, 500g"; Koekkruiden, quantity 1, note ""; Eieren, quantity 2, note "".
+
+CATEGORIES
+${RECIPE_CATEGORIES.join(', ')}
 
 PRODUCTS (id, name)
 ${table(products)}
@@ -201,7 +211,7 @@ function readRow(row: AnsweredRow, choices: ImportChoices, fallbackSection: stri
 }
 
 export function readImport(answer: unknown, choices: ImportChoices): ImportedRecipe | undefined {
-    const { found, name, description, ingredients } = (answer ?? {}) as Record<string, unknown>;
+    const { found, name, description, category, ingredients } = (answer ?? {}) as Record<string, unknown>;
     const title = text(name, MAX_RECIPE_NAME_LENGTH);
     const fallbackSection = choices.sections.at(-1)?.id;
     if (found !== true || !title || !Array.isArray(ingredients) || !fallbackSection) {
@@ -213,23 +223,20 @@ export function readImport(answer: unknown, choices: ImportChoices): ImportedRec
         .flatMap((row) => readRow(row ?? {}, choices, fallbackSection) ?? []);
 
     return rows.length
-        ? { name: title, description: text(description, MAX_RECIPE_DESCRIPTION_LENGTH), rows }
+        ? {
+              name: title,
+              description: text(description, MAX_RECIPE_DESCRIPTION_LENGTH),
+              category: recipeCategoryOf(category),
+              rows
+          }
         : undefined;
 }
 
-export function withSource(description: string, source: string): string {
+export function linkIn(source: string): string {
     const found = LINK.exec(source)?.[0].replace(/[.,;]+$/, '');
     const link = found?.includes('(') ? found : found?.replace(/\)+$/, '');
-    if (!link || !URL.canParse(link)) {
-        return description;
-    }
-    const address = link.replaceAll('(', '%28').replaceAll(')', '%29');
-    const line = `[${new URL(link).hostname}](${address})`;
-    if (line.length > MAX_RECIPE_DESCRIPTION_LENGTH) {
-        return description;
-    }
 
-    return `${description.slice(0, MAX_RECIPE_DESCRIPTION_LENGTH - line.length - 2).trimEnd()}\n\n${line}`.trim();
+    return link && URL.canParse(link) && link.length <= MAX_RECIPE_SOURCE_URL_LENGTH ? link : '';
 }
 
 export function freeName(name: string, taken: Array<string>): string {

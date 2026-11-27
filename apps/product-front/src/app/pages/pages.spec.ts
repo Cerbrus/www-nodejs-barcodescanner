@@ -121,7 +121,9 @@ describe('the smaller pages', () => {
                 },
                 { id: 4, name: 'Vla', createdAt: '2026-11-23T16:01:00.000Z', products: 2, unknown: [], nameTaken: true }
             ]);
-            store.saveRecipeOffer.mockReturnValue(of({ id: 12, name: 'Soep', description: '', ingredients: [] }));
+            store.saveRecipeOffer.mockReturnValue(
+                of({ id: 12, name: 'Soep', description: '', category: 'other', ingredients: [] })
+            );
             const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
             await open(InboxPage);
 

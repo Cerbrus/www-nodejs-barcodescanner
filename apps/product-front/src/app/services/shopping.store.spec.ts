@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { NEVER, Observable, Subject, filter, of, throwError } from 'rxjs';
 
-import { CatalogItem, ListEntry, Recipe, RecipeOffer, Section } from '../models';
+import { CatalogItem, ListEntry, Recipe, RecipeInput, RecipeOffer, Section } from '../models';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { EventsService } from './events.service';
@@ -41,6 +41,7 @@ const pancakes: Recipe = {
     id: 7,
     name: 'Pannenkoeken',
     description: '',
+    category: 'dinner',
     ingredients: [{ catalogItemId: 1, quantity: 2, note: '' }]
 };
 
@@ -245,7 +246,13 @@ describe('ShoppingStore', () => {
 
     it('makes a new recipe or changes an existing one, and deletes one', () => {
         const store = create();
-        const input = { name: 'Vla', description: '', ingredients: [] };
+        const input: RecipeInput = {
+            name: 'Vla',
+            description: '',
+            category: 'dessert',
+            sourceUrl: '',
+            ingredients: []
+        };
         api.createRecipe.mockReturnValue(of({ ...input, id: 8 }));
         api.updateRecipe.mockReturnValue(of({ ...input, id: 7 }));
         const saved: Array<number> = [];

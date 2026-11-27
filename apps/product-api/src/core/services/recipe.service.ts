@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
 import {
+    DEFAULT_RECIPE_CATEGORY,
+    RecipeCategory,
     RecipeContent,
     RecipeIngredient,
     cleanIngredients,
@@ -18,6 +20,8 @@ import { EventsService } from './events.service';
 export interface RecipeInput {
     name: string;
     description?: string;
+    category?: RecipeCategory;
+    sourceUrl?: string;
     ingredients: Array<RecipeIngredient>;
 }
 
@@ -68,9 +72,14 @@ export class RecipeService {
         const id = await this.transactions.run(async (manager) => {
             const { name, description } = await this.checked(input, manager);
             const now = new Date();
-            const recipe = await manager
-                .getRepository(RecipeEntity)
-                .save({ name, description, createdAt: now, updatedAt: now });
+            const recipe = await manager.getRepository(RecipeEntity).save({
+                name,
+                description,
+                category: input.category ?? DEFAULT_RECIPE_CATEGORY,
+                sourceUrl: input.sourceUrl?.trim() ?? '',
+                createdAt: now,
+                updatedAt: now
+            });
             await this.writeIngredients(recipe.id, input.ingredients, manager);
 
             return recipe.id;
@@ -82,10 +91,16 @@ export class RecipeService {
     }
 
     public async update(id: number, input: RecipeInput): Promise<RecipeEntity> {
-        await this.get(id);
+        const { category, sourceUrl } = await this.get(id);
         await this.transactions.run(async (manager) => {
             const { name, description } = await this.checked(input, manager, id);
-            await manager.getRepository(RecipeEntity).update(id, { name, description, updatedAt: new Date() });
+            await manager.getRepository(RecipeEntity).update(id, {
+                name,
+                description,
+                category: input.category ?? category,
+                sourceUrl: input.sourceUrl?.trim() ?? sourceUrl,
+                updatedAt: new Date()
+            });
             await manager.getRepository(RecipeIngredientEntity).delete({ recipeId: id });
             await this.writeIngredients(id, input.ingredients, manager);
         });

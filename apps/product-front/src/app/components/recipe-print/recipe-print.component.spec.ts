@@ -10,6 +10,7 @@ const recipe = (id: number, name: string): Recipe => ({
     id,
     name,
     description: '',
+    category: 'other',
     ingredients: [{ catalogItemId: id, quantity: 1, note: '' }]
 });
 

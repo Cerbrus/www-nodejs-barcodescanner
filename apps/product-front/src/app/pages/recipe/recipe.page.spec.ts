@@ -17,6 +17,7 @@ const PANCAKES: Recipe = {
     id: 7,
     name: 'Pannenkoeken',
     description: 'Laat het **beslag** rusten.',
+    category: 'dinner',
     ingredients: [
         { catalogItemId: 1, quantity: 2, note: 'vol' },
         { catalogItemId: 2, quantity: 1, note: '' }
@@ -48,6 +49,11 @@ describe('RecipePage', () => {
         Array.from(page.querySelectorAll('button')).filter((candidate) =>
             `${candidate.textContent} ${candidate.getAttribute('aria-label')}`.includes(label)
         )[index] as HTMLButtonElement;
+    const category = (): HTMLSelectElement => page.querySelector('#recipe-category') as HTMLSelectElement;
+    const pick = (value: string): void => {
+        category().value = value;
+        category().dispatchEvent(new Event('change'));
+    };
     const edit = async (): Promise<void> => {
         click(page, 'button[aria-label="recipe.edit"]');
         await settle();
@@ -319,6 +325,8 @@ describe('RecipePage', () => {
         expect(store.saveRecipe).toHaveBeenCalledWith(7, {
             name: 'Flensjes',
             description: PANCAKES.description,
+            category: 'dinner',
+            sourceUrl: '',
             ingredients: [
                 { catalogItemId: 1, quantity: 1, note: 'vol', text: '' },
                 { catalogItemId: 2, quantity: 2, note: 'scharrel', text: '' }
@@ -400,11 +408,107 @@ describe('RecipePage', () => {
 
         type(page, '#recipe-name', 'Vla');
         await settle();
+
+        expect(category().value).toBe('');
+        expect(button('common.save').disabled).toBe(true);
+
+        pick('dessert');
+        await settle();
         button('common.save').click();
         await settle();
 
-        expect(store.saveRecipe).toHaveBeenCalledWith(undefined, { name: 'Vla', description: '', ingredients: [] });
+        expect(store.saveRecipe).toHaveBeenCalledWith(undefined, {
+            name: 'Vla',
+            description: '',
+            category: 'dessert',
+            sourceUrl: '',
+            ingredients: []
+        });
         expect(navigate).toHaveBeenCalledWith(['/recipes', 12], { replaceUrl: true });
+    });
+
+    it('names the category of a recipe while reading, and files one without a known category under other', async () => {
+        await open('7');
+
+        expect(texts(page, 'p.category')).toEqual(['dinner_dining recipe.categories.dinner']);
+
+        store.recipes.set([{ ...PANCAKES, category: undefined } as unknown as Recipe]);
+        await settle();
+
+        expect(texts(page, 'p.category')).toEqual(['restaurant recipe.categories.other']);
+    });
+
+    it('shows the link a recipe came from by the name of its site, and nothing for a recipe without one', async () => {
+        await open('7');
+
+        expect(page.querySelector('a.source')).toBeNull();
+
+        store.recipes.set([
+            { ...PANCAKES, description: '', ingredients: [], sourceUrl: 'https://www.example.com/recept/1' }
+        ]);
+        await settle();
+        const link = page.querySelector('.card a.source') as HTMLAnchorElement;
+
+        expect(link.getAttribute('href')).toBe('https://www.example.com/recept/1');
+        expect([link.target, link.rel]).toEqual(['_blank', 'noopener noreferrer']);
+        expect(texts(page, 'a.source')).toEqual(['open_in_new www.example.com']);
+
+        store.recipes.set([{ ...PANCAKES, sourceUrl: 'javascript:alert(1)' }]);
+        await settle();
+
+        expect(page.querySelector('a.source')).toBeNull();
+    });
+
+    it('has a field for the link in the form, saves it trimmed, and saves nothing that is no web address', async () => {
+        store.recipes.set([{ ...PANCAKES, sourceUrl: 'https://example.com/a' }]);
+        await open('7');
+        await edit();
+        const field = (): HTMLInputElement => page.querySelector('#recipe-source-url') as HTMLInputElement;
+
+        expect(field().value).toBe('https://example.com/a');
+        expect(button('common.save').disabled).toBe(true);
+
+        type(page, '#recipe-source-url', 'example.com/b');
+        await settle();
+        expect(button('common.save').disabled).toBe(true);
+
+        type(page, '#recipe-source-url', ' https://example.com/b ');
+        await settle();
+        expect(button('common.save').disabled).toBe(false);
+
+        type(page, '#recipe-source-url', '');
+        await settle();
+        button('common.save').click();
+
+        expect(store.saveRecipe.mock.calls[0][1].sourceUrl).toBe('');
+    });
+
+    it('offers the nine categories in the form with the one of the recipe picked, and saves another', async () => {
+        await open('7');
+        await edit();
+
+        expect(Array.from(category().options, (option) => option.value)).toEqual([
+            'breakfast',
+            'lunch',
+            'dinner',
+            'soup',
+            'salad',
+            'dessert',
+            'baking',
+            'snack',
+            'other'
+        ]);
+        expect(category().value).toBe('dinner');
+        expect(button('common.save').disabled).toBe(true);
+
+        pick('baking');
+        await settle();
+
+        expect(button('common.save').disabled).toBe(false);
+
+        button('common.save').click();
+
+        expect(store.saveRecipe.mock.calls[0][1].category).toBe('baking');
     });
 
     it('goes back to the recipes when a new recipe is cancelled', async () => {

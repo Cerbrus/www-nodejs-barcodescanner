@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { isRecipeCode, readRecipeCode, writeRecipeCode } from './recipe-code';
-import { cleanIngredients } from './recipes';
+import { DEFAULT_RECIPE_CATEGORY, RECIPE_CATEGORIES, cleanIngredients, recipeCategoryOf } from './recipes';
 
 const PRINTABLE_ASCII = /^[\x20-\x7e]*$/;
 
@@ -122,5 +122,16 @@ describe('the ingredients of a recipe', () => {
         ]);
 
         assert.equal(total.quantity, 99);
+    });
+});
+
+describe('the category of a recipe', () => {
+    it('is one of the fixed set that ends in other, and anything else reads as other', () => {
+        assert.equal(RECIPE_CATEGORIES.length, 9);
+        assert.equal(RECIPE_CATEGORIES.at(-1), DEFAULT_RECIPE_CATEGORY);
+        assert.equal(recipeCategoryOf('baking'), 'baking');
+        assert.equal(recipeCategoryOf('Baking'), 'other');
+        assert.equal(recipeCategoryOf(undefined), 'other');
+        assert.equal(recipeCategoryOf(3), 'other');
     });
 });

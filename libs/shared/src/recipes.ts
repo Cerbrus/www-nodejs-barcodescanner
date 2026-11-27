@@ -10,10 +10,31 @@ export interface RecipeContent {
     ingredients: Array<RecipeIngredient>;
 }
 
+export const RECIPE_CATEGORIES = [
+    'breakfast',
+    'lunch',
+    'dinner',
+    'soup',
+    'salad',
+    'dessert',
+    'baking',
+    'snack',
+    'other'
+] as const;
+
+export type RecipeCategory = (typeof RECIPE_CATEGORIES)[number];
+
+export const DEFAULT_RECIPE_CATEGORY: RecipeCategory = 'other';
+
+export const recipeCategoryOf = (value: unknown): RecipeCategory =>
+    RECIPE_CATEGORIES.find((category) => category === value) ?? DEFAULT_RECIPE_CATEGORY;
+
 export const MAX_RECIPE_NAME_LENGTH = 80;
 export const MAX_RECIPE_DESCRIPTION_LENGTH = 10000;
 export const MAX_RECIPE_INGREDIENTS = 60;
 export const MAX_RECIPE_SOURCE_LENGTH = 20000;
+export const MAX_RECIPE_SOURCE_URL_LENGTH = 2000;
+export const RECIPE_SOURCE_URL = /^(https?:\/\/\S+)?$/i;
 export const MAX_INGREDIENT_QUANTITY = 99;
 export const MAX_INGREDIENT_NOTE_LENGTH = 200;
 export const MAX_INGREDIENT_TEXT_LENGTH = 200;

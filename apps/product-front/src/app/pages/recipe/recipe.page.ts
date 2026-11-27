@@ -24,7 +24,12 @@ import {
     MAX_RECIPE_DESCRIPTION_LENGTH,
     MAX_RECIPE_INGREDIENTS,
     MAX_RECIPE_NAME_LENGTH,
-    RecipeIngredient
+    MAX_RECIPE_SOURCE_URL_LENGTH,
+    RECIPE_CATEGORIES,
+    RECIPE_SOURCE_URL,
+    RecipeCategory,
+    RecipeIngredient,
+    recipeCategoryOf
 } from '@barcodescanner/shared';
 
 import { ItemAutocompleteComponent } from '../../components/item-autocomplete/item-autocomplete.component';
@@ -36,6 +41,7 @@ import { RecipeSheetComponent } from '../../components/recipe-sheet/recipe-sheet
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { FocusOnShowDirective } from '../../directives/focus-on-show.directive';
 import { CatalogItem } from '../../models';
+import { RECIPE_CATEGORY_ICONS } from '../../recipe-categories';
 import { RecipePrintService } from '../../services/recipe-print.service';
 import { ShoppingStore } from '../../services/shopping.store';
 import { ToastService } from '../../services/toast.service';
@@ -92,7 +98,8 @@ export class RecipePage {
         note: MAX_INGREDIENT_NOTE_LENGTH,
         text: MAX_INGREDIENT_TEXT_LENGTH,
         quantity: MAX_INGREDIENT_QUANTITY,
-        ingredients: MAX_RECIPE_INGREDIENTS
+        ingredients: MAX_RECIPE_INGREDIENTS,
+        sourceUrl: MAX_RECIPE_SOURCE_URL_LENGTH
     };
 
     protected readonly dragDelay = { touch: 250, mouse: 0 };
@@ -101,6 +108,10 @@ export class RecipePage {
     protected readonly confirmingDelete = signal(false);
     protected readonly name = signal('');
     protected readonly description = signal('');
+    protected readonly category = signal<RecipeCategory | ''>('');
+    protected readonly sourceUrl = signal('');
+    protected readonly categories = RECIPE_CATEGORIES;
+    protected readonly categoryIcons = RECIPE_CATEGORY_ICONS;
     protected readonly ingredients = signal<Array<RecipeIngredient>>([]);
     protected readonly search = signal('');
     protected readonly creatingName = signal<string | undefined>(undefined);
@@ -117,6 +128,16 @@ export class RecipePage {
         const id = this.id();
 
         return id === undefined ? undefined : this.store.recipeById(id);
+    });
+
+    protected readonly shownCategory = computed(() => recipeCategoryOf(this.recipe()?.category));
+
+    protected readonly source = computed(() => {
+        const url = this.recipe()?.sourceUrl;
+
+        return url && RECIPE_SOURCE_URL.test(url)
+            ? { url, host: URL.canParse(url) ? new URL(url).hostname : url }
+            : undefined;
     });
 
     protected readonly holdsDraft = computed(() => {
@@ -148,9 +169,16 @@ export class RecipePage {
             !recipe ||
             this.name().trim() !== recipe.name ||
             this.description().trim() !== recipe.description ||
+            this.category() !== this.shownCategory() ||
+            this.sourceUrl().trim() !== (recipe.sourceUrl ?? '') ||
             JSON.stringify(this.ingredients().map(written)) !== JSON.stringify(recipe.ingredients.map(written));
 
-        return this.name().trim().length > 0 && changed;
+        return (
+            this.name().trim().length > 0 &&
+            this.category() !== '' &&
+            RECIPE_SOURCE_URL.test(this.sourceUrl().trim()) &&
+            changed
+        );
     });
 
     private readonly router = inject(Router);
@@ -177,6 +205,8 @@ export class RecipePage {
         const recipe = this.recipe();
         this.name.set(recipe?.name ?? '');
         this.description.set(recipe?.description ?? '');
+        this.category.set(recipe ? this.shownCategory() : '');
+        this.sourceUrl.set(recipe?.sourceUrl ?? '');
         this.ingredients.set(recipe?.ingredients.map(written) ?? []);
         this.search.set('');
         this.confirmingDelete.set(false);
@@ -193,10 +223,17 @@ export class RecipePage {
 
     protected save(): void {
         const isNew = this.id() === undefined;
+        const category = this.category();
+        if (!category) {
+            return;
+        }
+
         this.store
             .saveRecipe(this.id(), {
                 name: this.name().trim(),
                 description: this.description().trim(),
+                category,
+                sourceUrl: this.sourceUrl().trim(),
                 ingredients: this.ingredients().map(written)
             })
             .pipe(

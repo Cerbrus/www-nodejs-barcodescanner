@@ -304,13 +304,34 @@ describe('data routes over HTTP', () => {
             404
         );
 
-        const made = await call<{ id: number; ingredients: Array<{ quantity: number; note: string }> }>(
-            'POST',
-            '/recipes',
-            asGuest,
-            { name: 'Vla', description: 'Roeren.', ingredients: [ingredient] }
+        assert.equal(
+            (await call('POST', '/recipes', asUser, { name: 'Vla', category: 'toetje', ingredients: [] })).status,
+            400
         );
+
+        assert.equal(
+            (
+                await call('POST', '/recipes', asUser, {
+                    name: 'Vla',
+                    sourceUrl: 'javascript:alert(1)',
+                    ingredients: []
+                })
+            ).status,
+            400
+        );
+
+        const made = await call<{
+            id: number;
+            category: string;
+            ingredients: Array<{ quantity: number; note: string }>;
+        }>('POST', '/recipes', asGuest, {
+            name: 'Vla',
+            description: 'Roeren.',
+            category: 'dessert',
+            ingredients: [ingredient]
+        });
         assert.equal(made.status, 201);
+        assert.equal(made.body.category, 'dessert');
         assert.deepEqual(
             made.body.ingredients.map(({ quantity, note }) => [quantity, note]),
             [[2, 'vol']]

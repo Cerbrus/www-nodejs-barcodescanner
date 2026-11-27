@@ -5,12 +5,13 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, finalize, map, of, tap } from 'rxjs';
 
-import { MAX_RECIPE_SOURCE_LENGTH } from '@barcodescanner/shared';
+import { MAX_RECIPE_SOURCE_LENGTH, RECIPE_CATEGORIES, RecipeCategory, recipeCategoryOf } from '@barcodescanner/shared';
 
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { OverflowingDirective } from '../../directives/overflowing.directive';
 import { Recipe } from '../../models';
+import { RECIPE_CATEGORY_ICONS } from '../../recipe-categories';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { RecipePrintService } from '../../services/recipe-print.service';
@@ -34,18 +35,36 @@ export class RecipesPage {
     protected readonly busy = signal(false);
     protected readonly source = signal('');
 
-    protected readonly rows = computed(() => {
-        const term = this.search().trim().toLowerCase();
+    protected readonly category = signal<RecipeCategory | undefined>(undefined);
+    protected readonly categoryIcons = RECIPE_CATEGORY_ICONS;
 
-        return this.store
+    protected readonly usedCategories = computed(() => {
+        const used = new Set(this.store.recipes().map(({ category }) => recipeCategoryOf(category)));
+
+        return RECIPE_CATEGORIES.filter((category) => used.has(category));
+    });
+
+    protected readonly shownCategory = computed(() =>
+        this.usedCategories().find((category) => category === this.category())
+    );
+
+    protected readonly groups = computed(() => {
+        const term = this.search().trim().toLowerCase();
+        const only = this.shownCategory();
+        const rows = this.store
             .recipes()
             .filter((recipe) => recipe.name.toLowerCase().includes(term))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((recipe) => ({
                 recipe,
+                category: recipeCategoryOf(recipe.category),
                 printable: !this.store.holdsDraft(recipe),
                 icons: recipe.ingredients.flatMap(({ catalogItemId }) => this.store.itemById(catalogItemId) ?? [])
             }));
+
+        return RECIPE_CATEGORIES.filter((category) => !only || category === only)
+            .map((category) => ({ category, rows: rows.filter((row) => row.category === category) }))
+            .filter(({ rows: inCategory }) => inCategory.length);
     });
 
     private readonly printing = inject(RecipePrintService);
@@ -73,6 +92,10 @@ export class RecipesPage {
                 }))
             })
             .subscribe();
+    }
+
+    protected choose(category: RecipeCategory): void {
+        this.category.set(category === this.shownCategory() ? undefined : category);
     }
 
     protected closeImport(): void {

@@ -63,67 +63,102 @@
         }
     </div>
 
-    <div class="mt-3" [class.card]="rows().length" [class.group]="rows().length">
-        @for (row of rows(); track row.recipe.id) {
-            @if (selecting()) {
-                <label class="recipe choosing" [class.unprintable]="!row.printable">
-                    <span class="recipe-link">
-                        <span class="block font-semibold">{{ row.recipe.name }}</span>
-                        <span class="recipe-facts">
-                            {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
-                        </span>
-                    </span>
-                    @if (!row.printable) {
-                        <i
-                            class="material-symbols-outlined"
-                            role="img"
-                            [attr.aria-label]="'recipe.holdsDraft' | translate"
-                            >warning</i
-                        >
-                    }
-                    <input
-                        type="checkbox"
-                        [id]="'recipe-select-' + row.recipe.id"
-                        [disabled]="!row.printable"
-                        [checked]="selected().has(row.recipe.id)"
-                        (change)="toggle(row.recipe.id)"
-                    />
-                </label>
-            } @else {
-                <div class="recipe">
-                    <a class="recipe-link" [routerLink]="['/recipes', row.recipe.id]">
-                        <span class="block font-semibold">{{ row.recipe.name }}</span>
-                        <span class="recipe-facts">
-                            <span class="recipe-count">
+    @if (usedCategories().length > 1) {
+        <div class="segments wide categories mt-3">
+            <button
+                type="button"
+                class="segment"
+                [class.chosen]="!shownCategory()"
+                [attr.aria-pressed]="!shownCategory()"
+                [attr.aria-label]="'recipe.allCategories' | translate"
+                [title]="'recipe.allCategories' | translate"
+                (click)="category.set(undefined)"
+            >
+                <i class="material-symbols-outlined">apps</i>
+            </button>
+            @for (option of usedCategories(); track option) {
+                <button
+                    type="button"
+                    class="segment"
+                    [class.chosen]="shownCategory() === option"
+                    [attr.aria-pressed]="shownCategory() === option"
+                    [attr.aria-label]="'recipe.categories.' + option | translate"
+                    [title]="'recipe.categories.' + option | translate"
+                    (click)="choose(option)"
+                >
+                    <i class="material-symbols-outlined">{{ categoryIcons[option] }}</i>
+                </button>
+            }
+        </div>
+    }
+
+    @for (group of groups(); track group.category) {
+        <h2 class="section-title">
+            <i class="material-symbols-outlined">{{ categoryIcons[group.category] }}</i>
+            {{ 'recipe.categories.' + group.category | translate }}
+        </h2>
+        <div class="card group">
+            @for (row of group.rows; track row.recipe.id) {
+                @if (selecting()) {
+                    <label class="recipe choosing" [class.unprintable]="!row.printable">
+                        <span class="recipe-link">
+                            <span class="block font-semibold">{{ row.recipe.name }}</span>
+                            <span class="recipe-facts">
                                 {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
                             </span>
-                            <span class="recipe-icons" appOverflowing>
-                                @for (item of row.icons; track item.id) {
-                                    <span class="recipe-icon"><app-item-icon [item]="item" /></span>
-                                }
-                            </span>
                         </span>
-                    </a>
-                    <button
-                        type="button"
-                        class="btn primary"
-                        [disabled]="!row.recipe.ingredients.length"
-                        [attr.aria-label]="'recipe.addAll' | translate: { name: row.recipe.name }"
-                        (click)="add(row.recipe)"
-                    >
-                        <i class="material-symbols-outlined">add_shopping_cart</i>
-                    </button>
-                </div>
+                        @if (!row.printable) {
+                            <i
+                                class="material-symbols-outlined"
+                                role="img"
+                                [attr.aria-label]="'recipe.holdsDraft' | translate"
+                                >warning</i
+                            >
+                        }
+                        <input
+                            type="checkbox"
+                            [id]="'recipe-select-' + row.recipe.id"
+                            [disabled]="!row.printable"
+                            [checked]="selected().has(row.recipe.id)"
+                            (change)="toggle(row.recipe.id)"
+                        />
+                    </label>
+                } @else {
+                    <div class="recipe">
+                        <a class="recipe-link" [routerLink]="['/recipes', row.recipe.id]">
+                            <span class="block font-semibold">{{ row.recipe.name }}</span>
+                            <span class="recipe-facts">
+                                <span class="recipe-count">
+                                    {{ 'recipe.products' | translate: { count: row.recipe.ingredients.length } }}
+                                </span>
+                                <span class="recipe-icons" appOverflowing>
+                                    @for (item of row.icons; track item.id) {
+                                        <span class="recipe-icon"><app-item-icon [item]="item" /></span>
+                                    }
+                                </span>
+                            </span>
+                        </a>
+                        <button
+                            type="button"
+                            class="btn primary"
+                            [disabled]="!row.recipe.ingredients.length"
+                            [attr.aria-label]="'recipe.addAll' | translate: { name: row.recipe.name }"
+                            (click)="add(row.recipe)"
+                        >
+                            <i class="material-symbols-outlined">add_shopping_cart</i>
+                        </button>
+                    </div>
+                }
             }
-        } @empty {
-            <p class="empty">
-                {{
-                    (!store.loaded() ? 'common.loading' : store.recipes().length ? 'recipe.noResults' : 'recipe.empty')
-                        | translate
-                }}
-            </p>
-        }
-    </div>
+        </div>
+    } @empty {
+        <p class="empty mt-3">
+            {{
+                (!store.loaded() ? 'common.loading' : store.recipes().length ? 'recipe.noResults' : 'recipe.empty')
+                    | translate
+            }}
+        </p>
+    }
 </div>
 
 @if (importing()) {

@@ -2,6 +2,7 @@ import {
     IssueProgress,
     ListState,
     ProductSuggestion,
+    RecipeCategory,
     RecipeIngredient,
     RemarkContext,
     RemarkKind,
@@ -86,6 +87,8 @@ export interface Recipe {
     id: number;
     name: string;
     description: string;
+    category: RecipeCategory;
+    sourceUrl?: string;
     ingredients: Array<RecipeIngredient>;
 }
 
@@ -106,6 +109,8 @@ export interface ScannedRecipeCode {
 export interface RecipeInput {
     name: string;
     description: string;
+    category: RecipeCategory;
+    sourceUrl: string;
     ingredients: Array<RecipeIngredient>;
 }
 

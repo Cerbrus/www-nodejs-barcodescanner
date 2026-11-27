@@ -17,6 +17,7 @@ const SOUP: Recipe = {
     id: 2,
     name: 'Soep',
     description: '',
+    category: 'soup',
     ingredients: [
         { catalogItemId: 1, quantity: 2, note: 'vol' },
         { catalogItemId: 99, quantity: 1, note: '' }
@@ -26,9 +27,10 @@ const PANCAKES: Recipe = {
     id: 1,
     name: 'Pannenkoeken',
     description: 'Beslag',
+    category: 'dinner',
     ingredients: [{ catalogItemId: 2, quantity: 1, note: '' }]
 };
-const NOTHING: Recipe = { id: 3, name: 'Leeg', description: '', ingredients: [] };
+const NOTHING: Recipe = { id: 3, name: 'Leeg', description: '', category: 'dinner', ingredients: [] };
 
 describe('RecipesPage', () => {
     let fixture: ComponentFixture<RecipesPage>;
@@ -97,12 +99,71 @@ describe('RecipesPage', () => {
         expect(page.querySelector('a.btn.primary')?.getAttribute('href')).toBe('/recipes/new');
     });
 
-    it('shows the recipes as rows of one connected group, not as separate cards', async () => {
+    it('shows the recipes of a category as rows of one connected group under its name, in the fixed order', async () => {
         await open();
 
-        expect(page.querySelectorAll('.card.group')).toHaveLength(1);
-        expect(page.querySelectorAll('.card.group > .recipe')).toHaveLength(3);
+        expect(texts(page, '.section-title')).toEqual([
+            'dinner_dining recipe.categories.dinner',
+            'soup_kitchen recipe.categories.soup'
+        ]);
+        expect(page.querySelectorAll('.card.group')).toHaveLength(2);
+        expect(
+            Array.from(page.querySelectorAll('.card.group'), (group) => group.querySelectorAll('.recipe').length)
+        ).toEqual([2, 1]);
         expect(page.querySelectorAll('.recipe.card')).toHaveLength(0);
+    });
+
+    it('narrows the page to one category with its button, and back with the same button or the first one', async () => {
+        await open();
+        const chips = (): Array<HTMLButtonElement> => Array.from(page.querySelectorAll('.categories .segment'));
+        const pressed = (): Array<string | null> => chips().map((chip) => chip.getAttribute('aria-pressed'));
+
+        expect(chips().map((chip) => chip.getAttribute('aria-label'))).toEqual([
+            'recipe.allCategories',
+            'recipe.categories.dinner',
+            'recipe.categories.soup'
+        ]);
+        expect(pressed()).toEqual(['true', 'false', 'false']);
+
+        chips()[2].click();
+        await settle();
+
+        expect(texts(page, '.recipe .font-semibold')).toEqual(['Soep']);
+        expect(pressed()).toEqual(['false', 'false', 'true']);
+
+        type(page, '#recipe-search', 'pan');
+        await settle();
+        expect(texts(page, '.empty')).toEqual(['recipe.noResults']);
+
+        type(page, '#recipe-search', '');
+        chips()[2].click();
+        await settle();
+        expect(texts(page, '.recipe .font-semibold')).toEqual(['Leeg', 'Pannenkoeken', 'Soep']);
+
+        chips()[1].click();
+        await settle();
+        chips()[0].click();
+        await settle();
+        expect(pressed()).toEqual(['true', 'false', 'false']);
+    });
+
+    it('shows no category buttons while every recipe has the same one, and drops a choice whose recipes are gone', async () => {
+        await open();
+        click(page, '.categories .segment', 2);
+        await settle();
+
+        store.recipes.set([PANCAKES, NOTHING]);
+        await settle();
+
+        expect(page.querySelector('.categories')).toBeNull();
+        expect(texts(page, '.recipe .font-semibold')).toEqual(['Leeg', 'Pannenkoeken']);
+    });
+
+    it('files a recipe without a known category, as one kept before categories, under other', async () => {
+        store.recipes.set([{ ...SOUP, category: undefined } as unknown as Recipe]);
+        await open();
+
+        expect(texts(page, '.section-title')).toEqual(['restaurant recipe.categories.other']);
     });
 
     it('keeps a gap between the header buttons and the search field', async () => {

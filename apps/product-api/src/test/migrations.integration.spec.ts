@@ -17,6 +17,8 @@ import { CollectingScans1763700000000 } from '../data/migrations/1763700000000-c
 import { RecipeOffers1763800000000 } from '../data/migrations/1763800000000-recipe-offers';
 import { DraftProducts1763900000000 } from '../data/migrations/1763900000000-draft-products';
 import { IngredientText1764000000000 } from '../data/migrations/1764000000000-ingredient-text';
+import { RecipeCategory1764100000000 } from '../data/migrations/1764100000000-recipe-category';
+import { RecipeSourceUrl1764200000000 } from '../data/migrations/1764200000000-recipe-source-url';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -170,6 +172,30 @@ describe('migrations', () => {
         await database.query(`DELETE FROM "recipe" WHERE "name" = 'Taart'`);
         assert.deepEqual(await ingredients(), []);
         await database.query(deleteVanilla);
+    });
+
+    it('files every recipe under other and gives it an empty source link, and takes both columns away again', async () => {
+        const columns = async (): Promise<Array<string>> =>
+            ((await database.query('PRAGMA table_info("recipe")')) as Array<{ name: string }>).map(({ name }) => name);
+        const soup = '1. Roer.\n\n[example.com](https://example.com/soep)';
+        const runner = database.createQueryRunner();
+        await new RecipeSourceUrl1764200000000().down(runner);
+        await new RecipeCategory1764100000000().down(runner);
+
+        assert.ok(!(await columns()).some((name) => name === 'category' || name === 'source_url'));
+
+        await database.query(
+            'INSERT INTO "recipe" ("name", "description", "created_at", "updated_at") VALUES (?, ?, ?, ?)',
+            ['Soep', soup, '2026-11-27 20:00:00', '2026-11-27 20:00:00']
+        );
+        await new RecipeCategory1764100000000().up(runner);
+        await new RecipeSourceUrl1764200000000().up(runner);
+        await runner.release();
+
+        assert.deepEqual(await database.query('SELECT "description", "category", "source_url" FROM "recipe"'), [
+            { description: soup, category: 'other', source_url: '' }
+        ]);
+        await database.query('DELETE FROM "recipe"');
     });
 
     it('adds the table of offered recipes, with a code only once, and takes it away again', async () => {
