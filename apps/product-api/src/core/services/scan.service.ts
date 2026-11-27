@@ -392,6 +392,9 @@ export class ScanService {
     private async undoListChange(scan: ScanEntity, manager: EntityManager): Promise<void> {
         const catalogItemId = scan.catalogItemId as number;
         const note = scan.note ?? '';
+        if ((await this.catalog.unknownIds([catalogItemId], manager)).length) {
+            return;
+        }
         const current = await this.list.getSnapshot(catalogItemId, note, manager);
 
         if (scan.result === 'incremented' && current?.state === 'to_buy' && current.quantity > 1) {

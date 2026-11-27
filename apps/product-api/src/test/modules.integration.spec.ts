@@ -517,6 +517,21 @@ describe('scan flow against a real database', () => {
         assert.equal((await recipes.getAll()).length, 0);
     });
 
+    it('undoes the scans of a product that was deleted since, and leaves the list alone', async () => {
+        const code = '8712345678937';
+        const made = await catalog.createItem({ name: 'Kaneelstokje', sectionId: 'zuivel' });
+        assert.equal((await scans.register(code, 'phone')).result, 'needs_name');
+        await scans.nameBarcode(code, made.id, '');
+        await wait(DEBOUNCE_MILLISECONDS + 100);
+        assert.equal((await scans.register(code, 'phone')).result, 'incremented');
+        await catalog.deleteItem(made.id);
+
+        assert.equal((await scans.undo())?.code, code);
+        assert.equal((await scans.undo())?.code, code);
+        assert.equal(await list.getSnapshot(made.id, ''), undefined);
+        await scans.discardBarcode(code);
+    });
+
     it('handles scans that arrive at the same moment one after the other', async () => {
         await wait(DEBOUNCE_MILLISECONDS + 100);
         const start = (await list.getSnapshot(milkId, ''))?.quantity ?? 0;
