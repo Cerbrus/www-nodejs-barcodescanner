@@ -16,7 +16,7 @@ In daily-use shape and running on the Pi:
 
 ## What comes next
 
-1. **Content security policy to enforcing**: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi.
+1. **Content security policy to enforcing**: read the system log for "content policy" lines after a week of use (from 2026-11-20), fix what shows, then set `CSP_MODE=enforce` on the Pi. Done 2026-11-27 23:32: the log, unbroken since 2026-11-12, held no such line, and the Pi now sends the policy enforcing.
 2. **Daily use** (milestone 6): use it and fix what annoys. Most of this arrives through the feedback button.
 3. **Milestone 13**, chosen by the owner on 2026-11-15, each part with its own plan before it is built:
     - **Command barcodes**: a printed sheet with codes the handheld scanner understands as commands, such as "undo the last scan", "the next scan counts down" and "the next scan goes on its own line", so the phone is not needed at the scanner.
@@ -74,7 +74,7 @@ Not chosen (owner, 2026-11-15): "due again" suggestions, a "done shopping" actio
 - A reboot with the firewall service since it was added.
 - Push notifications in a desktop browser, which takes the service worker path.
 - The view of an account that is not the owner, on the live site: tried only in a local container with a test session.
-- The content security policy in enforcing mode.
+- The content security policy in enforcing mode: set on the Pi on 2026-11-27 23:32, the app not yet used in a browser since. No report ever arrived in report-only mode, so the way from a browser through the reverse proxy to the log was never seen working; only the integration test posts one.
 - The release train starting by itself from an approval, also of a Dependabot pull request: its first run was started by hand. The railway wording and pictures of its messages, the "left on the platform" and "derailed" comments, and the removal of the waiting builds: tried only on a scratch repository with a stand-in for GitHub. The removal now waits for those builds to appear, and a release tells its pull requests and their issues in a comment: both tried only with a stand-in for `gh`.
 - The released and live stages of a remark on the Feedback page: tested against a stand-in for GitHub only. Not seen with the real tags and compare endpoint, nor whether the merge commit of a pull request landed by the train is a commit on `master`.
 - The agent on an issue that someone else wrote.
@@ -136,3 +136,4 @@ Every entry carries the date and time it was reached, local time. The plans, rep
 | Recipes, part 4: a recipe shows its QR code, and the codes of chosen recipes print on A4, twelve to a page                                                                                                                                                                                    | 2026-11-23 15:53 |                               |
 | A toggle on the scan page makes a phone scan collect the product from the list instead of adding it (issue 71)                                                                                                                                                                                | 2026-11-23 16:26 |                               |
 | Themes: thirty more beside the standard one, each in light and dark, chosen from a grouped list on the System page, and a switch for the season's theme ([0120](decisions/0120-themes-beside-light-and-dark.md)). Seen on screenshots at phone size only                                      | 2026-11-25 16:37 |                               |
+| Content security policy enforcing on the Pi (`CSP_MODE=enforce`)                                                                                                                                                                                                                              | 2026-11-27 23:32 |                               |
