@@ -45,7 +45,18 @@
                 @if (isOpen(group.section.id)) {
                     <div class="tile-grid p-3 pt-0">
                         @for (item of group.rows; track item.id) {
-                            <app-item-tile [item]="item" (selected)="openItem(item)" />
+                            <div class="relative">
+                                <app-item-tile [item]="item" (selected)="openItem(item)" />
+                                @if (item.draft) {
+                                    <i
+                                        class="material-symbols-outlined draft-mark pointer-events-none absolute top-1 right-1"
+                                        role="img"
+                                        style="color: var(--danger)"
+                                        [attr.aria-label]="'item.draft' | translate"
+                                        >warning</i
+                                    >
+                                }
+                            </div>
                         }
                     </div>
                 }

@@ -192,6 +192,17 @@ describe('the smaller pages', () => {
             expect(page.querySelector('app-item-tile')).toBeNull();
         });
 
+        it('marks a draft product on its tile', async () => {
+            store.items.set([item(1, 'Melk'), draft(4, 'Saffraan')]);
+            const fixture = await open(CatalogPage);
+            type(page, 'input', 'a');
+            await settle(fixture);
+
+            expect(texts(page, '.name')).toContain('Saffraan');
+            expect(page.querySelectorAll('.draft-mark').length).toBe(1);
+            expect(page.querySelector('.draft-mark')?.getAttribute('aria-label')).toBe('item.draft');
+        });
+
         it('opens every section with a match while searching, and says so when nothing matches', async () => {
             const fixture = await open(CatalogPage);
             type(page, 'input', 'karne');

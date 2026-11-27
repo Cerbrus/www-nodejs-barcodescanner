@@ -84,8 +84,8 @@
     },
     "inbox": {
         "title": "Inbox",
-        "intro": "Gescande barcodes die nog niet aan een product gekoppeld zijn. Na koppelen komen de wachtende scans op de lijst.",
-        "empty": "Geen onbekende barcodes",
+        "intro": "Barcodes zonder product, recepten die de app niet kent en, voor de eigenaar, conceptproducten. Na het koppelen van een barcode komen de wachtende scans op de lijst.",
+        "empty": "Niets dat wacht",
         "unknownProduct": "Onbekend product",
         "scans": "{count, plural, one {# scan} other {# scans}}",
         "saveRecipe": "{name} opslaan als recept",

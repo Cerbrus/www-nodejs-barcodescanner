@@ -84,8 +84,8 @@
     },
     "inbox": {
         "title": "Inbox",
-        "intro": "Scanned barcodes that are not linked to a product yet. After linking, the waiting scans go onto the list.",
-        "empty": "No unknown barcodes",
+        "intro": "Barcodes without a product, recipes the app does not know and, for the owner, draft products. After linking a barcode, its waiting scans go onto the list.",
+        "empty": "Nothing waiting",
         "unknownProduct": "Unknown product",
         "scans": "{count, plural, one {# scan} other {# scans}}",
         "saveRecipe": "Save {name} as a recipe",
