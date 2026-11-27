@@ -195,6 +195,21 @@ export function readImport(answer: unknown, choices: ImportChoices): ImportedRec
         : undefined;
 }
 
+export function withSource(description: string, source: string): string {
+    const found = LINK.exec(source)?.[0].replace(/[.,;]+$/, '');
+    const link = found?.includes('(') ? found : found?.replace(/\)+$/, '');
+    if (!link || !URL.canParse(link)) {
+        return description;
+    }
+    const address = link.replaceAll('(', '%28').replaceAll(')', '%29');
+    const line = `[${new URL(link).hostname}](${address})`;
+    if (line.length > MAX_RECIPE_DESCRIPTION_LENGTH) {
+        return description;
+    }
+
+    return `${description.slice(0, MAX_RECIPE_DESCRIPTION_LENGTH - line.length - 2).trimEnd()}\n\n${line}`.trim();
+}
+
 export function freeName(name: string, taken: Array<string>): string {
     const used = new Set(taken.map((other) => other.toLowerCase()));
     if (!used.has(name.toLowerCase())) {

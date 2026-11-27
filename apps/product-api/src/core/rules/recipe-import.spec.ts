@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { freeName, holdsLink, importPrompt, pagePrompt, readImport, readPage } from './recipe-import';
+import { freeName, holdsLink, importPrompt, pagePrompt, readImport, readPage, withSource } from './recipe-import';
 
 const CHOICES = {
     products: [
@@ -116,6 +116,19 @@ describe('recipe import', () => {
         assert.equal(readImport({ found: true, name: 'Soep', description: '' }, CHOICES), undefined);
         assert.equal(readImport(undefined, CHOICES), undefined);
         assert.equal(readImport('Soep', CHOICES), undefined);
+    });
+
+    it('puts the link a recipe came from under its description, and leaves pasted text as it is', () => {
+        assert.equal(
+            withSource('1. Roer.', 'kijk: https://www.example.com/recept/soep_(oud).'),
+            '1. Roer.\n\n[www.example.com](https://www.example.com/recept/soep_%28oud%29)'
+        );
+        assert.equal(withSource('', 'https://example.com/r'), '[example.com](https://example.com/r)');
+        assert.equal(withSource('1. Roer.', '500 g bloem'), '1. Roer.');
+
+        const long = withSource('a'.repeat(10000), 'https://example.com/r');
+        assert.equal(long.length, 10000);
+        assert.ok(long.endsWith('\n\n[example.com](https://example.com/r)'));
     });
 
     it('numbers a recipe name that is taken', () => {

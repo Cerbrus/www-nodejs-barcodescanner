@@ -655,7 +655,10 @@ describe('scan flow against a real database', () => {
             ]
         );
 
+        assert.equal(recipe.description, '1. Rol op.\n\n[example.com](https://example.com/recept/zalmwraps)');
+
         const again = await imports.import('Zalmwraps: 500 ml melk, zalmflakes');
+        assert.equal(again.description, '1. Rol op.');
         assert.equal(asked[2].readLinks, false);
         assert.equal(again.name, 'Zalmwraps (2)');
         assert.equal((await catalog.getItems('Zalmflakes')).length, 1);

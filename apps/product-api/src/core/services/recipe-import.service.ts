@@ -12,7 +12,8 @@ import {
     importPrompt,
     pagePrompt,
     readImport,
-    readPage
+    readPage,
+    withSource
 } from '../rules/recipe-import';
 import { CatalogService } from './catalog.service';
 import { GeminiService } from './gemini.service';
@@ -59,7 +60,7 @@ export class RecipeImportService {
                 read.name,
                 (await this.recipes.getAll()).map(({ name }) => name)
             ),
-            description: read.description,
+            description: withSource(read.description, source),
             ingredients
         });
         this.logger.log(`recipe "${recipe.name}" imported, ${drafts.size} draft product(s) made`);
