@@ -17,6 +17,8 @@ import { fits, mostSpecific } from './product-match';
 const MAX_PRODUCT_NAME_LENGTH = 80;
 const MAX_EMOJI_LENGTH = 16;
 const LINK = /https?:\/\/\S+/i;
+const ALLERHANDE_HOST = /^(www\.)?ah\.nl$/i;
+const ALLERHANDE_RECIPE = /^\/allerhande\/recept\/R-R(\d+)(\/|$)/i;
 
 export interface ImportChoices {
     products: Array<{ id: number; name: string }>;
@@ -246,6 +248,15 @@ export function linkIn(source: string): string {
     const link = found?.includes('(') ? found : found?.replace(/\)+$/, '');
 
     return link && URL.canParse(link) && link.length <= MAX_RECIPE_SOURCE_URL_LENGTH ? link : '';
+}
+
+export function sourceToRead(source: string): string {
+    const link = linkIn(source);
+    const recipe = link && URL.canParse(link) ? ALLERHANDE_RECIPE.exec(new URL(link).pathname)?.[1] : undefined;
+
+    return recipe && ALLERHANDE_HOST.test(new URL(link).hostname)
+        ? source.replace(link, `https://www.ah.nl/r/${recipe}`)
+        : source;
 }
 
 export function freeName(name: string, taken: Array<string>): string {

@@ -10,7 +10,8 @@ import {
     pagePrompt,
     readImport,
     readPage,
-    readPagePicture
+    readPagePicture,
+    sourceToRead
 } from './recipe-import';
 
 const CHOICES = {
@@ -58,6 +59,27 @@ describe('recipe import', () => {
         assert.equal(readPage({ found: true, recipe: ' ' }), undefined);
         assert.equal(readPage({ found: true }), undefined);
         assert.equal(readPage(undefined), undefined);
+    });
+
+    it('reads an Allerhande recipe through its short link, which gives the whole page, and leaves other links alone', () => {
+        assert.equal(
+            sourceToRead('https://www.ah.nl/allerhande/recept/R-R1195573/traybake-met-zoete-aardappel'),
+            'https://www.ah.nl/r/1195573'
+        );
+        assert.equal(
+            sourceToRead('kijk: https://ah.nl/allerhande/recept/R-R900664 lekker'),
+            'kijk: https://www.ah.nl/r/900664 lekker'
+        );
+        assert.equal(sourceToRead('https://www.ah.nl/r/1000052'), 'https://www.ah.nl/r/1000052');
+        assert.equal(
+            sourceToRead('https://www.ah.nl/allerhande/recepten/pasta'),
+            'https://www.ah.nl/allerhande/recepten/pasta'
+        );
+        assert.equal(
+            sourceToRead('https://example.com/allerhande/recept/R-R1195573/x'),
+            'https://example.com/allerhande/recept/R-R1195573/x'
+        );
+        assert.equal(sourceToRead('500 g bloem'), '500 g bloem');
     });
 
     it('asks for the picture of the page, and takes only an https address of a page that was found', () => {

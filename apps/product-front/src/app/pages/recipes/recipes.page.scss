@@ -85,9 +85,9 @@
 }
 .recipe-icons {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
-    min-width: 0;
-    min-height: 22px;
+    height: 22px;
     overflow: hidden;
 }
 .recipe-icon {

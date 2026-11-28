@@ -158,7 +158,7 @@
         "holdsDraft": "Bevat een conceptproduct: de code kan niet worden afgedrukt",
         "import": "Recept importeren",
         "importSource": "Link of recepttekst",
-        "importing": "Het recept wordt gelezen. Dit kan een minuut duren.",
+        "importing": "Het recept wordt gelezen",
         "error": {
             "noRecipeFound": "Geen recept in gevonden; plak de recepttekst in plaats van de link",
             "importFailed": "Het importeren van het recept is mislukt; probeer het later opnieuw",

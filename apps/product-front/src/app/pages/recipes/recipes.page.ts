@@ -111,6 +111,18 @@ export class RecipesPage {
         this.category.set(category === this.shownCategory() ? undefined : category);
     }
 
+    protected openImport(): void {
+        this.importing.set(true);
+        void navigator.clipboard
+            ?.readText?.()
+            .then((copied) => {
+                if (copied.trim() && !this.source().trim()) {
+                    this.source.set(copied.trim().slice(0, this.sourceLimit));
+                }
+            })
+            .catch(() => undefined);
+    }
+
     protected closeImport(): void {
         if (!this.busy()) {
             this.importing.set(false);

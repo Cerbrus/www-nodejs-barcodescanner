@@ -14,7 +14,8 @@ import {
     pagePrompt,
     readImport,
     readPage,
-    readPagePicture
+    readPagePicture,
+    sourceToRead
 } from '../rules/recipe-import';
 import { CatalogService } from './catalog.service';
 import { GeminiService } from './gemini.service';
@@ -92,7 +93,7 @@ export class RecipeImportService {
     private async pageOf(source: string): Promise<{ text?: string; picture: string } | undefined> {
         for (let attempt = 0; attempt < LINK_ATTEMPTS; attempt++) {
             const { value, linkRead } = await this.gemini.ask({
-                input: pagePrompt(source),
+                input: pagePrompt(sourceToRead(source)),
                 schema: PAGE_SCHEMA,
                 readLinks: true
             });

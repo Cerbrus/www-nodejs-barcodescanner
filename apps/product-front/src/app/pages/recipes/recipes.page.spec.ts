@@ -382,6 +382,49 @@ describe('RecipesPage', () => {
         expect(store.importRecipe).not.toHaveBeenCalled();
     });
 
+    it('fills the field with what was copied when the sheet opens, and leaves it empty when reading is refused', async () => {
+        const readText = vi.fn().mockResolvedValue(' https://food.example/soep ');
+        Object.defineProperty(navigator, 'clipboard', { value: { readText }, configurable: true });
+        owner.set(true);
+        await open();
+        importButton()?.click();
+        await settle();
+
+        expect(readText).toHaveBeenCalledTimes(1);
+        expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).value).toBe('https://food.example/soep');
+
+        type(page, '#recipe-source', 'eigen tekst');
+        await settle();
+        sheetButton('common.cancel').click();
+        await settle();
+        importButton()?.click();
+        await settle();
+
+        expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).value).toBe('eigen tekst');
+
+        type(page, '#recipe-source', '');
+        readText.mockRejectedValue(new Error('refused'));
+        sheetButton('common.cancel').click();
+        await settle();
+        importButton()?.click();
+        await settle();
+
+        expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).value).toBe('');
+        Reflect.deleteProperty(navigator, 'clipboard');
+    });
+
+    it('shows only whole product icons on a tile: one that does not fit goes to a next line that is cut off', async () => {
+        await open();
+        const sheet = Array.from(document.styleSheets)
+            .flatMap((styles) => Array.from(styles.cssRules))
+            .map((rule) => rule.cssText)
+            .find((rule) => rule.startsWith('.recipe-icons'));
+
+        expect(sheet).toContain('flex-wrap: wrap');
+        expect(sheet).toContain('height: 22px');
+        expect(sheet).toContain('overflow: hidden');
+    });
+
     it('shows that an import runs and stays open meanwhile, then opens the new recipe for editing', async () => {
         const answer = new Subject<Recipe>();
         store.importRecipe.mockReturnValue(answer);
@@ -395,7 +438,6 @@ describe('RecipesPage', () => {
         expect(sheetButton('recipe.import').textContent?.trim()).toBe('schedule');
         expect(sheetButton('common.cancel').disabled).toBe(true);
         expect(page.querySelector('app-sheet .busy-bar')?.getAttribute('aria-label')).toBe('recipe.importing');
-        expect(texts(page, 'app-sheet p.muted')).toEqual(['recipe.importing']);
         expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).disabled).toBe(true);
 
         page.querySelector('dialog')?.dispatchEvent(new Event('cancel', { cancelable: true }));

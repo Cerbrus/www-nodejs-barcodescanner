@@ -64,15 +64,17 @@ Done 2026-11-28 01:29:
 - A finger on the picture in the cut sheet no longer scrolls the page behind it.
 - The form takes the address of a picture: the API fetches it and the browser lays it under the cut.
 - A message lies over an open sheet instead of behind it: the messages are shown in the browser's top layer, opened again with every new message.
-- The import sheet shows a moving bar and a line of text while it waits, and its field is closed meanwhile.
+- The import sheet shows a moving bar while it waits, and its field is closed meanwhile.
 - Confirming or replacing a draft goes back to the inbox, and so does the back link of a draft's page.
 
 Seen in the log of the Pi on 2026-11-28: of three imports of Allerhande links, one came with its picture. For the other two the link read gave the model a thinner page (about 3,600 and 10,800 tokens against 22,700) and no address of a picture came back. One import failed on Gemini itself: two answers that did not come within 25 seconds and one 503.
 
+Found and done 2026-11-28 01:53: Gemini's link read gives the whole page of an Allerhande recipe, with the address of its picture, when the link is the short form `ah.nl/r/<number>`, and often a thin one without it for the long form. Asked three times for the long link of one recipe: no picture; twice for its short link: the picture both times. The import now reads an Allerhande recipe through its short link; the link that is kept with the recipe stays the one that was pasted. Tried on one recipe.
+
 ## Left open
 
-- **The picture of an import that comes without one**: a second question for the address alone, or nothing more than the field in the form.
-- **Reading the clipboard when the import sheet opens**: asked by the owner on 2026-11-28, not built.
+- **The app reads a recipe page itself**, before Gemini does: the next part, with a decision of its own.
+- Done 2026-11-28 01:44: the import sheet reads the clipboard when it opens and fills its empty field with what was copied. An iPhone shows its own "Paste" bubble first, which the owner taps; a refusal leaves the field empty. A tile shows only whole product icons. Neither was seen on a phone.
 
 - **Without a connection**: the service worker keeps the app's own files and never touches API calls. Pictures under `/api` are kept by the browser's own store only, which an iPhone may empty. Whether the tiles need their pictures in the shop is seen in use.
 - **Recipes that were imported before**: none with a link is left, so nothing is fetched afterwards.

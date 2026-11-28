@@ -30,7 +30,7 @@
                     type="button"
                     class="btn"
                     [attr.aria-label]="'recipe.import' | translate"
-                    (click)="importing.set(true)"
+                    (click)="openImport()"
                 >
                     <i class="material-symbols-outlined">add_link</i>
                 </button>
@@ -191,7 +191,6 @@
         ></textarea>
         @if (busy()) {
             <div class="busy-bar mt-3" role="progressbar" [attr.aria-label]="'recipe.importing' | translate"></div>
-            <p class="muted mt-2 text-sm">{{ 'recipe.importing' | translate }}</p>
         }
 
         <div class="mt-4 flex gap-2">

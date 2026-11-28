@@ -158,7 +158,7 @@
         "holdsDraft": "Holds a draft product: the code cannot be printed",
         "import": "Import recipe",
         "importSource": "Link or recipe text",
-        "importing": "Reading the recipe. This can take a minute.",
+        "importing": "Reading the recipe",
         "error": {
             "noRecipeFound": "No recipe found in it; paste the recipe text instead of the link",
             "importFailed": "Importing the recipe failed; try again later",
