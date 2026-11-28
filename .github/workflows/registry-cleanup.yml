@@ -1,0 +1,46 @@
+name: Registry cleanup
+
+on:
+    schedule:
+        - cron: '17 4 * * 1'
+    workflow_dispatch:
+        inputs:
+            dry_run:
+                description: Only list what would be removed
+                type: boolean
+                required: false
+                default: true
+            keep_versions:
+                description: How many of the newest versions stay
+                type: string
+                required: false
+                default: '10'
+            keep_tags:
+                description: Other tags that stay, separated by commas
+                type: string
+                required: false
+                default: ''
+
+permissions: {}
+
+concurrency:
+    group: registry-cleanup
+
+jobs:
+    clean:
+        name: Remove images nothing uses
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - uses: actions/checkout@v7
+            - name: Remove the versions that no kept tag points at
+              shell: bash
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  DRY_RUN: ${{ github.event_name == 'schedule' && 'false' || inputs.dry_run }}
+                  KEEP_VERSIONS: ${{ inputs.keep_versions || '10' }}
+                  KEEP_TAGS: ${{ inputs.keep_tags }}
+              run: bash .github/scripts/registry-cleanup.sh | tee -a "$GITHUB_STEP_SUMMARY"
