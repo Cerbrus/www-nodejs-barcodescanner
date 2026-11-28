@@ -31,6 +31,12 @@ describe('RecipePage', () => {
     let store: FakeStore;
     const printing = { print: vi.fn() };
     let navigate: ReturnType<typeof vi.spyOn>;
+    const addresses = { create: URL.createObjectURL, revoke: URL.revokeObjectURL };
+
+    afterEach(() => {
+        URL.createObjectURL = addresses.create;
+        URL.revokeObjectURL = addresses.revoke;
+    });
 
     const settle = async (): Promise<void> => {
         fixture.detectChanges();

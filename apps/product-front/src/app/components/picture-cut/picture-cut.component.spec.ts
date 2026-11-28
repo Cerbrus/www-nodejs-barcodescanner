@@ -10,6 +10,7 @@ describe('PictureCutComponent', () => {
     const cancelled = vi.fn();
     const drawn = vi.fn();
     const made = new Blob(['cut'], { type: 'image/jpeg' });
+    const addresses = { create: URL.createObjectURL, revoke: URL.revokeObjectURL };
 
     const settle = async (): Promise<void> => {
         fixture.detectChanges();
@@ -37,8 +38,8 @@ describe('PictureCutComponent', () => {
         HTMLDialogElement.prototype.close ??= vi.fn();
         URL.createObjectURL = vi.fn(() => 'blob:chosen');
         URL.revokeObjectURL = vi.fn();
-        HTMLCanvasElement.prototype.getContext = vi.fn(() => ({ drawImage: drawn })) as never;
-        HTMLCanvasElement.prototype.toBlob = vi.fn((done: BlobCallback) => done(made));
+        vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ drawImage: drawn } as never);
+        vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((done: BlobCallback) => done(made));
         TestBed.configureTestingModule({ imports: [PictureCutComponent, TranslateTesting] });
         fixture = TestBed.createComponent(PictureCutComponent);
         fixture.componentRef.setInput('picture', new Blob(['chosen'], { type: 'image/png' }));
@@ -50,6 +51,12 @@ describe('PictureCutComponent', () => {
             width: 400,
             height: 300
         } as DOMRect);
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+        URL.createObjectURL = addresses.create;
+        URL.revokeObjectURL = addresses.revoke;
     });
 
     it('shows the chosen picture and offers no cut until it has loaded', async () => {
