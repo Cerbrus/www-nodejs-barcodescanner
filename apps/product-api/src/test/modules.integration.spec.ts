@@ -37,6 +37,7 @@ import { Answer, GeminiService, Question } from '../core/services/gemini.service
 import { ListService } from '../core/services/list.service';
 import { NamingService } from '../core/services/naming.service';
 import { RecipeImportService } from '../core/services/recipe-import.service';
+import { RecipePageService } from '../core/services/recipe-page.service';
 import { RecipePictureService } from '../core/services/recipe-picture.service';
 import { RecipeService } from '../core/services/recipe.service';
 import { ScanService } from '../core/services/scan.service';
@@ -621,6 +622,7 @@ describe('scan flow against a real database', () => {
 
     it('imports a recipe from what the AI service answers, with a draft for a product the app has not', async () => {
         const imports = app.get(RecipeImportService);
+        app.get(RecipePageService).read = (): Promise<undefined> => Promise.resolve(undefined);
         const asked: Array<Question> = [];
         const blank = {
             line: '',
@@ -717,6 +719,7 @@ describe('scan flow against a real database', () => {
 
     it('keeps the picture of an imported page in two sizes, and keeps the recipe when the picture fails', async () => {
         const imports = app.get(RecipeImportService);
+        app.get(RecipePageService).read = (): Promise<undefined> => Promise.resolve(undefined);
         const pictures = app.get(RecipePictureService);
         const address = 'https://static.example.com/soep.jpg';
         const blank = { productId: 0, newName: '', sectionId: '', icon: '', emoji: '', quantity: 1, note: '' };
@@ -785,6 +788,87 @@ describe('scan flow against a real database', () => {
         assert.equal(refused.picture, '');
         assert.equal(fetched.length, 3);
         await recipes.delete(refused.id);
+    });
+
+    it('reads a recipe page itself when the site allows it, and leaves a refused or empty page to the AI service', async () => {
+        const imports = app.get(RecipeImportService);
+        const pictures = app.get(RecipePictureService);
+        const pages = new RecipePageService(pictures);
+        app.get(RecipePageService).read = (link: string): ReturnType<RecipePageService['read']> => pages.read(link);
+        const asked: Array<Question> = [];
+        const fetched: Array<[string, string | undefined]> = [];
+        const blank = { productId: 0, newName: '', sectionId: '', icon: '', emoji: '', quantity: 1, note: '' };
+        const photo = await sharp({ create: { width: 900, height: 600, channels: 3, background: '#cc6633' } })
+            .jpeg()
+            .toBuffer();
+        const recipeData = JSON.stringify({
+            '@type': 'Recipe',
+            name: 'Pap',
+            recipeYield: '2 personen',
+            image: 'https://static.example.com/pap.jpg',
+            recipeIngredient: ['1 l melk'],
+            recipeInstructions: [{ '@type': 'HowToStep', text: 'Kook de melk.' }]
+        });
+        let html: string | undefined = `<html><script type="application/ld+json">${recipeData}</script></html>`;
+        pictures.download = (source: string, accept?: string): Promise<Buffer> => {
+            fetched.push([source, accept]);
+            if (accept?.startsWith('text/html')) {
+                return html === undefined
+                    ? Promise.reject(new Error('answered 403'))
+                    : Promise.resolve(Buffer.from(html));
+            }
+
+            return Promise.resolve(photo);
+        };
+        app.get(GeminiService).ask = (question: Question): Promise<Answer> => {
+            asked.push(question);
+
+            return Promise.resolve({
+                value: question.readLinks
+                    ? { found: true, recipe: 'Pap\n1 l melk', picture: '' }
+                    : {
+                          found: true,
+                          name: 'Pap',
+                          description: '1. Kook.',
+                          category: 'breakfast',
+                          ingredients: [{ ...blank, line: '1 l melk', productId: milkId, newName: 'Melk' }]
+                      },
+                linkRead: true
+            });
+        };
+
+        const own = await imports.import('https://example.com/recept/pap');
+        assert.deepEqual(
+            asked.map(({ readLinks }) => readLinks),
+            [false]
+        );
+        assert.match(asked[0].input, /<recipe>\nPap\n2 personen\n1 l melk\nKook de melk\.\n<\/recipe>/);
+        assert.deepEqual(
+            fetched.map(([source]) => source),
+            ['https://example.com/recept/pap', 'https://static.example.com/pap.jpg']
+        );
+        assert.equal(own.pictureSource, 'https://static.example.com/pap.jpg');
+        await recipes.delete(own.id);
+
+        html = undefined;
+        asked.length = 0;
+        const refused = await imports.import('https://example.com/recept/pap');
+        assert.deepEqual(
+            asked.map(({ readLinks }) => readLinks),
+            [true, false]
+        );
+        assert.equal(refused.picture, '');
+        await recipes.delete(refused.id);
+
+        html = '<html><meta property="og:image" content="https://static.example.com/voorbeeld.jpg"><p>Pap</p></html>';
+        asked.length = 0;
+        const preview = await imports.import('https://example.com/recept/pap');
+        assert.deepEqual(
+            asked.map(({ readLinks }) => readLinks),
+            [true, false]
+        );
+        assert.equal(preview.pictureSource, 'https://static.example.com/voorbeeld.jpg');
+        await recipes.delete(preview.id);
     });
 
     it('hands back a fetched picture as a JPEG of at most 1600 wide, and says which way it failed', async () => {

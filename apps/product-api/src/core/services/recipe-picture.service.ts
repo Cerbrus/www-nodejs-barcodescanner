@@ -12,6 +12,9 @@ import { AppConfig } from '../../config/app.config';
 import { isClosedAddress, pictureAddress } from '../rules/picture-source';
 
 const TIMEOUT_MILLISECONDS = 10000;
+const PICTURE_TYPES = 'image/*';
+const CLIENT_NAME = 'barcodescanner-recipe-import';
+const CLIENT_NOTE = 'household shopping list app';
 const MAX_REDIRECTS = 3;
 const REDIRECTS = new Set([301, 302, 303, 307, 308]);
 const MAX_PIXELS = 60_000_000;
@@ -31,13 +34,13 @@ export class RecipePictureService {
 
     constructor(private readonly config: AppConfig) {}
 
-    public async download(source: string): Promise<Buffer> {
+    public async download(source: string, accept = PICTURE_TYPES): Promise<Buffer> {
         let address = pictureAddress(source);
         for (let hop = 0; address && hop <= MAX_REDIRECTS; hop++) {
             await this.refuseClosed(new URL(address).hostname);
             const answer = await fetch(address, {
                 redirect: 'manual',
-                headers: { accept: 'image/*' },
+                headers: { accept, 'user-agent': `${CLIENT_NAME}/${this.config.version} (${CLIENT_NOTE})` },
                 signal: AbortSignal.timeout(TIMEOUT_MILLISECONDS)
             });
             if (!REDIRECTS.has(answer.status)) {

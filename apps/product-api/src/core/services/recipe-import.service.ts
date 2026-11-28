@@ -19,6 +19,7 @@ import {
 } from '../rules/recipe-import';
 import { CatalogService } from './catalog.service';
 import { GeminiService } from './gemini.service';
+import { RecipePageService } from './recipe-page.service';
 import { RecipePictureService } from './recipe-picture.service';
 import { RecipeService } from './recipe.service';
 
@@ -32,7 +33,8 @@ export class RecipeImportService {
         private readonly gemini: GeminiService,
         private readonly catalog: CatalogService,
         private readonly recipes: RecipeService,
-        private readonly pictures: RecipePictureService
+        private readonly pictures: RecipePictureService,
+        private readonly pages: RecipePageService
     ) {}
 
     public get available(): boolean {
@@ -91,6 +93,11 @@ export class RecipeImportService {
     }
 
     private async pageOf(source: string): Promise<{ text?: string; picture: string } | undefined> {
+        const own = await this.pages.read(linkIn(source));
+        if (own?.text) {
+            return own;
+        }
+
         for (let attempt = 0; attempt < LINK_ATTEMPTS; attempt++) {
             const { value, linkRead } = await this.gemini.ask({
                 input: pagePrompt(sourceToRead(source)),
@@ -98,7 +105,7 @@ export class RecipeImportService {
                 readLinks: true
             });
             if (linkRead) {
-                return { text: readPage(value), picture: readPagePicture(value) };
+                return { text: readPage(value), picture: readPagePicture(value) || (own?.picture ?? '') };
             }
             this.logger.warn('the answer was made without reading the link');
         }

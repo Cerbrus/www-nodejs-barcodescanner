@@ -71,10 +71,11 @@ Seen in the log of the Pi on 2026-11-28: of three imports of Allerhande links, o
 
 Found and done 2026-11-28 01:53: Gemini's link read gives the whole page of an Allerhande recipe, with the address of its picture, when the link is the short form `ah.nl/r/<number>`, and often a thin one without it for the long form. Asked three times for the long link of one recipe: no picture; twice for its short link: the picture both times. The import now reads an Allerhande recipe through its short link; the link that is kept with the recipe stays the one that was pasted. Tried on one recipe.
 
-## Left open
+Done 2026-11-28 01:56 ([0131](decisions/0131-app-reads-a-recipe-page-itself.md)): the app reads a recipe page itself first. Run against one page each of Leukerecepten, Jumbo and BBC Good Food: the name, the servings, every ingredient line, the steps and the picture came out. No import through the app was done with it.
 
-- **The app reads a recipe page itself**, before Gemini does: the next part, with a decision of its own.
-- Done 2026-11-28 01:44: the import sheet reads the clipboard when it opens and fills its empty field with what was copied. An iPhone shows its own "Paste" bubble first, which the owner taps; a refusal leaves the field empty. A tile shows only whole product icons. Neither was seen on a phone.
+Done 2026-11-28 01:44: the import sheet reads the clipboard when it opens and fills its empty field with what was copied. An iPhone shows its own "Paste" bubble first, which the owner taps; a refusal leaves the field empty. A tile shows only whole product icons. Neither was seen on a phone.
+
+## Left open
 
 - **Without a connection**: the service worker keeps the app's own files and never touches API calls. Pictures under `/api` are kept by the browser's own store only, which an iPhone may empty. Whether the tiles need their pictures in the shop is seen in use.
 - **Recipes that were imported before**: none with a link is left, so nothing is fetched afterwards.

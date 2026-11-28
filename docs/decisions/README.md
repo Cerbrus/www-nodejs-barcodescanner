@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0131 or higher: the highest number plus one.
+- Number the next record 0132 or higher: the highest number plus one.
 
 ## Product
 
@@ -47,6 +47,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 | [0128](0128-recipe-source-link.md)              | The link a recipe came from is a field of its own                                                     | accepted                    | 2026-11-27   |
 | [0129](0129-recipe-pictures.md)                 | A recipe has a picture, kept by the app in two sizes and in the backup                                | accepted                    | 2026-11-27   |
 | [0130](0130-recipes-page-as-picture-tiles.md)   | The Recipes page shows a recipe as a tile with its picture                                            | accepted                    | 2026-11-27   |
+| [0131](0131-app-reads-a-recipe-page-itself.md)  | The app reads a recipe page itself first, and Gemini reads it only when that fails                    | accepted                    | 2026-11-28   |
 
 ## Scanner and sounds
 
