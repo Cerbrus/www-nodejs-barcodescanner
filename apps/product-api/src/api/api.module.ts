@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { CoreModule } from '../core/core.module';
 import { AgentController } from './controllers/agent.controller';
 import { AuthController } from './controllers/auth.controller';
+import { BarcodeCandidateController } from './controllers/barcode-candidate.controller';
 import { BarcodeController } from './controllers/barcode.controller';
 import { CatalogController } from './controllers/catalog.controller';
 import { ContentPolicyController } from './controllers/content-policy.controller';
@@ -25,6 +26,7 @@ import { AuthGuard } from './guards/auth.guard';
     controllers: [
         AgentController,
         AuthController,
+        BarcodeCandidateController,
         BarcodeController,
         CatalogController,
         ContentPolicyController,

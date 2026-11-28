@@ -4,6 +4,7 @@ import { DataModule } from '../data/data.module';
 import { AHConnector } from './connectors/ah.connector';
 import { OpenFoodFactsConnector } from './connectors/off.connector';
 import { AgentStatusService } from './services/agent-status.service';
+import { BarcodeSearchService } from './services/barcode-search.service';
 import { BarcodeService } from './services/barcode.service';
 import { CatalogService } from './services/catalog.service';
 import { ConnectorService } from './services/connector.service';
@@ -27,6 +28,7 @@ import { SessionService } from './services/session.service';
 
 const services = [
     AgentStatusService,
+    BarcodeSearchService,
     BarcodeService,
     CatalogService,
     ConnectorService,

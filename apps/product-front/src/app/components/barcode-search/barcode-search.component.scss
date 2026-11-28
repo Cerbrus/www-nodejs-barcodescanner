@@ -1,0 +1,58 @@
+.hits {
+    margin-top: 12px;
+    overflow: hidden;
+    border: var(--border-width) var(--border-style) var(--line);
+    border-radius: calc(14px * var(--corner));
+}
+.hit {
+    padding: 6px 12px;
+}
+.hit + .hit {
+    border-top: 1px var(--border-style) var(--line);
+}
+.hit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    cursor: pointer;
+}
+.hit-row input {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    accent-color: var(--accent);
+}
+.hit-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+.hit-title,
+.hit-detail,
+.hit-owner {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.hit-title {
+    font-weight: 600;
+}
+.hit-detail,
+.hit-owner {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+.hit-note {
+    margin: 2px 0 6px;
+}
+.hit.taken .hit-row {
+    padding-left: 30px;
+    cursor: default;
+}
+.hit.taken .hit-title,
+.hit.shop-code .hit-title {
+    color: var(--text-muted);
+    font-weight: 400;
+}

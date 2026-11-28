@@ -11,10 +11,14 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import sharp from 'sharp';
 
+import { BarcodeCandidate, ProductSuggestion } from '@barcodescanner/shared';
+
 import { ApiModule } from '../api/api.module';
 import { configureApi } from '../api/configure-api';
 import { AppConfigModule } from '../config/config.module';
+import { BarcodeHit, ProductConnector } from '../core/connectors/connector.model';
 import { SESSION_COOKIE } from '../core/rules/session';
+import { ConnectorService } from '../core/services/connector.service';
 import { SessionService } from '../core/services/session.service';
 import { testFolder } from './test-env';
 
@@ -617,6 +621,98 @@ describe('data routes over HTTP', () => {
         for (let scan = 0; scan < 2; scan++) {
             assert.equal((await call('POST', '/scans/undo', asUser)).status, 201);
         }
+    });
+
+    it('searches barcodes by name, asks the other sources about each, and links one with what they said', async () => {
+        const connectors = app.get(ConnectorService) as unknown as { connectors: Array<ProductConnector> };
+        const searched: Array<string> = [];
+        const lookedUp: Array<string> = [];
+        const hit = (code: string, title: string, size?: string): BarcodeHit => ({
+            code,
+            suggestion: { connectorId: 'off', title },
+            size
+        });
+        connectors.connectors = [
+            {
+                id: 'ah',
+                lookup: (code: string): Promise<ProductSuggestion | undefined> => {
+                    lookedUp.push(code);
+
+                    return Promise.resolve(
+                        code === '8718906716230' ? { connectorId: 'ah', title: 'AH Halfvolle melk' } : undefined
+                    );
+                }
+            },
+            {
+                id: 'off',
+                lookup: (): Promise<ProductSuggestion> =>
+                    Promise.resolve({ connectorId: 'off', title: 'Halfvolle melk' }),
+                search: (words: string): Promise<Array<BarcodeHit>> => {
+                    searched.push(words);
+
+                    return Promise.resolve([
+                        hit('0000210066210', 'Melk van de markt'),
+                        hit('8718906716230', 'melk', '1 l'),
+                        hit(UNKNOWN_CODE, 'Volle melk'),
+                        hit('8712345000011', 'Pindakaas')
+                    ]);
+                }
+            }
+        ];
+
+        assert.equal((await call('GET', '/barcode-candidates', asUser)).status, 400);
+        assert.equal((await call('GET', '/barcode-candidates?query=%20', asUser)).status, 400);
+        assert.equal((await call('GET', `/barcode-candidates?query=${'m'.repeat(81)}`, asUser)).status, 400);
+        assert.equal((await call('GET', '/barcode-candidates?query=melk&catalogItemId=one', asUser)).status, 400);
+        assert.equal((await call('GET', '/barcode-candidates?query=melk&catalogItemId=999999', asUser)).status, 404);
+        assert.equal((await call('GET', '/barcode-candidates?query=melk', {})).status, 401);
+        assert.equal((await call('GET', '/barcode-candidates?query=melk', asAgent)).status, 403);
+        assert.deepEqual(searched, []);
+
+        const found = await call<Array<BarcodeCandidate>>(
+            'GET',
+            `/barcode-candidates?query=${encodeURIComponent(' AH: melk ')}&catalogItemId=${milkId}`,
+            asGuest
+        );
+        assert.equal(found.status, 200);
+        assert.deepEqual(searched, ['AH melk']);
+        assert.deepEqual(lookedUp.sort(), ['8710400335481', '8712345000011', '8718906716230']);
+        assert.deepEqual(
+            found.body.map(({ code, note, shopCode, size, catalogItem }) => [
+                code,
+                note,
+                shopCode,
+                size,
+                catalogItem?.id
+            ]),
+            [
+                ['8718906716230', 'Halfvolle', false, '1 l', undefined],
+                [UNKNOWN_CODE, 'Volle', false, undefined, milkId],
+                ['8712345000011', '', false, undefined, undefined],
+                ['0000210066210', 'Van de markt', true, undefined, undefined]
+            ]
+        );
+        assert.deepEqual(
+            found.body[0].suggestions.map(({ connectorId, title }) => [connectorId, title]),
+            [
+                ['ah', 'AH Halfvolle melk'],
+                ['off', 'melk']
+            ]
+        );
+        assert.equal((await call('GET', '/barcodes/8718906716230', asUser)).status, 404);
+
+        const linked = await call<{ catalogItemId: number; note: string; suggestions: Array<ProductSuggestion> }>(
+            'PUT',
+            '/barcodes/8718906716230',
+            asGuest,
+            { catalogItemId: milkId, note: 'Halfvolle' }
+        );
+        assert.equal(linked.status, 200);
+        assert.deepEqual([linked.body.catalogItemId, linked.body.note], [milkId, 'Halfvolle']);
+        assert.deepEqual(linked.body.suggestions.map(({ connectorId }) => connectorId).sort(), ['ah', 'off']);
+
+        connectors.connectors = [];
+        assert.equal((await call('DELETE', '/barcodes/8718906716230', asUser)).status, 204);
     });
 
     it('answers 404 for a barcode it has never seen', async () => {

@@ -15,6 +15,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, switchMap, tap } from 'rxjs';
 
 import { BarcodeComponent } from '../../components/barcode';
+import { BarcodeSearchComponent } from '../../components/barcode-search/barcode-search.component';
 import { IconPickerComponent } from '../../components/icon-picker/icon-picker.component';
 import { ItemAutocompleteComponent } from '../../components/item-autocomplete/item-autocomplete.component';
 import { ItemIconComponent } from '../../components/item-icon/item-icon.component';
@@ -34,6 +35,7 @@ import { ToastService } from '../../services/toast.service';
         RouterLink,
         TranslatePipe,
         BarcodeComponent,
+        BarcodeSearchComponent,
         ItemIconComponent,
         IconPickerComponent,
         ItemAutocompleteComponent,
@@ -65,6 +67,7 @@ export class ItemPage {
     protected readonly movingCode = signal<string | undefined>(undefined);
     protected readonly moveSearch = signal('');
     protected readonly pickingIcon = signal(false);
+    protected readonly searchingBarcodes = signal(false);
     protected readonly replacing = signal(false);
     protected readonly replaceSearch = signal('');
     protected readonly confirmingDelete = signal(false);
@@ -145,6 +148,11 @@ export class ItemPage {
             .mapBarcode(code, target.id)
             .pipe(switchMap(() => this.load(this.id())))
             .subscribe();
+    }
+
+    protected showLinked(): void {
+        this.searchingBarcodes.set(false);
+        this.load(this.id()).subscribe();
     }
 
     protected confirmDraft(): void {

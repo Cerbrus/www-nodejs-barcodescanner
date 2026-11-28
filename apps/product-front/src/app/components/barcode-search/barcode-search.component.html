@@ -1,0 +1,86 @@
+<app-sheet (closed)="closed.emit()">
+    <form class="flex gap-2" (ngSubmit)="search()">
+        <input
+            id="barcode-search-words"
+            class="field min-w-0 grow"
+            type="search"
+            name="words"
+            [maxlength]="max"
+            [attr.aria-label]="'barcodeSearch.words' | translate"
+            [ngModel]="words()"
+            (ngModelChange)="words.set($event)"
+        />
+        <button
+            type="submit"
+            class="btn"
+            [attr.aria-label]="'barcodeSearch.search' | translate"
+            [disabled]="!words().trim()"
+        >
+            <i class="material-symbols-outlined">search</i>
+        </button>
+    </form>
+
+    @if (rows(); as rows) {
+        <div class="hits">
+            @for (row of rows; track row.candidate.code) {
+                <div class="hit" [class.taken]="row.candidate.catalogItem" [class.shop-code]="row.candidate.shopCode">
+                    <label class="hit-row">
+                        @if (!row.candidate.catalogItem) {
+                            <input
+                                type="checkbox"
+                                [id]="'barcode-hit-' + row.candidate.code"
+                                [checked]="notes().has(row.candidate.code)"
+                                (change)="toggle(row.candidate)"
+                            />
+                        }
+                        <span class="hit-text">
+                            <span class="hit-title">{{ row.title }}</span>
+                            <span class="hit-detail">{{ row.detail }}</span>
+                            @if (row.candidate.catalogItem; as owner) {
+                                <span class="hit-owner">
+                                    {{ 'barcodeSearch.belongsTo' | translate: { name: owner.name } }}
+                                </span>
+                            }
+                        </span>
+                        @for (suggestion of row.candidate.suggestions; track suggestion.connectorId) {
+                            @if (connectors[suggestion.connectorId]; as connector) {
+                                <img
+                                    class="h-6 w-6 shrink-0 rounded-sm object-contain"
+                                    [src]="connector.logo"
+                                    [alt]="connector.name"
+                                    [title]="connector.name"
+                                />
+                            }
+                        }
+                    </label>
+                    @if (notes().has(row.candidate.code)) {
+                        <input
+                            class="field hit-note"
+                            type="text"
+                            maxlength="200"
+                            [id]="'barcode-note-' + row.candidate.code"
+                            [placeholder]="'naming.variantLabel' | translate"
+                            [attr.aria-label]="'naming.variantLabel' | translate"
+                            [ngModel]="notes().get(row.candidate.code)"
+                            (ngModelChange)="setNote(row.candidate.code, $event)"
+                        />
+                    }
+                </div>
+            } @empty {
+                <p class="empty">{{ 'barcodeSearch.none' | translate }}</p>
+            }
+        </div>
+    } @else {
+        <p class="empty">{{ 'common.loading' | translate }}</p>
+    }
+
+    <div class="mt-4 flex gap-2">
+        <button type="button" class="btn primary basis-0 grow" [disabled]="!notes().size || saving()" (click)="link()">
+            <i class="material-symbols-outlined">add_link</i>
+            {{ 'barcodeSearch.link' | translate: { count: notes().size } }}
+        </button>
+        <button type="button" class="btn" [attr.aria-label]="'common.cancel' | translate" (click)="closed.emit()">
+            <i class="material-symbols-outlined">close</i>
+        </button>
+    </div>
+</app-sheet>

@@ -162,6 +162,12 @@ export class ScanService {
         this.logger.log(`barcode ${code} linked to item ${catalogItemId}, ${applied} waiting scan(s) applied`);
         this.events.emit('barcode', { code, catalogItemId });
 
+        const barcode = await this.barcodes.get(code);
+        if (barcode.suggestions || barcode.lookupFailed) {
+            return barcode;
+        }
+        await this.fetchSuggestions(code);
+
         return this.barcodes.get(code);
     }
 

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
+    BarcodeCandidate,
     IssueDraft,
     IssueOptions,
     RecipeContent,
@@ -210,6 +211,12 @@ export class ApiService {
 
     public mapBarcode(code: string, catalogItemId: number, note = ''): Observable<Barcode> {
         return this.http.put<Barcode>(`${this.baseUrl}/barcodes/${code}`, { catalogItemId, note });
+    }
+
+    public searchBarcodes(query: string, catalogItemId: number): Observable<Array<BarcodeCandidate>> {
+        return this.http.get<Array<BarcodeCandidate>>(`${this.baseUrl}/barcode-candidates`, {
+            params: { query, catalogItemId }
+        });
     }
 
     public repeatLookup(code: string): Observable<Barcode> {

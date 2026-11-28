@@ -153,7 +153,19 @@
         </div>
 
         @if (!item.draft) {
-            <h2 class="section-title">{{ 'item.barcodes' | translate }} ({{ item.barcodes?.length ?? 0 }})</h2>
+            <div class="mt-4 mb-2 flex items-center gap-2">
+                <h2 class="section-title m-0 grow">
+                    {{ 'item.barcodes' | translate }} ({{ item.barcodes?.length ?? 0 }})
+                </h2>
+                <button
+                    type="button"
+                    class="btn search-barcodes"
+                    [attr.aria-label]="'item.searchBarcodes' | translate"
+                    (click)="searchingBarcodes.set(true)"
+                >
+                    <i class="material-symbols-outlined">search</i>
+                </button>
+            </div>
             <div class="flex flex-col gap-2">
                 @for (barcode of item.barcodes ?? []; track barcode.code) {
                     <div class="card">
@@ -223,6 +235,9 @@
                     <p class="empty">{{ 'item.noBarcodes' | translate }}</p>
                 }
             </div>
+            @if (searchingBarcodes()) {
+                <app-barcode-search [item]="item" (linked)="showLinked()" (closed)="searchingBarcodes.set(false)" />
+            }
         }
     } @else {
         <p class="empty">{{ 'common.loading' | translate }}</p>

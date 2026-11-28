@@ -40,7 +40,9 @@ describe('ItemPage', () => {
         getCatalogItem: vi.fn(),
         updateCatalogItem: vi.fn(),
         deleteCatalogItem: vi.fn(),
-        unmapBarcode: vi.fn()
+        unmapBarcode: vi.fn(),
+        searchBarcodes: vi.fn(),
+        mapBarcode: vi.fn()
     };
 
     const settle = async (): Promise<void> => {
@@ -68,6 +70,17 @@ describe('ItemPage', () => {
         api.updateCatalogItem.mockReturnValue(of(MILK));
         api.deleteCatalogItem.mockReturnValue(of(undefined));
         api.unmapBarcode.mockReturnValue(of(undefined));
+        api.searchBarcodes.mockReturnValue(
+            of([
+                {
+                    code: '8718906716230',
+                    suggestions: [{ connectorId: 'off', title: 'melk' }],
+                    note: '',
+                    shopCode: false
+                }
+            ])
+        );
+        api.mapBarcode.mockReturnValue(of({}));
         TestBed.configureTestingModule({
             imports: [ItemPage, TranslateTesting],
             providers: [
@@ -172,6 +185,37 @@ describe('ItemPage', () => {
         await open();
 
         expect(texts(page, '.empty')).toEqual(['item.noBarcodes']);
+    });
+
+    it('searches barcodes for the product in a sheet, and loads the product again once one is linked', async () => {
+        await open();
+        expect(page.querySelector('app-barcode-search')).toBeNull();
+
+        click(page, 'button.search-barcodes');
+        await settle();
+        expect(api.searchBarcodes).toHaveBeenCalledExactlyOnceWith('Melk', 1);
+        expect(texts(page, 'app-barcode-search .hit-title')).toEqual(['melk']);
+
+        click(page, 'app-barcode-search input[type=checkbox]');
+        await settle();
+        click(page, 'app-barcode-search button.primary');
+        await settle();
+
+        expect(api.mapBarcode).toHaveBeenCalledExactlyOnceWith('8718906716230', 1, '');
+        expect(page.querySelector('app-barcode-search')).toBeNull();
+        expect(api.getCatalogItem).toHaveBeenCalledTimes(2);
+    });
+
+    it('closes the barcode search without loading the product again', async () => {
+        await open();
+        click(page, 'button.search-barcodes');
+        await settle();
+
+        click(page, 'app-barcode-search button[aria-label="common.cancel"]');
+        await settle();
+
+        expect(page.querySelector('app-barcode-search')).toBeNull();
+        expect(api.getCatalogItem).toHaveBeenCalledTimes(1);
     });
 
     it('detaches a barcode, which sends it back to the inbox', async () => {

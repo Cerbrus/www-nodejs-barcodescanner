@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, IsNull, Repository } from 'typeorm';
+import { EntityManager, In, IsNull, Repository } from 'typeorm';
 
 import { ProductSuggestion } from '@barcodescanner/shared';
 
@@ -30,6 +30,10 @@ export class BarcodeService {
         }
 
         return barcode;
+    }
+
+    public getMany(codes: Array<string>): Promise<Array<BarcodeEntity>> {
+        return this.barcodes.find({ where: { code: In(codes) }, relations: { catalogItem: true } });
     }
 
     public inboxCount(): Promise<number> {

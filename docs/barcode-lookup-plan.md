@@ -1,6 +1,6 @@
 # Findings and proposal: look up barcodes for a product
 
-Item 10 of [plan.md](plan.md): while editing a product, search for barcodes that belong to it and assign them by hand, without scanning a package. This is what the two sources behind the connectors give when asked by name, tried on 2026-11-28, and a proposal for what to build. Nothing here is decided or built.
+Item 10 of [plan.md](plan.md): while editing a product, search for barcodes that belong to it and assign them by hand, without scanning a package. This is what the two sources behind the connectors give when asked by name, tried on 2026-11-28, and a proposal for what to build. The owner chose on 2026-11-28 ([0134](decisions/0134-barcodes-looked-up-by-name.md)) and it was built that day; what differs from the proposal is under "What the owner chose".
 
 ## What the sources give
 
@@ -38,9 +38,15 @@ A search on the product's page that offers barcodes; the owner ticks the ones th
 3. **The product's page** gets a search button in its barcode part. It opens a sheet with a field that starts with the product's name, and the hits as rows: title, brand, size, a sign for "Albert Heijn knows it too", and a tick box. A barcode that belongs to another product shows that product's name and cannot be ticked. Saving maps each ticked barcode to the product through the route the naming prompt uses (`PUT /api/v1/barcodes/:code`), with the suggestions that were found stored on the barcode.
 4. **Tests**: the connector against a stand-in for the search, the route over HTTP, the sheet in Vitest, and one browser test with a stand-in connector.
 
-## For the owner to choose
+## What the owner chose
 
-- **Build it at all?** For food with a brand in the name it finds the pack. For plain names it is a long list to read, and for non-food it finds little. Scanning the package once it is empty stays the sure way, and costs nothing.
-- **Who may search**: every account, as with naming a barcode, or the owner only.
-- **The variant**: a barcode maps to a product with a note as its variant. The sheet could take one note for all ticked barcodes, or leave it empty and let the product's page change it afterwards.
-- **Codes a shop made up** (starting with `00` or `2`, or shorter than 13 digits): hide them, or show them with the rest.
+- **Build it**, for every account, as with naming a barcode.
+- **The variant**: a note per ticked barcode, proposed by the app from what the title says beside the product's name, and free to change.
+- **Codes a shop made up**: shown, at the end of the hits. A code of 8 digits is a barcode of a small package and keeps its place, so such a code is one that starts with `00` or `2`, or is not 8 or 13 digits long.
+
+What was built differently from the proposal:
+
+- The search asks for ten hits instead of six, and the other sources are asked about every hit that is no code a shop made up.
+- The route also takes the product, `catalogItemId`, for the proposed variant.
+- The suggestions are not sent along when a barcode is linked. The app looks a linked barcode up once itself when it never was, so nothing a browser sends is stored as what a source said.
+- The browser test stands in for the answer of the search route, not for a connector; the connector and the route have their stand-ins in the API's own tests.

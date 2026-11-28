@@ -71,6 +71,7 @@ export const ICON_NAMES = [
     'restaurant',
     'save',
     'schedule',
+    'search',
     'send',
     'settings',
     'shopping_cart',

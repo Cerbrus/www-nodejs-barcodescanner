@@ -174,6 +174,7 @@
         "variant": "Variant: {note}",
         "saved": "Saved",
         "barcodes": "Barcodes",
+        "searchBarcodes": "Search barcodes",
         "noBarcodes": "No barcodes linked yet. Scan a package to add one.",
         "move": "Move",
         "moveSearch": "To which product?",
@@ -187,6 +188,13 @@
         "replaceDraft": "Replace by another product",
         "replaceSearch": "By which product?",
         "backToList": "List"
+    },
+    "barcodeSearch": {
+        "words": "Search words",
+        "search": "Search",
+        "none": "Nothing found",
+        "belongsTo": "Linked to {name}",
+        "link": "{count, plural, one {# barcode} other {# barcodes}}"
     },
     "history": {
         "title": "Scan history",

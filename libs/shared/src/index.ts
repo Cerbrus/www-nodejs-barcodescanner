@@ -1,3 +1,4 @@
+export * from './barcode-candidates';
 export * from './list';
 export * from './product-suggestion';
 export * from './recipe-code';

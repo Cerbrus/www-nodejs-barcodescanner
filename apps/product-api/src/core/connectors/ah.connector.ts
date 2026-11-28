@@ -25,6 +25,7 @@ export class AHConnector implements ProductConnector {
     public readonly id = 'ah';
 
     private token?: { value: string; expiresAt: number };
+    private tokenRequest?: Promise<string>;
 
     public async lookup(code: string): Promise<ProductSuggestion | undefined> {
         const response = await fetch(`${PRODUCT_URL}/${encodeURIComponent(code)}`, {
@@ -58,6 +59,12 @@ export class AHConnector implements ProductConnector {
             return this.token.value;
         }
 
+        this.tokenRequest ??= this.requestToken().finally(() => (this.tokenRequest = undefined));
+
+        return this.tokenRequest;
+    }
+
+    private async requestToken(): Promise<string> {
         const response = await fetch(AUTH_URL, {
             method: 'POST',
             headers: HEADERS,
