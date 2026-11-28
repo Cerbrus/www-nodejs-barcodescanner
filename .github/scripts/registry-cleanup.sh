@@ -30,7 +30,7 @@ children_of() {
 kept_tags_of() {
     local all_tags=$1
     echo latest
-    tr ', ' '\n\n' <<< "$KEEP_TAGS" | sed '/^$/d'
+    tr ', ' '\n' <<< "$KEEP_TAGS" | sed '/^$/d'
     { grep -E "$VERSION_TAG" <<< "$all_tags" || true; } | sort -V | tail -n "$KEEP_VERSIONS"
 }
 
