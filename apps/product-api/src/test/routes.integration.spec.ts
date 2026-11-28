@@ -376,6 +376,24 @@ describe('data routes over HTTP', () => {
         assert.deepEqual((await call('GET', '/recipes', asUser)).body, []);
     });
 
+    it('marks a product as always in the house and takes the mark away, and refuses a mark that is no yes or no', async () => {
+        type Product = { id: number; stocked: boolean };
+        const stocked = async (): Promise<boolean | undefined> =>
+            (await call<Array<Product>>('GET', '/catalog', asGuest)).body.find(({ id }) => id === milkId)?.stocked;
+
+        assert.equal(await stocked(), false);
+        assert.equal((await call('PATCH', `/catalog/${milkId}`, asGuest, { stocked: 'ja' })).status, 400);
+        assert.equal(
+            (await call<Product>('PATCH', `/catalog/${milkId}`, asGuest, { stocked: true })).body.stocked,
+            true
+        );
+        assert.equal(await stocked(), true);
+        assert.equal((await call('PATCH', `/catalog/${milkId}`, asGuest, { name: 'Melk' })).status, 200);
+        assert.equal(await stocked(), true);
+        assert.equal((await call('PATCH', `/catalog/${milkId}`, asGuest, { stocked: false })).status, 200);
+        assert.equal(await stocked(), false);
+    });
+
     it('takes a picture for a recipe, serves it in two sizes and removes it', async () => {
         const made = await call<{ id: number; picture: string }>('POST', '/recipes', asGuest, {
             name: 'Tosti',

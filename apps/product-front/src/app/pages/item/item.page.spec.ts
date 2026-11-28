@@ -112,7 +112,8 @@ describe('ItemPage', () => {
             name: 'Volle melk',
             sectionId: 'zuivel',
             emoji: '🥛',
-            icon: 'milk'
+            icon: 'milk',
+            stocked: false
         });
         expect(store.refreshAll).toHaveBeenCalledTimes(1);
         expect(
@@ -120,6 +121,25 @@ describe('ItemPage', () => {
                 .toasts()
                 .map((toast) => toast.text)
         ).toEqual(['item.saved']);
+    });
+
+    it('marks a product as always in the house with a tick box, as a change that can be saved', async () => {
+        await open();
+        const box = page.querySelector('#item-stocked') as HTMLInputElement;
+
+        expect(box.checked).toBe(false);
+        expect(box.closest('label')?.textContent?.trim()).toBe('item.stocked');
+        expect((button('common.save') as HTMLButtonElement).disabled).toBe(true);
+
+        box.click();
+        await settle();
+
+        expect((button('common.save') as HTMLButtonElement).disabled).toBe(false);
+
+        button('common.save').click();
+        await settle();
+
+        expect(api.updateCatalogItem).toHaveBeenCalledWith(1, expect.objectContaining({ stocked: true }));
     });
 
     it('changes the icon through the picker, which offers the standard icon of the product', async () => {

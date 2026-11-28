@@ -30,6 +30,9 @@ export class CatalogItemEntity {
     @Column({ type: 'boolean', default: false })
     public draft: boolean;
 
+    @Column({ type: 'boolean', default: false })
+    public stocked: boolean;
+
     @OneToMany(() => BarcodeEntity, (barcode) => barcode.catalogItem)
     public barcodes?: Array<BarcodeEntity>;
 }

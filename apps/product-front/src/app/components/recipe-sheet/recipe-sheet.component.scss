@@ -60,6 +60,15 @@
     flex: none;
     font-weight: 700;
 }
+.choice-stocked {
+    display: flex;
+    flex: none;
+    margin-left: auto;
+    color: var(--text-muted);
+}
+.choice-stocked i {
+    font-size: 18px;
+}
 .choice.unknown,
 .choice.draft {
     padding-left: 42px;

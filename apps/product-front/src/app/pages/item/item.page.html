@@ -85,6 +85,11 @@
                 }
             </select>
 
+            <label class="mt-3 flex items-center gap-2">
+                <input type="checkbox" id="item-stocked" [checked]="stocked()" (change)="stocked.set(!stocked())" />
+                {{ 'item.stocked' | translate }}
+            </label>
+
             @if (confirmingDelete()) {
                 <p class="mt-3">
                     {{

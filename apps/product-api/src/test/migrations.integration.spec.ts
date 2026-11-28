@@ -20,6 +20,7 @@ import { IngredientText1764000000000 } from '../data/migrations/1764000000000-in
 import { RecipeCategory1764100000000 } from '../data/migrations/1764100000000-recipe-category';
 import { RecipeSourceUrl1764200000000 } from '../data/migrations/1764200000000-recipe-source-url';
 import { RecipePicture1764300000000 } from '../data/migrations/1764300000000-recipe-picture';
+import { StockedProducts1764400000000 } from '../data/migrations/1764400000000-stocked-products';
 
 const folder = mkdtempSync(join(tmpdir(), 'barcodescanner-migrations-'));
 
@@ -197,6 +198,22 @@ describe('migrations', () => {
             { description: soup, category: 'other', source_url: '' }
         ]);
         await database.query('DELETE FROM "recipe"');
+    });
+
+    it('marks no product as always in the house, and takes the column away again', async () => {
+        const columns = async (): Promise<Array<string>> =>
+            ((await database.query('PRAGMA table_info("catalog_item")')) as Array<{ name: string }>).map(
+                ({ name }) => name
+            );
+        const runner = database.createQueryRunner();
+        await new StockedProducts1764400000000().down(runner);
+
+        assert.ok(!(await columns()).includes('stocked'));
+
+        await new StockedProducts1764400000000().up(runner);
+        await runner.release();
+
+        assert.deepEqual(await database.query('SELECT DISTINCT "stocked" FROM "catalog_item"'), [{ stocked: 0 }]);
     });
 
     it('gives every recipe an empty picture and picture source, and takes both columns away again', async () => {

@@ -60,6 +60,7 @@ export class ItemPage {
     protected readonly name = signal('');
     protected readonly sectionId = signal('');
     protected readonly emoji = signal('');
+    protected readonly stocked = signal(false);
     protected readonly icon = signal('');
     protected readonly movingCode = signal<string | undefined>(undefined);
     protected readonly moveSearch = signal('');
@@ -83,7 +84,8 @@ export class ItemPage {
             (this.name().trim() !== item.name ||
                 this.sectionId() !== item.sectionId ||
                 this.emoji().trim() !== (item.emoji ?? '') ||
-                this.icon().trim() !== (item.icon ?? ''))
+                this.icon().trim() !== (item.icon ?? '') ||
+                this.stocked() !== (item.stocked ?? false))
         );
     });
 
@@ -105,7 +107,8 @@ export class ItemPage {
                 name: this.name().trim(),
                 sectionId: this.sectionId(),
                 emoji: this.emoji().trim(),
-                icon: this.icon().trim()
+                icon: this.icon().trim(),
+                stocked: this.stocked()
             })
             .pipe(
                 switchMap(() => this.store.refreshAll()),
@@ -176,6 +179,7 @@ export class ItemPage {
                 this.name.set(item.name);
                 this.sectionId.set(item.sectionId);
                 this.emoji.set(item.emoji ?? '');
+                this.stocked.set(item.stocked ?? false);
                 this.icon.set(item.icon ?? '');
             })
         );

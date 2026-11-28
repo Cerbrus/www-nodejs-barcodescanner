@@ -216,3 +216,12 @@
         </div>
     </app-sheet>
 }
+
+@if (choosing(); as recipe) {
+    <app-recipe-sheet
+        [name]="recipe.name"
+        [ingredients]="recipe.ingredients"
+        (confirmed)="addChosen($event.ingredients)"
+        (closed)="choosing.set(undefined)"
+    />
+}

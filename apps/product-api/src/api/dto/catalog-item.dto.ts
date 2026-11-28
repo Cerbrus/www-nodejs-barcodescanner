@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 const MAX_NAME_LENGTH = 80;
 const MAX_ICON_LENGTH = 80;
@@ -23,6 +23,10 @@ export class CatalogItemCreateDto {
     @IsString()
     @MaxLength(MAX_EMOJI_LENGTH)
     public emoji?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    public stocked?: boolean;
 }
 
 export class CatalogItemUpdateDto {
@@ -46,4 +50,8 @@ export class CatalogItemUpdateDto {
     @IsString()
     @MaxLength(MAX_EMOJI_LENGTH)
     public emoji?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    public stocked?: boolean;
 }

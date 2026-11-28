@@ -14,6 +14,7 @@ export interface CatalogItemInput {
     sectionId?: string;
     icon?: string;
     emoji?: string;
+    stocked?: boolean;
 }
 
 export type NewCatalogItem = Required<Pick<CatalogItemInput, 'name' | 'sectionId'>> &

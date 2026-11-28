@@ -232,6 +232,39 @@ describe('RecipesPage', () => {
         expect(store.putRecipeOnList).toHaveBeenCalledWith({ name: 'Soep', ingredients: SOUP.ingredients });
     });
 
+    it('opens the tick sheet instead when a recipe holds a product that is always in the house, with that one unticked', async () => {
+        store.items.set([{ ...item(1, 'Melk'), stocked: true }, item(2, 'Eieren')]);
+        await open();
+        const boxes = (): Array<HTMLInputElement> =>
+            Array.from(page.querySelectorAll('app-recipe-sheet label.choice input'));
+        click(page, '.recipe button.primary', 2);
+        await settle();
+
+        expect(store.putRecipeOnList).not.toHaveBeenCalled();
+        expect(texts(page, 'app-recipe-sheet .page-title')).toEqual(['Soep']);
+        expect(boxes().map((box) => box.checked)).toEqual([false]);
+
+        boxes()[0].click();
+        await settle();
+        click(page, 'app-recipe-sheet button.primary');
+        await settle();
+
+        expect(page.querySelector('app-recipe-sheet')).toBeNull();
+        expect(store.putRecipeOnList).toHaveBeenCalledWith({
+            name: 'Soep',
+            ingredients: [{ catalogItemId: 1, quantity: 2, note: 'vol' }]
+        });
+
+        click(page, '.recipe button.primary', 1);
+        await settle();
+
+        expect(page.querySelector('app-recipe-sheet')).toBeNull();
+        expect(store.putRecipeOnList).toHaveBeenLastCalledWith({
+            name: 'Pannenkoeken',
+            ingredients: PANCAKES.ingredients
+        });
+    });
+
     it('turns the rows into tick boxes for choosing, and prints the codes of the chosen recipes by name', async () => {
         await open();
         click(page, 'button[aria-label="recipe.select"]');

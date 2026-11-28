@@ -27,6 +27,11 @@
                     @if (row.ingredient.quantity > 1) {
                         <span class="choice-quantity">× {{ row.ingredient.quantity }}</span>
                     }
+                    @if (item.stocked) {
+                        <span class="choice-stocked" role="img" [attr.aria-label]="'item.stocked' | translate">
+                            <i class="material-symbols-outlined">inventory_2</i>
+                        </span>
+                    }
                 </label>
             } @else {
                 <div class="choice unknown">

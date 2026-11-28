@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    linkedSignal,
+    output,
+    signal
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { RecipeIngredient } from '@barcodescanner/shared';
@@ -30,13 +39,21 @@ export class RecipeSheetComponent {
     public readonly closed = output<void>();
 
     protected readonly save = signal(false);
-    protected readonly unticked = signal<ReadonlySet<number>>(new Set());
     protected readonly rows = computed(() =>
         this.ingredients().map((ingredient, index) => ({
             index,
             ingredient,
             item: this.store.itemById(ingredient.catalogItemId)
         }))
+    );
+
+    protected readonly unticked = linkedSignal<ReadonlySet<number>>(
+        () =>
+            new Set(
+                this.rows()
+                    .filter((row) => row.item?.stocked)
+                    .map((row) => row.index)
+            )
     );
 
     protected readonly chosen = computed(() =>

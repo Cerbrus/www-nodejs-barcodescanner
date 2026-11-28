@@ -6,8 +6,15 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, finalize, map, of, tap } from 'rxjs';
 
-import { MAX_RECIPE_SOURCE_LENGTH, RECIPE_CATEGORIES, RecipeCategory, recipeCategoryOf } from '@barcodescanner/shared';
+import {
+    MAX_RECIPE_SOURCE_LENGTH,
+    RECIPE_CATEGORIES,
+    RecipeCategory,
+    RecipeIngredient,
+    recipeCategoryOf
+} from '@barcodescanner/shared';
 
+import { RecipeSheetComponent } from '../../components/recipe-sheet/recipe-sheet.component';
 import { SheetComponent } from '../../components/sheet/sheet.component';
 import { Recipe } from '../../models';
 import { RECIPE_CATEGORY_ICONS } from '../../recipe-categories';
@@ -19,7 +26,7 @@ import { ShoppingStore } from '../../services/shopping.store';
 @Component({
     selector: 'app-recipes-page',
     standalone: true,
-    imports: [FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, SheetComponent],
+    imports: [FormsModule, NgTemplateOutlet, RouterLink, TranslatePipe, RecipeSheetComponent, SheetComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './recipes.page.html',
     styleUrl: './recipes.page.scss'
@@ -35,6 +42,7 @@ export class RecipesPage {
     protected readonly selected = signal<ReadonlySet<number>>(new Set());
     protected readonly sourceLimit = MAX_RECIPE_SOURCE_LENGTH;
     protected readonly importing = signal(false);
+    protected readonly choosing = signal<Recipe | undefined>(undefined);
     protected readonly busy = signal(false);
     protected readonly source = signal('');
 
@@ -91,16 +99,19 @@ export class RecipesPage {
     );
 
     protected add(recipe: Recipe): void {
-        this.store
-            .putRecipeOnList({
-                name: recipe.name,
-                ingredients: recipe.ingredients.map(({ catalogItemId, quantity, note }) => ({
-                    catalogItemId,
-                    quantity,
-                    note
-                }))
-            })
-            .subscribe();
+        if (recipe.ingredients.some(({ catalogItemId }) => this.store.itemById(catalogItemId)?.stocked)) {
+            this.choosing.set(recipe);
+        } else {
+            this.put(recipe.name, recipe.ingredients);
+        }
+    }
+
+    protected addChosen(ingredients: Array<RecipeIngredient>): void {
+        const recipe = this.choosing();
+        this.choosing.set(undefined);
+        if (recipe) {
+            this.put(recipe.name, ingredients);
+        }
     }
 
     protected pictureFailed(recipeId: number): void {
@@ -168,5 +179,14 @@ export class RecipesPage {
                 .filter((recipe) => this.selected().has(recipe.id) && !this.store.holdsDraft(recipe))
                 .sort((a, b) => a.name.localeCompare(b.name))
         );
+    }
+
+    private put(name: string, ingredients: Array<RecipeIngredient>): void {
+        this.store
+            .putRecipeOnList({
+                name,
+                ingredients: ingredients.map(({ catalogItemId, quantity, note }) => ({ catalogItemId, quantity, note }))
+            })
+            .subscribe();
     }
 }

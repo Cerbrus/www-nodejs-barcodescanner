@@ -19,6 +19,7 @@ import { IngredientText1764000000000 } from './migrations/1764000000000-ingredie
 import { RecipeCategory1764100000000 } from './migrations/1764100000000-recipe-category';
 import { RecipeSourceUrl1764200000000 } from './migrations/1764200000000-recipe-source-url';
 import { RecipePicture1764300000000 } from './migrations/1764300000000-recipe-picture';
+import { StockedProducts1764400000000 } from './migrations/1764400000000-stocked-products';
 import { SnakeNamingStrategy } from './snake-naming.strategy';
 
 export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
@@ -44,7 +45,8 @@ export function databaseOptions(databasePath: string): TypeOrmModuleOptions {
             IngredientText1764000000000,
             RecipeCategory1764100000000,
             RecipeSourceUrl1764200000000,
-            RecipePicture1764300000000
+            RecipePicture1764300000000,
+            StockedProducts1764400000000
         ],
         migrationsRun: true,
         synchronize: false,

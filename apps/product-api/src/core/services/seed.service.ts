@@ -11,7 +11,14 @@ import { CatalogItemEntity, ListEntryEntity, SectionEntity } from '../../data/en
 
 interface SeedFile {
     sections: Array<{ id: string; name: string; order: number; emoji?: string }>;
-    items: Array<{ name: string; sectionId: string; icon: string | null; custom: boolean; emoji?: string }>;
+    items: Array<{
+        name: string;
+        sectionId: string;
+        icon: string | null;
+        custom: boolean;
+        emoji?: string;
+        stocked?: boolean;
+    }>;
     list: Array<{ name: string; state: ListState; note: string }>;
 }
 

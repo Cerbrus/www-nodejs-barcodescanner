@@ -68,6 +68,32 @@ describe('RecipeSheetComponent', () => {
         expect(confirmed[0].ingredients).toEqual([INGREDIENTS[0], INGREDIENTS[1]]);
     });
 
+    it('leaves a product that is always in the house unticked and marks it, and takes it along once it is ticked', () => {
+        const store = TestBed.inject(ShoppingStore) as unknown as { items: { set(items: Array<unknown>): void } };
+        store.items.set([item(1, 'Melk'), { ...item(2, 'Eieren'), stocked: true }, draft(3, 'Saffraan')]);
+        fixture.componentRef.setInput('ingredients', [...INGREDIENTS]);
+        fixture.detectChanges();
+        const boxes = (): Array<boolean> =>
+            Array.from(sheet.querySelectorAll('label.choice input'), (box) => (box as HTMLInputElement).checked);
+
+        expect(boxes()).toEqual([true, false]);
+        expect(
+            Array.from(sheet.querySelectorAll('label.choice'), (row) =>
+                row.querySelector('.choice-stocked')?.getAttribute('aria-label')
+            )
+        ).toEqual([undefined, 'item.stocked']);
+
+        confirm().click();
+        expect(confirmed.at(-1)?.ingredients).toEqual([INGREDIENTS[0]]);
+
+        click(sheet, 'label.choice input', 1);
+        fixture.detectChanges();
+        confirm().click();
+
+        expect(boxes()).toEqual([true, true]);
+        expect(confirmed.at(-1)?.ingredients).toEqual([INGREDIENTS[0], INGREDIENTS[1]]);
+    });
+
     it('hands over only what is still ticked', () => {
         click(sheet, 'label.choice input', 0);
         fixture.detectChanges();

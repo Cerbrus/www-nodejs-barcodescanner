@@ -66,7 +66,7 @@ The inbox page lists every waiting barcode and opens the same prompt.
 The products page is for the owner and is reached from the Management group of the System page. It lists every catalog item as a tile, in collapsible shop sections, with a search field. Each catalog item has its own management page, which every account can still open from a product on the list:
 
 - It shows the item's name, section and icon, and every barcode attached to it. Each barcode is drawn as a scannable image with its number, the product title a connector suggested, how often it was scanned and when it was last scanned.
-- Rename the item, change its section, emoji or icon, or delete it. The bin sits next to Save and asks first, in the same row. A product that recipes use cannot be deleted: the bin then says in how many recipes it is, and offers only the way back. A tap on the product's icon, marked with a small pencil, opens the icon picker. The icon picker shows the icons as a searchable grid; "none" comes first, then the product's standard icon from the seed data when it has one.
+- Rename the item, change its section, emoji or icon, mark it as always in the house with a tick box, or delete it. A recipe leaves a product with that mark unticked when it goes on the list (UC-21); the handheld scanner still adds it. The bin sits next to Save and asks first, in the same row. A product that recipes use cannot be deleted: the bin then says in how many recipes it is, and offers only the way back. A tap on the product's icon, marked with a small pencil, opens the icon picker. The icon picker shows the icons as a searchable grid; "none" comes first, then the product's standard icon from the seed data when it has one.
 - Move a barcode to a different catalog item, or detach it. A detached barcode returns to the inbox on its next scan.
 
 The drawn barcode is there to recognise which package a number belongs to, and to rescan it from the screen with the handheld scanner when testing.
@@ -100,8 +100,8 @@ The drawn barcode is there to recognise which package a number belongs to, and t
 
 ### UC-21 Put a recipe on the list
 
-1. The button on a recipe's tile puts every product on the list at once. A product that is already to buy goes up by the recipe's quantity.
-2. The button on the recipe's own page opens a sheet with every product ticked. The user unticks what is in the house and confirms; only the ticked products go on the list.
+1. The button on a recipe's tile puts every product on the list at once. A product that is already to buy goes up by the recipe's quantity. When the recipe holds a product that is marked as always in the house, the button opens the sheet of step 2 instead.
+2. The button on the recipe's own page opens a sheet with every product ticked, except the ones marked as always in the house: those start unticked, with a small sign on their row. The user unticks what is in the house and confirms; only the ticked products go on the list.
 3. A message names the recipe and how many products went on the list, with an undo that takes the whole recipe back in one step.
 4. Without a connection both buttons work: the products show on the list at once, the banner counts one waiting change, and the recipe is sent when the connection is back, with the moment of the tap in the history. The message then has no undo.
 

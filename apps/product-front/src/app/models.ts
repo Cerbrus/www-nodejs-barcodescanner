@@ -30,6 +30,7 @@ export interface CatalogItem {
     emoji?: string;
     custom: boolean;
     draft: boolean;
+    stocked?: boolean;
     defaultIcon?: string;
     recipeCount?: number;
     section?: Section;
@@ -188,6 +189,7 @@ export interface CatalogItemInput {
     sectionId?: string;
     icon?: string;
     emoji?: string;
+    stocked?: boolean;
 }
 
 export interface ListEntryChange {

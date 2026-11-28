@@ -166,6 +166,7 @@
         }
     },
     "item": {
+        "stocked": "Altijd in huis",
         "name": "Naam",
         "section": "Afdeling",
         "icon": "Icoon",

@@ -166,6 +166,7 @@
         }
     },
     "item": {
+        "stocked": "Always in the house",
         "name": "Name",
         "section": "Section",
         "icon": "Icon",

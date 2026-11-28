@@ -1137,14 +1137,16 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "vinegar",
             "custom": false,
-            "emoji": "🫙"
+            "emoji": "🫙",
+            "stocked": true
         },
         {
             "name": "Bakpoeder",
             "sectionId": "ingredienten-kruiden",
             "icon": "baking_soda",
             "custom": false,
-            "emoji": "🥄"
+            "emoji": "🥄",
+            "stocked": true
         },
         {
             "name": "Balsamico Azijn",
@@ -1228,14 +1230,16 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "cinnamon",
             "custom": false,
-            "emoji": "🪵"
+            "emoji": "🪵",
+            "stocked": true
         },
         {
             "name": "Ketchup",
             "sectionId": "ingredienten-kruiden",
             "icon": "ketchup",
             "custom": false,
-            "emoji": "🥫"
+            "emoji": "🥫",
+            "stocked": true
         },
         {
             "name": "Kokosmelk",
@@ -1256,14 +1260,16 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "mayonnaise",
             "custom": false,
-            "emoji": "🫙"
+            "emoji": "🫙",
+            "stocked": true
         },
         {
             "name": "Mosterd",
             "sectionId": "ingredienten-kruiden",
             "icon": "mustard",
             "custom": false,
-            "emoji": "🫙"
+            "emoji": "🫙",
+            "stocked": true
         },
         {
             "name": "Noten",
@@ -1277,14 +1283,16 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "oil",
             "custom": false,
-            "emoji": "🫗"
+            "emoji": "🫗",
+            "stocked": true
         },
         {
             "name": "Olijfolie",
             "sectionId": "ingredienten-kruiden",
             "icon": "olive_oil",
             "custom": false,
-            "emoji": "🫒"
+            "emoji": "🫒",
+            "stocked": true
         },
         {
             "name": "Oregano",
@@ -1305,7 +1313,8 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "paprika",
             "custom": false,
-            "emoji": "🌶️"
+            "emoji": "🌶️",
+            "stocked": true
         },
         {
             "name": "Pasta saus",
@@ -1319,7 +1328,8 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "peppercorns",
             "custom": false,
-            "emoji": "🧂"
+            "emoji": "🧂",
+            "stocked": true
         },
         {
             "name": "Pijnboompitten",
@@ -1368,14 +1378,16 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "soy_sauce",
             "custom": false,
-            "emoji": "🍶"
+            "emoji": "🍶",
+            "stocked": true
         },
         {
             "name": "Suiker",
             "sectionId": "ingredienten-kruiden",
             "icon": "sugar",
             "custom": false,
-            "emoji": "🍚"
+            "emoji": "🍚",
+            "stocked": true
         },
         {
             "name": "Tomatenblokjes",
@@ -1431,14 +1443,16 @@
             "sectionId": "ingredienten-kruiden",
             "icon": "salt",
             "custom": false,
-            "emoji": "🧂"
+            "emoji": "🧂",
+            "stocked": true
         },
         {
             "name": "Zwarte peper",
             "sectionId": "ingredienten-kruiden",
             "icon": "black_pepper",
             "custom": false,
-            "emoji": "🧂"
+            "emoji": "🧂",
+            "stocked": true
         },
         {
             "name": "Burrito",
@@ -1557,7 +1571,8 @@
             "sectionId": "graanproducten",
             "icon": "basmati_rice",
             "custom": false,
-            "emoji": "🍚"
+            "emoji": "🍚",
+            "stocked": true
         },
         {
             "name": "Bloem",
@@ -1641,7 +1656,8 @@
             "sectionId": "graanproducten",
             "icon": "rice",
             "custom": false,
-            "emoji": "🍚"
+            "emoji": "🍚",
+            "stocked": true
         },
         {
             "name": "Risotto rijst",
