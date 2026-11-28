@@ -44,6 +44,10 @@ const REMARK_FAILURES = new HttpContext().set(FAILURE_TEXTS, {
     502: 'remark.error.gitHubFailed',
     503: 'remark.error.gitHubOff'
 });
+const PICTURE_FAILURES = new HttpContext().set(FAILURE_TEXTS, {
+    400: 'recipe.error.pictureNotFetched',
+    502: 'recipe.error.pictureNotFetched'
+});
 const IMPORT_FAILURES = new HttpContext().set(FAILURE_TEXTS, {
     422: 'recipe.error.noRecipeFound',
     500: 'recipe.error.importFailed',
@@ -154,6 +158,14 @@ export class ApiService {
 
     public deleteRecipe(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/recipes/${id}`);
+    }
+
+    public fetchPicture(source: string): Observable<Blob> {
+        return this.http.post(
+            `${this.baseUrl}/recipes/pictures`,
+            { source },
+            { responseType: 'blob', context: PICTURE_FAILURES }
+        );
     }
 
     public setRecipePicture(id: number, picture: Blob): Observable<Recipe> {

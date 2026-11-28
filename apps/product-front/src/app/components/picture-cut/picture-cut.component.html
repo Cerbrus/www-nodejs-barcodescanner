@@ -1,6 +1,7 @@
 <app-sheet (closed)="cancelled.emit()">
     <h2 class="page-title">{{ 'recipe.pictureCut' | translate }}</h2>
     <div
+        #frame
         class="frame"
         (pointerdown)="pressed($event)"
         (pointermove)="moved($event)"

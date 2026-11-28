@@ -6,6 +6,7 @@
     border-radius: calc(14px * var(--corner));
     background: var(--tile-neutral);
     cursor: grab;
+    overscroll-behavior: contain;
     touch-action: none;
     user-select: none;
 }

@@ -46,9 +46,15 @@ export class ItemPage {
     public readonly id = input.required({ transform: numberAttribute });
 
     protected readonly store = inject(ShoppingStore);
-    protected readonly overview = computed(() =>
-        this.auth.owner() ? { path: '/catalog', label: 'catalog.title' } : { path: '/list', label: 'item.backToList' }
-    );
+    protected readonly overview = computed(() => {
+        if (this.reviewing()) {
+            return { path: '/inbox', label: 'inbox.title' };
+        }
+
+        return this.auth.owner()
+            ? { path: '/catalog', label: 'catalog.title' }
+            : { path: '/list', label: 'item.backToList' };
+    });
 
     protected readonly item = signal<CatalogItem | undefined>(undefined);
     protected readonly name = signal('');
@@ -141,7 +147,7 @@ export class ItemPage {
     protected confirmDraft(): void {
         this.store
             .confirmDraft(this.id())
-            .pipe(switchMap(() => this.load(this.id())))
+            .pipe(tap(() => void this.router.navigate(['/inbox'])))
             .subscribe();
     }
 
@@ -149,7 +155,7 @@ export class ItemPage {
         this.replacing.set(false);
         this.store
             .replaceDraft(this.id(), target.id)
-            .pipe(tap(() => void this.router.navigate(['/catalog', target.id])))
+            .pipe(tap(() => void this.router.navigate(['/inbox'])))
             .subscribe();
     }
 

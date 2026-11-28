@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -67,7 +67,24 @@ export class ShellComponent {
         { route: '/system', label: 'nav.system', icon: 'settings' }
     ];
 
+    private readonly toastHost = viewChild<ElementRef<HTMLElement>>('toastHost');
+    private toastsOnTop = false;
+
     constructor() {
+        effect(() => {
+            const host = this.toastHost()?.nativeElement;
+            const shown = this.toasts.toasts().length;
+            if (!host?.showPopover) {
+                return;
+            }
+            if (this.toastsOnTop) {
+                host.hidePopover();
+            }
+            if (shown) {
+                host.showPopover();
+            }
+            this.toastsOnTop = shown > 0;
+        });
         effect(() => {
             const count = this.inboxCount();
             if (this.store.loaded() && 'setAppBadge' in navigator) {

@@ -121,6 +121,13 @@ describe('PictureCutComponent', () => {
         expect(drawn).toHaveBeenLastCalledWith(image(), 300, 225, 200, 150, 0, 0, 200, 150);
     });
 
+    it('keeps a finger on the picture from scrolling the page behind the sheet', () => {
+        const move = new Event('touchmove', { bubbles: true, cancelable: true });
+        (sheet.querySelector('.frame') as HTMLElement).dispatchEvent(move);
+
+        expect(move.defaultPrevented).toBe(true);
+    });
+
     it('says so when the picture cannot be read, and leaves without a cut', async () => {
         image().dispatchEvent(new Event('error'));
         await settle();

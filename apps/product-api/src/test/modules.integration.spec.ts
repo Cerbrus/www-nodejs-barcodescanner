@@ -8,6 +8,8 @@ import { after, before, describe, it } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
 
 import {
+    BadGatewayException,
+    BadRequestException,
     ConflictException,
     INestApplicationContext,
     Module,
@@ -783,6 +785,25 @@ describe('scan flow against a real database', () => {
         assert.equal(refused.picture, '');
         assert.equal(fetched.length, 3);
         await recipes.delete(refused.id);
+    });
+
+    it('hands back a fetched picture as a JPEG of at most 1600 wide, and says which way it failed', async () => {
+        const pictures = new RecipePictureService(app.get(AppConfig));
+        let photo: Buffer | undefined = await sharp({
+            create: { width: 2400, height: 1200, channels: 4, background: '#33669980' }
+        })
+            .png()
+            .toBuffer();
+        pictures.download = (): Promise<Buffer> => (photo ? Promise.resolve(photo) : Promise.reject(new Error('404')));
+
+        const { format, width, height } = await sharp(await pictures.fetch('https://example.com/a.png')).metadata();
+        assert.deepEqual([format, width, height], ['jpeg', 1600, 800]);
+
+        await assert.rejects(pictures.fetch('http://example.com/a.png'), BadRequestException);
+        photo = Buffer.from('<html></html>');
+        await assert.rejects(pictures.fetch('https://example.com/a.png'), BadRequestException);
+        photo = undefined;
+        await assert.rejects(pictures.fetch('https://example.com/a.png'), BadGatewayException);
     });
 
     it('refuses to fetch a picture from inside the home network', async () => {

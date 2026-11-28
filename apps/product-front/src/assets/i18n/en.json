@@ -121,6 +121,8 @@
         "pictureZoom": "Zoom",
         "pictureUse": "Use this cut",
         "pictureUnreadable": "This picture cannot be read",
+        "pictureLink": "Address of a picture",
+        "pictureFetch": "Fetch this picture",
         "allCategories": "All categories",
         "categories": {
             "breakfast": "Breakfast",
@@ -156,9 +158,11 @@
         "holdsDraft": "Holds a draft product: the code cannot be printed",
         "import": "Import recipe",
         "importSource": "Link or recipe text",
+        "importing": "Reading the recipe. This can take a minute.",
         "error": {
             "noRecipeFound": "No recipe found in it; paste the recipe text instead of the link",
-            "importFailed": "Importing the recipe failed; try again later"
+            "importFailed": "Importing the recipe failed; try again later",
+            "pictureNotFetched": "The picture could not be fetched from this address"
         }
     },
     "item": {

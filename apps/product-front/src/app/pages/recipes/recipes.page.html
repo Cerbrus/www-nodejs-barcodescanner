@@ -185,9 +185,14 @@
             [attr.maxlength]="sourceLimit"
             [placeholder]="'recipe.importSource' | translate"
             [attr.aria-label]="'recipe.importSource' | translate"
+            [disabled]="busy()"
             [ngModel]="source()"
             (ngModelChange)="source.set($event)"
         ></textarea>
+        @if (busy()) {
+            <div class="busy-bar mt-3" role="progressbar" [attr.aria-label]="'recipe.importing' | translate"></div>
+            <p class="muted mt-2 text-sm">{{ 'recipe.importing' | translate }}</p>
+        }
 
         <div class="mt-4 flex gap-2">
             <button

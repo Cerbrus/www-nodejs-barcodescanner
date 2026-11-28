@@ -80,6 +80,30 @@
                     </button>
                 }
             </div>
+            <div class="mt-2 flex gap-2">
+                <input
+                    id="recipe-picture-link"
+                    class="field"
+                    type="url"
+                    inputmode="url"
+                    autocomplete="off"
+                    placeholder="https://"
+                    [attr.maxlength]="limits.sourceUrl"
+                    [attr.aria-label]="'recipe.pictureLink' | translate"
+                    [ngModel]="pictureLink()"
+                    (ngModelChange)="pictureLink.set($event)"
+                />
+                <button
+                    type="button"
+                    class="btn"
+                    [attr.aria-label]="'recipe.pictureFetch' | translate"
+                    [attr.aria-busy]="fetchingPicture()"
+                    [disabled]="fetchingPicture() || !pictureLink().trim()"
+                    (click)="fetchPicture()"
+                >
+                    <i class="material-symbols-outlined">{{ fetchingPicture() ? 'schedule' : 'add_link' }}</i>
+                </button>
+            </div>
         </div>
 
         <h2 class="section-title">{{ 'recipe.ingredients' | translate }} ({{ shown().length }})</h2>

@@ -61,7 +61,7 @@
 
 <app-recipe-print />
 
-<div class="toasts" aria-live="polite">
+<div #toastHost class="toasts" popover="manual" aria-live="polite">
     @for (toast of toasts.toasts(); track toast.id) {
         <div class="toast" [class]="toast.kind">
             <span class="grow">{{ toast.text }}</span>

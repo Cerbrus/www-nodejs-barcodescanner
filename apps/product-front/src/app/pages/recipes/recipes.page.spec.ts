@@ -394,6 +394,9 @@ describe('RecipesPage', () => {
         expect(sheetButton('recipe.import').disabled).toBe(true);
         expect(sheetButton('recipe.import').textContent?.trim()).toBe('schedule');
         expect(sheetButton('common.cancel').disabled).toBe(true);
+        expect(page.querySelector('app-sheet .busy-bar')?.getAttribute('aria-label')).toBe('recipe.importing');
+        expect(texts(page, 'app-sheet p.muted')).toEqual(['recipe.importing']);
+        expect((page.querySelector('#recipe-source') as HTMLTextAreaElement).disabled).toBe(true);
 
         page.querySelector('dialog')?.dispatchEvent(new Event('cancel', { cancelable: true }));
         await settle();
@@ -404,6 +407,7 @@ describe('RecipesPage', () => {
         await settle();
 
         expect(page.querySelector('app-sheet')).toBeNull();
+        expect(page.querySelector('.busy-bar')).toBeNull();
         expect(navigate).toHaveBeenCalledWith(['/recipes', 12]);
 
         importButton()?.click();

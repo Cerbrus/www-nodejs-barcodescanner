@@ -3,7 +3,7 @@ import { lookup } from 'node:dns/promises';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, Logger } from '@nestjs/common';
 import sharp from 'sharp';
 
 import { MAX_RECIPE_PICTURE_BYTES, RecipePictureSize } from '@barcodescanner/shared';
@@ -19,6 +19,7 @@ const LARGE_WIDTH = 1600;
 const SMALL_WIDTH = 600;
 const SMALL_HEIGHT = 450;
 const QUALITY = 80;
+const FETCHED_QUALITY = 92;
 const MARK_LENGTH = 12;
 const BACKGROUND = '#ffffff';
 
@@ -26,6 +27,8 @@ sharp.cache(false);
 
 @Injectable()
 export class RecipePictureService {
+    private readonly logger = new Logger(RecipePictureService.name);
+
     constructor(private readonly config: AppConfig) {}
 
     public async download(source: string): Promise<Buffer> {
@@ -45,6 +48,31 @@ export class RecipePictureService {
         }
 
         throw new Error('no address that may be fetched');
+    }
+
+    public async fetch(source: string): Promise<Buffer> {
+        if (!pictureAddress(source)) {
+            throw new BadRequestException('The address of a picture must start with https://');
+        }
+
+        let bytes: Buffer;
+        try {
+            bytes = await this.download(source);
+        } catch (error) {
+            this.logger.warn(`a picture could not be fetched: ${error}`);
+            throw new BadGatewayException('The picture could not be fetched');
+        }
+
+        try {
+            return await sharp(bytes, { limitInputPixels: MAX_PIXELS })
+                .rotate()
+                .flatten({ background: BACKGROUND })
+                .resize({ width: LARGE_WIDTH, withoutEnlargement: true })
+                .jpeg({ quality: FETCHED_QUALITY })
+                .toBuffer();
+        } catch {
+            throw new BadRequestException('This is not a picture the app can read');
+        }
     }
 
     public async keep(recipeId: number, bytes: Buffer): Promise<string> {

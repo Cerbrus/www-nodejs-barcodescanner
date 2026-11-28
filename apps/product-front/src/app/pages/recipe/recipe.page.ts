@@ -16,7 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { map, merge, of, switchMap, tap } from 'rxjs';
+import { catchError, finalize, map, merge, of, switchMap, tap } from 'rxjs';
 
 import {
     MAX_INGREDIENT_NOTE_LENGTH,
@@ -123,6 +123,8 @@ export class RecipePage {
     protected readonly newPicture = signal<Blob | undefined>(undefined);
     protected readonly newPictureAddress = signal<string | undefined>(undefined);
     protected readonly pictureRemoved = signal(false);
+    protected readonly pictureLink = signal('');
+    protected readonly fetchingPicture = signal(false);
 
     protected readonly descriptionRows = computed(() => {
         const lines = this.description()
@@ -251,6 +253,7 @@ export class RecipePage {
         this.pictureChoice.set(undefined);
         this.newPicture.set(undefined);
         this.pictureRemoved.set(false);
+        this.pictureLink.set('');
         this.confirmingDelete.set(false);
         this.editing.set(true);
     }
@@ -302,6 +305,21 @@ export class RecipePage {
         if (file) {
             this.pictureChoice.set(file);
         }
+    }
+
+    protected fetchPicture(): void {
+        this.fetchingPicture.set(true);
+        this.api
+            .fetchPicture(this.pictureLink().trim())
+            .pipe(
+                tap((picture) => {
+                    this.pictureLink.set('');
+                    this.pictureChoice.set(picture);
+                }),
+                catchError(() => of(undefined)),
+                finalize(() => this.fetchingPicture.set(false))
+            )
+            .subscribe();
     }
 
     protected usePicture(picture: Blob): void {

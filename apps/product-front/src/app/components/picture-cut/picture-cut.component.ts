@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    afterNextRender,
     computed,
     effect,
     input,
@@ -54,9 +55,15 @@ export class PictureCutComponent {
     });
 
     private readonly image = viewChild<ElementRef<HTMLImageElement>>('image');
+    private readonly frame = viewChild.required<ElementRef<HTMLElement>>('frame');
     private readonly touches = new Map<number, { x: number; y: number }>();
 
     constructor() {
+        afterNextRender(() =>
+            this.frame().nativeElement.addEventListener('touchmove', (event) => event.preventDefault(), {
+                passive: false
+            })
+        );
         effect((onCleanup) => {
             const address = URL.createObjectURL(this.picture());
             this.address.set(address);

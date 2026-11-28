@@ -16,11 +16,13 @@ import {
 } from '@nestjs/common';
 
 import { RecipeImportService } from '../../core/services/recipe-import.service';
+import { RecipePictureService } from '../../core/services/recipe-picture.service';
 import { RecipeOffer, RecipeService } from '../../core/services/recipe.service';
 import { ScanOutcome, ScanService } from '../../core/services/scan.service';
 import { RecipeEntity } from '../../data/entities';
 import { RecipeAdditionDto } from '../dto/recipe-addition.dto';
 import { RecipeImportDto } from '../dto/recipe-import.dto';
+import { RecipePictureLinkDto } from '../dto/recipe-picture-link.dto';
 import { RecipeDto } from '../dto/recipe.dto';
 import { CurrentAccount } from '../guards/account.decorator';
 import { OwnerOnly } from '../guards/owner.decorator';
@@ -34,7 +36,8 @@ export class RecipeController {
     constructor(
         private readonly recipes: RecipeService,
         private readonly scans: ScanService,
-        private readonly imports: RecipeImportService
+        private readonly imports: RecipeImportService,
+        private readonly pictures: RecipePictureService
     ) {}
 
     @Get()
@@ -56,6 +59,14 @@ export class RecipeController {
     @OwnerOnly()
     public import(@Body() { source }: RecipeImportDto): Promise<RecipeEntity> {
         return this.imports.import(source);
+    }
+
+    @Post('pictures')
+    @HttpCode(200)
+    public async fetchPicture(@Body() { source }: RecipePictureLinkDto): Promise<StreamableFile> {
+        const file = await this.pictures.fetch(source);
+
+        return new StreamableFile(file, { type: PICTURE_TYPE, length: file.length });
     }
 
     @Get('offers')

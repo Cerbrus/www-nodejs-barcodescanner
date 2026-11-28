@@ -255,21 +255,22 @@ describe('ItemPage', () => {
         expect(page.querySelector('.review')).toBeNull();
     });
 
-    it('confirms a draft and stays on the page, which then shows an ordinary product', async () => {
-        api.getCatalogItem.mockReturnValueOnce(of(SAFFRON)).mockReturnValue(of({ ...SAFFRON, draft: false }));
+    it('leads back to the inbox from a draft, and goes there once the draft is confirmed', async () => {
+        api.getCatalogItem.mockReturnValue(of(SAFFRON));
         await open();
         const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+        expect(page.querySelector('a.back-bar')?.getAttribute('href')).toBe('/inbox');
+        expect(texts(page, 'a.back-bar')).toEqual(['arrow_back inbox.title']);
+
         button('item.confirmDraft').click();
         await settle();
 
         expect(store.confirmDraft).toHaveBeenCalledWith(1);
-        expect(navigate).not.toHaveBeenCalled();
-        expect(page.querySelector('.draft-mark')).toBeNull();
-        expect(page.querySelector('.review')).toBeNull();
-        expect(texts(page, '.section-title')[0]).toBe('item.barcodes (0)');
+        expect(navigate).toHaveBeenCalledWith(['/inbox']);
     });
 
-    it('replaces a draft by a product from the search, which offers no drafts and not the draft itself, and opens that product', async () => {
+    it('replaces a draft by a product from the search, which offers no drafts and not the draft itself, and goes back to the inbox', async () => {
         store.items.set([SAFFRON, item(2, 'Saffraandraadjes'), draft(3, 'Saffraanpoeder')]);
         api.getCatalogItem.mockReturnValue(of(SAFFRON));
         await open();
@@ -286,7 +287,7 @@ describe('ItemPage', () => {
         await settle();
 
         expect(store.replaceDraft).toHaveBeenCalledWith(1, 2);
-        expect(navigate).toHaveBeenCalledWith(['/catalog', 2]);
+        expect(navigate).toHaveBeenCalledWith(['/inbox']);
     });
 
     it('can cancel replacing a draft', async () => {

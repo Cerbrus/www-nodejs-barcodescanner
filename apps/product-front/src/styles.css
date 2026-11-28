@@ -338,6 +338,32 @@ app-recipe-print {
         color: var(--text-muted);
     }
 
+    .busy-bar {
+        height: 4px;
+        overflow: hidden;
+        border-radius: calc(2px * var(--corner));
+        background: var(--line);
+
+        &::after {
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: var(--accent);
+            animation: busy-bar 1.2s ease-in-out infinite alternate;
+            content: '';
+        }
+    }
+
+    @keyframes busy-bar {
+        from {
+            translate: 0;
+        }
+
+        to {
+            translate: 150%;
+        }
+    }
+
     .empty {
         padding: 28px 12px;
         color: var(--text-muted);

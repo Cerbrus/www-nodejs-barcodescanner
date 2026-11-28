@@ -57,7 +57,22 @@ Asked for by the owner on 2026-11-27, as a maybe.
 
 Done 2026-11-28 00:50: the sheet with the frame, one finger, two fingers and the slider, cut in the browser on a canvas, written in the app without a package. Tried in headless Chrome with the slider only; fingers on a real phone were not tried. The cut is offered for a picture that is chosen or taken, not for one that is already kept.
 
+## After the first use (owner, 2026-11-28)
+
+Done 2026-11-28 01:29:
+
+- A finger on the picture in the cut sheet no longer scrolls the page behind it.
+- The form takes the address of a picture: the API fetches it and the browser lays it under the cut.
+- A message lies over an open sheet instead of behind it: the messages are shown in the browser's top layer, opened again with every new message.
+- The import sheet shows a moving bar and a line of text while it waits, and its field is closed meanwhile.
+- Confirming or replacing a draft goes back to the inbox, and so does the back link of a draft's page.
+
+Seen in the log of the Pi on 2026-11-28: of three imports of Allerhande links, one came with its picture. For the other two the link read gave the model a thinner page (about 3,600 and 10,800 tokens against 22,700) and no address of a picture came back. One import failed on Gemini itself: two answers that did not come within 25 seconds and one 503.
+
 ## Left open
+
+- **The picture of an import that comes without one**: a second question for the address alone, or nothing more than the field in the form.
+- **Reading the clipboard when the import sheet opens**: asked by the owner on 2026-11-28, not built.
 
 - **Without a connection**: the service worker keeps the app's own files and never touches API calls. Pictures under `/api` are kept by the browser's own store only, which an iPhone may empty. Whether the tiles need their pictures in the shop is seen in use.
 - **Recipes that were imported before**: none with a link is left, so nothing is fetched afterwards.

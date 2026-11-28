@@ -2,7 +2,7 @@ import { CdkDropList } from '@angular/cdk/drag-drop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import { FakeStore, click, draft, fakeStore, item, texts, type } from '../../../testing/fakes';
 import { TranslateTesting } from '../../../testing/translate';
@@ -30,6 +30,7 @@ describe('RecipePage', () => {
     let page: HTMLElement;
     let store: FakeStore;
     const printing = { print: vi.fn() };
+    const fetchPicture = vi.fn();
     let navigate: ReturnType<typeof vi.spyOn>;
     const addresses = { create: URL.createObjectURL, revoke: URL.revokeObjectURL };
 
@@ -80,6 +81,7 @@ describe('RecipePage', () => {
                     useValue: {
                         iconsUrl: '/icons',
                         getIcons: () => of([]),
+                        fetchPicture,
                         recipePictureUrl: ({ id, picture }: Recipe, size: string): string | undefined =>
                             picture ? `/recipes/${id}/picture?size=${size}&v=${picture}` : undefined
                     }
@@ -166,6 +168,46 @@ describe('RecipePage', () => {
 
         expect(store.saveRecipe).toHaveBeenCalled();
         expect(store.changeRecipePicture).toHaveBeenCalledWith(7, cut);
+    });
+
+    it('fetches a picture by its address and lays it under the cut, and keeps the address when that fails', async () => {
+        URL.createObjectURL = vi.fn(() => 'blob:new');
+        URL.revokeObjectURL = vi.fn();
+        const fetched = new Blob(['fetched'], { type: 'image/jpeg' });
+        const answer = new Subject<Blob>();
+        fetchPicture.mockReturnValueOnce(answer).mockReturnValue(throwError(() => new Error('502')));
+        await open('7');
+        await edit();
+
+        expect(button('recipe.pictureFetch').disabled).toBe(true);
+
+        type(page, '#recipe-picture-link', ' https://static.example.com/koek.jpg ');
+        await settle();
+        button('recipe.pictureFetch').click();
+        await settle();
+
+        expect(fetchPicture).toHaveBeenCalledWith('https://static.example.com/koek.jpg');
+        expect(button('recipe.pictureFetch').disabled).toBe(true);
+        expect(button('recipe.pictureFetch').textContent?.trim()).toBe('schedule');
+
+        answer.next(fetched);
+        answer.complete();
+        await settle();
+
+        expect(fixture.debugElement.query(By.directive(PictureCutComponent)).componentInstance.picture()).toBe(fetched);
+        expect((page.querySelector('#recipe-picture-link') as HTMLInputElement).value).toBe('');
+
+        fixture.debugElement.query(By.directive(PictureCutComponent)).componentInstance.cancelled.emit();
+        type(page, '#recipe-picture-link', 'https://static.example.com/weg.jpg');
+        await settle();
+        button('recipe.pictureFetch').click();
+        await settle();
+
+        expect(fixture.debugElement.query(By.directive(PictureCutComponent))).toBeNull();
+        expect((page.querySelector('#recipe-picture-link') as HTMLInputElement).value).toBe(
+            'https://static.example.com/weg.jpg'
+        );
+        expect(button('recipe.pictureFetch').disabled).toBe(false);
     });
 
     it('leaves the picture alone when the cut is cancelled or nothing about it changed', async () => {

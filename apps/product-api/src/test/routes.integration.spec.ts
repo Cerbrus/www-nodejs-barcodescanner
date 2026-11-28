@@ -419,6 +419,20 @@ describe('data routes over HTTP', () => {
         }
         assert.equal((await fetch(`${base}${path}`)).status, 401);
 
+        assert.equal(
+            (await call('POST', '/recipes/pictures', asAgent, { source: 'https://example.com/a.jpg' })).status,
+            403
+        );
+        assert.equal((await call('POST', '/recipes/pictures', asGuest, {})).status, 400);
+        assert.equal(
+            (await call('POST', '/recipes/pictures', asGuest, { source: 'http://example.com/a.jpg' })).status,
+            400
+        );
+        assert.equal(
+            (await call('POST', '/recipes/pictures', asGuest, { source: 'https://127.0.0.1/a.jpg' })).status,
+            502
+        );
+
         assert.equal((await call('DELETE', path, asGuest)).status, 204);
         assert.equal((await call('GET', path, asGuest)).status, 404);
         assert.equal((await call<{ picture: string }>('GET', `/recipes/${made.body.id}`, asGuest)).body.picture, '');
