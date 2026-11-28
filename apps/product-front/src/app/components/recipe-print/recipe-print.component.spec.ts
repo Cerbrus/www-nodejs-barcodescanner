@@ -68,6 +68,15 @@ describe('RecipePrintComponent and RecipePrintService', () => {
         expect(sheet.querySelectorAll('.mark').length).toBe(36);
     });
 
+    it('asks the browser to print the cut marks, which are a background colour that a desktop browser leaves out', () => {
+        const leaf = Array.from(document.styleSheets)
+            .flatMap((styles) => Array.from(styles.cssRules))
+            .map((rule) => rule.cssText)
+            .find((rule) => rule.startsWith('.leaf'));
+
+        expect(leaf).toContain('print-color-adjust: exact');
+    });
+
     it('clears the sheet when printing is over, and can print again after that', () => {
         printing.print([recipe(1, 'Pannenkoeken')]);
         window.dispatchEvent(new Event('afterprint'));

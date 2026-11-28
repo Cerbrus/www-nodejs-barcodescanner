@@ -98,6 +98,9 @@ test('show the code of a recipe, and lay out the codes of chosen recipes for pri
     await expect(page.locator('app-recipe-print .cell')).toHaveCount(1);
     await page.emulateMedia({ media: 'print' });
     await expect(page.locator('app-recipe-print .cell-code')).toBeVisible();
+    await expect(page.locator('app-recipe-print .mark').first()).toBeVisible();
+    await expect(page.locator('app-recipe-print .mark').first()).toHaveCSS('print-color-adjust', 'exact');
+    await expect(page.locator('app-recipe-print .mark').first()).toHaveCSS('background-color', 'rgb(0, 0, 0)');
     await expect(page.locator('nav.tabs')).toBeHidden();
 });
 

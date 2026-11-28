@@ -5,6 +5,7 @@
     overflow: hidden;
     background: var(--print-paper);
     color: var(--print-ink);
+    print-color-adjust: exact;
     break-after: page;
 }
 .leaf:last-child {
