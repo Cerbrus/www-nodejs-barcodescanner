@@ -9,7 +9,7 @@ One record per decision, in the MADR layout. Read this page first; open a record
 - Each record has: status, date, who decided, context, the options weighed, the decision, the consequences. "Not recorded" means the old text did not say.
 - Records marked "found afterwards" are choices that were made but never written down; their date and the person who decided are not known. Their source is named in the context.
 - To change a decision: add the new record, mark the old one, add a row here, then change the affected documents.
-- Number the next record 0133 or higher: the highest number plus one.
+- Number the next record 0134 or higher: the highest number plus one.
 
 ## Product
 
@@ -94,22 +94,23 @@ One record per decision, in the MADR layout. Read this page first; open a record
 
 ## Delivery and repository
 
-| Number                                     | Title                                                                                   | Status                      | Date         |
-| ------------------------------------------ | --------------------------------------------------------------------------------------- | --------------------------- | ------------ |
-| [0028](0028-pull-based-deployment.md)      | Images built by GitHub Actions, pulled by a timer on the Pi                             | accepted                    | 2026-11-12   |
-| [0029](0029-pi-arm64-only.md)              | Raspberry Pi 3 B+, images for linux/arm64 only                                          | accepted                    | 2026-11-12   |
-| [0030](0030-hourly-backup.md)              | Hourly SQL dump pushed to a private repository                                          | accepted                    | 2026-11-12   |
-| [0031](0031-public-repository.md)          | The repository and the images are public                                                | accepted                    | 2026-11-12   |
-| [0033](0033-automatic-version-numbers.md)  | Versions are major.minor.patch with an automatic patch                                  | accepted                    | 2026-11-12   |
-| [0034](0034-github-release-per-version.md) | Every version gets a GitHub release                                                     | accepted                    | 2026-11-13   |
-| [0035](0035-dependabot-with-majors.md)     | Dependabot: weekly pull requests, majors included                                       | superseded by 0036          | 2026-11-13   |
-| [0036](0036-dependabot-without-majors.md)  | Dependabot leaves major versions of npm packages out                                    | accepted                    | 2026-11-16   |
-| [0037](0037-claude-reviews-dependabot.md)  | A Claude agent reviews every Dependabot pull request                                    | accepted                    | 2026-11-13   |
-| [0039](0039-no-licence-file.md)            | No licence file                                                                         | accepted                    | 2026-11-13   |
-| [0091](0091-firewall-to-proxy-only.md)     | The app's port is closed to everything but the reverse proxy                            | accepted (found afterwards) | not recorded |
-| [0092](0092-updater-checks-and-lock.md)    | The updater does nothing when nothing changed, and shares a lock with the other updater | accepted (found afterwards) | not recorded |
-| [0093](0093-rollback-by-image-tag.md)      | Rollback by setting IMAGE_TAG in .env                                                   | accepted (found afterwards) | not recorded |
-| [0121](0121-shared-dependabot-reviewer.md) | The Dependabot reviewer is a shared workflow                                            | accepted                    | 2026-11-26   |
+| Number                                        | Title                                                                                   | Status                      | Date         |
+| --------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------- | ------------ |
+| [0028](0028-pull-based-deployment.md)         | Images built by GitHub Actions, pulled by a timer on the Pi                             | accepted                    | 2026-11-12   |
+| [0029](0029-pi-arm64-only.md)                 | Raspberry Pi 3 B+, images for linux/arm64 only                                          | accepted                    | 2026-11-12   |
+| [0030](0030-hourly-backup.md)                 | Hourly SQL dump pushed to a private repository                                          | accepted                    | 2026-11-12   |
+| [0031](0031-public-repository.md)             | The repository and the images are public                                                | accepted                    | 2026-11-12   |
+| [0033](0033-automatic-version-numbers.md)     | Versions are major.minor.patch with an automatic patch                                  | accepted                    | 2026-11-12   |
+| [0034](0034-github-release-per-version.md)    | Every version gets a GitHub release                                                     | accepted                    | 2026-11-13   |
+| [0035](0035-dependabot-with-majors.md)        | Dependabot: weekly pull requests, majors included                                       | superseded by 0036          | 2026-11-13   |
+| [0036](0036-dependabot-without-majors.md)     | Dependabot leaves major versions of npm packages out                                    | accepted                    | 2026-11-16   |
+| [0037](0037-claude-reviews-dependabot.md)     | A Claude agent reviews every Dependabot pull request                                    | accepted                    | 2026-11-13   |
+| [0039](0039-no-licence-file.md)               | No licence file                                                                         | accepted                    | 2026-11-13   |
+| [0091](0091-firewall-to-proxy-only.md)        | The app's port is closed to everything but the reverse proxy                            | accepted (found afterwards) | not recorded |
+| [0092](0092-updater-checks-and-lock.md)       | The updater does nothing when nothing changed, and shares a lock with the other updater | accepted (found afterwards) | not recorded |
+| [0093](0093-rollback-by-image-tag.md)         | Rollback by setting IMAGE_TAG in .env                                                   | accepted (found afterwards) | not recorded |
+| [0121](0121-shared-dependabot-reviewer.md)    | The Dependabot reviewer is a shared workflow                                            | accepted                    | 2026-11-26   |
+| [0133](0133-old-images-leave-the-registry.md) | Images that nothing uses leave the registry every week                                  | accepted                    | 2026-11-28   |
 
 ## Access and security
 
